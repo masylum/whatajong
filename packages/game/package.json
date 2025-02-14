@@ -1,0 +1,13 @@
+{
+  "name": "@repo/game",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
+  }
+}

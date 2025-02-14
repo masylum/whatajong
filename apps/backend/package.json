@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify"
+  },
+  "dependencies": {
+    "hono": "^4.6.20",
+    "@repo/game": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250109.0",
+    "vitest": "^3.0.5",
+    "wrangler": "^3.101.0"
+  }
+}
