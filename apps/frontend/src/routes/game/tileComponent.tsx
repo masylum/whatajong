@@ -1,20 +1,19 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { getTile, isFree } from "@repo/game/map"
-import type { Asset, Tile } from "@repo/game/types"
-import { db, hover, gameState, setHover, SIDE_SIZES, userId } from "../state"
+import { db, hover, setHover, SIDE_SIZES, userId } from "../state"
 import {
   shakeAnimation,
   SHAKE_DURATION,
   SHAKE_REPEAT,
   DELETED_DURATION,
-  deletedAnimation,
   floatingNumberAnimation,
   FLOATING_NUMBER_DURATION,
   tileTransition,
+  deletedAnimationClass,
 } from "./tileComponent.css"
 import { getPoints } from "@repo/game/deck"
 import { TileShades } from "./tileShades"
 import { TileImage } from "./tileImage"
+import { fullyOverlaps, getFinder, isFree, type Tile } from "@repo/game/tile"
 
 export const SIDE_GRADIENT_ID = "sideGradient"
 export const VISIBILITY_MASK_ID = "visibilityMask"
@@ -29,9 +28,10 @@ type Props = {
 }
 
 export function TileComponent(props: Props) {
-  const position = createMemo(() => props.tile.position)
   const coords = createMemo(() => {
-    const { x, y, z } = position()
+    const x = props.tile.x
+    const y = props.tile.y
+    const z = props.tile.z
     const baseX = (x * TILE_WIDTH) / 2
     const baseY = (y * TILE_HEIGHT) / 2
 
@@ -40,28 +40,16 @@ export function TileComponent(props: Props) {
       y: baseY + z * -SIDE_SIZES.ySide,
     }
   })
-  const canBeSelected = createMemo(() => isFree(gameState(), props.tile))
-  const asset = createMemo(() => gameState().assets[props.tile.id])
+  const canBeSelected = createMemo(() => isFree(db.tiles, props.tile))
 
-  // this is to avoid disclosing the tile when it's helping visibility
-  const hideImage = createMemo(() => {
-    const { x, y, z } = position()
-    return (
-      getTile(gameState(), x, y, z + 1) &&
-      getTile(gameState(), x + 1, y, z + 1) &&
-      getTile(gameState(), x, y + 1, z + 1) &&
-      getTile(gameState(), x + 1, y + 1, z + 1)
-    )
-  })
-  const [deleted, setDeleted] = createSignal(props.tile.deleted)
+  const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
-  const [animAsset, setAnimAsset] = createSignal<Asset | undefined>(undefined)
+  const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const hovered = createMemo(() => hover() === props.tile)
 
+  // TODO: display both at the same time
   const selected = createMemo(() => {
-    const all = db.selections
-      .all()
-      .filter((selection) => selection.tileId === props.tile.id)
+    const all = db.selections.filterBy({ tileId: props.tile.id })
 
     return (
       all.find((selection) => selection.playerId === userId()) ||
@@ -84,7 +72,7 @@ export function TileComponent(props: Props) {
   })
 
   createEffect((prevSelected: boolean) => {
-    if (props.tile.deleted) return false
+    if (props.tile.deletedBy) return false
     const sel = !!selected()
 
     if (prevSelected && !sel) {
@@ -99,33 +87,25 @@ export function TileComponent(props: Props) {
   }, !!selected())
 
   createEffect((prevDeleted: boolean) => {
-    const deleted = props.tile.deleted
+    const deleted = !!props.tile.deletedBy
 
     if (!prevDeleted && deleted) {
       setTimeout(() => {
         setDeleted(true)
       }, DELETED_DURATION)
-    }
 
-    return deleted
-  }, props.tile.deleted)
-
-  createEffect((prevAsset: Asset | undefined) => {
-    const ass = asset()
-
-    if (!prevAsset && asset()) {
-      setAnimAsset(asset())
+      setDeletedAnimation(true)
       setTimeout(() => {
-        setAnimAsset(undefined)
+        setDeletedAnimation(false)
       }, FLOATING_NUMBER_DURATION)
     }
 
-    return ass // lol
-  }, asset())
+    return deleted
+  }, !!props.tile.deletedBy)
 
   const animation = createMemo(() => {
     if (oopsie()) return shakeAnimation
-    if (asset()) return deletedAnimation
+    if (deletedAnimation()) return deletedAnimationClass
 
     return undefined
   })
@@ -146,39 +126,42 @@ export function TileComponent(props: Props) {
       Z`
   })
 
+  // TODO: make a reaction instead
   const enhanceVisibility = createMemo(() => {
-    const { x, y, z } = position()
+    const find = getFinder(db.tiles, props.tile)
+    const z = props.tile.z
 
     function getHoveredTile(x: number, y: number, z: number) {
-      return getTile(gameState(), x, y, z) === hover()
+      return find(x, y, z) === hover()
     }
 
-    function getRightTile(x: number, y: number, z: number) {
-      return getHoveredTile(x + 2, y, z) || getHoveredTile(x + 2, y + 1, z)
+    function getRightTile(z: number) {
+      return getHoveredTile(2, 0, z) || getHoveredTile(2, 1, z)
     }
 
     if (z === 0) return false
-    if (getRightTile(x, y, z)) return false
+    if (getRightTile(0)) return false
 
-    for (let checkZ = z - 1; checkZ >= 0; checkZ--) {
-      if (getRightTile(x, y, checkZ)) return true
+    for (let checkZ = 1; checkZ <= z; checkZ++) {
+      if (getRightTile(-checkZ)) return true
     }
 
     return false
   })
+  const hideImage = createMemo(() => fullyOverlaps(db.tiles, props.tile, 1))
 
   return (
     <>
-      <Show when={animAsset()}>
-        {(asset) => (
+      <Show when={deletedAnimation() && props.tile.deletedBy}>
+        {(playerId) => (
           <text
             x={coords().x + TILE_WIDTH / 2}
             y={coords().y + TILE_HEIGHT / 2}
             text-anchor="middle"
-            fill={db.players.get(asset().playerId)?.color}
+            fill={db.players.get(playerId())?.color}
             class={floatingNumberAnimation}
           >
-            +{getPoints(asset().card)}
+            +{getPoints(props.tile.card)}
           </text>
         )}
       </Show>
@@ -186,7 +169,7 @@ export function TileComponent(props: Props) {
         <g
           transform={`translate(${coords().x},${coords().y})`}
           data-id={props.tile.id}
-          data-position={JSON.stringify(position())}
+          data-tile={JSON.stringify(props.tile)}
           onMouseEnter={() => {
             setHover(props.tile)
           }}

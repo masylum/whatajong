@@ -1,9 +1,9 @@
-import { getAvailablePairs } from "@repo/game/gameEngine"
 import { createSignal } from "solid-js"
-import { gameState, timer } from "../state"
+import { db, timer } from "../state"
 import { makeTimer } from "@solid-primitives/timer"
 import NumberFlow from "solid-number-flow"
 import { statsContainer, statItem, statLabel, statValue } from "./stats.css"
+import { getAvailablePairs } from "@repo/game/tile"
 
 export function Stats() {
   const [time, setTimer] = createSignal(0)
@@ -29,7 +29,7 @@ export function Stats() {
       <div class={statItem}>
         <span class={statLabel}>moves</span>
         <div class={statValue}>
-          <NumberFlow value={getAvailablePairs(gameState()).length} />
+          <NumberFlow value={getAvailablePairs(db.tiles).length} />
         </div>
       </div>
     </div>

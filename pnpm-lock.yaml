@@ -42,6 +42,12 @@ importers:
       '@repo/game':
         specifier: workspace:*
         version: link:../../packages/game
+      '@solid-primitives/map':
+        specifier: ^0.6.0
+        version: 0.6.0(solid-js@1.9.4)
+      '@solid-primitives/set':
+        specifier: ^0.6.0
+        version: 0.6.0(solid-js@1.9.4)
       '@solid-primitives/timer':
         specifier: ^1.4.0
         version: 1.4.0(solid-js@1.9.4)
@@ -836,8 +842,18 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@solid-primitives/map@0.6.0':
+    resolution: {integrity: sha512-h8uCJNxUTvzNK/aTW9vJCd/PQeBkUL8i7AyLPvTFqMgcMnJ1I5GzAi5JODzxpxQwffxoqJyQtOE1vBqFzDv0Vw==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
   '@solid-primitives/refs@1.1.0':
     resolution: {integrity: sha512-QJ3bTSQOlPdHBP2m6llrT13FvVzAwZfx41lTN8lQrRwwcZoWb7kfCAjhaohPnwkAsQ6nJpLjtGfT5GOyuCA4tA==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
+  '@solid-primitives/set@0.6.0':
+    resolution: {integrity: sha512-P1Tp001m8ib5XCi/LEJHh2QsoS2uPO86HewtbrSxr2axt5te9EGc0UOwNKTPxNvNSLNHteUw5IrzDsEklW4m3g==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -848,6 +864,11 @@ packages:
 
   '@solid-primitives/transition-group@1.1.0':
     resolution: {integrity: sha512-pL1sEPCHuC4V+Yh+SQsKSPuGDYrZbLJYSkk3AB4TZrWhptEJUS0IHoi7BAynYcMiULbvMMVKFbeFHqINZq0+ig==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
+  '@solid-primitives/trigger@1.2.0':
+    resolution: {integrity: sha512-sW4/3cDXSjYQampn8CIFZ11BlxgNf2li8r2fXnb3b3YWE6RdZZCl8PhvpPF38Gzl0CnryrbTPJWM7OIkseCDgQ==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -2302,9 +2323,19 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.34.6':
     optional: true
 
+  '@solid-primitives/map@0.6.0(solid-js@1.9.4)':
+    dependencies:
+      '@solid-primitives/trigger': 1.2.0(solid-js@1.9.4)
+      solid-js: 1.9.4
+
   '@solid-primitives/refs@1.1.0(solid-js@1.9.4)':
     dependencies:
       '@solid-primitives/utils': 6.3.0(solid-js@1.9.4)
+      solid-js: 1.9.4
+
+  '@solid-primitives/set@0.6.0(solid-js@1.9.4)':
+    dependencies:
+      '@solid-primitives/trigger': 1.2.0(solid-js@1.9.4)
       solid-js: 1.9.4
 
   '@solid-primitives/timer@1.4.0(solid-js@1.9.4)':
@@ -2313,6 +2344,11 @@ snapshots:
 
   '@solid-primitives/transition-group@1.1.0(solid-js@1.9.4)':
     dependencies:
+      solid-js: 1.9.4
+
+  '@solid-primitives/trigger@1.2.0(solid-js@1.9.4)':
+    dependencies:
+      '@solid-primitives/utils': 6.3.0(solid-js@1.9.4)
       solid-js: 1.9.4
 
   '@solid-primitives/utils@6.3.0(solid-js@1.9.4)':

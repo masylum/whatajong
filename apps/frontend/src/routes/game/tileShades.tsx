@@ -1,8 +1,7 @@
 import { createMemo, Show } from "solid-js"
-import { getTile, getPosition } from "@repo/game/map"
-import type { Tile } from "@repo/game/types"
-import { gameState, SIDE_SIZES } from "../state"
+import { db, SIDE_SIZES } from "../state"
 import { TILE_HEIGHT, TILE_WIDTH } from "./tileComponent"
+import { getFinder, type Tile } from "@repo/game/tile"
 
 export const SOFT_SHADE_FILTER_ID = "softShade"
 export const TOP_SHADE_GRADIENT_ID = "topShadeGradient"
@@ -15,12 +14,20 @@ type Props = {
 }
 export function TileShades(props: Props) {
   const shadeVariants = createMemo(() => {
-    const { x, y, z } = getPosition(gameState(), props.tile)
-    const topLeft = !!getTile(gameState(), x, y - 1, z)
-    const top = !!getTile(gameState(), x + 1, y - 1, z)
-    const topRight = !!getTile(gameState(), x + 2, y - 1, z)
-    const right = !!getTile(gameState(), x + 2, y, z)
-    const bottomRight = !!getTile(gameState(), x + 2, y + 1, z)
+    const find = getFinder(db.tiles, props.tile)
+    const pos1 = !!find(-1, -2)
+    const pos2 = !!find(0, -2)
+    const pos3 = !!find(1, -2)
+    const pos4 = !!find(2, -2)
+    const pos5 = !!find(2, -1)
+    const pos6 = !!find(2, 0)
+    const pos7 = !!find(2, 1)
+
+    const topLeft = pos1 || pos2
+    const top = pos2 || pos3
+    const topRight = pos3 || pos4 || pos5
+    const right = pos5 || pos6
+    const bottomRight = pos6 || pos7
 
     return { topLeft, top, topRight, right, bottomRight }
   })

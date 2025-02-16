@@ -89,3 +89,14 @@ export function getStrength(card: Card) {
 export function matchesSuit(card: Card, suit: Suit) {
   return card.startsWith(suit)
 }
+
+export function cardsMatch(card1: Card, card2: Card) {
+  if (card1 === card2) return true
+
+  const suit1 = getSuit(card1)
+  const suit2 = getSuit(card2)
+  if (suit1 === "f" && suit2 === "f") return true
+  if (suit1 === "s" && suit2 === "s") return true
+
+  return false
+}

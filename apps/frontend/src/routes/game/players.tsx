@@ -9,10 +9,10 @@ import {
   playerPointsClass,
   playersClass,
 } from "./players.css"
-import type { Player } from "@repo/game/types"
 import { getStrength } from "@repo/game/deck"
-import { calculatePoints } from "@repo/game/gameEngine"
 import NumberFlow from "solid-number-flow"
+import type { Player } from "@repo/game/player"
+import { calculatePoints } from "@repo/game/tile"
 
 // TODO: move to game state?
 const INITIAL_STRENGTH = 60
@@ -21,9 +21,8 @@ const suits = ["b", "c", "o"] as const
 type Suit = (typeof suits)[number]
 
 export function Players() {
-  const players = createMemo(() => db.players.all())
-  const firstPlayer = createMemo(() => players()[0]!)
-  const secondPlayer = createMemo(() => players()[1]!)
+  const firstPlayer = createMemo(() => db.players.all[0]!)
+  const secondPlayer = createMemo(() => db.players.all[1]!)
 
   return (
     <div class={playersClass}>
@@ -39,33 +38,30 @@ export function Players() {
 }
 
 function PlayerComponent(props: { player: Player }) {
-  const assets = createMemo(() =>
-    db.assets.all().filter((asset) => asset.playerId === props.player.id),
+  const deletedTiles = createMemo(() =>
+    db.tiles.filterBy({ deletedBy: props.player.id }),
   )
 
   return (
     <div class={playerClass} style={{ color: props.player.color }}>
       <div class={playerIdClass}>{props.player.id}</div>
       <div class={playerPointsClass}>
-        <NumberFlow value={calculatePoints(assets())} />
+        <NumberFlow value={calculatePoints(deletedTiles())} />
       </div>
     </div>
   )
 }
 
 function SuitBar(props: { suit: Suit }) {
-  const players = createMemo(() => db.players.all())
+  const players = createMemo(() => db.players.all)
   const firstPlayer = createMemo(() => players()[0]!)
   const secondPlayer = createMemo(() => players()[1]!)
 
   function getPlayerStrength(player: Player) {
-    return db.assets
-      .all()
-      .filter(
-        (asset) =>
-          asset.card.startsWith(props.suit) && asset.playerId === player.id,
-      )
-      .map((asset) => getStrength(asset.card))
+    return db.tiles
+      .filterBy({ deletedBy: player.id })
+      .filter((tile) => tile.card.startsWith(props.suit))
+      .map((tile) => getStrength(tile.card))
       .reduce((acc, curr) => acc + curr, 0)
   }
 

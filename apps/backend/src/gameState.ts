@@ -1,32 +1,31 @@
 import { DurableObject } from "cloudflare:workers"
-import { initializeGame, tilesMatch } from "@repo/game/gameEngine"
+import { setup } from "@repo/game/setup"
 import type { Env } from "./types"
-import type { WsMessage, Session, DB, Diff, Selection } from "@repo/game/types"
-import { tiltMap, isFree, type Mapa } from "@repo/game/map"
-import { DEFAULT_MAP } from "@repo/game/maps/default"
+import type { WsMessage, Session, Diff, State } from "@repo/game/types"
+import type { Selection } from "@repo/game/selection"
+import { deleteTile, initTileDb, isFree } from "@repo/game/tile"
+import { cardsMatch } from "@repo/game/deck"
 
 export class GameState extends DurableObject {
   sessions: Map<WebSocket, Session>
   storage: DurableObjectStorage
+  state!: State
   timer!: number
-  db!: DB
-  map: Mapa
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env)
 
     this.sessions = new Map()
     this.storage = ctx.storage
-    this.map = DEFAULT_MAP()
 
     ctx.blockConcurrencyWhile(async () => {
-      const selections = await this.initState("selections", {})
-      const players = await this.initState("players", {})
-      const assets = await this.initState("assets", {})
-      const tiles = await this.initState("tiles", initializeGame())
+      const selections = await this.initState("selections", () => ({}))
+      const players = await this.initState("players", () => ({}))
+      const tiles = await this.initState("tiles", () => setup())
+      const timer = (await this.storage.get("timer")) as number
 
-      this.timer = (await this.storage.get("timer")) as number
-      this.db = { tiles, selections, players, assets }
+      this.timer = timer
+      this.state = { tiles, players, selections }
     })
 
     for (const ws of this.ctx.getWebSockets()) {
@@ -151,11 +150,11 @@ export class GameState extends DurableObject {
     this.sessions.set(server, sessionInitialData)
     this.broadcast({ type: "sessions-join", id, session: sessionInitialData })
 
-    const numPlayers = Object.keys(this.db.players).length
+    const numPlayers = Object.keys(this.state.players).length
 
     const colors = ["#2c73d2", "#ff9671"]
     if (numPlayers < 2) {
-      this.db.players[id] = { id, color: colors[numPlayers]! }
+      this.state.players[id] = { id, color: colors[numPlayers]! }
     }
 
     // TODO: depends of 1 or 2 player game
@@ -165,11 +164,7 @@ export class GameState extends DurableObject {
       this.storage.put("timer", this.timer)
     }
 
-    this.broadcast({
-      type: "init-state",
-      db: this.db,
-      timer: this.timer,
-    })
+    this.broadcast({ type: "init-state", state: this.state, timer: this.timer })
 
     return new Response(null, {
       status: 101,
@@ -177,11 +172,11 @@ export class GameState extends DurableObject {
     })
   }
 
-  async initState<T>(key: string, defaultValue: T) {
+  async initState<T>(key: string, defaultValue: () => T) {
     let state = (await this.storage.get(key)) as T
 
     if (!state) {
-      state = defaultValue
+      state = defaultValue()
       await this.storage.put(key, state)
     }
 
@@ -190,8 +185,8 @@ export class GameState extends DurableObject {
 
   async setState(diff: Diff) {
     for (const key in diff) {
-      const k = key as keyof DB
-      const table = this.db[k]
+      const k = key as keyof State
+      const table = this.state[k]
       const updates = diff[k]!
 
       for (const id in updates) {
@@ -210,20 +205,17 @@ export class GameState extends DurableObject {
   }
 
   selectTile(selection: Selection, session: Session) {
-    const tile = this.db.tiles[selection.tileId]
-    const gameState = {
-      tiles: this.db.tiles,
-      assets: this.db.assets,
-      map: this.map,
-    }
-    tiltMap(gameState)
+    const tilesDb = initTileDb(this.state.tiles)
+    const tile = tilesDb.get(selection.tileId)
+    // tiltMap(gameState)
 
-    if (!tile || !isFree(gameState, tile)) {
+    if (!tile) throw new Error("Tile not found")
+    if (!isFree(tilesDb, tile)) {
       this.setState({ selections: { [selection.id]: null } })
       return
     }
 
-    const firstSelection = Object.values(this.db.selections).find(
+    const firstSelection = Object.values(this.state.selections).find(
       (sel) => sel.playerId === session.id,
     )
 
@@ -241,13 +233,13 @@ export class GameState extends DurableObject {
       return
     }
 
-    const firstTile = this.db.tiles[firstSelection.tileId]
+    const firstTile = tilesDb.get(firstSelection.tileId)
     if (!firstTile) {
       this.setState({ selections: { [selection.id]: null } })
       return
     }
 
-    if (!tilesMatch(firstTile, tile)) {
+    if (!cardsMatch(firstTile.card, tile.card)) {
       this.setState({
         selections: {
           [selection.id]: null,
@@ -257,6 +249,9 @@ export class GameState extends DurableObject {
       return
     }
 
+    deleteTile(tilesDb, tile, session.id)
+    deleteTile(tilesDb, firstTile, session.id)
+
     // TODO: check game over if no more available moves
     // TODO: check game over if strength is 0
     this.setState({
@@ -264,28 +259,7 @@ export class GameState extends DurableObject {
         [selection.id]: null,
         [firstSelection.id]: null,
       },
-      tiles: {
-        [tile.id]: {
-          ...tile,
-          deleted: true,
-        },
-        [firstTile.id]: {
-          ...firstTile,
-          deleted: true,
-        },
-      },
-      assets: {
-        [tile.id]: {
-          id: tile.id,
-          card: tile.card,
-          playerId: session.id,
-        },
-        [firstTile.id]: {
-          id: firstTile.id,
-          card: firstTile.card,
-          playerId: session.id,
-        },
-      },
+      tiles: tilesDb.byId,
     })
 
     return

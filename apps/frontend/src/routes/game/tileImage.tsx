@@ -1,7 +1,7 @@
 import { createMemo } from "solid-js"
-import type { Tile } from "@repo/game/types"
 import { getSuit, getNumber } from "@repo/game/deck"
 import { TILE_WIDTH, TILE_HEIGHT } from "./tileComponent"
+import type { Tile } from "@repo/game/tile"
 
 export const SIDE_GRADIENT_ID = "sideGradient"
 

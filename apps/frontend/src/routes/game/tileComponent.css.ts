@@ -47,7 +47,7 @@ export const shakeAnimation = style({
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
 })
 
-export const deletedAnimation = style({
+export const deletedAnimationClass = style({
   animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
 })

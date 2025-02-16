@@ -7,12 +7,11 @@ import {
   Show,
 } from "solid-js"
 import { useParams } from "@solidjs/router"
-import type { Tile, TileById, WsMessage } from "@repo/game/types"
+import type { WsMessage } from "@repo/game/types"
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   db,
-  gameState,
   loading,
   onMessage,
   sessions,
@@ -32,6 +31,7 @@ import {
   TOP_HALF_SHADE_GRADIENT_ID,
   TOP_SHADE_GRADIENT_ID,
 } from "./game/tileShades"
+import type { Tile, TileById } from "@repo/game/tile"
 
 const INTERVAL = 55
 
@@ -102,7 +102,7 @@ type BoardProps = {
   ws: WebSocket
 }
 function Board(props: BoardProps) {
-  const sortedTiles = createMemo(() => sortTiles(gameState().tiles))
+  const sortedTiles = createMemo(() => sortTiles(db.tiles.byId))
   const otherSessions = createMemo(() =>
     Object.values(sessions).filter(
       ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
@@ -187,7 +187,7 @@ function Board(props: BoardProps) {
                     playerId: userId(),
                     confirmed: false,
                   }
-                  db.selections.upsert(id, selection)
+                  db.selections.set(id, selection)
 
                   props.ws.send(
                     JSON.stringify({
@@ -211,20 +211,15 @@ function Board(props: BoardProps) {
 
 function sortTiles(tiles: TileById): Tile[] {
   return Object.values(tiles).sort((a, b) => {
-    if (a.deleted || b.deleted) return 0
-
-    const aPosition = a.position
-    const bPosition = b.position
-
-    const zDiff = aPosition.z - bPosition.z
+    const zDiff = a.z - b.z
     if (zDiff !== 0) return zDiff
 
-    const xDiff = bPosition.x - aPosition.x
+    const xDiff = b.x - a.x
     if (xDiff !== 0) {
       return xDiff * (SIDE_SIZES.xSide > 0 ? -1 : 1)
     }
 
-    const yDiff = aPosition.y - bPosition.y
+    const yDiff = a.y - b.y
     return yDiff * (SIDE_SIZES.ySide < 0 ? -1 : 1)
   })
 }
