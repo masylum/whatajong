@@ -1,10 +1,16 @@
 import { DurableObject } from "cloudflare:workers"
 import { setup } from "@repo/game/setup"
 import type { Env } from "./types"
-import type { WsMessage, Session, Diff, State } from "@repo/game/types"
-import type { Selection } from "@repo/game/selection"
+import type { WsMessage, Session, State } from "@repo/game/types"
 import { deleteTile, initTileDb, isFree } from "@repo/game/tile"
 import { cardsMatch } from "@repo/game/deck"
+import { tiltMap } from "@repo/game/tilt"
+import {
+  getPointsWithCombo,
+  getPowerups,
+  initPowerupsDb,
+} from "@repo/game/powerups"
+import { initSelectionsDb, type Selection } from "@repo/game/selection"
 
 export class GameState extends DurableObject {
   sessions: Map<WebSocket, Session>
@@ -23,9 +29,11 @@ export class GameState extends DurableObject {
       const players = await this.initState("players", () => ({}))
       const tiles = await this.initState("tiles", () => setup())
       const timer = (await this.storage.get("timer")) as number
+      const powerups = await this.initState("powerups", () => ({}))
+      const points = await this.initState("points", () => 0)
 
       this.timer = timer
-      this.state = { tiles, players, selections }
+      this.state = { tiles, players, selections, powerups, points }
     })
 
     for (const ws of this.ctx.getWebSockets()) {
@@ -151,10 +159,8 @@ export class GameState extends DurableObject {
     this.broadcast({ type: "sessions-join", id, session: sessionInitialData })
 
     const numPlayers = Object.keys(this.state.players).length
-
-    const colors = ["#2c73d2", "#ff9671"]
     if (numPlayers < 2) {
-      this.state.players[id] = { id, color: colors[numPlayers]! }
+      this.state.players[id] = { id, order: numPlayers }
     }
 
     // TODO: depends of 1 or 2 player game
@@ -183,35 +189,37 @@ export class GameState extends DurableObject {
     return state
   }
 
-  async setState(diff: Diff) {
-    for (const key in diff) {
-      const k = key as keyof State
-      const table = this.state[k]
-      const updates = diff[k]!
+  async saveState(state: State) {
+    this.state = state
 
-      for (const id in updates) {
-        const state = updates[id]
+    await Promise.all(
+      Object.keys(state).map((key) =>
+        this.storage.put(key, state[key as keyof State]),
+      ),
+    )
 
-        if (state) {
-          table[id] = state
-        } else {
-          delete table[id]
-        }
-      }
-      await this.storage.put(k, table)
-    }
-
-    this.broadcast({ type: "sync", diff })
+    this.broadcast({ type: "sync", state: this.state })
   }
 
   selectTile(selection: Selection, session: Session) {
-    const tilesDb = initTileDb(this.state.tiles)
-    const tile = tilesDb.get(selection.tileId)
-    // tiltMap(gameState)
+    const tileDb = initTileDb(this.state.tiles)
+    const powerupsDb = initPowerupsDb(this.state.powerups)
+    const selectionsDb = initSelectionsDb(this.state.selections)
 
+    const state = {
+      tiles: tileDb.byId,
+      powerups: powerupsDb.byId,
+      selections: selectionsDb.byId,
+      players: this.state.players,
+      points: this.state.points,
+    }
+
+    const tile = tileDb.get(selection.tileId)
     if (!tile) throw new Error("Tile not found")
-    if (!isFree(tilesDb, tile)) {
-      this.setState({ selections: { [selection.id]: null } })
+
+    if (!isFree(tileDb, tile, powerupsDb, session.id)) {
+      selectionsDb.del(selection.id)
+      this.saveState(state)
       return
     }
 
@@ -220,46 +228,45 @@ export class GameState extends DurableObject {
     )
 
     if (!firstSelection) {
-      this.setState({
-        selections: {
-          [selection.id]: { ...selection, confirmed: true },
-        },
-      })
+      selectionsDb.set(selection.id, { ...selection, confirmed: true })
+      this.saveState(state)
       return
     }
 
     if (firstSelection.id === selection.id) {
-      this.setState({ selections: { [selection.id]: null } })
+      selectionsDb.del(selection.id)
+      this.saveState(state)
       return
     }
 
-    const firstTile = tilesDb.get(firstSelection.tileId)
-    if (!firstTile) {
-      this.setState({ selections: { [selection.id]: null } })
+    const firstTile = tileDb.get(firstSelection.tileId)
+    if (!firstTile || firstTile.deletedBy) {
+      selectionsDb.del(selection.id)
+      this.saveState(state)
       return
     }
 
-    if (!cardsMatch(firstTile.card, tile.card)) {
-      this.setState({
-        selections: {
-          [selection.id]: null,
-          [firstSelection.id]: null,
-        },
-      })
-      return
-    }
+    selectionsDb.del(firstSelection.id)
 
-    deleteTile(tilesDb, tile, session.id)
-    deleteTile(tilesDb, firstTile, session.id)
+    if (cardsMatch(firstTile.card, tile.card)) {
+      deleteTile(tileDb, tile, session.id)
+      deleteTile(tileDb, firstTile, session.id)
+      tiltMap(tileDb, tile)
+      getPowerups(powerupsDb, session.id, tile)
+      selectionsDb.del(selection.id)
+
+      this.state.points += getPointsWithCombo(powerupsDb, session.id, tile)
+    } else {
+      this.state.points = Math.max(this.state.points - 2, 0)
+    }
 
     // TODO: check game over if no more available moves
+    // TODO: check game over if no more available moves
     // TODO: check game over if strength is 0
-    this.setState({
-      selections: {
-        [selection.id]: null,
-        [firstSelection.id]: null,
-      },
-      tiles: tilesDb.byId,
+    // TODO: increase points and sync
+    this.saveState({
+      ...state,
+      points: this.state.points,
     })
 
     return

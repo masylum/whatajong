@@ -37,6 +37,7 @@ export type Card =
   | Seasons
   | Dragons
   | Dummy
+export type Joker = Flowers | Seasons
 
 function shuffle<T>(array: T[]): T[] {
   const shuffled = [...array]
@@ -70,20 +71,29 @@ export function getDeck(): [Card, Card][] {
   return shuffle(pairs)
 }
 
-export function getSuit(card: Card) {
-  return card.split("")[0]!
+type ExtractSuit<T> = T extends `${infer S}${string}`
+  ? S extends Suit
+    ? S
+    : never
+  : never
+type ExtractNumber<T> = T extends `${Suit}${infer N}` ? N : never
+
+export function getSuit<T extends Card>(card: T): ExtractSuit<T> {
+  return card[0] as ExtractSuit<T>
 }
 
-export function getNumber(card: Card) {
-  return card.split("")[1]!
+export function getNumber<T extends Card>(card: T): ExtractNumber<T> {
+  return card.charAt(1) as ExtractNumber<T>
 }
 
+// 2, 4, 6 points
 export function getPoints(card: Card) {
-  return Number.parseInt(getNumber(card))
-}
+  if (isDragon(card)) return 8
+  if (isFlower(card)) return 12
+  if (isSeason(card)) return 12
+  if (isWind(card)) return 24
 
-export function getStrength(card: Card) {
-  return 10 - getPoints(card)
+  return 8 - Math.ceil(Number.parseInt(getNumber(card)) / 3) * 2
 }
 
 export function matchesSuit(card: Card, suit: Suit) {
@@ -100,3 +110,25 @@ export function cardsMatch(card1: Card, card2: Card) {
 
   return false
 }
+
+export function isDragon(card: Card) {
+  return matchesSuit(card, "d") ? (card as Dragons) : null
+}
+
+export function isFlower(card: Card) {
+  return matchesSuit(card, "f") ? (card as Flowers) : null
+}
+
+export function isSeason(card: Card) {
+  return matchesSuit(card, "s") ? (card as Seasons) : null
+}
+
+export function isJoker(card: Card) {
+  return isFlower(card) || isSeason(card)
+}
+
+export function isWind(card: Card) {
+  return matchesSuit(card, "w") ? (card as Winds) : null
+}
+
+export const STRENGTH_THRESHOLD = 7

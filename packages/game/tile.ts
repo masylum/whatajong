@@ -1,5 +1,6 @@
-import { cardsMatch, getPoints, getSuit, type Card } from "./deck"
+import { cardsMatch, getPoints, type Card } from "./deck"
 import { Database } from "./in-memoriam"
+import { getJokerPowerup, type PowerupDb } from "./powerups"
 
 export type Position = {
   x: number
@@ -30,8 +31,14 @@ export function initTileDb(tiles: TileById): TileDb {
   return tileDb
 }
 
-export function getFreeTiles(tileDb: TileDb): Tile[] {
-  return tileDb.all.filter((tile) => !tile.deletedBy && isFree(tileDb, tile))
+export function getFreeTiles(
+  tileDb: TileDb,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+): Tile[] {
+  return tileDb.all.filter(
+    (tile) => !tile.deletedBy && isFree(tileDb, tile, powerupsDb, playerId),
+  )
 }
 
 export function fullyOverlaps(
@@ -65,57 +72,81 @@ export function fullyOverlaps(
   )
 }
 
-export function overlaps(
-  tileDb: TileDb,
-  position: Position,
-  z: number,
-): boolean {
+export function overlaps(tileDb: TileDb, position: Position, z: number) {
   const find = getFinder(tileDb, position)
   const area = [-1, 0, 1]
 
   for (const x of area) {
     for (const y of area) {
-      if (find(x, y, z)) return true
+      const tile = find(x, y, z)
+      if (tile) return tile
     }
   }
 
-  return false
+  return null
 }
 
 function isBlockedHorizontally(tileDb: TileDb, position: Position): boolean {
   const find = getFinder(tileDb, position)
-  const hasLeftTile = find(-2, -1) || find(-2, 0) || find(-2, -1)
-  const hasRightTile = find(2, -1) || find(2, 0) || find(2, -1)
+  const hasLeftTile = find(-2, -1) || find(-2, 0) || find(-2, 1)
+  const hasRightTile = find(2, -1) || find(2, 0) || find(2, 1)
 
   return !!(hasLeftTile && hasRightTile)
 }
 
+function isBlockedVertically(tileDb: TileDb, position: Position): boolean {
+  const find = getFinder(tileDb, position)
+  const hasTopTile = find(-1, -2) || find(0, -2) || find(1, -2)
+  const hasBottomTile = find(-1, 2) || find(0, 2) || find(1, 2)
+
+  return !!(hasTopTile && hasBottomTile)
+}
+
 export function getFinder(tileDb: TileDb, position: Position) {
   return (x = 0, y = 0, z = 0) => {
-    const tile = tileDb.findBy({
-      x: position.x + x,
-      y: position.y + y,
-      z: position.z + z,
-    })
-    if (!tile) return false
-    if (tile.deletedBy) return false
+    const tile = tileDb
+      .filterBy({
+        x: position.x + x,
+        y: position.y + y,
+        z: position.z + z,
+      })
+      .filter((tile) => !tile.deletedBy)[0]
+    if (!tile) return null
 
     return tile
   }
 }
 
-export function isFree(tileDb: TileDb, position: Position): boolean {
-  return (
-    !overlaps(tileDb, position, 1) && !isBlockedHorizontally(tileDb, position)
-  )
+export function isFree(
+  tileDb: TileDb,
+  position: Position,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+): boolean {
+  const isCovered = !overlaps(tileDb, position, 1)
+  const isBlockedH = isBlockedHorizontally(tileDb, position)
+
+  if (powerupsDb && playerId) {
+    const powerup = getJokerPowerup(powerupsDb, playerId)
+    if (powerup) {
+      const isBlockedV = isBlockedVertically(tileDb, position)
+      return isCovered && (!isBlockedH || !isBlockedV)
+    }
+  }
+
+  return isCovered && !isBlockedH
 }
 
 export function deleteTile(tileDb: TileDb, tile: Tile, playerId: string) {
   tileDb.set(tile.id, { ...tile, deletedBy: playerId })
 }
 
-export function getAvailablePairs(tileDb: TileDb): [Tile, Tile][] {
-  const freeTiles = getFreeTiles(tileDb)
+export function getAvailablePairs(
+  tileDb: TileDb,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+): [Tile, Tile][] {
+  const freeTiles = getFreeTiles(tileDb, powerupsDb, playerId)
   const pairs: [Tile, Tile][] = []
 
   for (let i = 0; i < freeTiles.length; i++) {
@@ -135,25 +166,7 @@ export function calculatePoints(tiles: Tile[]) {
   let points = 0
 
   for (const tile of tiles) {
-    const card = tile.card
-    const suit = getSuit(card)
-
-    if (suit === "f" || suit === "s") {
-      points += 27
-      continue
-    }
-
-    if (suit === "d") {
-      points += 18
-      continue
-    }
-
-    if (suit === "w") {
-      points += 9
-      continue
-    }
-
-    points += getPoints(card)
+    points += getPoints(tile.card)
   }
 
   return points

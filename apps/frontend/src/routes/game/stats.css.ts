@@ -1,32 +1,34 @@
 import { style } from "@vanilla-extract/css"
+import { fontFamily } from "../game.css"
 
 export const statsContainer = style({
   display: "flex",
-  flexDirection: "column",
-  fontFamily: "monospace",
+  justifyContent: "space-between",
+  alignItems: "center",
+  fontFamily,
   gap: "1.5rem",
-  padding: "1rem",
+  paddingInline: "5rem",
+  paddingBlock: "2rem",
   borderRadius: "8px",
-  backdropFilter: "blur(8px)",
-  position: "absolute",
-  top: "1rem",
-  right: "1rem",
+  position: "relative",
+  zIndex: 1,
+  userSelect: "none",
+  color: "#405763",
 })
 
-export const statItem = style({
+const statItem = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: "0.5rem",
+  fontSize: "32px",
+  lineHeight: "1",
 })
 
+export const timerClass = style([statItem, {}])
+export const movesClass = style([statItem, {}])
+
 export const statLabel = style({
-  fontSize: "0.875rem",
-  textTransform: "uppercase",
   letterSpacing: "0.05em",
 })
 
-export const statValue = style({
-  fontSize: "1.5rem",
-  fontWeight: "bold",
-})
+export const statValue = style({})

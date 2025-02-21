@@ -2,7 +2,7 @@ import type { Database } from "./in-memoriam"
 
 export interface Player {
   id: string
-  color: string
+  order: number
 }
 export type PlayerById = Record<string, Player>
 export const playerIndexes = [] as const

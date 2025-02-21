@@ -1,6 +1,11 @@
 import { ReactiveMap as RMap } from "@solid-primitives/map"
 import { ReactiveSet as RSet } from "@solid-primitives/set"
-import { createStore, produce, type SetStoreFunction } from "solid-js/store"
+import {
+  createStore,
+  produce,
+  reconcile,
+  type SetStoreFunction,
+} from "solid-js/store"
 import { batch } from "solid-js"
 
 type Config<Type, Attr extends keyof Type> = {
@@ -16,7 +21,7 @@ type ById<Type> = Record<Id, Type>
 
 export class Database<Type, Attr extends keyof Type> {
   public byId: ById<Type>
-  private setById: SetStoreFunction<ById<Type>>
+  public setById: SetStoreFunction<ById<Type>>
   public indexes: Indexes<Type, Attr>
 
   constructor(config: Config<Type, Attr>) {
@@ -44,8 +49,12 @@ export class Database<Type, Attr extends keyof Type> {
     })
   }
 
-  set(id: Id, newEntity: Type) {
+  set(id: Id, newEntity: Type | null) {
     batch(() => {
+      if (!newEntity) {
+        this.del(id)
+        return
+      }
       const oldEntity = this.get(id)
 
       for (const indexName of this.indexes.keys()) {
@@ -68,7 +77,7 @@ export class Database<Type, Attr extends keyof Type> {
         }
       }
 
-      this.setById(id, newEntity)
+      this.setById(id, reconcile(newEntity))
     })
   }
 
@@ -85,31 +94,6 @@ export class Database<Type, Attr extends keyof Type> {
 
     if (!entities) return []
     return [...entities].map((id) => this.get(id)!)
-  }
-
-  sortBy(attr: Attr, order: "asc" | "desc") {
-    const index = this.indexes.get(attr)!
-    return Array.from(index)
-      .sort((a, b) => {
-        let comp
-
-        if (typeof a[0] === "string" && typeof b[0] === "string") {
-          comp = a[0].localeCompare(b[0])
-        } else if (typeof a[0] === "number" && typeof b[0] === "number") {
-          comp = a[0] - b[0]
-        } else if (a[0] instanceof Date && b[0] instanceof Date) {
-          comp = a[0].getTime() - b[0].getTime()
-        } else if (a[0] === null || a[0] === undefined) {
-          comp = -1
-        } else if (b[0] === null || b[0] === undefined) {
-          comp = 1
-        } else {
-          comp = 0
-        }
-
-        return order === "asc" ? comp : -comp
-      })
-      .flatMap(([_, set]) => [...set].map((id) => this.get(id)).filter(Boolean))
   }
 
   findBy<K extends Attr>(query: Record<K, Type[K]>): Type | null {

@@ -49,7 +49,7 @@ describe("tile", () => {
     it("does not return deleted tiles", () => {
       deleteTile(db, db.get("5")!, "player1")
       const ids = getFreeTiles(db).map((t) => t.id)
-      expect(ids).toEqual(["3", "4"])
+      expect(ids).toEqual(["1", "3", "4"])
     })
   })
 
@@ -67,34 +67,34 @@ describe("tile", () => {
     })
 
     it("detects overlap at the same level", () => {
-      expect(overlaps(db, tile, 0)).toBe(true)
+      expect(overlaps(db, tile, 0)).not.toBeNull()
     })
 
     it("detects overlap above", () => {
-      expect(overlaps(db, tile, 1)).toBe(true)
+      expect(overlaps(db, tile, 1)).not.toBeNull()
     })
 
     it("detects overlap below", () => {
-      expect(overlaps(db, tile, -1)).toBe(true)
+      expect(overlaps(db, tile, -1)).not.toBeNull()
     })
 
     it("detects partial overlaps", () => {
-      expect(overlaps(db, { x: 1, y: 1, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 1, y: 2, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 1, y: 3, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 2, y: 1, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 2, y: 2, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 2, y: 3, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 3, y: 1, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 3, y: 2, z: 0 }, 0)).toBe(true)
-      expect(overlaps(db, { x: 3, y: 3, z: 0 }, 0)).toBe(true)
+      expect(overlaps(db, { x: 1, y: 1, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 1, y: 2, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 1, y: 3, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 2, y: 1, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 2, y: 2, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 2, y: 3, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 3, y: 1, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 3, y: 2, z: 0 }, 0)).not.toBeNull()
+      expect(overlaps(db, { x: 3, y: 3, z: 0 }, 0)).not.toBeNull()
     })
 
     it("should not detect overlap when there is none", () => {
-      expect(overlaps(db, { x: 0, y: 0, z: 0 }, 0)).toBe(false)
-      expect(overlaps(db, { x: 4, y: 4, z: 0 }, 0)).toBe(false)
-      expect(overlaps(db, { x: 2, y: 4, z: 0 }, 0)).toBe(false)
-      expect(overlaps(db, { x: 4, y: 2, z: 0 }, 0)).toBe(false)
+      expect(overlaps(db, { x: 0, y: 0, z: 0 }, 0)).toBeNull()
+      expect(overlaps(db, { x: 4, y: 4, z: 0 }, 0)).toBeNull()
+      expect(overlaps(db, { x: 2, y: 4, z: 0 }, 0)).toBeNull()
+      expect(overlaps(db, { x: 4, y: 2, z: 0 }, 0)).toBeNull()
     })
   })
 
@@ -157,19 +157,20 @@ describe("tile", () => {
     it("should calculate points for regular tiles", () => {
       const tiles: Tile[] = [
         { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0, selections: [] },
-        { id: "2", card: "b2" as Card, x: 0, y: 0, z: 0, selections: [] },
+        { id: "2", card: "b4" as Card, x: 0, y: 0, z: 0, selections: [] },
+        { id: "3", card: "b8" as Card, x: 0, y: 0, z: 0, selections: [] },
       ]
-      expect(calculatePoints(tiles)).toBe(3) // 1 + 2
+      expect(calculatePoints(tiles)).toBe(12) // 6 + 4 + 2
     })
 
     it("should calculate points for special tiles", () => {
       const tiles: Tile[] = [
-        { id: "1", card: "f1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 27 points
-        { id: "2", card: "s1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 27 points
-        { id: "3", card: "dc" as Card, x: 0, y: 0, z: 0, selections: [] }, // 18 points
-        { id: "4", card: "wn" as Card, x: 0, y: 0, z: 0, selections: [] }, // 9 points
+        { id: "1", card: "f1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 12 points
+        { id: "2", card: "s1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 12 points
+        { id: "3", card: "dc" as Card, x: 0, y: 0, z: 0, selections: [] }, // 8 points
+        { id: "4", card: "wn" as Card, x: 0, y: 0, z: 0, selections: [] }, // 24 points
       ]
-      expect(calculatePoints(tiles)).toBe(81) // 27 + 27 + 18 + 9
+      expect(calculatePoints(tiles)).toBe(56) // 12 + 12 + 8 + 24
     })
   })
 })

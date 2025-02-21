@@ -1,5 +1,7 @@
 import { keyframes, style } from "@vanilla-extract/css"
-import { TILE_HEIGHT, TILE_WIDTH } from "./tileComponent"
+import { TILE_HEIGHT, TILE_WIDTH } from "../state"
+import { fontFamily } from "../game.css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -53,14 +55,42 @@ export const deletedAnimationClass = style({
 })
 
 export const floatingNumberAnimation = style({
+  position: "absolute",
+  zIndex: 9999,
   animation: `${floatingNumberKeyframes} ${FLOATING_NUMBER_DURATION}ms ease-out forwards`,
-  fontSize: "30px",
+  fontSize: "24px",
+  lineHeight: 1,
   fontWeight: "bold",
   userSelect: "none",
-  fontFamily: "system-ui",
+  fontFamily,
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  pointerEvents: "none",
+  color: "white",
+  padding: "4px 8px",
+  borderRadius: 8,
 })
 
-export const tileTransition = style({
-  transition: "transform 800ms ease-in-out",
+export const tileRecipe = recipe({
+  base: {
+    pointerEvents: "none",
+    transitionProperty: "top, left",
+    transitionDuration: `${DELETED_DURATION}ms`,
+    transitionTimingFunction: "ease-in",
+  },
+  variants: {
+    highlight: {
+      flower: {
+        filter: "brightness(0.95) hue-rotate(5deg) saturate(1.5) sepia(0.1)",
+      },
+      season: {
+        filter: "brightness(0.95) hue-rotate(-16deg) saturate(1.2) sepia(0.1)",
+      },
+      null: {},
+    },
+  },
+})
+
+export const clickableClass = style({
+  pointerEvents: "auto",
+  cursor: "pointer",
 })

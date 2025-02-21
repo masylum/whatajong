@@ -4,7 +4,6 @@ import {
   getSuit,
   getNumber,
   getPoints,
-  getStrength,
   matchesSuit,
   cardsMatch,
 } from "./deck"
@@ -42,15 +41,9 @@ describe("deck", () => {
     })
 
     it("should calculate points correctly", () => {
-      expect(getPoints("b1")).toBe(1)
-      expect(getPoints("c5")).toBe(5)
-      expect(getPoints("o9")).toBe(9)
-    })
-
-    it("should calculate strength correctly", () => {
-      expect(getStrength("b1")).toBe(9)
-      expect(getStrength("c5")).toBe(5)
-      expect(getStrength("o9")).toBe(1)
+      expect(getPoints("b1")).toBe(6)
+      expect(getPoints("c5")).toBe(4)
+      expect(getPoints("o9")).toBe(2)
     })
 
     it("should match suits correctly", () => {

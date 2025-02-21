@@ -73,31 +73,6 @@ export class Database<Type, Attr extends keyof Type> {
     return [...entities].map((id) => this.get(id)!)
   }
 
-  sortBy(attr: Attr, order: "asc" | "desc") {
-    const index = this.indexes.get(attr)!
-    return Array.from(index)
-      .sort((a, b) => {
-        let comp
-
-        if (typeof a[0] === "string" && typeof b[0] === "string") {
-          comp = a[0].localeCompare(b[0])
-        } else if (typeof a[0] === "number" && typeof b[0] === "number") {
-          comp = a[0] - b[0]
-        } else if (a[0] instanceof Date && b[0] instanceof Date) {
-          comp = a[0].getTime() - b[0].getTime()
-        } else if (a[0] === null || a[0] === undefined) {
-          comp = -1
-        } else if (b[0] === null || b[0] === undefined) {
-          comp = 1
-        } else {
-          comp = 0
-        }
-
-        return order === "asc" ? comp : -comp
-      })
-      .flatMap(([_, set]) => [...set].map((id) => this.get(id)).filter(Boolean))
-  }
-
   findBy<K extends Attr>(query: Record<K, Type[K]>): Type | null {
     return this.filterBy(query)[0] || null
   }

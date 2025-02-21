@@ -1,15 +1,14 @@
 import type { SelectionById } from "./selection"
 import type { TileById } from "./tile"
 import type { PlayerById } from "./player"
+import type { PowerupById } from "./powerups"
 
 export type State = {
   tiles: TileById
   selections: SelectionById
   players: PlayerById
-}
-
-export type Diff = {
-  [key in keyof State]?: { [id: string]: State[key][keyof State] | null }
+  powerups: PowerupById
+  points: number
 }
 
 export type Session = {
@@ -26,6 +25,6 @@ export type WsMessage =
   | { type: "sessions-fetch" }
   | { type: "sessions-sync"; sessions: Session[] }
   | { type: "init-state"; state: State; timer: number }
-  | { type: "sync"; diff: Diff }
+  | { type: "sync"; state: State }
   // mutations
   | { type: "select-tile"; id: string; selection: Selection }

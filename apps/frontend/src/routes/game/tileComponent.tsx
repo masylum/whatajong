@@ -1,5 +1,18 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { db, hover, setHover, SIDE_SIZES, userId } from "../state"
+import {
+  CORNER_RADIUS,
+  db,
+  disclosedTile,
+  hiddenImage,
+  INNER_PADING,
+  hover,
+  setHover,
+  SIDE_SIZES,
+  TILE_HEIGHT,
+  TILE_WIDTH,
+  userId,
+  playerColors,
+} from "../state"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -7,20 +20,19 @@ import {
   DELETED_DURATION,
   floatingNumberAnimation,
   FLOATING_NUMBER_DURATION,
-  tileTransition,
   deletedAnimationClass,
+  clickableClass,
+  tileRecipe,
 } from "./tileComponent.css"
-import { getPoints } from "@repo/game/deck"
+import { MAP_HEIGHT, MAP_WIDTH } from "@repo/game/map"
 import { TileShades } from "./tileShades"
-import { TileImage } from "./tileImage"
-import { fullyOverlaps, getFinder, isFree, type Tile } from "@repo/game/tile"
-
-export const SIDE_GRADIENT_ID = "sideGradient"
-export const VISIBILITY_MASK_ID = "visibilityMask"
-export const TILE_HEIGHT = 65
-export const TILE_WIDTH = 45
-
-const CORNER_RADIUS = 4
+import { isFree, type Tile } from "@repo/game/tile"
+import { VISIBILITY_MASK_ID } from "./defs"
+import { TileBody } from "./tileBody"
+import { TileSide } from "./tileSide"
+import { colors } from "@/components/colors"
+import { getPointsWithCombo } from "@repo/game/powerups"
+import { isFlower, isSeason } from "@repo/game/deck"
 
 type Props = {
   tile: Tile
@@ -40,12 +52,32 @@ export function TileComponent(props: Props) {
       y: baseY + z * -SIDE_SIZES.ySide,
     }
   })
-  const canBeSelected = createMemo(() => isFree(db.tiles, props.tile))
+  const canBeSelected = createMemo(() =>
+    isFree(db.tiles, props.tile, db.powerups, userId()),
+  )
+  const zIndex = createMemo(
+    () =>
+      props.tile.z * MAP_WIDTH * MAP_HEIGHT +
+      (MAP_WIDTH - props.tile.x - 1) * MAP_HEIGHT,
+    props.tile.y,
+  )
 
   const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const hovered = createMemo(() => hover() === props.tile)
+  const powerups = createMemo(() =>
+    db.powerups.filterBy({ playerId: userId() }),
+  )
+  const flower = createMemo(() => powerups().find((p) => isFlower(p.card)))
+  const season = createMemo(() => powerups().find((p) => isSeason(p.card)))
+  const highlight = createMemo(() => {
+    if (!canBeSelected()) return "null"
+    if (flower()) return "flower"
+    if (season()) return "season"
+
+    return "null"
+  })
 
   // TODO: display both at the same time
   const selected = createMemo(() => {
@@ -59,14 +91,14 @@ export function TileComponent(props: Props) {
 
   const fillColor = createMemo(() => {
     const sel = selected()
-    if (sel) return db.players.get(sel.playerId)?.color ?? "#963"
+    if (sel) return playerColors(sel.playerId)[4] ?? "#963"
 
     return "#ffffff"
   })
 
   const fillOpacity = createMemo(() => {
     const sel = selected()
-    if (!sel) return hovered() ? 0.3 : 0
+    if (!sel) return hovered() && canBeSelected() ? 0.3 : 0
 
     return sel.confirmed ? 0.5 : 0.3
   })
@@ -110,146 +142,105 @@ export function TileComponent(props: Props) {
     return undefined
   })
 
-  const strokePath = createMemo(() => {
-    return `
-      M ${CORNER_RADIUS} 0
-      h ${TILE_WIDTH - 2 * CORNER_RADIUS}
-      a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
-      v ${TILE_HEIGHT - 3 * CORNER_RADIUS}
-      t 0 ${CORNER_RADIUS}
-      t ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide + CORNER_RADIUS}
-      h ${-TILE_WIDTH + CORNER_RADIUS}
-      a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
-      v ${-TILE_HEIGHT + 3 * CORNER_RADIUS}
-      t 0 ${-CORNER_RADIUS}
-      t ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide - CORNER_RADIUS}
-      Z`
-  })
-
-  // TODO: make a reaction instead
-  const enhanceVisibility = createMemo(() => {
-    const find = getFinder(db.tiles, props.tile)
-    const z = props.tile.z
-
-    function getHoveredTile(x: number, y: number, z: number) {
-      return find(x, y, z) === hover()
-    }
-
-    function getRightTile(z: number) {
-      return getHoveredTile(2, 0, z) || getHoveredTile(2, 1, z)
-    }
-
-    if (z === 0) return false
-    if (getRightTile(0)) return false
-
-    for (let checkZ = 1; checkZ <= z; checkZ++) {
-      if (getRightTile(-checkZ)) return true
-    }
-
-    return false
-  })
-  const hideImage = createMemo(() => fullyOverlaps(db.tiles, props.tile, 1))
+  const enhanceVisibility = createMemo(
+    () => disclosedTile()?.id === props.tile.id,
+  )
+  const hideImage = createMemo(() => hiddenImage()?.id === props.tile.id)
 
   return (
     <>
       <Show when={deletedAnimation() && props.tile.deletedBy}>
         {(playerId) => (
-          <text
-            x={coords().x + TILE_WIDTH / 2}
-            y={coords().y + TILE_HEIGHT / 2}
-            text-anchor="middle"
-            fill={db.players.get(playerId())?.color}
+          <span
+            style={{
+              left: `${coords().x + TILE_WIDTH / 2 + SIDE_SIZES.xSide}px`,
+              top: `${coords().y + TILE_HEIGHT / 2 + 2 * SIDE_SIZES.ySide}px`,
+              background: `rgb(from ${playerColors(playerId())[1]} r g b / 0.5)`,
+            }}
             class={floatingNumberAnimation}
           >
-            +{getPoints(props.tile.card)}
-          </text>
+            +{getPointsWithCombo(db.powerups, playerId(), props.tile)}
+          </span>
         )}
       </Show>
       <Show when={!deleted()}>
-        <g
-          transform={`translate(${coords().x},${coords().y})`}
+        <svg
+          style={{
+            position: "absolute",
+            left: `${coords().x}px`,
+            top: `${coords().y}px`,
+            "z-index": zIndex(),
+          }}
+          width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
+          height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
           data-id={props.tile.id}
           data-tile={JSON.stringify(props.tile)}
-          onMouseEnter={() => {
-            setHover(props.tile)
-          }}
-          onMouseLeave={() => {
-            setHover(null)
-          }}
-          class={tileTransition}
+          class={tileRecipe({ highlight: highlight() })}
         >
-          <defs>
-            <linearGradient id={`${VISIBILITY_MASK_ID}-${props.tile.id}`}>
-              <stop offset="0%" stop-color="white" stop-opacity="1" />
-              <stop offset="30%" stop-color="white" stop-opacity="1" />
-              <stop offset="100%" stop-color="white" stop-opacity="0.2" />
-            </linearGradient>
-            <mask id={`mask-${props.tile.id}`}>
-              <rect
-                x={SIDE_SIZES.xSide}
-                y={0}
-                width={TILE_WIDTH + Math.abs(SIDE_SIZES.xSide)}
-                height={TILE_HEIGHT + Math.abs(SIDE_SIZES.ySide)}
-                fill={`url(#${VISIBILITY_MASK_ID}-${props.tile.id})`}
-              />
-            </mask>
-          </defs>
+          <title>{props.tile.id}</title>
           <g
             class={animation()}
             mask={
-              enhanceVisibility() ? `url(#mask-${props.tile.id})` : undefined
+              enhanceVisibility() ? `url(#${VISIBILITY_MASK_ID})` : undefined
             }
           >
-            {/* Side */}
-            <path d={strokePath()} fill={`url(#${SIDE_GRADIENT_ID})`} />
-
-            {/* Shades */}
+            <TileSide card={props.tile.card} />
             <TileShades tile={props.tile} />
-
-            {/* Body */}
-            <path
-              d={`M ${CORNER_RADIUS} 0
-                h ${TILE_WIDTH - 2 * CORNER_RADIUS}
-                a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
-                v ${TILE_HEIGHT - 2 * CORNER_RADIUS} 
-                a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} ${CORNER_RADIUS}
-                h ${-TILE_WIDTH + 2 * CORNER_RADIUS}
-                a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
-                v ${-TILE_HEIGHT + 2 * CORNER_RADIUS}
-                a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} -${CORNER_RADIUS}
-                Z`}
-              fill="#FED9A7"
-            />
-
+            <TileBody card={props.tile.card} />
             <Show when={!hideImage()}>
-              <TileImage tile={props.tile} />
+              <image
+                href={`/tiles3/${props.tile.card}.webp`}
+                x={INNER_PADING - SIDE_SIZES.xSide * 2}
+                y={INNER_PADING + SIDE_SIZES.ySide * 2}
+                width={TILE_WIDTH - 2 * INNER_PADING}
+                height={TILE_HEIGHT - 2 * INNER_PADING}
+              />
             </Show>
 
             {/* Stroke overlay */}
             <path
-              d={strokePath()}
+              d={strokePath}
               fill="none"
-              stroke="#963"
+              stroke={colors.stroke}
               stroke-width={selected() ? 2 : 1}
             />
 
             {/* Clickable overlay with hover effect */}
-            <Show when={canBeSelected()}>
-              {/* biome-ignore lint/a11y/useKeyWithClickEvents: this is a mouse game */}
-              <path
-                d={strokePath()}
-                fill={fillColor()}
-                fill-opacity={fillOpacity()}
-                stroke="none"
-                style="cursor: pointer"
-                onClick={() => {
-                  props.onSelect(props.tile)
-                }}
-              />
-            </Show>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: this is a mouse game */}
+            <path
+              d={strokePath}
+              fill={fillColor()}
+              fill-opacity={fillOpacity()}
+              stroke="none"
+              class={clickableClass}
+              onMouseEnter={() => {
+                setHover(props.tile)
+              }}
+              onMouseLeave={() => {
+                setHover(null)
+              }}
+              onClick={() => {
+                props.onSelect(props.tile)
+              }}
+            />
           </g>
-        </g>
+        </svg>
       </Show>
     </>
   )
 }
+
+export const strokePath = `
+  M ${-SIDE_SIZES.xSide * 2 + CORNER_RADIUS} ${SIDE_SIZES.ySide * 2}
+  h ${TILE_WIDTH - 2 * CORNER_RADIUS}
+  a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
+  v ${TILE_HEIGHT - 3 * CORNER_RADIUS}
+  t 0 ${CORNER_RADIUS}
+  t ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide + CORNER_RADIUS}
+  h ${-TILE_WIDTH + CORNER_RADIUS}
+  a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
+  v ${-TILE_HEIGHT + 3 * CORNER_RADIUS}
+  t 0 ${-CORNER_RADIUS}
+  t ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide - CORNER_RADIUS}
+  Z
+`

@@ -1,8 +1,13 @@
 import { createSignal } from "solid-js"
 import { db, timer } from "../state"
 import { makeTimer } from "@solid-primitives/timer"
-import NumberFlow from "solid-number-flow"
-import { statsContainer, statItem, statLabel, statValue } from "./stats.css"
+import {
+  statsContainer,
+  statLabel,
+  statValue,
+  movesClass,
+  timerClass,
+} from "./stats.css"
 import { getAvailablePairs } from "@repo/game/tile"
 
 export function Stats() {
@@ -20,17 +25,15 @@ export function Stats() {
 
   return (
     <div class={statsContainer}>
-      <div class={statItem}>
+      <div class={timerClass}>
         <span class={statLabel}>Timer</span>
         <div class={statValue}>
           <span>{time()}</span>
         </div>
       </div>
-      <div class={statItem}>
-        <span class={statLabel}>moves</span>
-        <div class={statValue}>
-          <NumberFlow value={getAvailablePairs(db.tiles).length} />
-        </div>
+      <div class={movesClass}>
+        <span class={statLabel}>Moves</span>
+        <div class={statValue}>{getAvailablePairs(db.tiles).length}</div>
       </div>
     </div>
   )

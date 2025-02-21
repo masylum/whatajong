@@ -7,6 +7,7 @@ import {
 import { PerfectCursor } from "perfect-cursors"
 import { CANVAS_HEIGHT, CANVAS_WIDTH, db } from "../state"
 import type { Session } from "@repo/game/types"
+import { playerColors } from "../state"
 
 type Point = [number, number]
 export function CursorArrow(props: { session: Session }) {
@@ -14,7 +15,7 @@ export function CursorArrow(props: { session: Session }) {
     props.session.x * CANVAS_WIDTH,
     props.session.y * CANVAS_HEIGHT,
   ])
-  const player = createMemo(() => db.players.get(props.session.id))
+  const player = createMemo(() => db.players.get(props.session.id)!)
   const [xy, setXy] = createSignal(point())
 
   PerfectCursor.MAX_INTERVAL = 58
@@ -32,6 +33,7 @@ export function CursorArrow(props: { session: Session }) {
   onCleanup(() => pc().dispose())
 
   const cursorBias = [21, 18] as const
+  const cursorColor = createMemo(() => playerColors(player().id)[5])
 
   return (
     <svg
@@ -43,6 +45,7 @@ export function CursorArrow(props: { session: Session }) {
         position: "absolute",
         left: `${xy()[0] - cursorBias[0]}px`,
         top: `${xy()[1] - cursorBias[1]}px`,
+        "z-index": 9000,
       }}
     >
       <title>player</title>
@@ -62,11 +65,11 @@ export function CursorArrow(props: { session: Session }) {
         />
         <path
           d="M19.751 24.4155L17.907 25.1895L14.807 17.8155L16.648 17.04z"
-          fill={player()?.color ?? "black"}
+          fill={cursorColor()}
         />
         <path
           d="M13 10.814V22.002L15.969 19.136l.428-.139h4.768z"
-          fill={player()?.color ?? "black"}
+          fill={cursorColor()}
         />
       </g>
     </svg>

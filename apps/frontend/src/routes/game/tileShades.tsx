@@ -1,13 +1,9 @@
 import { createMemo, Show } from "solid-js"
 import { db, SIDE_SIZES } from "../state"
-import { TILE_HEIGHT, TILE_WIDTH } from "./tileComponent"
 import { getFinder, type Tile } from "@repo/game/tile"
-
-export const SOFT_SHADE_FILTER_ID = "softShade"
-export const TOP_SHADE_GRADIENT_ID = "topShadeGradient"
-export const RIGHT_SHADE_GRADIENT_ID = "rightShadeGradient"
-export const TOP_HALF_SHADE_GRADIENT_ID = "topHalfShadeGradient"
-export const RIGHT_HALF_SHADE_GRADIENT_ID = "rightHalfShadeGradient"
+import { TILE_HEIGHT, TILE_WIDTH } from "../state"
+import { shadeClass } from "./tileShades.css"
+import { SOFT_SHADE_FILTER_ID } from "./defs"
 
 type Props = {
   tile: Tile
@@ -55,7 +51,7 @@ export function TopShade(props: SideShadeProps) {
 
     if (topLeft && !top) {
       return `
-        M ${TILE_WIDTH / 2} 0
+        M ${TILE_WIDTH / 2 - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         h ${TILE_WIDTH / 2 + SIDE_SIZES.xSide}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
@@ -65,7 +61,7 @@ export function TopShade(props: SideShadeProps) {
 
     if (!topLeft && top) {
       return `
-        M 0 0
+        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         h ${TILE_WIDTH / 2 + SIDE_SIZES.xSide}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
@@ -76,7 +72,7 @@ export function TopShade(props: SideShadeProps) {
 
     if (!topLeft && !top && topRight) {
       return `
-        M 0 0
+        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         h ${TILE_WIDTH + SIDE_SIZES.xSide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
@@ -87,7 +83,7 @@ export function TopShade(props: SideShadeProps) {
 
     if (!topLeft && !top && !topRight) {
       return `
-        M 0 0
+        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         h ${TILE_WIDTH}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
@@ -96,19 +92,12 @@ export function TopShade(props: SideShadeProps) {
     }
   })
 
-  const topGradient = createMemo(() => {
-    const { topLeft, top, topRight } = props.shadeVariants
-    if (!topLeft && top) return TOP_HALF_SHADE_GRADIENT_ID
-    if (!top && topRight) return TOP_HALF_SHADE_GRADIENT_ID
-
-    return TOP_SHADE_GRADIENT_ID
-  })
-
   return (
     <Show when={topShadePath()}>
       <path
         d={topShadePath()}
-        fill={`url(#${topGradient()})`}
+        class={shadeClass}
+        fill="rgba(0,0,0,0.1)"
         filter={`url(#${SOFT_SHADE_FILTER_ID})`}
       />
     </Show>
@@ -116,20 +105,12 @@ export function TopShade(props: SideShadeProps) {
 }
 
 export function RightShade(props: SideShadeProps) {
-  const rightGradient = createMemo(() => {
-    const { bottomRight, right, topRight } = props.shadeVariants
-    if (!bottomRight && right) return RIGHT_HALF_SHADE_GRADIENT_ID
-    if (!right && topRight) return RIGHT_HALF_SHADE_GRADIENT_ID
-
-    return RIGHT_SHADE_GRADIENT_ID
-  })
-
   const rightShadePath = createMemo(() => {
     const { topRight, right, bottomRight } = props.shadeVariants
 
     if (bottomRight && !right) {
       return `
-        M ${TILE_WIDTH} 0
+        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         v ${TILE_HEIGHT / 2}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
@@ -139,7 +120,7 @@ export function RightShade(props: SideShadeProps) {
 
     if (!bottomRight && right) {
       return `
-        M ${TILE_WIDTH} ${TILE_HEIGHT / 2}
+        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${TILE_HEIGHT / 2 + SIDE_SIZES.ySide * 2}
         h ${-SIDE_SIZES.xSide * 2}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
         v ${TILE_HEIGHT / 2 - 2 * SIDE_SIZES.ySide}
@@ -150,7 +131,7 @@ export function RightShade(props: SideShadeProps) {
 
     if (!bottomRight && !right && topRight) {
       return `
-        M ${TILE_WIDTH} 0
+        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         h ${-SIDE_SIZES.xSide * 2}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
         v ${TILE_HEIGHT - SIDE_SIZES.ySide * 2}
@@ -161,7 +142,7 @@ export function RightShade(props: SideShadeProps) {
 
     if (!bottomRight && !right && !topRight) {
       return `
-        M ${TILE_WIDTH} 0
+        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
         l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
         v ${TILE_HEIGHT}
         l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
@@ -173,8 +154,10 @@ export function RightShade(props: SideShadeProps) {
   return (
     <Show when={rightShadePath()}>
       <path
+        data-variants={JSON.stringify(props.shadeVariants)}
         d={rightShadePath()}
-        fill={`url(#${rightGradient()})`}
+        class={shadeClass}
+        fill="rgba(0,0,0,0.1)"
         filter={`url(#${SOFT_SHADE_FILTER_ID})`}
       />
     </Show>
