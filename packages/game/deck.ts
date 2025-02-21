@@ -38,6 +38,7 @@ export type Card =
   | Dragons
   | Dummy
 export type Joker = Flowers | Seasons
+export type WindDirection = "n" | "s" | "e" | "w"
 
 function shuffle<T>(array: T[]): T[] {
   const shuffled = [...array]

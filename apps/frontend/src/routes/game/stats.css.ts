@@ -1,5 +1,6 @@
 import { style } from "@vanilla-extract/css"
 import { fontFamily } from "../game.css"
+import { colors } from "@/components/colors"
 
 export const statsContainer = style({
   display: "flex",
@@ -13,7 +14,7 @@ export const statsContainer = style({
   position: "relative",
   zIndex: 1,
   userSelect: "none",
-  color: "#405763",
+  color: colors.tile10,
 })
 
 const statItem = style({

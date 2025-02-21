@@ -39,7 +39,7 @@ export function Avatar(props: AvatarProps) {
             scale(${data.wrapperScale})
           `}
           fill={data.wrapperColor}
-          rx={data.isCircle ? AVATAR_SIZE : AVATAR_SIZE / 6}
+          rx={AVATAR_SIZE}
         />
         <g
           transform={`
@@ -156,7 +156,6 @@ function generateData(name: string, colors: readonly string[]) {
     wrapperRotate: getUnit(numFromName, 360),
     wrapperScale: 1 + getUnit(numFromName, AVATAR_SIZE / 12) / 10,
     isMouthOpen: getBoolean(numFromName, 2),
-    isCircle: getBoolean(numFromName, 1),
     eyeSpread: getUnit(numFromName, 5),
     mouthSpread: getUnit(numFromName, 3),
     faceRotate: getUnit(numFromName, 10, 3),

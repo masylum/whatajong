@@ -12,6 +12,7 @@ export const playersClass = style({
   zIndex: 1,
   display: "flex",
   width: "100%",
+  gap: 100,
   justifyContent: "space-between",
   alignItems: "center",
   paddingBlock: "24px",
@@ -23,7 +24,6 @@ export const playerClass = style({
   display: "flex",
   alignItems: "center",
   flexDirection: "row-reverse",
-  flex: 1,
   gap: 32,
   position: "relative",
   ":first-child": {
@@ -34,53 +34,104 @@ export const playerClass = style({
 export const barsClass = style({
   display: "flex",
   flexDirection: "column",
-  gap: 16,
-  padding: 16,
-  background: `
-    linear-gradient(
-      to bottom,
-      rgba(from ${colors.tile90} r g b / 0.7),
-      rgba(from ${colors.tile80} r g b / 0.7)
-    )`,
-  border: `1px solid rgba(from ${colors.tile40} r g b / 0.7)`,
-  borderRadius: 12,
+  flex: 1,
+  gap: 12,
 })
 
-export const barClass = style({
-  display: "flex",
-  width: "300px",
-  position: "relative",
-  borderRadius: 4,
-  background: colors.tile50,
-  height: 1,
+export const barClass = recipe({
+  base: {
+    display: "flex",
+    position: "relative",
+    borderRadius: 24,
+    height: 12,
+  },
+  variants: {
+    color: {
+      b: { background: `rgba(from ${colors.bamboo60} r g b / 0.3)` },
+      c: { background: `rgba(from ${colors.character60} r g b / 0.3)` },
+      o: { background: `rgba(from ${colors.circle60} r g b / 0.3)` },
+    },
+  },
 })
 
-export const barPlayerClass = style({
-  position: "absolute",
-  top: 0,
-  height: 3,
-  transform: "translateY(-50%)",
+export const barImageClass = recipe({
+  base: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    borderRadius: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+  variants: {
+    suit: {
+      b: {
+        background: colors.bamboo90,
+        border: `1px solid ${colors.bamboo50}`,
+      },
+      c: {
+        background: colors.character90,
+        border: `1px solid ${colors.character50}`,
+      },
+      o: {
+        background: colors.circle90,
+        border: `1px solid ${colors.circle50}`,
+      },
+    },
+  },
+})
+
+export const barPlayerClass = recipe({
+  base: {
+    position: "absolute",
+    top: "50%",
+    height: "100%",
+    transform: "translateY(-50%)",
+    borderRadius: 24,
+  },
+  variants: {
+    suit: {
+      b: {
+        background: `linear-gradient(to bottom, ${colors.bamboo80}, ${colors.bamboo70})`,
+        border: `1px solid ${colors.bamboo50}`,
+        boxShadow: `
+          1px 1px 2px 0 inset ${colors.bamboo90},
+          -1px -1px 2px 0 inset ${colors.bamboo60}
+        `,
+      },
+      c: {
+        background: `linear-gradient(to bottom, ${colors.character80}, ${colors.character70})`,
+        border: `1px solid ${colors.character50}`,
+        boxShadow: `
+          1px 1px 2px 0 inset ${colors.character90},
+          -1px -1px 2px 0 inset ${colors.character60}
+        `,
+      },
+      o: {
+        background: `linear-gradient(to bottom, ${colors.circle80}, ${colors.circle70})`,
+        border: `1px solid ${colors.circle50}`,
+        boxShadow: `
+          1px 1px 2px 0 inset ${colors.circle90},
+          -1px -1px 2px 0 inset ${colors.circle60}
+        `,
+      },
+    },
+  },
 })
 
 export const playerIdClass = style({
-  fontSize: "24px",
-  fontWeight: "500",
-})
-
-export const playerPointsClass = style({
-  fontSize: "18px",
-  fontWeight: "500",
+  fontSize: "32px",
+  lineHeight: "1",
 })
 
 export const playerPowerupsClass = style({
   position: "absolute",
-  top: AVATAR_SIZE,
+  top: AVATAR_SIZE + 2 * SIDE_SIZES.ySide,
   right: 2 * SIDE_SIZES.xSide,
   display: "flex",
   flexDirection: "column",
   selectors: {
     [`${playerClass}:first-child &`]: {
-      left: 2 * SIDE_SIZES.xSide,
+      left: SIDE_SIZES.xSide,
       right: "inherit",
     },
   },
@@ -114,6 +165,20 @@ export const powerupRecipe = recipe({
     },
   },
 })
+export const powerupTileRecipe = recipe({
+  base: {},
+  variants: {
+    dragon: {
+      c: { filter: "hue-rotate(-16deg) brightness(0.95) saturate(1.2) " },
+      f: {
+        filter: "brightness(0.9) sepia(0.5) hue-rotate(99deg)",
+      },
+      p: {
+        filter: "sepia(0.4) brightness(0.9) hue-rotate(180deg) saturate(1.2)",
+      },
+    },
+  },
+})
 
 export const comboRecipe = recipe({
   base: {
@@ -137,9 +202,9 @@ export const comboRecipe = recipe({
   },
   variants: {
     dragon: {
-      c: { background: `rgba(from ${colors.character} r g b / 0.8)` },
-      f: { background: `rgba(from ${colors.bamboo} r g b / 0.8)` },
-      p: { background: `rgba(from ${colors.circle} r g b / 0.8)` },
+      c: { background: `rgba(from ${colors.character40} r g b / 0.8)` },
+      f: { background: `rgba(from ${colors.bamboo40} r g b / 0.8)` },
+      p: { background: `rgba(from ${colors.circle40} r g b / 0.8)` },
     },
   },
 })

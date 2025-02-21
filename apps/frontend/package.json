@@ -26,12 +26,14 @@
     "@solid-primitives/timer": "^1.4.0",
     "@solidjs/router": "^0.15.1",
     "@vanilla-extract/css": "^1.17.1",
+    "@vanilla-extract/dynamic": "^2.1.2",
     "@vanilla-extract/recipes": "^0.5.5",
     "@vanilla-extract/vite-plugin": "^5.0.1",
     "nanoid": "^5.0.9",
     "perfect-cursors": "^1.0.5",
     "solid-js": "^1.9.4",
     "solid-number-flow": "^0.5.3",
-    "solid-transition-group": "^0.3.0"
+    "solid-transition-group": "^0.3.0",
+    "webgl-fluid-enhanced": "^0.8.0"
   }
 }

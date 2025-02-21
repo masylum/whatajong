@@ -26,7 +26,7 @@ import { Players } from "./game/players"
 import { Stats } from "./game/stats"
 import { Defs } from "./game/defs"
 import { gameRecipe, COMBO_ANIMATION_DURATION } from "./game.css"
-import { LightEffects } from "./game/dustParticles"
+import { DustParticles } from "./game/dustParticles"
 import { getNumber, isDragon } from "@repo/game/deck"
 
 const INTERVAL = 55
@@ -117,7 +117,7 @@ function Board(props: BoardProps) {
           .map((card) => getNumber(card)),
       )
 
-    return { left: left, right: right }
+    return { left, right }
   })
 
   const combo = createMemo(() => {
@@ -168,7 +168,6 @@ function Board(props: BoardProps) {
           comboAnimation: comboAnimation() as any,
         })}
       >
-        <LightEffects />
         <Players />
         <Defs />
         <div
@@ -209,6 +208,7 @@ function Board(props: BoardProps) {
         <For each={otherSessions()}>
           {(session) => <CursorArrow session={session} />}
         </For>
+        <DustParticles />
       </div>
     </Show>
   )

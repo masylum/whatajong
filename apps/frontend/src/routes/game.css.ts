@@ -1,11 +1,12 @@
-import { createVar, globalFontFace, keyframes } from "@vanilla-extract/css"
+import { createVar, keyframes } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const fontFamily = "Trade Winds"
+// TODO: buy
+export const fontFamily = "DK Sushi Bar"
 
-globalFontFace(fontFamily, {
-  src: "url(/TradeWinds-Regular.ttf)",
-})
+// globalFontFace(fontFamily, {
+//   src: "url(/TradeWinds-Regular.ttf)",
+// })
 
 export const COMBO_ANIMATION_DURATION = 200
 
@@ -33,7 +34,7 @@ function cGradient(direction: string, opacity: string) {
   return `linear-gradient(${direction}, rgb(135 60 50 / ${opacity}), rgba(135 60 50 / 0%) 50%)`
 }
 function fGradient(direction: string, opacity: string) {
-  return `linear-gradient(${direction}, rgb(90 100 90 / ${opacity}), rgba(90 100 90 / 0%) 50%)`
+  return `linear-gradient(${direction}, rgb(68 100 68 / ${opacity}), rgba(68 100 68 / 0%) 50%)`
 }
 function pGradient(direction: string, opacity: string) {
   return `linear-gradient(${direction}, rgb(85 85 120 / ${opacity}), rgba(85 85 120 / 0%) 50%)`
@@ -57,7 +58,7 @@ export const gameRecipe = recipe({
     background: `
         ${leftGradient},
         ${rightGradient},
-        linear-gradient(to bottom, #818dbd, #8fc7bf)
+        linear-gradient(to bottom, rgba(255, 255, 255, 0), #8fb7cf)
     `,
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     transition: "all 0.2s ease-in-out",

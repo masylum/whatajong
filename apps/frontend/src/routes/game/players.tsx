@@ -2,15 +2,16 @@ import { createMemo, For, Show } from "solid-js"
 import { db, points, SIDE_SIZES } from "../state"
 import {
   barClass,
+  barImageClass,
   barPlayerClass,
   barsClass,
   comboRecipe,
   playerClass,
   playerIdClass,
-  playerPointsClass,
   playerPowerupsClass,
   playersClass,
   powerupRecipe,
+  powerupTileRecipe,
 } from "./players.css"
 import { getNumber, isDragon, STRENGTH_THRESHOLD } from "@repo/game/deck"
 import NumberFlow from "solid-number-flow"
@@ -22,13 +23,7 @@ import { strokePath } from "./tileComponent"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import { playerColors } from "../state"
-import { colors } from "@/components/colors"
 
-const SUIT_COLORS = {
-  b: colors.bamboo,
-  c: colors.character,
-  o: colors.circle,
-} as const
 const SUIT_SIZE = 24
 const SUITS = ["b", "c", "o"] as const
 type Suit = (typeof SUITS)[number]
@@ -54,16 +49,13 @@ function PlayerComponent(props: { player: Player }) {
   const powerups = createMemo(() =>
     db.powerups.filterBy({ playerId: props.player.id }),
   )
+  const pColors = createMemo(() => playerColors(props.player.id))
 
   return (
-    <div
-      class={playerClass}
-      style={{ color: playerColors(props.player.id)[2] }}
-    >
-      <Avatar name={props.player.id} colors={playerColors(props.player.id)} />
-      <div class={playerIdClass}>{props.player.id}</div>
-      <div class={playerPointsClass}>
-        <NumberFlow value={points()} />
+    <div class={playerClass} style={{ color: pColors()[1] }}>
+      <Avatar name={props.player.id} colors={pColors()} />
+      <div class={playerIdClass}>
+        {props.player.id} ( <NumberFlow value={points()} /> )
       </div>
       <div class={playerPowerupsClass}>
         <For each={powerups()}>
@@ -109,7 +101,7 @@ function SuitBar(props: { suit: Suit }) {
 
   return (
     <div
-      class={barClass}
+      class={barClass({ color: props.suit })}
       data-second={secondPlayerStrength()}
       data-first={firstPlayerStrength()}
     >
@@ -119,41 +111,47 @@ function SuitBar(props: { suit: Suit }) {
         width={SUIT_SIZE}
         height={SUIT_SIZE}
         data-pulse={secondPlayerPulse()}
+        class={barImageClass({ suit: props.suit })}
         style={{
-          position: "absolute",
-          top: 0,
-          background: `rgba(from ${SUIT_COLORS[props.suit]} r g b / 0.3)`,
-          "border-radius": "50%",
-          transform: "translate(-50%, -50%)",
           left: `calc(50% + ${secondPlayerPulse()}%)`,
         }}
       />
-      <div
-        class={barPlayerClass}
-        style={{
-          width: `calc(${firstPlayerPulse()}% - ${SUIT_SIZE / 2}px)`,
-          background: SUIT_COLORS[props.suit],
-          right: "50%",
-        }}
-      />
-      <div
-        class={barPlayerClass}
-        style={{
-          width: `calc(${secondPlayerPulse()}% - ${SUIT_SIZE / 2}px)`,
-          background: SUIT_COLORS[props.suit],
-          left: "50%",
-        }}
-      />
+      <Show when={firstPlayerPulse() > 0}>
+        <div
+          class={barPlayerClass({ suit: props.suit })}
+          style={{
+            width: `calc(${firstPlayerPulse()}% - ${SUIT_SIZE}px)`,
+            right: "50%",
+          }}
+        />
+      </Show>
+      <Show when={secondPlayerPulse() > 0}>
+        <div
+          class={barPlayerClass({ suit: props.suit })}
+          style={{
+            width: `calc(${secondPlayerPulse()}% - ${SUIT_SIZE}px)`,
+            left: "50%",
+          }}
+        />
+      </Show>
     </div>
   )
 }
 
 function PowerupComponent(props: { powerup: Powerup }) {
+  const dragonVariant = createMemo(() => {
+    const dragon = isDragon(props.powerup.card)
+    if (!dragon) return undefined
+
+    return getNumber(dragon)
+  })
+
   return (
     <div class={powerupRecipe({ size: props.powerup.combo as any })}>
       <svg
         width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
         height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
+        class={powerupTileRecipe({ dragon: dragonVariant() })}
       >
         <TileSide card={props.powerup.card} />
         <TileBody card={props.powerup.card} />
@@ -169,11 +167,9 @@ function PowerupComponent(props: { powerup: Powerup }) {
         <path d={strokePath} fill="none" stroke="#963" stroke-width="1" />
       </svg>
       <Show when={isDragon(props.powerup.card)}>
-        {(dragon) => (
-          <span class={comboRecipe({ dragon: getNumber(dragon()) })}>
-            x {getComboMultiplier(props.powerup.combo)}
-          </span>
-        )}
+        <span class={comboRecipe({ dragon: dragonVariant() })}>
+          x {getComboMultiplier(props.powerup.combo)}
+        </span>
       </Show>
     </div>
   )
