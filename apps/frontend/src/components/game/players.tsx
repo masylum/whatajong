@@ -1,10 +1,11 @@
 import { createMemo, For, Show } from "solid-js"
-import { db, points, SIDE_SIZES } from "../state"
+import { db } from "../../routes/state"
 import {
   barClass,
   barImageClass,
   barPlayerClass,
   barsClass,
+  barStrengthClass,
   comboRecipe,
   playerClass,
   playerIdClass,
@@ -13,20 +14,20 @@ import {
   powerupRecipe,
   powerupTileRecipe,
 } from "./players.css"
-import { getNumber, isDragon, STRENGTH_THRESHOLD } from "@repo/game/deck"
+import {
+  getNumber,
+  isDragon,
+  STRENGTH_SUITS,
+  type StrengthSuit,
+} from "@repo/game/deck"
+import { STRENGTH_THRESHOLD } from "@repo/game/game"
 import NumberFlow from "solid-number-flow"
 import type { Player } from "@repo/game/player"
 import { getComboMultiplier, type Powerup } from "@repo/game/powerups"
+import { getPlayerStrength } from "@repo/game/player"
 import { Avatar } from "@/components/avatar"
-import { TILE_WIDTH, TILE_HEIGHT, INNER_PADING } from "../state"
-import { strokePath } from "./tileComponent"
-import { TileBody } from "./tileBody"
-import { TileSide } from "./tileSide"
-import { playerColors } from "../state"
-
-const SUIT_SIZE = 24
-const SUITS = ["b", "c", "o"] as const
-type Suit = (typeof SUITS)[number]
+import { playerColors } from "../../routes/state"
+import { BasicTile } from "./basicTile"
 
 export function Players() {
   const firstPlayer = createMemo(() => db.players.all[0]!)
@@ -37,7 +38,7 @@ export function Players() {
       <PlayerComponent player={firstPlayer()} />
       <Show when={secondPlayer()}>
         <div class={barsClass}>
-          <For each={SUITS}>{(suit) => <SuitBar suit={suit} />}</For>
+          <For each={STRENGTH_SUITS}>{(suit) => <SuitBar suit={suit} />}</For>
         </div>
         <PlayerComponent player={secondPlayer()} />
       </Show>
@@ -55,7 +56,7 @@ function PlayerComponent(props: { player: Player }) {
     <div class={playerClass} style={{ color: pColors()[1] }}>
       <Avatar name={props.player.id} colors={pColors()} />
       <div class={playerIdClass}>
-        {props.player.id} ( <NumberFlow value={points()} /> )
+        {props.player.id} ( <NumberFlow value={props.player.points} /> )
       </div>
       <div class={playerPowerupsClass}>
         <For each={powerups()}>
@@ -66,20 +67,14 @@ function PlayerComponent(props: { player: Player }) {
   )
 }
 
-function SuitBar(props: { suit: Suit }) {
+function SuitBar(props: { suit: StrengthSuit }) {
   const players = createMemo(() => db.players.all)
 
-  function getPlayerStrength(player: Player) {
-    return (
-      db.tiles
-        .filterBy({ deletedBy: player.id })
-        .filter((tile) => tile.card.startsWith(props.suit)).length / 2
-    )
-  }
-
-  const firstPlayerStrength = createMemo(() => getPlayerStrength(players()[0]!))
+  const firstPlayerStrength = createMemo(() =>
+    getPlayerStrength(props.suit, players()[0]!.id, db.tiles),
+  )
   const secondPlayerStrength = createMemo(() =>
-    getPlayerStrength(players()[1]!),
+    getPlayerStrength(props.suit, players()[1]!.id, db.tiles),
   )
 
   function getPulse(num: number) {
@@ -92,11 +87,11 @@ function SuitBar(props: { suit: Suit }) {
     )
   }
 
-  const firstPlayerPulse = createMemo(() =>
-    getPulse(firstPlayerStrength() - secondPlayerStrength()),
+  const firstPlayerPulse = createMemo(
+    () => firstPlayerStrength() - secondPlayerStrength(),
   )
-  const secondPlayerPulse = createMemo(() =>
-    getPulse(secondPlayerStrength() - firstPlayerStrength()),
+  const secondPlayerPulse = createMemo(
+    () => secondPlayerStrength() - firstPlayerStrength(),
   )
 
   return (
@@ -108,19 +103,24 @@ function SuitBar(props: { suit: Suit }) {
       <img
         alt={props.suit}
         src={`/tiles3/${props.suit}.webp`}
-        width={SUIT_SIZE}
-        height={SUIT_SIZE}
+        width={20}
+        height={20}
         data-pulse={secondPlayerPulse()}
         class={barImageClass({ suit: props.suit })}
-        style={{
-          left: `calc(50% + ${secondPlayerPulse()}%)`,
-        }}
       />
+      <div
+        class={barStrengthClass({ suit: props.suit })}
+        style={{
+          left: `calc(50% + ${getPulse(secondPlayerPulse())}%)`,
+        }}
+      >
+        {Math.max(firstPlayerPulse(), secondPlayerPulse())}
+      </div>
       <Show when={firstPlayerPulse() > 0}>
         <div
           class={barPlayerClass({ suit: props.suit })}
           style={{
-            width: `calc(${firstPlayerPulse()}% - ${SUIT_SIZE}px)`,
+            width: `calc(${getPulse(firstPlayerPulse())}% - 10px)`,
             right: "50%",
           }}
         />
@@ -129,7 +129,7 @@ function SuitBar(props: { suit: Suit }) {
         <div
           class={barPlayerClass({ suit: props.suit })}
           style={{
-            width: `calc(${secondPlayerPulse()}% - ${SUIT_SIZE}px)`,
+            width: `calc(${getPulse(secondPlayerPulse())}% - 10px)`,
             left: "50%",
           }}
         />
@@ -148,24 +148,10 @@ function PowerupComponent(props: { powerup: Powerup }) {
 
   return (
     <div class={powerupRecipe({ size: props.powerup.combo as any })}>
-      <svg
-        width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
-        height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
+      <BasicTile
         class={powerupTileRecipe({ dragon: dragonVariant() })}
-      >
-        <TileSide card={props.powerup.card} />
-        <TileBody card={props.powerup.card} />
-
-        <image
-          href={`/tiles3/${props.powerup.card}.webp`}
-          x={INNER_PADING - SIDE_SIZES.xSide * 2}
-          y={INNER_PADING + SIDE_SIZES.ySide * 2}
-          width={TILE_WIDTH - 2 * INNER_PADING}
-          height={TILE_HEIGHT - 2 * INNER_PADING}
-        />
-
-        <path d={strokePath} fill="none" stroke="#963" stroke-width="1" />
-      </svg>
+        card={props.powerup.card}
+      />
       <Show when={isDragon(props.powerup.card)}>
         <span class={comboRecipe({ dragon: dragonVariant() })}>
           x {getComboMultiplier(props.powerup.combo)}

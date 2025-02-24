@@ -1,19 +1,15 @@
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 type Suit = (typeof suits)[number]
 
-const bamboo = ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9"] as const
-const character = [
-  "c1",
-  "c2",
-  "c3",
-  "c4",
-  "c5",
-  "c6",
-  "c7",
-  "c8",
-  "c9",
-] as const
-const circle = ["o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9"] as const
+export const STRENGTH_SUITS = ["b", "c", "o"] as const
+export type StrengthSuit = (typeof STRENGTH_SUITS)[number]
+
+// biome-ignore format:
+export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
+// biome-ignore format:
+export const character = [ "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9" ] as const
+// biome-ignore format:
+export const circle = [ "o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9" ] as const
 const winds = ["wn", "ww", "ws", "we"] as const
 const flowers = ["f1", "f2", "f3", "f4"] as const
 const seasons = ["s1", "s2", "s3", "s4"] as const
@@ -87,16 +83,6 @@ export function getNumber<T extends Card>(card: T): ExtractNumber<T> {
   return card.charAt(1) as ExtractNumber<T>
 }
 
-// 2, 4, 6 points
-export function getPoints(card: Card) {
-  if (isDragon(card)) return 8
-  if (isFlower(card)) return 12
-  if (isSeason(card)) return 12
-  if (isWind(card)) return 24
-
-  return 8 - Math.ceil(Number.parseInt(getNumber(card)) / 3) * 2
-}
-
 export function matchesSuit(card: Card, suit: Suit) {
   return card.startsWith(suit)
 }
@@ -131,5 +117,3 @@ export function isJoker(card: Card) {
 export function isWind(card: Card) {
   return matchesSuit(card, "w") ? (card as Winds) : null
 }
-
-export const STRENGTH_THRESHOLD = 7

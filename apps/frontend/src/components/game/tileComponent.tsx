@@ -12,7 +12,7 @@ import {
   TILE_WIDTH,
   userId,
   playerColors,
-} from "../state"
+} from "../../routes/state"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -30,7 +30,7 @@ import { isFree, type Tile } from "@repo/game/tile"
 import { VISIBILITY_MASK_ID } from "./defs"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import { colors } from "@/components/colors"
+import { color } from "@/styles/colors"
 import { getPointsWithCombo } from "@repo/game/powerups"
 import { isFlower, isSeason } from "@repo/game/deck"
 
@@ -201,7 +201,7 @@ export function TileComponent(props: Props) {
             <path
               d={strokePath}
               fill="none"
-              stroke={colors.stroke}
+              stroke={color.tile30}
               stroke-width={selected() ? 2 : 1}
             />
 

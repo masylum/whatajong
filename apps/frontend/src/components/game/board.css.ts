@@ -1,12 +1,5 @@
-import { createVar, keyframes } from "@vanilla-extract/css"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
-
-// TODO: buy
-export const fontFamily = "DK Sushi Bar"
-
-// globalFontFace(fontFamily, {
-//   src: "url(/TradeWinds-Regular.ttf)",
-// })
 
 export const COMBO_ANIMATION_DURATION = 200
 
@@ -62,7 +55,7 @@ export const gameRecipe = recipe({
     `,
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     transition: "all 0.2s ease-in-out",
-    ":after": {
+    ":before": {
       backgroundImage: "url(/halftone.png)",
       content: "",
       position: "fixed",
@@ -71,6 +64,7 @@ export const gameRecipe = recipe({
       mixBlendMode: "overlay",
       top: 0,
       left: 0,
+      zIndex: 1,
     },
   },
   variants: {
@@ -115,4 +109,19 @@ export const gameRecipe = recipe({
       7: { vars: { [shakeIntensity]: "7" } },
     },
   },
+})
+
+export const mountainsClass = style({
+  position: "fixed",
+  bottom: 0,
+  left: 0,
+  width: "100vw",
+  height: "100vh",
+  background: "url(/mountains.webp)",
+  backgroundPosition: "bottom",
+  backgroundRepeat: "no-repeat",
+  maskImage:
+    "radial-gradient(ellipse 700px 1000px at bottom, black 20%, transparent 90%)",
+  zIndex: 2,
+  mixBlendMode: "color-burn",
 })

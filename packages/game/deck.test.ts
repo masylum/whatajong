@@ -1,12 +1,5 @@
 import { describe, it, expect } from "vitest"
-import {
-  getDeck,
-  getSuit,
-  getNumber,
-  getPoints,
-  matchesSuit,
-  cardsMatch,
-} from "./deck"
+import { getDeck, getSuit, getNumber, matchesSuit, cardsMatch } from "./deck"
 
 describe("deck", () => {
   it("should generate correct number of pairs", () => {
@@ -38,12 +31,6 @@ describe("deck", () => {
       expect(getNumber("c5")).toBe("5")
       expect(getNumber("wn")).toBe("n")
       expect(getNumber("dc")).toBe("c")
-    })
-
-    it("should calculate points correctly", () => {
-      expect(getPoints("b1")).toBe(6)
-      expect(getPoints("c5")).toBe(4)
-      expect(getPoints("o9")).toBe(2)
     })
 
     it("should match suits correctly", () => {

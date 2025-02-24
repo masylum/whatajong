@@ -8,9 +8,9 @@ import {
   isFlower,
   isSeason,
   type Card,
-  getPoints,
   isJoker,
 } from "./deck"
+import { getPoints } from "./game"
 import { Database } from "./in-memoriam"
 import type { Tile } from "./tile"
 
@@ -130,8 +130,22 @@ export function getPowerups(
 }
 
 export function getComboMultiplier(combo: number) {
-  if (combo === 0) return 1
-  return Math.round(1.6 ** combo)
+  switch (combo) {
+    case 0:
+      return 1
+    case 1:
+      return 2
+    case 2:
+      return 4
+    case 3:
+      return 8
+    case 4:
+      return 12
+    case 5:
+      return 16
+    default:
+      return 24
+  }
 }
 
 export function getPointsWithCombo(
@@ -143,5 +157,5 @@ export function getPointsWithCombo(
   const powerup = getComboPowerup(powerupsDb, playerId, tile)
   if (!powerup) return points
 
-  return points * getComboMultiplier(powerup.combo)
+  return Math.min(points * getComboMultiplier(powerup.combo), 48)
 }

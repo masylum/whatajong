@@ -4,19 +4,20 @@ import type { Env } from "./types"
 import type { WsMessage, Session, State } from "@repo/game/types"
 import { deleteTile, initTileDb, isFree } from "@repo/game/tile"
 import { cardsMatch } from "@repo/game/deck"
-import { tiltMap } from "@repo/game/tilt"
+import { gameOverCondition } from "@repo/game/game"
+import { resolveWinds } from "@repo/game/winds"
 import {
   getPointsWithCombo,
   getPowerups,
   initPowerupsDb,
 } from "@repo/game/powerups"
 import { initSelectionsDb, type Selection } from "@repo/game/selection"
+import { initPlayersDb } from "@repo/game/player"
 
 export class GameState extends DurableObject {
   sessions: Map<WebSocket, Session>
   storage: DurableObjectStorage
   state!: State
-  timer!: number
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env)
@@ -27,13 +28,20 @@ export class GameState extends DurableObject {
     ctx.blockConcurrencyWhile(async () => {
       const selections = await this.initState("selections", () => ({}))
       const players = await this.initState("players", () => ({}))
-      const tiles = await this.initState("tiles", () => setup())
-      const timer = (await this.storage.get("timer")) as number
+      const game = await this.initState(
+        "game",
+        () =>
+          ({
+            state: "lobby",
+            started_at: 0,
+            firstPlayer: null,
+            secondPlayer: null,
+          }) as const,
+      )
       const powerups = await this.initState("powerups", () => ({}))
-      const points = await this.initState("points", () => 0)
+      const tiles = await this.initState("tiles", () => setup())
 
-      this.timer = timer
-      this.state = { tiles, players, selections, powerups, points }
+      this.state = { tiles, selections, powerups, game, players }
     })
 
     for (const ws of this.ctx.getWebSockets()) {
@@ -70,7 +78,7 @@ export class GameState extends DurableObject {
         }
 
         case "select-tile": {
-          this.selectTile(parsedMsg.selection, session)
+          await this.selectTile(parsedMsg.selection, session)
           break
         }
 
@@ -158,24 +166,32 @@ export class GameState extends DurableObject {
     this.sessions.set(server, sessionInitialData)
     this.broadcast({ type: "sessions-join", id, session: sessionInitialData })
 
-    const numPlayers = Object.keys(this.state.players).length
-    if (numPlayers < 2) {
-      this.state.players[id] = { id, order: numPlayers }
+    try {
+      const playerIds = new Set(
+        Object.values(this.state.players).map((player) => player.id),
+      )
+
+      if (playerIds.size === 0) {
+        // TODO: lobby state + start timer
+        this.state.game.started_at = new Date().getTime()
+        this.state.players[id] = { id, points: 0, strength: 0, order: 0 }
+      } else if (!playerIds.has(id) && playerIds.size === 1) {
+        this.state.players[id] = { id, points: 0, strength: 0, order: 1 }
+      }
+
+      return new Response(null, {
+        status: 101,
+        webSocket: client,
+      })
+    } finally {
+      await this.saveState({
+        selections: this.state.selections,
+        players: this.state.players,
+        powerups: this.state.powerups,
+        tiles: this.state.tiles,
+        game: this.state.game,
+      })
     }
-
-    // TODO: depends of 1 or 2 player game
-    // We are ready to start the game
-    if (numPlayers === 1) {
-      this.timer = new Date().getTime()
-      this.storage.put("timer", this.timer)
-    }
-
-    this.broadcast({ type: "init-state", state: this.state, timer: this.timer })
-
-    return new Response(null, {
-      status: 101,
-      webSocket: client,
-    })
   }
 
   async initState<T>(key: string, defaultValue: () => T) {
@@ -193,82 +209,87 @@ export class GameState extends DurableObject {
     this.state = state
 
     await Promise.all(
-      Object.keys(state).map((key) =>
-        this.storage.put(key, state[key as keyof State]),
+      Object.keys(this.state).map((key) =>
+        this.storage.put(key, this.state[key as keyof State]),
       ),
     )
 
     this.broadcast({ type: "sync", state: this.state })
   }
 
-  selectTile(selection: Selection, session: Session) {
+  async selectTile(selection: Selection, session: Session) {
     const tileDb = initTileDb(this.state.tiles)
     const powerupsDb = initPowerupsDb(this.state.powerups)
     const selectionsDb = initSelectionsDb(this.state.selections)
+    const playersDb = initPlayersDb(this.state.players)
+    const playerId = session.id
 
-    const state = {
-      tiles: tileDb.byId,
-      powerups: powerupsDb.byId,
-      selections: selectionsDb.byId,
-      players: this.state.players,
-      points: this.state.points,
-    }
+    const player = playersDb.get(playerId)
+    if (!player) throw new Error("Player not found")
 
     const tile = tileDb.get(selection.tileId)
     if (!tile) throw new Error("Tile not found")
 
-    if (!isFree(tileDb, tile, powerupsDb, session.id)) {
-      selectionsDb.del(selection.id)
-      this.saveState(state)
-      return
+    try {
+      if (!isFree(tileDb, tile, powerupsDb, playerId)) {
+        selectionsDb.del(selection.id)
+        return
+      }
+
+      const firstSelection = selectionsDb.findBy({ playerId })
+      if (!firstSelection) {
+        selectionsDb.set(selection.id, { ...selection, confirmed: true })
+        return
+      }
+
+      if (firstSelection.id === selection.id) {
+        selectionsDb.del(selection.id)
+        return
+      }
+
+      const firstTile = tileDb.get(firstSelection.tileId)
+      if (!firstTile || firstTile.deletedBy) {
+        selectionsDb.del(selection.id)
+        return
+      }
+
+      selectionsDb.del(firstSelection.id)
+
+      if (cardsMatch(firstTile.card, tile.card)) {
+        deleteTile(tileDb, tile, playerId)
+        deleteTile(tileDb, firstTile, playerId)
+        resolveWinds(tileDb, powerupsDb, tile)
+        getPowerups(powerupsDb, playerId, tile)
+        selectionsDb.del(selection.id)
+
+        // TODO: do the same with strength
+        const points =
+          player.points + getPointsWithCombo(powerupsDb, playerId, tile)
+        playersDb.set(playerId, { ...player, points })
+      }
+
+      for (const player of Object.values(this.state.players)) {
+        const condition = gameOverCondition(
+          tileDb,
+          powerupsDb,
+          playersDb,
+          player.id,
+        )
+
+        if (condition) {
+          this.state.game.ended_at = new Date().getTime()
+          this.state.game.endCondition = condition
+          return
+        }
+      }
+    } finally {
+      await this.saveState({
+        selections: selectionsDb.byId,
+        players: playersDb.byId,
+        powerups: powerupsDb.byId,
+        tiles: tileDb.byId,
+        game: this.state.game,
+      })
     }
-
-    const firstSelection = Object.values(this.state.selections).find(
-      (sel) => sel.playerId === session.id,
-    )
-
-    if (!firstSelection) {
-      selectionsDb.set(selection.id, { ...selection, confirmed: true })
-      this.saveState(state)
-      return
-    }
-
-    if (firstSelection.id === selection.id) {
-      selectionsDb.del(selection.id)
-      this.saveState(state)
-      return
-    }
-
-    const firstTile = tileDb.get(firstSelection.tileId)
-    if (!firstTile || firstTile.deletedBy) {
-      selectionsDb.del(selection.id)
-      this.saveState(state)
-      return
-    }
-
-    selectionsDb.del(firstSelection.id)
-
-    if (cardsMatch(firstTile.card, tile.card)) {
-      deleteTile(tileDb, tile, session.id)
-      deleteTile(tileDb, firstTile, session.id)
-      tiltMap(tileDb, tile)
-      getPowerups(powerupsDb, session.id, tile)
-      selectionsDb.del(selection.id)
-
-      this.state.points += getPointsWithCombo(powerupsDb, session.id, tile)
-    } else {
-      this.state.points = Math.max(this.state.points - 2, 0)
-    }
-
-    // TODO: check game over if no more available moves
-    // TODO: check game over if no more available moves
-    // TODO: check game over if strength is 0
-    // TODO: increase points and sync
-    this.saveState({
-      ...state,
-      points: this.state.points,
-    })
-
-    return
   }
 }

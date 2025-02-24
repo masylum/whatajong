@@ -18,8 +18,9 @@ import {
   startY,
   scale,
   zIndex,
+  animationRepeat,
 } from "./dustParticles.css"
-import { db } from "../state"
+import { db } from "../../routes/state"
 import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
@@ -81,7 +82,7 @@ export function DustParticles() {
 
     setTimeout(() => {
       setWindDirection(null)
-    }, 1000)
+    }, 3_000) // 1s delay + 2s duration. Enough for all snow to fall
   })
 
   const windTiles = createMemo(() =>
@@ -118,16 +119,16 @@ export function DustParticles() {
   }
 
   const dustParticles = createMemo(() =>
-    Array.from({ length: 100 }, () => {
+    Array.from({ length: hasWind() ? 150 : 50 }, () => {
       const z = Math.random() // z ranges from 0 (far) to 1 (near)
-      const size = 4 + z * 10 // Size increases with z (4px to 14px)
+      const size = 4 + z * 8 // Size increases with z (4px to 12px)
       const speed = hasWind()
-        ? 1000 + z * 1000 // 1-2s during wind
-        : 2000 + z * 4000 // 2-6s normal
-      const animationDelay = (hasWind() ? 2 : 10) * Math.random()
+        ? 1000 + (1 - z) * 1000 // 1-2s during wind
+        : 2000 + (1 - z) * 4000 // 2-6s normal
+      const animationDelay = (hasWind() ? 1 : 10) * Math.random()
       const drift = (Math.random() - 0.5) * (0.2 + Math.random() * 0.6)
       const blur = 2 - z * 1.5
-      const opacity = 0.3 + z * 0.6
+      const opacity = 0.2 + z * 0.6
       const scale = 0.6 + z * 0.6
       const direction = windDirection()
       const startPos = getStartPosition(direction)
@@ -143,6 +144,7 @@ export function DustParticles() {
         blur,
         opacity,
         animationDelay,
+        animationRepeat: hasWind() ? "1" : "infinite",
         scale,
         zIndex: Math.floor(z * 100) + 1,
       }
@@ -171,6 +173,7 @@ export function DustParticles() {
                     [animationDelay]: `${particle.animationDelay}s`,
                     [scale]: `${particle.scale}`,
                     [zIndex]: `${particle.zIndex}`,
+                    [animationRepeat]: particle.animationRepeat,
                   }),
                 }}
               />

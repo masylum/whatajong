@@ -154,7 +154,7 @@ describe("powerups", () => {
   describe("points calculation", () => {
     it("should return base points with no powerup", () => {
       const points = getPointsWithCombo(powerupsDb, playerId, createTile("c1"))
-      expect(points).toBe(6)
+      expect(points).toBe(2)
     })
 
     it("should multiply points by combo multiplier with matching dragon", () => {
@@ -162,13 +162,13 @@ describe("powerups", () => {
       getPowerups(powerupsDb, playerId, createTile("c1")) // combo 1
       getPowerups(powerupsDb, playerId, createTile("c2")) // combo 2
       const points = getPointsWithCombo(powerupsDb, playerId, createTile("c3"))
-      expect(points).toBe(18)
+      expect(points).toBe(8)
     })
 
     it("should not multiply points with non-matching dragon", () => {
       getPowerups(powerupsDb, playerId, createTile("dc"))
       const points = getPointsWithCombo(powerupsDb, playerId, createTile("b1"))
-      expect(points).toBe(6)
+      expect(points).toBe(2)
     })
   })
 })

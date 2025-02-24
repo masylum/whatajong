@@ -1,4 +1,4 @@
-import { AVATAR_MASK_ID } from "@/routes/game/defs"
+import { AVATAR_MASK_ID } from "@/components/game/defs"
 
 export const AVATAR_SIZE = 36
 

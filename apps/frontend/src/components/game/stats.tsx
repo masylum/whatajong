@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js"
-import { db, timer } from "../state"
+import { db, game } from "../../routes/state"
 import { makeTimer } from "@solid-primitives/timer"
 import {
   statsContainer,
@@ -8,14 +8,18 @@ import {
   movesClass,
   timerClass,
 } from "./stats.css"
-import { getAvailablePairs } from "@repo/game/tile"
+import { getAvailablePairs } from "@repo/game/game"
 
 export function Stats() {
   const [time, setTimer] = createSignal(0)
+
   makeTimer(
     () => {
       const now = new Date()
-      const diff = Math.floor((now.getTime() - timer()) / 1000)
+      const startedAt = game()?.started_at
+      if (!startedAt) return
+
+      const diff = Math.floor((now.getTime() - startedAt) / 1000)
 
       setTimer(diff)
     },

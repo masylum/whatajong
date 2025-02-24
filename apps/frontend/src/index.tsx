@@ -5,11 +5,7 @@ import { Game } from "./routes/game"
 
 const root = document.getElementById("root")
 
-import "./components/reset.css"
-
-function NotFound() {
-  return <div>Not found</div>
-}
+import "./styles/reset.css"
 
 render(
   () => (

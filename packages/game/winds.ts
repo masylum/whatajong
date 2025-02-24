@@ -1,5 +1,6 @@
 import { getNumber, getSuit } from "./deck"
 import { MAP_HEIGHT, MAP_LEVELS, MAP_WIDTH } from "./map"
+import type { PowerupDb } from "./powerups"
 import { fullyOverlaps, overlaps, type Tile, type TileDb } from "./tile"
 
 const limit = { x: MAP_WIDTH - 2, y: MAP_HEIGHT - 2 } as const
@@ -28,7 +29,11 @@ function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
   return tile
 }
 
-export function tiltMap(tileDb: TileDb, tile: Tile) {
+export function resolveWinds(
+  tileDb: TileDb,
+  powerupsDb: PowerupDb,
+  tile: Tile,
+) {
   if (getSuit(tile.card) !== "w") return
   const wind = getNumber(tile.card) as keyof typeof biases
   const biases = {
@@ -37,6 +42,12 @@ export function tiltMap(tileDb: TileDb, tile: Tile) {
     e: ["x", 2],
     w: ["x", -2],
   } as const
+
+  // remove all powerups
+  const powerups = powerupsDb.all
+  for (const powerup of powerups) {
+    powerupsDb.del(powerup.id)
+  }
 
   const [axis, bias] = biases[wind]
 

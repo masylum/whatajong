@@ -1,4 +1,4 @@
-import { cardsMatch, getPoints, type Card } from "./deck"
+import type { Card } from "./deck"
 import { Database } from "./in-memoriam"
 import { getJokerPowerup, type PowerupDb } from "./powerups"
 
@@ -29,16 +29,6 @@ export function initTileDb(tiles: TileById): TileDb {
   }
 
   return tileDb
-}
-
-export function getFreeTiles(
-  tileDb: TileDb,
-  powerupsDb?: PowerupDb,
-  playerId?: string,
-): Tile[] {
-  return tileDb.all.filter(
-    (tile) => !tile.deletedBy && isFree(tileDb, tile, powerupsDb, playerId),
-  )
 }
 
 export function fullyOverlaps(
@@ -139,35 +129,4 @@ export function isFree(
 
 export function deleteTile(tileDb: TileDb, tile: Tile, playerId: string) {
   tileDb.set(tile.id, { ...tile, deletedBy: playerId })
-}
-
-export function getAvailablePairs(
-  tileDb: TileDb,
-  powerupsDb?: PowerupDb,
-  playerId?: string,
-): [Tile, Tile][] {
-  const freeTiles = getFreeTiles(tileDb, powerupsDb, playerId)
-  const pairs: [Tile, Tile][] = []
-
-  for (let i = 0; i < freeTiles.length; i++) {
-    for (let j = i + 1; j < freeTiles.length; j++) {
-      const tile1 = freeTiles[i]!
-      const tile2 = freeTiles[j]!
-      if (!cardsMatch(tile1.card, tile2.card)) continue
-
-      pairs.push([tile1, tile2])
-    }
-  }
-
-  return pairs
-}
-
-export function calculatePoints(tiles: Tile[]) {
-  let points = 0
-
-  for (const tile of tiles) {
-    points += getPoints(tile.card)
-  }
-
-  return points
 }

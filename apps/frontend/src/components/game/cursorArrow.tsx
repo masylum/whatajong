@@ -5,9 +5,9 @@ import {
   onCleanup,
 } from "solid-js"
 import { PerfectCursor } from "perfect-cursors"
-import { CANVAS_HEIGHT, CANVAS_WIDTH, db } from "../state"
+import { CANVAS_HEIGHT, CANVAS_WIDTH, db } from "../../routes/state"
 import type { Session } from "@repo/game/types"
-import { playerColors } from "../state"
+import { playerColors } from "../../routes/state"
 
 type Point = [number, number]
 export function CursorArrow(props: { session: Session }) {

@@ -2,7 +2,8 @@ import { getDeck } from "./deck"
 import { mapGet } from "./map"
 import { DEFAULT_MAP } from "./maps/default"
 import type { Tile } from "./tile"
-import { getFreeTiles, initTileDb } from "./tile"
+import { initTileDb } from "./tile"
+import { getFreeTiles } from "./game"
 
 export function setup() {
   const tileDb = initTileDb({})

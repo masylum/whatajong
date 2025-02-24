@@ -1,6 +1,6 @@
 import { keyframes, style } from "@vanilla-extract/css"
-import { TILE_HEIGHT, TILE_WIDTH } from "../state"
-import { fontFamily } from "../game.css"
+import { TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
@@ -62,7 +62,7 @@ export const floatingNumberAnimation = style({
   lineHeight: 1,
   fontWeight: "bold",
   userSelect: "none",
-  fontFamily,
+  fontFamily: primary,
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
   pointerEvents: "none",
   color: "white",

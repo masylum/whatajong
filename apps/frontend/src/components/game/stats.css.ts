@@ -1,12 +1,12 @@
 import { style } from "@vanilla-extract/css"
-import { fontFamily } from "../game.css"
-import { colors } from "@/components/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { color } from "@/styles/colors"
 
 export const statsContainer = style({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  fontFamily,
+  fontFamily: primary,
   gap: "1.5rem",
   paddingInline: "5rem",
   paddingBlock: "2rem",
@@ -14,7 +14,7 @@ export const statsContainer = style({
   position: "relative",
   zIndex: 1,
   userSelect: "none",
-  color: colors.tile10,
+  color: color.tile10,
 })
 
 const statItem = style({

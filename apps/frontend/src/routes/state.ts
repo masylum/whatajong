@@ -20,20 +20,19 @@ import { MAP_HEIGHT, MAP_LEVELS, MAP_WIDTH } from "@repo/game/map"
 import type { Powerup } from "@repo/game/powerups"
 import { powerupIndexes } from "@repo/game/powerups"
 import type { PowerupIndexes } from "@repo/game/powerups"
-import { colorsByOrder } from "@/components/colors"
+import { colorsByOrder } from "@/styles/colors"
+import type { Game } from "@repo/game/game"
 
-export const [loading, setLoading] = createSignal(true)
 export const [sessions, setSessions] = createStore<Record<string, Session>>({})
 export const [userId, setUserId] = createSignal<string>("")
-export const [timer, setTimer] = createSignal<number>(0)
 export const [hover, setHover] = createSignal<Tile | null>(null)
-export const [points, setPoints] = createSignal<number>(0)
+export const [game, setGame] = createSignal<Game | null>(null)
 
 export const TILE_HEIGHT = 65
 export const TILE_WIDTH = 45
 export const INNER_PADING = 2
 export const CORNER_RADIUS = 4
-export const SIDE_SIZES = { xSide: -8, ySide: 8 }
+export const SIDE_SIZES = { xSide: -6, ySide: 6 }
 export const CANVAS_WIDTH = (MAP_WIDTH / 2) * TILE_WIDTH + 4 * SIDE_SIZES.xSide
 export const CANVAS_HEIGHT =
   (MAP_HEIGHT / 2) * TILE_HEIGHT + 4 * SIDE_SIZES.ySide
@@ -71,7 +70,7 @@ export const db = {
   powerups: new Database<Powerup, PowerupIndexes>({
     indexes: powerupIndexes,
   }),
-  points: points(),
+  game: game(),
 } as const
 
 function syncState(state: State) {
@@ -79,9 +78,9 @@ function syncState(state: State) {
     for (const key in state) {
       const k = key as keyof typeof db
 
-      if (k === "points") {
-        setPoints(state.points)
-        return
+      if (k === "game") {
+        setGame(state.game)
+        continue
       }
 
       const table = db[k]
@@ -134,13 +133,6 @@ export function onMessage(msg: WsMessage) {
       console.log(msg)
       syncState(msg.state)
       return
-    case "init-state": {
-      console.log(msg)
-      syncState(msg.state)
-      setTimer(msg.timer)
-      setLoading(false)
-      return
-    }
     default:
       break
   }

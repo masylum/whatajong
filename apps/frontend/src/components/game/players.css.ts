@@ -1,8 +1,8 @@
 import { createVar, style } from "@vanilla-extract/css"
-import { fontFamily } from "../game.css"
+import { primary } from "@/styles/fontFamily.css"
 import { AVATAR_SIZE } from "@/components/avatar"
-import { SIDE_SIZES } from "../state"
-import { colors } from "@/components/colors"
+import { SIDE_SIZES } from "../../routes/state"
+import { color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 
 const powerupSize = createVar()
@@ -17,7 +17,7 @@ export const playersClass = style({
   alignItems: "center",
   paddingBlock: "24px",
   paddingInline: "24px",
-  fontFamily,
+  fontFamily: primary,
 })
 
 export const playerClass = style({
@@ -47,9 +47,33 @@ export const barClass = recipe({
   },
   variants: {
     color: {
-      b: { background: `rgba(from ${colors.bamboo60} r g b / 0.3)` },
-      c: { background: `rgba(from ${colors.character60} r g b / 0.3)` },
-      o: { background: `rgba(from ${colors.circle60} r g b / 0.3)` },
+      b: { background: `rgba(from ${color.bamboo60} r g b / 0.3)` },
+      c: { background: `rgba(from ${color.character60} r g b / 0.3)` },
+      o: { background: `rgba(from ${color.circle60} r g b / 0.3)` },
+    },
+  },
+})
+
+export const barStrengthClass = recipe({
+  base: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    borderRadius: "50%",
+    width: 24,
+    height: 24,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transform: "translate(-50%, -50%)",
+    fontSize: 24,
+    transition: "all 0.2s ease-in-out",
+  },
+  variants: {
+    suit: {
+      b: { color: color.bamboo30 },
+      c: { color: color.character30 },
+      o: { color: color.circle30 },
     },
   },
 })
@@ -61,20 +85,21 @@ export const barImageClass = recipe({
     left: "50%",
     borderRadius: "50%",
     transform: "translate(-50%, -50%)",
+    zIndex: 1,
   },
   variants: {
     suit: {
       b: {
-        background: colors.bamboo90,
-        border: `1px solid ${colors.bamboo50}`,
+        background: color.bamboo90,
+        border: `1px solid ${color.bamboo50}`,
       },
       c: {
-        background: colors.character90,
-        border: `1px solid ${colors.character50}`,
+        background: color.character90,
+        border: `1px solid ${color.character50}`,
       },
       o: {
-        background: colors.circle90,
-        border: `1px solid ${colors.circle50}`,
+        background: color.circle90,
+        border: `1px solid ${color.circle50}`,
       },
     },
   },
@@ -87,31 +112,32 @@ export const barPlayerClass = recipe({
     height: "100%",
     transform: "translateY(-50%)",
     borderRadius: 24,
+    transition: "all 0.2s ease-in-out",
   },
   variants: {
     suit: {
       b: {
-        background: `linear-gradient(to bottom, ${colors.bamboo80}, ${colors.bamboo70})`,
-        border: `1px solid ${colors.bamboo50}`,
+        background: `linear-gradient(to bottom, ${color.bamboo80}, ${color.bamboo70})`,
+        border: `1px solid ${color.bamboo50}`,
         boxShadow: `
-          1px 1px 2px 0 inset ${colors.bamboo90},
-          -1px -1px 2px 0 inset ${colors.bamboo60}
+          1px 1px 2px 0 inset ${color.bamboo90},
+          -1px -1px 2px 0 inset ${color.bamboo60}
         `,
       },
       c: {
-        background: `linear-gradient(to bottom, ${colors.character80}, ${colors.character70})`,
-        border: `1px solid ${colors.character50}`,
+        background: `linear-gradient(to bottom, ${color.character80}, ${color.character70})`,
+        border: `1px solid ${color.character50}`,
         boxShadow: `
-          1px 1px 2px 0 inset ${colors.character90},
-          -1px -1px 2px 0 inset ${colors.character60}
+          1px 1px 2px 0 inset ${color.character90},
+          -1px -1px 2px 0 inset ${color.character60}
         `,
       },
       o: {
-        background: `linear-gradient(to bottom, ${colors.circle80}, ${colors.circle70})`,
-        border: `1px solid ${colors.circle50}`,
+        background: `linear-gradient(to bottom, ${color.circle80}, ${color.circle70})`,
+        border: `1px solid ${color.circle50}`,
         boxShadow: `
-          1px 1px 2px 0 inset ${colors.circle90},
-          -1px -1px 2px 0 inset ${colors.circle60}
+          1px 1px 2px 0 inset ${color.circle90},
+          -1px -1px 2px 0 inset ${color.circle60}
         `,
       },
     },
@@ -202,9 +228,9 @@ export const comboRecipe = recipe({
   },
   variants: {
     dragon: {
-      c: { background: `rgba(from ${colors.character40} r g b / 0.8)` },
-      f: { background: `rgba(from ${colors.bamboo40} r g b / 0.8)` },
-      p: { background: `rgba(from ${colors.circle40} r g b / 0.8)` },
+      c: { background: `rgba(from ${color.character40} r g b / 0.8)` },
+      f: { background: `rgba(from ${color.bamboo40} r g b / 0.8)` },
+      p: { background: `rgba(from ${color.circle40} r g b / 0.8)` },
     },
   },
 })

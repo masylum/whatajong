@@ -12,83 +12,74 @@ export const opacity = createVar()
 export const animationDelay = createVar()
 export const scale = createVar()
 export const zIndex = createVar()
+export const animationRepeat = createVar()
 
 const defaultDust = keyframes({
   "0%": {
-    top: "-10vh",
-    left: startX,
+    transform: `translate(${startX}, -10vh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    top: "110vh",
-    left: `calc(${startX} + ${drift} * 10vw)`,
+    transform: `translate(${startX}, 110vh)`,
     opacity: 0,
   },
 })
 
 const northDust = keyframes({
   "0%": {
-    top: "110vh",
-    left: startX,
+    transform: `translate(${startX}, 110vh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    top: "-10vh",
-    left: startX,
+    transform: `translate(${startX}, -10vh)`,
     opacity: 0,
   },
 })
 
 const southDust = keyframes({
   "0%": {
-    top: "-10vh",
-    left: startX,
+    transform: `translate(${startX}, -10vh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    top: "110vh",
-    left: startX,
+    transform: `translate(${startX}, 110vh)`,
     opacity: 0,
   },
 })
 
 const eastDust = keyframes({
   "0%": {
-    left: "-10vw",
-    top: startY,
+    transform: `translate(-10vw, ${startY})`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    left: "110vw",
-    top: startY,
+    transform: `translate(110vw, ${startY})`,
     opacity: 0,
   },
 })
 
 const westDust = keyframes({
   "0%": {
-    left: "110vw",
-    top: startY,
+    transform: `translate(110vw, ${startY})`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    left: "-10vw",
-    top: startY,
+    transform: `translate(-10vw, ${startY})`,
     opacity: 0,
   },
 })
@@ -107,15 +98,16 @@ export const lightRaysContainer = style({
 export const dustParticle = recipe({
   base: {
     position: "absolute",
+    top: 0,
+    left: 0,
     width: size,
     height: size,
     background: "rgba(255, 255, 255, 0.9)",
     borderRadius: "50%",
-    animation: `${animation} ${duration} infinite linear`,
+    animation: `${animation} ${duration} ${animationRepeat} linear`,
     mixBlendMode: "screen",
     pointerEvents: "none",
     filter: `blur(${blur})`,
-    transition: "all 0.2s ease-out",
     animationDelay: animationDelay,
     opacity: 0,
     transform: `scale(${scale})`,

@@ -1,34 +1,17 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  onCleanup,
-  onMount,
-  Show,
-} from "solid-js"
+import { createSignal, Match, onCleanup, onMount, Show, Switch } from "solid-js"
 import { useParams } from "@solidjs/router"
 import type { WsMessage } from "@repo/game/types"
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  db,
-  loading,
+  game,
   onMessage,
-  sessions,
   setSessions,
   setUserId,
   userId,
 } from "./state"
-import { CursorArrow } from "./game/cursorArrow"
-import { TileComponent } from "./game/tileComponent"
-import { Players } from "./game/players"
-import { Stats } from "./game/stats"
-import { Defs } from "./game/defs"
-import { gameRecipe, COMBO_ANIMATION_DURATION } from "./game.css"
-import { DustParticles } from "./game/dustParticles"
-import { getNumber, isDragon } from "@repo/game/deck"
-
+import { Board } from "../components/game/board"
+import { GameOver } from "../components/game/gameOver"
 const INTERVAL = 55
 
 export function Game() {
@@ -91,125 +74,22 @@ export function Game() {
     abortController().abort()
   })
 
-  return <Show when={ws()}>{(ws) => <Board ws={ws()} />}</Show>
-}
-
-type BoardProps = {
-  ws: WebSocket
-}
-function Board(props: BoardProps) {
-  const [comboAnimation, setComboAnimation] = createSignal(0)
-
-  const otherSessions = createMemo(() =>
-    Object.values(sessions).filter(
-      ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
-    ),
-  )
-
-  const dragons = createMemo(() => {
-    const [left, right] = db.players.all
-      .sort((a, b) => a.order - b.order)
-      .flatMap((player) =>
-        db.powerups
-          .filterBy({ playerId: player.id })
-          .map((powerup) => isDragon(powerup.card))
-          .filter((card) => !!card)
-          .map((card) => getNumber(card)),
-      )
-
-    return { left, right }
-  })
-
-  const combo = createMemo(() => {
-    const [left, right] = db.players.all
-      .sort((a, b) => a.order - b.order)
-      .flatMap((player) =>
-        db.powerups
-          .filterBy({ playerId: player.id })
-          .map((powerup) => (isDragon(powerup.card) ? powerup.combo : 0)),
-      )
-
-    return { left: left, right: right }
-  })
-
-  createEffect((prevCombo: { left?: number; right?: number }) => {
-    const { left, right } = combo()
-    const { left: prevLeft, right: prevRight } = prevCombo
-
-    const values = []
-
-    if (left && prevLeft && left > prevLeft) {
-      values.push(left)
-    }
-
-    if (right && prevRight && right > prevRight) {
-      values.push(right)
-    }
-
-    if (values.length > 0) {
-      const value = values.sort((a, b) => a - b)[0]!
-      setComboAnimation(value)
-      setTimeout(() => {
-        setComboAnimation(0)
-      }, COMBO_ANIMATION_DURATION)
-    }
-
-    return { left, right }
-  }, combo())
-
   return (
-    <Show when={!loading()}>
-      <div
-        class={gameRecipe({
-          left: dragons().left,
-          right: dragons().right,
-          leftCombo: (combo().left as any) ?? "0",
-          rightCombo: (combo().right as any) ?? "0",
-          comboAnimation: comboAnimation() as any,
-        })}
-      >
-        <Players />
-        <Defs />
-        <div
-          style={{
-            position: "relative",
-            width: `${CANVAS_WIDTH}px`,
-            height: `${CANVAS_HEIGHT}px`,
-            margin: "0 auto",
-          }}
-        >
-          <For each={db.tiles.all}>
-            {(tile) => (
-              <TileComponent
-                tile={tile}
-                onSelect={(tile) => {
-                  const id = `${tile.id}-${userId()}`
-                  const selection = {
-                    id,
-                    tileId: tile.id,
-                    playerId: userId(),
-                    confirmed: false,
-                  }
-                  db.selections.set(id, selection)
-
-                  props.ws.send(
-                    JSON.stringify({
-                      type: "select-tile",
-                      id: selection.id,
-                      selection,
-                    }),
-                  )
-                }}
-              />
-            )}
-          </For>
-        </div>
-        <Stats />
-        <For each={otherSessions()}>
-          {(session) => <CursorArrow session={session} />}
-        </For>
-        <DustParticles />
-      </div>
+    <Show when={ws()}>
+      {(ws) => (
+        <Show when={game()}>
+          {(game) => (
+            <Switch fallback={"TODO"}>
+              <Match when={game().ended_at}>
+                <GameOver game={game()} />
+              </Match>
+              <Match when={game().started_at}>
+                <Board ws={ws()} game={game()} />
+              </Match>
+            </Switch>
+          )}
+        </Show>
+      )}
     </Show>
   )
 }

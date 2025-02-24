@@ -1,0 +1,136 @@
+import {
+  cardsMatch,
+  isSeason,
+  isDragon,
+  isFlower,
+  STRENGTH_SUITS,
+  type Card,
+  isWind,
+} from "./deck"
+import { isFree } from "./tile"
+import type { PowerupDb } from "./powerups"
+import type { Tile } from "./tile"
+import type { TileDb } from "./tile"
+import { getPlayerStrength, isMultiplayer, type PlayerDb } from "./player"
+
+export const STRENGTH_THRESHOLD = 8
+export const WIN_CONDITIONS = ["empty-board", "no-pairs", "strength"] as const
+export type WinCondition = (typeof WIN_CONDITIONS)[number]
+
+export type Game = {
+  started_at?: number
+  ended_at?: number
+  endCondition?: WinCondition
+}
+
+export function gameOverCondition(
+  tileDb: TileDb,
+  powerupsDb: PowerupDb,
+  playersDb: PlayerDb,
+  playerId: string,
+) {
+  const tilesAlive = tileDb.all.filter((tile) => !tile.deletedBy)
+  if (tilesAlive.length === 0) {
+    return "empty-board"
+  }
+
+  const availablePairs = getAvailablePairs(tileDb, powerupsDb, playerId)
+  if (availablePairs.length === 0) {
+    return "no-pairs"
+  }
+
+  if (isMultiplayer(playersDb)) {
+    const winningSuit = getWinningSuit(tileDb, playerId)
+    if (winningSuit) {
+      return "strength"
+    }
+  }
+
+  // TODO: perhaps time out?
+
+  return null
+}
+
+export function getWinningSuit(tileDb: TileDb, playerId: string) {
+  for (const suit of STRENGTH_SUITS) {
+    const playerStrength = getPlayerStrength(suit, playerId, tileDb)
+    if (playerStrength >= STRENGTH_THRESHOLD) {
+      return suit
+    }
+  }
+}
+
+export function didPlayerWin(
+  game: Game,
+  tileDb: TileDb,
+  playerDb: PlayerDb,
+  playerId: string,
+) {
+  if (!isMultiplayer(playerDb)) {
+    return game.endCondition === "empty-board"
+  }
+
+  if (game.endCondition === "strength") {
+    const winningSuit = getWinningSuit(tileDb, playerId)
+    return !!winningSuit
+  }
+
+  const playerPoints = playerDb.byId[playerId]!.points
+  const otherPlayers = playerDb.all.filter((player) => player.id !== playerId)
+
+  for (const otherPlayer of otherPlayers) {
+    if (otherPlayer.points > playerPoints) return false
+  }
+
+  return true
+}
+
+export function getAvailablePairs(
+  tileDb: TileDb,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+): [Tile, Tile][] {
+  const freeTiles = getFreeTiles(tileDb, powerupsDb, playerId)
+  const pairs: [Tile, Tile][] = []
+
+  for (let i = 0; i < freeTiles.length; i++) {
+    for (let j = i + 1; j < freeTiles.length; j++) {
+      const tile1 = freeTiles[i]!
+      const tile2 = freeTiles[j]!
+      if (!cardsMatch(tile1.card, tile2.card)) continue
+
+      pairs.push([tile1, tile2])
+    }
+  }
+
+  return pairs
+}
+
+export function getPoints(card: Card) {
+  if (isDragon(card)) return 4
+  if (isFlower(card)) return 8
+  if (isSeason(card)) return 8
+  if (isWind(card)) return 16
+
+  return 2
+}
+
+export function calculatePoints(tiles: Tile[]) {
+  let points = 0
+
+  for (const tile of tiles) {
+    points += getPoints(tile.card)
+  }
+
+  return points
+}
+
+export function getFreeTiles(
+  tileDb: TileDb,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+): Tile[] {
+  return tileDb.all.filter(
+    (tile) => !tile.deletedBy && isFree(tileDb, tile, powerupsDb, playerId),
+  )
+}

@@ -1,6 +1,6 @@
 import { AVATAR_SIZE } from "@/components/avatar"
-import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "../state"
-import { colors } from "@/components/colors"
+import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import { color } from "@/styles/colors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
 export const SIDE_GRADIENT_ID = "side-gradient"
@@ -45,42 +45,42 @@ export function Defs() {
         </linearGradient>
 
         <linearGradient id={BODY_GRADIENT_ID} gradientTransform="rotate(-45)">
-          <stop offset="0%" stop-color={colors.tile80} />
-          <stop offset="100%" stop-color={colors.tile60} />
+          <stop offset="0%" stop-color={color.tile80} />
+          <stop offset="100%" stop-color={color.tile60} />
         </linearGradient>
         <linearGradient
           id={FLOWER_BODY_GRADIENT_ID}
           gradientTransform="rotate(-45)"
         >
-          <stop offset="0%" stop-color={colors.flowerTile80} />
-          <stop offset="100%" stop-color={colors.flowerTile60} />
+          <stop offset="0%" stop-color={color.flower80} />
+          <stop offset="100%" stop-color={color.flower60} />
         </linearGradient>
         <linearGradient
           id={SEASON_BODY_GRADIENT_ID}
           gradientTransform="rotate(-45)"
         >
-          <stop offset="0%" stop-color={colors.seasonTile80} />
-          <stop offset="100%" stop-color={colors.seasonTile60} />
+          <stop offset="0%" stop-color={color.season80} />
+          <stop offset="100%" stop-color={color.season60} />
         </linearGradient>
 
         <linearGradient
           id={SIDE_FLOWER_GRADIENT_ID}
           gradientTransform="rotate(45)"
         >
-          <stop offset="0%" stop-color={colors.flowerTile40} />
-          <stop offset="73%" stop-color={colors.flowerTile30} />
-          <stop offset="73%" stop-color={colors.flowerTile20} />
-          <stop offset="100%" stop-color={colors.flowerTile10} />
+          <stop offset="0%" stop-color={color.flower40} />
+          <stop offset="73%" stop-color={color.flower30} />
+          <stop offset="73%" stop-color={color.flower20} />
+          <stop offset="100%" stop-color={color.flower10} />
         </linearGradient>
 
         <linearGradient
           id={SIDE_SEASON_GRADIENT_ID}
           gradientTransform="rotate(45)"
         >
-          <stop offset="0%" stop-color={colors.seasonTile40} />
-          <stop offset="73%" stop-color={colors.seasonTile30} />
-          <stop offset="73%" stop-color={colors.seasonTile20} />
-          <stop offset="100%" stop-color={colors.seasontTile10} />
+          <stop offset="0%" stop-color={color.season40} />
+          <stop offset="73%" stop-color={color.season30} />
+          <stop offset="73%" stop-color={color.season20} />
+          <stop offset="100%" stop-color={color.season10} />
         </linearGradient>
 
         <linearGradient id={`${VISIBILITY_GRADIENT_ID}`}>
