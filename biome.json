@@ -21,6 +21,7 @@
     "rules": {
       "recommended": true,
       "a11y": {
+        "useMediaCaption": "off",
         "noSvgWithoutTitle": "off"
       },
       "suspicious": {

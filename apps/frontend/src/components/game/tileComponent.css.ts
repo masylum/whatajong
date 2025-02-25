@@ -1,5 +1,5 @@
 import { keyframes, style } from "@vanilla-extract/css"
-import { TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 

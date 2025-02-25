@@ -1,7 +1,5 @@
-import { SIDE_SIZES } from "../../routes/state"
-import { TILE_WIDTH } from "../../routes/state"
+import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { color } from "@/styles/colors"
-import { TILE_HEIGHT } from "../../routes/state"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import type { Card } from "@repo/game/deck"

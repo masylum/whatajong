@@ -2,15 +2,32 @@ import {
   createMemo,
   createRenderEffect,
   createSignal,
+  For,
   onCleanup,
 } from "solid-js"
 import { PerfectCursor } from "perfect-cursors"
-import { CANVAS_HEIGHT, CANVAS_WIDTH, db } from "../../routes/state"
+import { db } from "@/state/db"
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
 import type { Session } from "@repo/game/types"
-import { playerColors } from "../../routes/state"
+import { playerColors } from "@/state/db"
+import { sessions, userId } from "@/state/db"
+
+export function CursorArrows() {
+  const otherSessions = createMemo(() =>
+    Object.values(sessions).filter(
+      ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
+    ),
+  )
+
+  return (
+    <For each={otherSessions()}>
+      {(session) => <CursorArrow session={session} />}
+    </For>
+  )
+}
 
 type Point = [number, number]
-export function CursorArrow(props: { session: Session }) {
+function CursorArrow(props: { session: Session }) {
   const point = createMemo<Point>(() => [
     props.session.x * CANVAS_WIDTH,
     props.session.y * CANVAS_HEIGHT,

@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  onMount,
 } from "solid-js"
 import {
   animationDelay,
@@ -20,7 +21,7 @@ import {
   zIndex,
   animationRepeat,
 } from "./dustParticles.css"
-import { db } from "../../routes/state"
+import { db } from "@/state/db"
 import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
@@ -36,7 +37,8 @@ export function DustParticles() {
     return new WebGLFluidEnhanced(container())
   })
 
-  createEffect(() => {
+  // TODO: move elsewhere
+  onMount(() => {
     simulation()?.setConfig({
       transparent: true,
       simResolution: 64,

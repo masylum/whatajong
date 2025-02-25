@@ -1,4 +1,4 @@
-import { CursorArrow } from "./cursorArrow"
+import { CursorArrows } from "./cursorArrows"
 import { DustParticles } from "./dustParticles"
 import { didPlayerWin, getWinningSuit, type Game } from "@repo/game/game"
 import { bamboo, character, circle, getDeck, type Card } from "@repo/game/deck"
@@ -25,14 +25,14 @@ import {
 } from "./gameOver.css"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { db, userId } from "../../routes/state"
-import { sessions } from "../../routes/state"
+import { db, userId } from "@/state/db"
 import { Avatar } from "@/components/avatar"
 import { isMultiplayer, type Player } from "@repo/game/player"
 import { Defs } from "./defs"
 import { LinkButton } from "@/components/button"
 import { BasicTile } from "./basicTile"
 import { huesAndShades } from "@/styles/colors"
+import { nanoid } from "nanoid"
 
 // biome-ignore format:
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Mission Accomplished!", "Winner!", "Glorious!", "Well Played!", "You Conquered!" ]
@@ -45,12 +45,6 @@ type Props = {
 }
 
 export function GameOver(props: Props) {
-  const otherSessions = createMemo(() =>
-    Object.values(sessions).filter(
-      ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
-    ),
-  )
-
   return (
     <div class={gameOverClass}>
       <Show
@@ -59,9 +53,7 @@ export function GameOver(props: Props) {
       >
         <GameOverMultiPlayer game={props.game} />
       </Show>
-      <For each={otherSessions()}>
-        {(session) => <CursorArrow session={session} />}
-      </For>
+      <CursorArrows />
       <BouncingCards game={props.game} />
       <DustParticles />
     </div>
@@ -87,7 +79,10 @@ function GameOverSinglePlayer(props: { game: Game }) {
         <Time game={props.game} />
         <TotalPoints game={props.game} points={player().points} />
       </div>
-      <LinkButton hue={win() ? "bamboo" : "character"} href="/game">
+      <LinkButton
+        hue={win() ? "bamboo" : "character"}
+        href={`/play/${nanoid()}`}
+      >
         Play again
       </LinkButton>
     </div>
@@ -222,9 +217,13 @@ function BouncingCards(props: { game: Game }) {
     () => db.players.all.find((player) => player.id !== userId())!,
   )
   const winningPlayer = createMemo(() => (win() ? player() : otherPlayer()))
-  const winningSuit = createMemo(() =>
-    getWinningSuit(db.tiles, winningPlayer().id),
-  )
+  const winningSuit = createMemo(() => {
+    const player = winningPlayer()
+    if (!player) return null
+
+    return getWinningSuit(db.tiles, winningPlayer().id)
+  })
+
   const cards = createMemo<Card[]>(() => {
     switch (winningSuit()) {
       case "b":

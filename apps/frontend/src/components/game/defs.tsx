@@ -1,5 +1,5 @@
 import { AVATAR_SIZE } from "@/components/avatar"
-import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { color } from "@/styles/colors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
@@ -16,7 +16,7 @@ const VISIBILITY_GRADIENT_ID = "visibility-gradient"
 
 export function Defs() {
   return (
-    <svg style={{ width: 0, height: 0 }}>
+    <svg style={{ position: "absolute" }}>
       <defs>
         <mask
           id={AVATAR_MASK_ID}

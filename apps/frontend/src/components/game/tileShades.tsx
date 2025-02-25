@@ -1,7 +1,7 @@
 import { createMemo, Show } from "solid-js"
-import { db, SIDE_SIZES } from "../../routes/state"
+import { db } from "@/state/db"
 import { getFinder, type Tile } from "@repo/game/tile"
-import { TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import { TILE_HEIGHT, TILE_WIDTH, SIDE_SIZES } from "@/state/constants"
 import { shadeClass } from "./tileShades.css"
 import { SOFT_SHADE_FILTER_ID } from "./defs"
 

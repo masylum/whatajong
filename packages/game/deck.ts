@@ -117,3 +117,15 @@ export function isJoker(card: Card) {
 export function isWind(card: Card) {
   return matchesSuit(card, "w") ? (card as Winds) : null
 }
+
+export function isBamboo(card: Card) {
+  return matchesSuit(card, "b") ? (card as Bamboo) : null
+}
+
+export function isCharacter(card: Card) {
+  return matchesSuit(card, "c") ? (card as Character) : null
+}
+
+export function isCircle(card: Card) {
+  return matchesSuit(card, "o") ? (card as Circle) : null
+}

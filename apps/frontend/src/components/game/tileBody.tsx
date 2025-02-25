@@ -1,7 +1,11 @@
 import { isFlower, type Card } from "@repo/game/deck"
 import { isSeason } from "@repo/game/deck"
-import { SIDE_SIZES } from "../../routes/state"
-import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "../../routes/state"
+import {
+  SIDE_SIZES,
+  CORNER_RADIUS,
+  TILE_HEIGHT,
+  TILE_WIDTH,
+} from "@/state/constants"
 import { createMemo } from "solid-js"
 import {
   BODY_GRADIENT_ID,

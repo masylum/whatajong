@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js"
-import { db } from "../../routes/state"
+import { db, playerColors } from "@/state/db"
 import {
   barClass,
   barImageClass,
@@ -26,7 +26,6 @@ import type { Player } from "@repo/game/player"
 import { getComboMultiplier, type Powerup } from "@repo/game/powerups"
 import { getPlayerStrength } from "@repo/game/player"
 import { Avatar } from "@/components/avatar"
-import { playerColors } from "../../routes/state"
 import { BasicTile } from "./basicTile"
 
 export function Players() {

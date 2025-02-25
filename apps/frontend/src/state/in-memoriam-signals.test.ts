@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { Database } from "./in-memoriam-signals"
+import { Database } from "../state/in-memoriam-signals"
 import { createMemo } from "solid-js"
 import { createRoot } from "solid-js"
 

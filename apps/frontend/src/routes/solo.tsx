@@ -1,11 +1,11 @@
 import { Match, Show, Switch } from "solid-js"
-import { useParams } from "@solidjs/router"
 import { game } from "@/state/db"
 import { Board } from "@/components/game/board"
 import { GameOver } from "@/components/game/gameOver"
 import { createOnlineMotor } from "@/state/motors/online"
+import { useParams } from "@solidjs/router"
 
-export function Game() {
+export function Solo() {
   const params = useParams()
 
   const ws = createOnlineMotor({

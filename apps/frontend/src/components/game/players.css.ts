@@ -1,7 +1,7 @@
 import { createVar, style } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { AVATAR_SIZE } from "@/components/avatar"
-import { SIDE_SIZES } from "../../routes/state"
+import { SIDE_SIZES } from "@/state/constants"
 import { color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 

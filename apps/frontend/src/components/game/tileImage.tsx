@@ -1,8 +1,10 @@
 import type { Card } from "@repo/game/deck"
-import { TILE_WIDTH } from "../../routes/state"
-import { TILE_HEIGHT } from "../../routes/state"
-import { SIDE_SIZES } from "../../routes/state"
-import { INNER_PADING } from "../../routes/state"
+import {
+  TILE_WIDTH,
+  TILE_HEIGHT,
+  SIDE_SIZES,
+  INNER_PADING,
+} from "@/state/constants"
 
 export function TileImage(props: { card: Card }) {
   return (

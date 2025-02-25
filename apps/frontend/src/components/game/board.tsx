@@ -1,5 +1,5 @@
 import { createEffect, createMemo, createSignal, For } from "solid-js"
-import { CursorArrow } from "./cursorArrow"
+import { CursorArrows } from "./cursorArrows"
 import { TileComponent } from "./tileComponent"
 import { Players } from "./players"
 import { Stats } from "./stats"
@@ -12,26 +12,37 @@ import {
 import { DustParticles } from "./dustParticles"
 import { getNumber, isDragon } from "@repo/game/deck"
 import type { Game } from "@repo/game/game"
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  db,
-  sessions,
-  userId,
-} from "../../routes/state"
+import { db, userId, hover } from "@/state/db"
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
+import { getFinder } from "@repo/game/tile"
+import { MAP_LEVELS } from "@repo/game/map"
+import { Audio } from "./audio"
 
 type BoardProps = {
-  ws: WebSocket
+  ws?: WebSocket
   game: Game
 }
 export function Board(props: BoardProps) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
-  const otherSessions = createMemo(() =>
-    Object.values(sessions).filter(
-      ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
-    ),
-  )
+  const disclosedTile = createMemo(() => {
+    const tile = hover()
+    if (!tile) return
+    const find = getFinder(db.tiles, tile)
+
+    for (let z = MAP_LEVELS - 1; z >= 1; z--) {
+      const leftTile = find(-2, -1, z) || find(-2, 0, z) || find(-2, 1, z)
+      if (leftTile) {
+        return leftTile
+      }
+    }
+  })
+
+  const hiddenImage = createMemo(() => {
+    const tile = disclosedTile()
+    if (!tile) return
+    return getFinder(db.tiles, tile)(0, 0, -1)
+  })
 
   const dragons = createMemo(() => {
     const [left, right] = db.players.all
@@ -108,6 +119,8 @@ export function Board(props: BoardProps) {
           {(tile) => (
             <TileComponent
               tile={tile}
+              disclosedTile={disclosedTile() ?? null}
+              hiddenImage={hiddenImage() ?? null}
               onSelect={(tile) => {
                 const id = `${tile.id}-${userId()}`
                 const selection = {
@@ -118,7 +131,7 @@ export function Board(props: BoardProps) {
                 }
                 db.selections.set(id, selection)
 
-                props.ws.send(
+                props.ws?.send(
                   JSON.stringify({
                     type: "select-tile",
                     id: selection.id,
@@ -132,10 +145,9 @@ export function Board(props: BoardProps) {
       </div>
       <Stats />
       <div class={mountainsClass} />
-      <For each={otherSessions()}>
-        {(session) => <CursorArrow session={session} />}
-      </For>
+      <CursorArrows />
       <DustParticles />
+      <Audio />
     </div>
   )
 }

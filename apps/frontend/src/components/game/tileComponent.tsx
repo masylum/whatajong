@@ -1,18 +1,12 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
+import { db, hover, setHover, userId, playerColors } from "@/state/db"
 import {
   CORNER_RADIUS,
-  db,
-  disclosedTile,
-  hiddenImage,
   INNER_PADING,
-  hover,
-  setHover,
   SIDE_SIZES,
   TILE_HEIGHT,
   TILE_WIDTH,
-  userId,
-  playerColors,
-} from "../../routes/state"
+} from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -32,10 +26,22 @@ import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import { color } from "@/styles/colors"
 import { getPointsWithCombo } from "@repo/game/powerups"
-import { isFlower, isSeason } from "@repo/game/deck"
+import {
+  isDragon,
+  isFlower,
+  isJoker,
+  isSeason,
+  isWind,
+  isBamboo,
+  isCharacter,
+  isCircle,
+} from "@repo/game/deck"
+import { play, SOUNDS } from "./audio"
 
 type Props = {
   tile: Tile
+  disclosedTile: Tile | null
+  hiddenImage: Tile | null
   onSelect: (tile: Tile) => void
 }
 
@@ -109,6 +115,7 @@ export function TileComponent(props: Props) {
 
     if (prevSelected && !sel) {
       setOopsie(true)
+      play(SOUNDS.SHAKE)
       setTimeout(() => {
         setOopsie(false)
       }, SHAKE_DURATION * SHAKE_REPEAT)
@@ -127,6 +134,23 @@ export function TileComponent(props: Props) {
       }, DELETED_DURATION)
 
       setDeletedAnimation(true)
+
+      if (isDragon(props.tile.card)) {
+        play(SOUNDS.DRAGON)
+      } else if (isJoker(props.tile.card)) {
+        play(SOUNDS.GONG)
+      } else if (isWind(props.tile.card)) {
+        play(SOUNDS.WIND)
+      } else if (isBamboo(props.tile.card)) {
+        play(SOUNDS.BAMBOO)
+      } else if (isCharacter(props.tile.card)) {
+        play(SOUNDS.DENG)
+      } else if (isCircle(props.tile.card)) {
+        play(SOUNDS.DING)
+      } else {
+        play(SOUNDS.DING)
+      }
+
       setTimeout(() => {
         setDeletedAnimation(false)
       }, FLOATING_NUMBER_DURATION)
@@ -143,9 +167,10 @@ export function TileComponent(props: Props) {
   })
 
   const enhanceVisibility = createMemo(
-    () => disclosedTile()?.id === props.tile.id,
+    () => props.disclosedTile?.id === props.tile.id,
   )
-  const hideImage = createMemo(() => hiddenImage()?.id === props.tile.id)
+
+  const hideImage = createMemo(() => props.hiddenImage?.id === props.tile.id)
 
   return (
     <>
@@ -206,7 +231,6 @@ export function TileComponent(props: Props) {
             />
 
             {/* Clickable overlay with hover effect */}
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: this is a mouse game */}
             <path
               d={strokePath}
               fill={fillColor()}
@@ -219,7 +243,8 @@ export function TileComponent(props: Props) {
               onMouseLeave={() => {
                 setHover(null)
               }}
-              onClick={() => {
+              onMouseDown={() => {
+                play(SOUNDS.CLICK)
                 props.onSelect(props.tile)
               }}
             />

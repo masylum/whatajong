@@ -45,7 +45,6 @@ export const gameRecipe = recipe({
       [shakeIntensity]: "7",
     },
     position: "relative",
-    overflow: "hidden",
     height: "100vh",
     width: "100vw",
     background: `
@@ -55,6 +54,9 @@ export const gameRecipe = recipe({
     `,
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     transition: "all 0.2s ease-in-out",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
     ":before": {
       backgroundImage: "url(/halftone.png)",
       content: "",
@@ -111,6 +113,7 @@ export const gameRecipe = recipe({
   },
 })
 
+// TODO: componentize
 export const mountainsClass = style({
   position: "fixed",
   bottom: 0,
@@ -124,4 +127,5 @@ export const mountainsClass = style({
     "radial-gradient(ellipse 700px 1000px at bottom, black 20%, transparent 90%)",
   zIndex: 2,
   mixBlendMode: "color-burn",
+  pointerEvents: "none",
 })

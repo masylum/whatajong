@@ -14,6 +14,8 @@ import {
 import { initSelectionsDb, type Selection } from "@repo/game/selection"
 import { initPlayersDb } from "@repo/game/player"
 
+const GAME_TIMEOUT = 1000 * 60 * 10 // 10 minutes
+
 export class GameState extends DurableObject {
   sessions: Map<WebSocket, Session>
   storage: DurableObjectStorage
@@ -41,6 +43,7 @@ export class GameState extends DurableObject {
       const powerups = await this.initState("powerups", () => ({}))
       const tiles = await this.initState("tiles", () => setup())
 
+      this.storage.setAlarm(Date.now() + GAME_TIMEOUT)
       this.state = { tiles, selections, powerups, game, players }
     })
 
@@ -291,5 +294,9 @@ export class GameState extends DurableObject {
         game: this.state.game,
       })
     }
+  }
+
+  async alarm() {
+    await this.storage.deleteAll()
   }
 }

@@ -1,9 +1,10 @@
 import type { ParentProps } from "solid-js"
 import { buttonClass } from "./button.css"
+import type { AccentHue } from "@/styles/colors"
 
 type Props = {
   href: string
-  hue: "bamboo" | "character"
+  hue: AccentHue
 } & ParentProps
 
 export function LinkButton(props: Props) {
