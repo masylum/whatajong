@@ -20,8 +20,8 @@
     "vite": "5.4.10"
   },
   "dependencies": {
-    "@openauthjs/openauth": "^0.3.9",
     "@repo/game": "workspace:*",
+    "@solid-primitives/clipboard": "^1.6.0",
     "@solid-primitives/map": "^0.6.0",
     "@solid-primitives/set": "^0.6.0",
     "@solid-primitives/timer": "^1.4.0",
@@ -30,16 +30,14 @@
     "@vanilla-extract/dynamic": "^2.1.2",
     "@vanilla-extract/recipes": "^0.5.5",
     "@vanilla-extract/vite-plugin": "^5.0.1",
-    "add": "^2.0.6",
+    "@vitejs/plugin-legacy": "^6.0.2",
     "haikunator": "^2.1.2",
     "nanoid": "^5.0.9",
     "perfect-cursors": "^1.0.5",
-    "physical-svg": "^0.0.8",
-    "sillyname": "^0.1.0",
+    "remeda": "^2.21.0",
     "solid-js": "^1.9.4",
     "solid-number-flow": "^0.5.3",
-    "solid-transition-group": "^0.3.0",
-    "valibot": "1.0.0-rc.2",
+    "typescript": "^5.7.2",
     "webgl-fluid-enhanced": "^0.8.0"
   }
 }

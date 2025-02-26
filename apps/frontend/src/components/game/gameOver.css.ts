@@ -1,4 +1,4 @@
-import { color } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { style, createVar } from "@vanilla-extract/css"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
@@ -83,10 +83,10 @@ export const pointsContainerClass = recipe({
       true: {
         selectors: {
           [`${screenClass.classNames.variants.win.true} &`]: {
-            background: `linear-gradient(to bottom, rgba(from ${color.bamboo30} r g b / 0.6), rgba(from ${color.bamboo30} r g b / 0))`,
+            background: `linear-gradient(to bottom, ${alpha(color.bamboo30, 0.6)}, ${alpha(color.bamboo30, 0)})`,
           },
           [`${screenClass.classNames.variants.win.false} &`]: {
-            background: `linear-gradient(to bottom, rgba(from ${color.character30} r g b / 0.6), rgba(from ${color.bamboo30} r g b / 0))`,
+            background: `linear-gradient(to bottom, ${alpha(color.character30, 0.6)}, ${alpha(color.character30, 0)})`,
           },
         },
       },

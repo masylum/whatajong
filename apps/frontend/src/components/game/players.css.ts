@@ -2,7 +2,7 @@ import { createVar, style } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { AVATAR_SIZE } from "@/components/avatar"
 import { SIDE_SIZES } from "@/state/constants"
-import { color } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 
 const powerupSize = createVar()
@@ -47,9 +47,9 @@ export const barClass = recipe({
   },
   variants: {
     color: {
-      b: { background: `rgba(from ${color.bamboo60} r g b / 0.3)` },
-      c: { background: `rgba(from ${color.character60} r g b / 0.3)` },
-      o: { background: `rgba(from ${color.circle60} r g b / 0.3)` },
+      b: { background: alpha(color.bamboo60, 0.3) },
+      c: { background: alpha(color.character60, 0.3) },
+      o: { background: alpha(color.circle60, 0.3) },
     },
   },
 })
@@ -228,9 +228,9 @@ export const comboRecipe = recipe({
   },
   variants: {
     dragon: {
-      c: { background: `rgba(from ${color.character40} r g b / 0.8)` },
-      f: { background: `rgba(from ${color.bamboo40} r g b / 0.8)` },
-      p: { background: `rgba(from ${color.circle40} r g b / 0.8)` },
+      c: { background: alpha(color.character40, 0.8) },
+      f: { background: alpha(color.bamboo40, 0.8) },
+      p: { background: alpha(color.circle40, 0.8) },
     },
   },
 })

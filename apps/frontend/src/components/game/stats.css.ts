@@ -1,7 +1,6 @@
 import { style } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
-import { color, hueVariants } from "@/styles/colors"
-import { recipe } from "@vanilla-extract/recipes"
+import { color } from "@/styles/colors"
 
 export const statsContainer = style({
   display: "flex",
@@ -40,30 +39,4 @@ export const menuContainer = style({
   justifyContent: "space-between",
   alignItems: "center",
   gap: 32,
-})
-
-export const menuItem = recipe({
-  base: {
-    fontSize: 24,
-    fontFamily: primary,
-    lineHeight: 1,
-    display: "flex",
-    alignItems: "center",
-    paddingInline: 12,
-    paddingBlock: 8,
-    gap: 8,
-    borderRadius: 8,
-    border: "none",
-    cursor: "pointer",
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      backgroundColor: `rgba(from ${kolor(60)} r g b / 0.1)`,
-      color: kolor(40),
-      ":hover": {
-        backgroundColor: `rgba(from ${kolor(60)} r g b / 0.2)`,
-        color: kolor(30),
-      },
-    })),
-  },
 })

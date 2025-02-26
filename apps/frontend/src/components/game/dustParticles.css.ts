@@ -112,6 +112,7 @@ export const dustParticle = recipe({
     opacity: 0,
     transform: `scale(${scale})`,
     zIndex,
+    willChange: "transform, opacity",
   },
   variants: {
     direction: {

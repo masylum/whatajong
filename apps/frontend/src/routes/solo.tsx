@@ -1,4 +1,4 @@
-import { Match, Show, Switch } from "solid-js"
+import { Show } from "solid-js"
 import { game } from "@/state/db"
 import { Board } from "@/components/game/board"
 import { GameOver } from "@/components/game/gameOver"
@@ -18,14 +18,12 @@ export function Solo() {
       {(ws) => (
         <Show when={game()}>
           {(game) => (
-            <Switch fallback={"TODO"}>
-              <Match when={game().ended_at}>
-                <GameOver game={game()} />
-              </Match>
-              <Match when={game().started_at}>
-                <Board ws={ws()} game={game()} />
-              </Match>
-            </Switch>
+            <Show
+              when={game()?.ended_at}
+              fallback={<Board ws={ws()} game={game()} />}
+            >
+              <GameOver game={game()} ws={ws()} />
+            </Show>
           )}
         </Show>
       )}

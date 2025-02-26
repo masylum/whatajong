@@ -1,4 +1,3 @@
-import { AVATAR_SIZE } from "@/components/avatar"
 import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { color } from "@/styles/colors"
 
@@ -7,7 +6,6 @@ export const SIDE_GRADIENT_ID = "side-gradient"
 export const SIDE_FLOWER_GRADIENT_ID = "side-flower-gradient"
 export const SIDE_SEASON_GRADIENT_ID = "side-season-gradient"
 export const VISIBILITY_MASK_ID = "visibility-mask"
-export const AVATAR_MASK_ID = "avatar-mask"
 export const BODY_GRADIENT_ID = "body-gradient"
 export const FLOWER_BODY_GRADIENT_ID = "flower-body-gradient"
 export const SEASON_BODY_GRADIENT_ID = "season-body-gradient"
@@ -18,21 +16,6 @@ export function Defs() {
   return (
     <svg style={{ position: "absolute" }}>
       <defs>
-        <mask
-          id={AVATAR_MASK_ID}
-          maskUnits="userSpaceOnUse"
-          x={0}
-          y={0}
-          width={AVATAR_SIZE}
-          height={AVATAR_SIZE}
-        >
-          <rect
-            width={AVATAR_SIZE}
-            height={AVATAR_SIZE}
-            rx={AVATAR_SIZE * 2}
-            fill="#FFFFFF"
-          />
-        </mask>
         <filter id={SOFT_SHADE_FILTER_ID}>
           <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur" />
         </filter>

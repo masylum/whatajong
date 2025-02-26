@@ -133,8 +133,6 @@ for (const hue in huesAndShades) {
 }
 export const color = flatten as Record<Color, string>
 
-export type Alpha = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 9.5 | 10
-
 export function colorize(hue: AccentHue, shade: ShadeTypes<AccentHue>) {
   return `${hue}${shade}` as AccentColor
 }
@@ -186,9 +184,12 @@ export function forEachHue(
   }
 }
 
-export function alpha(colorName: string, alpha: Alpha) {
-  const extractedColor = colorName.match(/\((.*?)\)/)![1]
-  return `oklch(${extractedColor} / ${alpha / 10})`
+export function alpha(colorName: string, alpha: number) {
+  const r = Number.parseInt(colorName.slice(1, 3), 16)
+  const g = Number.parseInt(colorName.slice(3, 5), 16)
+  const b = Number.parseInt(colorName.slice(5, 7), 16)
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
 export type HueShadeGetter = (

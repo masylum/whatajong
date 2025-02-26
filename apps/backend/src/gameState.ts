@@ -159,6 +159,8 @@ export class GameState extends DurableObject {
     this.ctx.acceptWebSocket(server)
 
     const id = url.searchParams.get("id")
+    const modality = url.searchParams.get("modality") ?? "solo"
+
     if (!id) {
       return new Response("Missing id", { status: 400 })
     }
@@ -175,11 +177,17 @@ export class GameState extends DurableObject {
       )
 
       if (playerIds.size === 0) {
-        // TODO: lobby state + start timer
-        this.state.game.started_at = new Date().getTime()
         this.state.players[id] = { id, points: 0, strength: 0, order: 0 }
+
+        if (modality === "solo") {
+          this.state.game.started_at = new Date().getTime()
+        }
       } else if (!playerIds.has(id) && playerIds.size === 1) {
         this.state.players[id] = { id, points: 0, strength: 0, order: 1 }
+
+        if (modality === "duel") {
+          this.state.game.started_at = new Date().getTime() + 3_000
+        }
       }
 
       return new Response(null, {

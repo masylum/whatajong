@@ -26,18 +26,25 @@ import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import WebGLFluidEnhanced from "webgl-fluid-enhanced"
+import { difference } from "@/lib/setMethods"
 
 export function DustParticles() {
   const [container, setContainer] = createSignal<HTMLDivElement>()
   const [windDirection, setWindDirection] = createSignal<WindDirection | null>(
     null,
   )
+
   const simulation = createMemo(() => {
     if (!container()) return
-    return new WebGLFluidEnhanced(container())
+
+    try {
+      return new WebGLFluidEnhanced(container())
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   })
 
-  // TODO: move elsewhere
   onMount(() => {
     simulation()?.setConfig({
       transparent: true,
@@ -53,11 +60,15 @@ export function DustParticles() {
       splatRadius: 20,
       colorPalette: ["#cccccc"],
     })
-    simulation()?.start()
-  })
 
-  onCleanup(() => {
-    simulation()?.stop()
+    const timeout = setTimeout(() => {
+      simulation()?.start()
+    }, 2_000)
+
+    onCleanup(() => {
+      clearTimeout(timeout)
+      simulation()?.stop()
+    })
   })
 
   createEffect(() => {
@@ -94,7 +105,7 @@ export function DustParticles() {
 
   createEffect((prev: Tile[]) => {
     const setTiles = new Set(windTiles())
-    const newWindTiles = setTiles.difference(new Set(prev))
+    const newWindTiles = difference(setTiles, new Set(prev))
 
     if (newWindTiles.size) {
       const windTile = newWindTiles.values().next().value!

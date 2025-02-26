@@ -2,17 +2,87 @@ import {
   createMemo,
   createRenderEffect,
   createSignal,
+  createEffect,
   For,
   onCleanup,
 } from "solid-js"
 import { PerfectCursor } from "perfect-cursors"
 import { db } from "@/state/db"
+import type { Session, WsMessage } from "@repo/game/types"
+import { playerColors, sessions, userId } from "@/state/db"
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
-import type { Session } from "@repo/game/types"
-import { playerColors } from "@/state/db"
-import { sessions, userId } from "@/state/db"
 
-export function CursorArrows() {
+const CURSOR_UPDATE_INTERVAL = 55
+
+export function CursorArrows(props: {
+  websocket?: WebSocket
+}) {
+  const [abortController] = createSignal(new AbortController())
+  const [lastSentTimestamp, setLastSentTimestamp] = createSignal(0)
+
+  createEffect(() => {
+    if (!props.websocket) return
+
+    // Get the canvas position
+    const getCanvasRect = () => {
+      // Canvas is centered in the window
+      const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
+      const canvasRight = canvasLeft + CANVAS_WIDTH
+      const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
+      const canvasBottom = canvasTop + CANVAS_HEIGHT
+
+      return {
+        left: canvasLeft,
+        right: canvasRight,
+        top: canvasTop,
+        bottom: canvasBottom,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      }
+    }
+
+    document.addEventListener(
+      "mousemove",
+      (ev) => {
+        const rect = getCanvasRect()
+
+        // Calculate position relative to canvas (0-1)
+        // Clamp values to ensure they stay within the canvas
+        const relativeX = Math.max(
+          0,
+          Math.min(1, (ev.pageX - rect.left) / rect.width),
+        )
+        const relativeY = Math.max(
+          0,
+          Math.min(1, (ev.pageY - rect.top) / rect.height),
+        )
+
+        const now = Date.now()
+
+        if (
+          now - lastSentTimestamp() > CURSOR_UPDATE_INTERVAL &&
+          props.websocket?.readyState === WebSocket.OPEN
+        ) {
+          const message = {
+            type: "sessions-move",
+            id: userId(),
+            x: relativeX,
+            y: relativeY,
+          } as WsMessage
+          props.websocket?.send(JSON.stringify(message))
+          setLastSentTimestamp(now)
+        }
+      },
+      {
+        signal: abortController().signal,
+      },
+    )
+  })
+
+  onCleanup(() => {
+    abortController().abort()
+  })
+
   const otherSessions = createMemo(() =>
     Object.values(sessions).filter(
       ({ id, x, y }) => id !== userId() && x !== -1 && y !== -1,
@@ -28,10 +98,28 @@ export function CursorArrows() {
 
 type Point = [number, number]
 function CursorArrow(props: { session: Session }) {
-  const point = createMemo<Point>(() => [
-    props.session.x * CANVAS_WIDTH,
-    props.session.y * CANVAS_HEIGHT,
-  ])
+  // Get the canvas position to convert relative coordinates (0-1) to absolute positions
+  const getCanvasRect = () => {
+    const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
+    const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
+
+    return {
+      left: canvasLeft,
+      top: canvasTop,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+    }
+  }
+
+  // Convert relative coordinates (0-1) to actual canvas positions
+  const point = createMemo<Point>(() => {
+    const rect = getCanvasRect()
+    return [
+      rect.left + props.session.x * rect.width,
+      rect.top + props.session.y * rect.height,
+    ]
+  })
+
   const player = createMemo(() => db.players.get(props.session.id)!)
   const [xy, setXy] = createSignal(point())
 
@@ -45,6 +133,23 @@ function CursorArrow(props: { session: Session }) {
 
   createRenderEffect(() => {
     pc().addPoint(point())
+  })
+
+  // Update the cursor position when window is resized
+  createEffect(() => {
+    const handleResize = () => {
+      const rect = getCanvasRect()
+      pc().addPoint([
+        rect.left + props.session.x * rect.width,
+        rect.top + props.session.y * rect.height,
+      ])
+    }
+
+    window.addEventListener("resize", handleResize)
+
+    onCleanup(() => {
+      window.removeEventListener("resize", handleResize)
+    })
   })
 
   onCleanup(() => pc().dispose())

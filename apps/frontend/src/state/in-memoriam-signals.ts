@@ -7,6 +7,7 @@ import {
   type SetStoreFunction,
 } from "solid-js/store"
 import { batch } from "solid-js"
+import { intersection } from "@/lib/setMethods"
 
 type Config<Type, Attr extends keyof Type> = {
   indexes: Readonly<Attr[]>
@@ -89,7 +90,7 @@ export class Database<Type, Attr extends keyof Type> {
       const entitySet = this.indexes.get(attr)!.get(value)
       if (!entitySet || entitySet.size === 0) return []
 
-      entities = entities ? entitySet.intersection(entities) : entitySet
+      entities = entities ? intersection(entities, entitySet) : entitySet
     }
 
     if (!entities) return []

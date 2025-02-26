@@ -1,6 +1,6 @@
 import type { State } from "@repo/game/types"
 import { createStore, produce } from "solid-js/store"
-import { batch, createMemo, createSignal } from "solid-js"
+import { batch, createSignal } from "solid-js"
 import type { Session, WsMessage } from "@repo/game/types"
 import { tileIndexes, type Tile, type TileIndexes } from "@repo/game/tile"
 import { Database } from "./in-memoriam-signals"
@@ -17,9 +17,9 @@ import type { PowerupIndexes } from "@repo/game/powerups"
 import { colorsByOrder } from "@/styles/colors"
 import type { Game } from "@repo/game/game"
 import Haikunator from "haikunator"
+import { difference } from "@/lib/setMethods"
 
 export const [sessions, setSessions] = createStore<Record<string, Session>>({})
-export const [hover, setHover] = createSignal<Tile | null>(null)
 export const [game, setGame] = createSignal<Game | null>(null)
 export const [muted, setMuted] = createSignal(false)
 
@@ -40,7 +40,7 @@ export const db = {
   game: game(),
 } as const
 
-export const userId = createMemo(() => {
+export function userId() {
   const storedId = localStorage.getItem("userId")
   if (storedId) return storedId
 
@@ -51,7 +51,7 @@ export const userId = createMemo(() => {
 
   localStorage.setItem("userId", userId)
   return userId
-})
+}
 
 function syncState(state: State) {
   batch(() => {
@@ -65,7 +65,8 @@ function syncState(state: State) {
 
       const table = db[k]
       const updates = state[k]!
-      const keysToDelete = new Set(Object.keys(table.byId)).difference(
+      const keysToDelete = difference(
+        new Set(Object.keys(table.byId)),
         new Set(Object.keys(updates)),
       )
 

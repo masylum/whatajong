@@ -1,20 +1,21 @@
 /* @refresh reload */
 import { Route, Router } from "@solidjs/router"
 import { render } from "solid-js/web"
-import { Game } from "./routes/game"
+import { Duel } from "./routes/duel"
 import { Home } from "./routes/home"
 import { Solo } from "./routes/solo"
 
 const root = document.getElementById("root")
 
 import "./styles/reset.css"
+import { Layout } from "./components/layout"
 
 render(
   () => (
-    <Router>
+    <Router root={Layout}>
       <Route path="/" component={Home} />
       <Route path="/play/:id" component={Solo} />
-      <Route path="/:userId/games/:id" component={Game} />
+      <Route path="/duel/:id" component={Duel} />
     </Router>
   ),
   root!,

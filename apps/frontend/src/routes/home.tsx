@@ -11,7 +11,6 @@ import {
   navClass,
   titleClass,
 } from "./home.css"
-import { Defs } from "@/components/game/defs"
 import { mountainsClass } from "@/components/game/board.css"
 import { BasicTile } from "@/components/game/basicTile"
 import { getDeck } from "@repo/game/deck"
@@ -26,14 +25,13 @@ function cards() {
 export function Home() {
   return (
     <div class={homeClass}>
-      <Defs />
       <Frame />
       <h1 class={titleClass}>Mahjong arena</h1>
       <nav class={navClass}>
         <a href={`/play/${nanoid()}`} class={buttonClass({ hue: "bamboo" })}>
           classic
         </a>
-        <a href="/duel" class={buttonClass({ hue: "character" })}>
+        <a href={`/duel/${nanoid()}`} class={buttonClass({ hue: "character" })}>
           duel
         </a>
         <a href="/instructions" class={buttonClass({ hue: "circle" })}>

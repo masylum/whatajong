@@ -1,5 +1,5 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { db, hover, setHover, userId, playerColors } from "@/state/db"
+import { db, userId, playerColors } from "@/state/db"
 import {
   CORNER_RADIUS,
   INNER_PADING,
@@ -24,43 +24,43 @@ import { isFree, type Tile } from "@repo/game/tile"
 import { VISIBILITY_MASK_ID } from "./defs"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import { color } from "@/styles/colors"
+import { color, alpha } from "@/styles/colors"
 import { getPointsWithCombo } from "@repo/game/powerups"
-import {
-  isDragon,
-  isFlower,
-  isJoker,
-  isSeason,
-  isWind,
-  isBamboo,
-  isCharacter,
-  isCircle,
-} from "@repo/game/deck"
+import { isDragon, isFlower, isJoker, isSeason, isWind } from "@repo/game/deck"
 import { play, SOUNDS } from "./audio"
+import { isDeepEqual } from "remeda"
 
 type Props = {
   tile: Tile
-  disclosedTile: Tile | null
-  hiddenImage: Tile | null
+  hovered: boolean
+  enhanceVisibility: boolean
+  hideImage: boolean
   onSelect: (tile: Tile) => void
+  onMouseEnter: (tile: Tile) => void
+  onMouseLeave: () => void
 }
 
 export function TileComponent(props: Props) {
-  const coords = createMemo(() => {
-    const x = props.tile.x
-    const y = props.tile.y
-    const z = props.tile.z
-    const baseX = (x * TILE_WIDTH) / 2
-    const baseY = (y * TILE_HEIGHT) / 2
+  const coords = createMemo(
+    () => {
+      const x = props.tile.x
+      const y = props.tile.y
+      const z = props.tile.z
+      const baseX = (x * TILE_WIDTH) / 2
+      const baseY = (y * TILE_HEIGHT) / 2
 
-    return {
-      x: baseX + z * -SIDE_SIZES.xSide,
-      y: baseY + z * -SIDE_SIZES.ySide,
-    }
-  })
-  const canBeSelected = createMemo(() =>
-    isFree(db.tiles, props.tile, db.powerups, userId()),
+      return {
+        x: baseX + z * -SIDE_SIZES.xSide,
+        y: baseY + z * -SIDE_SIZES.ySide,
+      }
+    },
+    { equal: isDeepEqual },
   )
+
+  const canBeSelected = createMemo(() => {
+    return isFree(db.tiles, props.tile, db.powerups, userId())
+  })
+
   const zIndex = createMemo(
     () =>
       props.tile.z * MAP_WIDTH * MAP_HEIGHT +
@@ -71,7 +71,6 @@ export function TileComponent(props: Props) {
   const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
-  const hovered = createMemo(() => hover() === props.tile)
   const powerups = createMemo(() =>
     db.powerups.filterBy({ playerId: userId() }),
   )
@@ -85,15 +84,17 @@ export function TileComponent(props: Props) {
     return "null"
   })
 
-  // TODO: display both at the same time
-  const selected = createMemo(() => {
-    const all = db.selections.filterBy({ tileId: props.tile.id })
+  const selected = createMemo(
+    () => {
+      const all = db.selections.filterBy({ tileId: props.tile.id })
 
-    return (
-      all.find((selection) => selection.playerId === userId()) ||
-      all.find((selection) => selection.playerId !== userId())
-    )
-  })
+      return (
+        all.find((selection) => selection.playerId === userId()) ||
+        all.find((selection) => selection.playerId !== userId())
+      )
+    },
+    { equal: isDeepEqual },
+  )
 
   const fillColor = createMemo(() => {
     const sel = selected()
@@ -104,7 +105,7 @@ export function TileComponent(props: Props) {
 
   const fillOpacity = createMemo(() => {
     const sel = selected()
-    if (!sel) return hovered() && canBeSelected() ? 0.3 : 0
+    if (!sel) return props.hovered && canBeSelected() ? 0.3 : 0
 
     return sel.confirmed ? 0.5 : 0.3
   })
@@ -128,6 +129,11 @@ export function TileComponent(props: Props) {
   createEffect((prevDeleted: boolean) => {
     const deleted = !!props.tile.deletedBy
 
+    if (prevDeleted && !deleted) {
+      setDeleted(false)
+      return false
+    }
+
     if (!prevDeleted && deleted) {
       setTimeout(() => {
         setDeleted(true)
@@ -141,12 +147,6 @@ export function TileComponent(props: Props) {
         play(SOUNDS.GONG)
       } else if (isWind(props.tile.card)) {
         play(SOUNDS.WIND)
-      } else if (isBamboo(props.tile.card)) {
-        play(SOUNDS.BAMBOO)
-      } else if (isCharacter(props.tile.card)) {
-        play(SOUNDS.DENG)
-      } else if (isCircle(props.tile.card)) {
-        play(SOUNDS.DING)
       } else {
         play(SOUNDS.DING)
       }
@@ -166,12 +166,6 @@ export function TileComponent(props: Props) {
     return undefined
   })
 
-  const enhanceVisibility = createMemo(
-    () => props.disclosedTile?.id === props.tile.id,
-  )
-
-  const hideImage = createMemo(() => props.hiddenImage?.id === props.tile.id)
-
   return (
     <>
       <Show when={deletedAnimation() && props.tile.deletedBy}>
@@ -180,7 +174,7 @@ export function TileComponent(props: Props) {
             style={{
               left: `${coords().x + TILE_WIDTH / 2 + SIDE_SIZES.xSide}px`,
               top: `${coords().y + TILE_HEIGHT / 2 + 2 * SIDE_SIZES.ySide}px`,
-              background: `rgb(from ${playerColors(playerId())[1]} r g b / 0.5)`,
+              background: alpha(playerColors(playerId())[1], 0.5),
             }}
             class={floatingNumberAnimation}
           >
@@ -206,13 +200,15 @@ export function TileComponent(props: Props) {
           <g
             class={animation()}
             mask={
-              enhanceVisibility() ? `url(#${VISIBILITY_MASK_ID})` : undefined
+              props.enhanceVisibility
+                ? `url(#${VISIBILITY_MASK_ID})`
+                : undefined
             }
           >
             <TileSide card={props.tile.card} />
             <TileShades tile={props.tile} />
             <TileBody card={props.tile.card} />
-            <Show when={!hideImage()}>
+            <Show when={!props.hideImage}>
               <image
                 href={`/tiles3/${props.tile.card}.webp`}
                 x={INNER_PADING - SIDE_SIZES.xSide * 2}
@@ -238,11 +234,9 @@ export function TileComponent(props: Props) {
               stroke="none"
               class={clickableClass}
               onMouseEnter={() => {
-                setHover(props.tile)
+                props.onMouseEnter(props.tile)
               }}
-              onMouseLeave={() => {
-                setHover(null)
-              }}
+              onMouseLeave={props.onMouseLeave}
               onMouseDown={() => {
                 play(SOUNDS.CLICK)
                 props.onSelect(props.tile)

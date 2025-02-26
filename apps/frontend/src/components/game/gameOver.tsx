@@ -1,4 +1,3 @@
-import { CursorArrows } from "./cursorArrows"
 import { DustParticles } from "./dustParticles"
 import { didPlayerWin, getWinningSuit, type Game } from "@repo/game/game"
 import { bamboo, character, circle, getDeck, type Card } from "@repo/game/deck"
@@ -28,7 +27,6 @@ import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { db, userId } from "@/state/db"
 import { Avatar } from "@/components/avatar"
 import { isMultiplayer, type Player } from "@repo/game/player"
-import { Defs } from "./defs"
 import { LinkButton } from "@/components/button"
 import { BasicTile } from "./basicTile"
 import { huesAndShades } from "@/styles/colors"
@@ -42,6 +40,7 @@ const SUIT_TITLES = { b: "bamboo", c: "character", o: "circle" }
 
 type Props = {
   game: Game
+  ws?: WebSocket
 }
 
 export function GameOver(props: Props) {
@@ -53,7 +52,6 @@ export function GameOver(props: Props) {
       >
         <GameOverMultiPlayer game={props.game} />
       </Show>
-      <CursorArrows />
       <BouncingCards game={props.game} />
       <DustParticles />
     </div>
@@ -70,7 +68,6 @@ function GameOverSinglePlayer(props: { game: Game }) {
 
   return (
     <div class={screenClass({ win: win() })}>
-      <Defs />
       <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
         <Title>{pick(WIN_TITLES)}</Title>
       </Show>
@@ -101,7 +98,6 @@ function GameOverMultiPlayer(props: { game: Game }) {
 
   return (
     <div class={screenClass({ win: win() })}>
-      <Defs />
       <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
         <Title>{pick(WIN_TITLES)}</Title>
       </Show>
@@ -183,7 +179,6 @@ function PlayerPoints(props: {
     </div>
   )
 }
-
 function BouncingCard(props: { card: Card }) {
   const cardStartX = createMemo(() => Math.random() * window.innerWidth)
   const cardEndX = createMemo(() => cardStartX() + (Math.random() - 0.5) * 400)

@@ -1,5 +1,7 @@
-import { AVATAR_MASK_ID } from "@/components/game/defs"
+import { nanoid } from "nanoid"
+import { createMemo } from "solid-js"
 
+const AVATAR_MASK_ID = "avatar-mask"
 export const AVATAR_SIZE = 36
 
 type AvatarProps = {
@@ -7,10 +9,10 @@ type AvatarProps = {
   colors: readonly string[]
   title?: string
   square?: boolean
-  size?: number
 }
 export function Avatar(props: AvatarProps) {
   const data = generateData(props.name, props.colors)
+  const maskId = createMemo(() => `${AVATAR_MASK_ID}-${nanoid()}`)
 
   return (
     <svg
@@ -21,8 +23,25 @@ export function Avatar(props: AvatarProps) {
       width={AVATAR_SIZE}
       height={AVATAR_SIZE}
     >
+      <defs>
+        <mask
+          id={maskId()}
+          maskUnits="userSpaceOnUse"
+          x={0}
+          y={0}
+          width={AVATAR_SIZE}
+          height={AVATAR_SIZE}
+        >
+          <rect
+            width={AVATAR_SIZE}
+            height={AVATAR_SIZE}
+            rx={AVATAR_SIZE * 2}
+            fill="#FFFFFF"
+          />
+        </mask>
+      </defs>
       <title>{props.name}</title>
-      <g mask={`url(#${AVATAR_MASK_ID})`}>
+      <g mask={`url(#${maskId()})`}>
         <rect
           width={AVATAR_SIZE}
           height={AVATAR_SIZE}

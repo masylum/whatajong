@@ -1,4 +1,4 @@
-import { color, hueVariants } from "@/styles/colors"
+import { color, hueVariants, alpha } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
@@ -58,10 +58,10 @@ export const buttonClass = recipe({
   },
   variants: {
     hue: hueVariants((hue) => ({
-      backgroundColor: `rgba(from ${hue(60)} r g b / 0.2)`,
+      backgroundColor: alpha(hue(60), 0.2),
       color: hue(30),
       ":hover": {
-        backgroundColor: `rgba(from ${hue(60)} r g b / 0.4)`,
+        backgroundColor: alpha(hue(60), 0.4),
         color: hue(20),
       },
     })),
