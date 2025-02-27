@@ -37,7 +37,6 @@
     "remeda": "^2.21.0",
     "solid-js": "^1.9.4",
     "solid-number-flow": "^0.5.3",
-    "typescript": "^5.7.2",
-    "webgl-fluid-enhanced": "^0.8.0"
+    "typescript": "^5.7.2"
   }
 }

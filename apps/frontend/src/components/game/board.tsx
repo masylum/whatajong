@@ -1,4 +1,10 @@
-import { createEffect, createMemo, createSignal, For } from "solid-js"
+import {
+  createEffect,
+  createMemo,
+  createSelector,
+  createSignal,
+  For,
+} from "solid-js"
 import { TileComponent } from "./tileComponent"
 import { Players } from "./players"
 import { Stats } from "./stats"
@@ -24,6 +30,7 @@ type BoardProps = {
 export function Board(props: BoardProps) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
   const [hover, setHover] = createSignal<string | null>(null)
+  const isHovered = createSelector(hover)
 
   const disclosedTile = createMemo(() => {
     const id = hover()
@@ -37,6 +44,7 @@ export function Board(props: BoardProps) {
       }
     }
   })
+  const isDisclosed = createSelector(disclosedTile)
 
   const hiddenImageId = createMemo(() => {
     const id = disclosedTile()
@@ -44,6 +52,7 @@ export function Board(props: BoardProps) {
     const tile = db.tiles.get(id)!
     return getFinder(db.tiles, tile)(0, 0, -1)?.id
   })
+  const isHiddenImage = createSelector(hiddenImageId)
 
   const dragons = createMemo(
     () => {
@@ -145,9 +154,9 @@ export function Board(props: BoardProps) {
           {(tile) => (
             <TileComponent
               tile={tile}
-              hovered={hover() === tile.id}
-              hideImage={hiddenImageId() === tile.id}
-              enhanceVisibility={disclosedTile() === tile.id}
+              hovered={isHovered(tile.id)}
+              hideImage={isHiddenImage(tile.id)}
+              enhanceVisibility={isDisclosed(tile.id)}
               onSelect={onSelect}
               onMouseEnter={(tile) => setHover(tile.id)}
               onMouseLeave={() => setHover(null)}

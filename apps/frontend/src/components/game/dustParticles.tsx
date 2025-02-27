@@ -4,7 +4,6 @@ import {
   createMemo,
   createSignal,
   onCleanup,
-  onMount,
 } from "solid-js"
 import {
   animationDelay,
@@ -25,14 +24,15 @@ import { db } from "@/state/db"
 import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import WebGLFluidEnhanced from "webgl-fluid-enhanced"
 import { difference } from "@/lib/setMethods"
+import { WebGLFluidEnhanced } from "@/lib/smoke"
 
 export function DustParticles() {
   const [container, setContainer] = createSignal<HTMLDivElement>()
   const [windDirection, setWindDirection] = createSignal<WindDirection | null>(
     null,
   )
+  let windTimeout: ReturnType<typeof setTimeout> | undefined
 
   const simulation = createMemo(() => {
     if (!container()) return
@@ -45,30 +45,8 @@ export function DustParticles() {
     }
   })
 
-  onMount(() => {
-    simulation()?.setConfig({
-      transparent: true,
-      simResolution: 64,
-      dyeResolution: 512,
-      colorful: false,
-      densityDissipation: 1.8,
-      velocityDissipation: 0.1,
-      hover: false,
-      bloom: false,
-      sunrays: false,
-      brightness: 0.9,
-      splatRadius: 20,
-      colorPalette: ["#cccccc"],
-    })
-
-    const timeout = setTimeout(() => {
-      simulation()?.start()
-    }, 2_000)
-
-    onCleanup(() => {
-      clearTimeout(timeout)
-      simulation()?.stop()
-    })
+  onCleanup(() => {
+    clearTimeout(windTimeout)
   })
 
   createEffect(() => {
@@ -78,22 +56,31 @@ export function DustParticles() {
     const screenWidth = window.innerWidth
     const screenHeight = window.innerHeight
 
+    const sim = simulation()
+
+    sim?.start()
+
     switch (direction) {
       case "n":
-        simulation()?.splatAtLocation(screenWidth / 2, screenHeight, 0, 300)
+        sim?.splatAtLocation(screenWidth / 2, screenHeight, 0, 500)
         break
       case "s":
-        simulation()?.splatAtLocation(screenWidth / 2, 0, 0, -300)
+        sim?.splatAtLocation(screenWidth / 2, 0, 0, -300)
         break
       case "e":
-        simulation()?.splatAtLocation(0, screenHeight / 2, 500, 0)
+        sim?.splatAtLocation(0, screenHeight / 2, 300, 0)
         break
       case "w":
-        simulation()?.splatAtLocation(screenWidth, screenHeight / 2, -500, 0)
+        sim?.splatAtLocation(screenWidth, screenHeight / 2, -500, 0)
         break
     }
 
-    setTimeout(() => {
+    if (windTimeout) {
+      clearTimeout(windTimeout)
+    }
+
+    windTimeout = setTimeout(() => {
+      sim?.stop()
       setWindDirection(null)
     }, 3_000) // 1s delay + 2s duration. Enough for all snow to fall
   })
