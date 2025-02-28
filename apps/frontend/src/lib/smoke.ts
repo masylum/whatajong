@@ -41,12 +41,12 @@ const defaultConfig = {
   simResolution: 64,
   dyeResolution: 512,
   densityDissipation: 2.5,
-  velocityDissipation: 1,
+  velocityDissipation: 1.2,
   pressure: 0.6,
   pressureIterations: 5,
   curl: 20,
   splatRadius: 15,
-  color: { r: 0.2, g: 0.2, b: 0.2 },
+  color: { r: 0.15, g: 0.15, b: 0.15 },
 }
 
 export class WebGLFluidEnhanced {

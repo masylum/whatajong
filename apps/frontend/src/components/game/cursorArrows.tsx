@@ -156,6 +156,7 @@ function CursorArrow(props: { session: Session }) {
 
   const cursorBias = [21, 18] as const
   const cursorColor = createMemo(() => playerColors(player().id)[5])
+  const borderColor = createMemo(() => playerColors(player().id)[2])
 
   return (
     <svg
@@ -179,11 +180,11 @@ function CursorArrow(props: { session: Session }) {
       <g fill="none" transform="rotate(0 16 16)" filter="url(#shadow)">
         <path
           d="M12 24.4219V8.4069L23.591 20.0259H16.81l-.411.124z"
-          fill="white"
+          fill={borderColor()}
         />
         <path
           d="M21.0845 25.0962L17.4795 26.6312L12.7975 15.5422L16.4835 13.9892z"
-          fill="white"
+          fill={borderColor()}
         />
         <path
           d="M19.751 24.4155L17.907 25.1895L14.807 17.8155L16.648 17.04z"

@@ -259,19 +259,15 @@ export class GameState extends DurableObject {
       }
 
       const firstSelection = selectionsDb.findBy({ playerId })
-      if (!firstSelection) {
+      if (!firstSelection || firstSelection.id === selection.id) {
         selectionsDb.set(selection.id, { ...selection, confirmed: true })
-        return
-      }
-
-      if (firstSelection.id === selection.id) {
-        selectionsDb.del(selection.id)
         return
       }
 
       const firstTile = tileDb.get(firstSelection.tileId)
       if (!firstTile || firstTile.deletedBy) {
-        selectionsDb.del(selection.id)
+        selectionsDb.del(firstSelection.id)
+        selectionsDb.set(selection.id, { ...selection, confirmed: true })
         return
       }
 
@@ -282,7 +278,6 @@ export class GameState extends DurableObject {
         deleteTile(tileDb, firstTile, playerId)
         resolveWinds(tileDb, powerupsDb, tile)
         getPowerups(powerupsDb, playerId, tile)
-        selectionsDb.del(selection.id)
 
         const points =
           player.points + getPointsWithCombo(powerupsDb, playerId, tile)

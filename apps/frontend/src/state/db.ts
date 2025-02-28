@@ -98,7 +98,6 @@ function syncState(state: State) {
 }
 
 export function onMessage(msg: WsMessage) {
-  if (msg.type !== "sessions-move") console.log("msg", msg)
   switch (msg.type) {
     case "sessions-quit":
       setSessions(

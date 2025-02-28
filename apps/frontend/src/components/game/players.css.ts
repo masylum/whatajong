@@ -13,7 +13,7 @@ export const playersClass = style({
   zIndex: 1,
   display: "flex",
   width: "100%",
-  gap: 100,
+  gap: 50,
   justifyContent: "space-between",
   alignItems: "center",
   paddingBlock: "24px",
@@ -146,7 +146,7 @@ export const barPlayerClass = recipe({
 })
 
 export const playerIdClass = style({
-  fontSize: "32px",
+  ...fontSize.h3,
   lineHeight: "1",
 })
 

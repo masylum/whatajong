@@ -17,6 +17,7 @@ import { LinkButton, Button } from "../button"
 export function Stats() {
   const params = useParams()
   const [time, setTimer] = createSignal(0)
+  const players = createMemo(() => db.players.all)
 
   const random = createMemo(() => {
     params.id // force a random id re-generation
@@ -48,10 +49,12 @@ export function Stats() {
           <ArrowLeft />
           back
         </LinkButton>
-        <LinkButton href={`/play/${random()}`} hue="character">
-          <Rotate />
-          restart
-        </LinkButton>
+        <Show when={players().length === 1}>
+          <LinkButton href={`/play/${random()}`} hue="character">
+            <Rotate />
+            restart
+          </LinkButton>
+        </Show>
         <Button
           type="button"
           hue="circle"
