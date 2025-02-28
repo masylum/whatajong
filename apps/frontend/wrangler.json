@@ -6,6 +6,6 @@
     "mode": "smart"
   },
   "vars": {
-    "API_URL": "wss://api.whatajong.com"
+    "VITE_API_URL": "wss://api.whatajong.com"
   }
 }
