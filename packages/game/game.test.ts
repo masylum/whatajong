@@ -66,7 +66,7 @@ describe("game", () => {
         { id: "2", card: "b4" as Card, x: 0, y: 0, z: 0, selections: [] },
         { id: "3", card: "b8" as Card, x: 0, y: 0, z: 0, selections: [] },
       ]
-      expect(calculatePoints(tiles)).toBe(6) // 2 + 2 + 2
+      expect(calculatePoints(tiles)).toBe(3) // 1 + 1 + 1
     })
 
     it("should calculate points for special tiles", () => {
@@ -82,9 +82,9 @@ describe("game", () => {
 
   describe("getPoints", () => {
     it("should calculate points correctly", () => {
-      expect(getPoints("b1")).toBe(2)
+      expect(getPoints("b1")).toBe(1)
       expect(getPoints("c5")).toBe(2)
-      expect(getPoints("o9")).toBe(2)
+      expect(getPoints("o9")).toBe(3)
       expect(getPoints("f1")).toBe(8)
       expect(getPoints("s1")).toBe(8)
       expect(getPoints("dc")).toBe(4)
@@ -106,7 +106,7 @@ describe("gameOverCondition", () => {
   describe("when single player", () => {
     beforeEach(() => {
       playersDb = initPlayersDb({
-        "1": { id: "1", order: 0, points: 0, strength: 0 },
+        "1": { id: "1", order: 0, points: 0 },
       })
     })
 
@@ -165,8 +165,8 @@ describe("gameOverCondition", () => {
   describe("when multiplayer", () => {
     beforeEach(() => {
       playersDb = initPlayersDb({
-        "1": { id: "1", order: 0, points: 0, strength: 0 },
-        "2": { id: "2", order: 1, points: 0, strength: 0 },
+        "1": { id: "1", order: 0, points: 0 },
+        "2": { id: "2", order: 1, points: 0 },
       })
     })
 
@@ -290,15 +290,15 @@ describe("didPlayerWin", () => {
   beforeEach(() => {
     tileDb = initTileDb({})
     playerDb = initPlayersDb({
-      "1": { id: "1", order: 0, points: 10, strength: 0 },
-      "2": { id: "2", order: 1, points: 8, strength: 0 },
+      "1": { id: "1", order: 0, points: 10 },
+      "2": { id: "2", order: 1, points: 8 },
     })
     game = {}
   })
 
   it("returns true for single player when board is empty", () => {
     playerDb = initPlayersDb({
-      "1": { id: "1", order: 0, points: 10, strength: 0 },
+      "1": { id: "1", order: 0, points: 10 },
     })
     game.endCondition = "empty-board"
 
@@ -335,8 +335,8 @@ describe("didPlayerWin", () => {
 
   it("returns false when another player has more points", () => {
     playerDb = initPlayersDb({
-      "1": { id: "1", order: 0, points: 8, strength: 0 },
-      "2": { id: "2", order: 1, points: 10, strength: 0 },
+      "1": { id: "1", order: 0, points: 8 },
+      "2": { id: "2", order: 1, points: 10 },
     })
     game.endCondition = "no-pairs"
 

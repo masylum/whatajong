@@ -254,7 +254,6 @@ function Title(props: ParentProps) {
   return <h1 class={titleClass}>{props.children}</h1>
 }
 
-// TODO: format time
 function Time(props: { game: Game }) {
   return <h3 class={timeClass}>seconds : -{calculateSeconds(props.game)}</h3>
 }

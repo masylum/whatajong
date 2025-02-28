@@ -49,8 +49,6 @@ export function gameOverCondition(
     }
   }
 
-  // TODO: perhaps time out?
-
   return null
 }
 

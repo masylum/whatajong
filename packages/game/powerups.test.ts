@@ -168,7 +168,7 @@ describe("powerups", () => {
     it("should not multiply points with non-matching dragon", () => {
       getPowerups(powerupsDb, playerId, createTile("dc"))
       const points = getPointsWithCombo(powerupsDb, playerId, createTile("b1"))
-      expect(points).toBe(2)
+      expect(points).toBe(1)
     })
   })
 })

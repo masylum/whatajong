@@ -1,5 +1,5 @@
 import type { Card } from "./deck"
-import { Database } from "./in-memoriam"
+import { type Database, initDatabase } from "./in-memoriam"
 import { getJokerPowerup, type PowerupDb } from "./powerups"
 
 export type Position = {
@@ -20,15 +20,7 @@ export type TileIndexes = (typeof tileIndexes)[number]
 export type TileDb = Database<Tile, TileIndexes>
 
 export function initTileDb(tiles: TileById): TileDb {
-  const tileDb = new Database<Tile, TileIndexes>({
-    indexes: tileIndexes,
-  })
-
-  for (const tile of Object.values(tiles)) {
-    tileDb.set(tile.id, tile)
-  }
-
-  return tileDb
+  return initDatabase({ indexes: tileIndexes }, tiles)
 }
 
 export function fullyOverlaps(

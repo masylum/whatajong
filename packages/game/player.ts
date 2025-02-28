@@ -1,29 +1,19 @@
 import { isJoker, type StrengthSuit } from "./deck"
-import { Database } from "./in-memoriam"
 import type { TileDb } from "./tile"
+import { initDatabase, type Database } from "./in-memoriam"
 
 export interface Player {
   id: string
   order: number
   points: number
-  strength: number
 }
 export type PlayerById = Record<string, Player>
 export const playerIndexes = [] as const
 export type PlayerIndexes = (typeof playerIndexes)[number]
 export type PlayerDb = Database<Player, PlayerIndexes>
 
-// TODO: dry init methods?
 export function initPlayersDb(players: PlayerById): PlayerDb {
-  const playersDb = new Database<Player, PlayerIndexes>({
-    indexes: playerIndexes,
-  })
-
-  for (const player of Object.values(players)) {
-    playersDb.set(player.id, player)
-  }
-
-  return playersDb
+  return initDatabase({ indexes: playerIndexes }, players)
 }
 
 export function isMultiplayer(playersDb: PlayerDb) {

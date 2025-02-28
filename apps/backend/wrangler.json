@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "backend",
+  "name": "whatajong-backend",
   "main": "src/index.ts",
   "compatibility_date": "2025-02-11",
   "durable_objects": {
@@ -17,6 +17,9 @@
       "new_classes": ["GameState"]
     }
   ],
+  "placement": {
+    "mode": "smart"
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1

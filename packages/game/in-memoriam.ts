@@ -90,3 +90,16 @@ export class Database<Type, Attr extends keyof Type> {
     return Object.keys(this.byId).length
   }
 }
+
+export function initDatabase<
+  Type extends { id: string },
+  Attr extends keyof Type,
+>(config: Config<Type, Attr>, entities: ById<Type>) {
+  const db = new Database<Type, Attr>(config)
+
+  for (const entity of Object.values(entities)) {
+    db.set(entity.id, entity)
+  }
+
+  return db
+}

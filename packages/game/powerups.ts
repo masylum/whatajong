@@ -11,7 +11,7 @@ import {
   isJoker,
 } from "./deck"
 import { getPoints } from "./game"
-import { Database } from "./in-memoriam"
+import { type Database, initDatabase } from "./in-memoriam"
 import type { Tile } from "./tile"
 
 export type Powerup = {
@@ -28,15 +28,7 @@ export type PowerupDb = Database<Powerup, PowerupIndexes>
 const DRAGON_SUIT = { c: "c", f: "b", p: "o" } as const
 
 export function initPowerupsDb(powerups: PowerupById): PowerupDb {
-  const powerupsDb = new Database<Powerup, PowerupIndexes>({
-    indexes: powerupIndexes,
-  })
-
-  for (const powerup of Object.values(powerups)) {
-    powerupsDb.set(powerup.id, powerup)
-  }
-
-  return powerupsDb
+  return initDatabase({ indexes: powerupIndexes }, powerups)
 }
 
 export function getJokerPowerup(powerupsDb: PowerupDb, playerId: string) {

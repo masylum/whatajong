@@ -113,7 +113,6 @@ export function isSeason(card: Card) {
 export function isJoker(card: Card) {
   return isFlower(card) || isSeason(card)
 }
-
 export function isWind(card: Card) {
   return matchesSuit(card, "w") ? (card as Winds) : null
 }

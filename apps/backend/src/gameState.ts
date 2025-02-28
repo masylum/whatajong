@@ -187,13 +187,13 @@ export class GameState extends DurableObject {
       )
 
       if (playerIds.size === 0) {
-        this.state.players[id] = { id, points: 0, strength: 0, order: 0 }
+        this.state.players[id] = { id, points: 0, order: 0 }
 
         if (modality === "solo") {
           this.state.game.startedAt = new Date().getTime()
         }
       } else if (!playerIds.has(id) && playerIds.size === 1) {
-        this.state.players[id] = { id, points: 0, strength: 0, order: 1 }
+        this.state.players[id] = { id, points: 0, order: 1 }
 
         if (modality === "duel") {
           // start the game!
@@ -284,7 +284,6 @@ export class GameState extends DurableObject {
         getPowerups(powerupsDb, playerId, tile)
         selectionsDb.del(selection.id)
 
-        // TODO: do the same with strength
         const points =
           player.points + getPointsWithCombo(powerupsDb, playerId, tile)
         playersDb.set(playerId, { ...player, points })
