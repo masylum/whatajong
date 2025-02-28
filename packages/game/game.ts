@@ -3,7 +3,6 @@ import {
   isSeason,
   isDragon,
   isFlower,
-  STRENGTH_SUITS,
   type Card,
   isWind,
   isCircle,
@@ -14,10 +13,9 @@ import { isFree } from "./tile"
 import type { PowerupDb } from "./powerups"
 import type { Tile } from "./tile"
 import type { TileDb } from "./tile"
-import { getPlayerStrength, isMultiplayer, type PlayerDb } from "./player"
+import { isMultiplayer, type PlayerDb } from "./player"
 
-export const STRENGTH_THRESHOLD = 8
-export const WIN_CONDITIONS = ["empty-board", "no-pairs", "strength"] as const
+export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
 
 export type Game = {
@@ -29,7 +27,6 @@ export type Game = {
 export function gameOverCondition(
   tileDb: TileDb,
   powerupsDb: PowerupDb,
-  playersDb: PlayerDb,
   playerId: string,
 ) {
   const tilesAlive = tileDb.all.filter((tile) => !tile.deletedBy)
@@ -42,38 +39,12 @@ export function gameOverCondition(
     return "no-pairs"
   }
 
-  if (isMultiplayer(playersDb)) {
-    const winningSuit = getWinningSuit(tileDb, playerId)
-    if (winningSuit) {
-      return "strength"
-    }
-  }
-
   return null
 }
 
-export function getWinningSuit(tileDb: TileDb, playerId: string) {
-  for (const suit of STRENGTH_SUITS) {
-    const playerStrength = getPlayerStrength(suit, playerId, tileDb)
-    if (playerStrength >= STRENGTH_THRESHOLD) {
-      return suit
-    }
-  }
-}
-
-export function didPlayerWin(
-  game: Game,
-  tileDb: TileDb,
-  playerDb: PlayerDb,
-  playerId: string,
-) {
+export function didPlayerWin(game: Game, playerDb: PlayerDb, playerId: string) {
   if (!isMultiplayer(playerDb)) {
     return game.endCondition === "empty-board"
-  }
-
-  if (game.endCondition === "strength") {
-    const winningSuit = getWinningSuit(tileDb, playerId)
-    return !!winningSuit
   }
 
   const playerPoints = playerDb.byId[playerId]!.points

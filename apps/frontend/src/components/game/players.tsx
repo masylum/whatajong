@@ -1,11 +1,6 @@
 import { createMemo, For, Show } from "solid-js"
 import { db, playerColors } from "@/state/db"
 import {
-  barClass,
-  barImageClass,
-  barPlayerClass,
-  barsClass,
-  barStrengthClass,
   comboRecipe,
   playerClass,
   playerIdClass,
@@ -14,17 +9,10 @@ import {
   powerupRecipe,
   powerupTileRecipe,
 } from "./players.css"
-import {
-  getNumber,
-  isDragon,
-  STRENGTH_SUITS,
-  type StrengthSuit,
-} from "@repo/game/deck"
-import { STRENGTH_THRESHOLD } from "@repo/game/game"
+import { getNumber, isDragon } from "@repo/game/deck"
 import NumberFlow from "solid-number-flow"
 import type { Player } from "@repo/game/player"
 import { getComboMultiplier, type Powerup } from "@repo/game/powerups"
-import { getPlayerStrength } from "@repo/game/player"
 import { Avatar } from "@/components/avatar"
 import { BasicTile } from "./basicTile"
 
@@ -36,9 +24,6 @@ export function Players() {
     <div class={playersClass}>
       <PlayerComponent player={firstPlayer()} />
       <Show when={secondPlayer()}>
-        <div class={barsClass}>
-          <For each={STRENGTH_SUITS}>{(suit) => <SuitBar suit={suit} />}</For>
-        </div>
         <PlayerComponent player={secondPlayer()} />
       </Show>
     </div>
@@ -62,79 +47,6 @@ function PlayerComponent(props: { player: Player }) {
           {(powerup) => <PowerupComponent powerup={powerup} />}
         </For>
       </div>
-    </div>
-  )
-}
-
-function SuitBar(props: { suit: StrengthSuit }) {
-  const players = createMemo(() => db.players.all)
-
-  const firstPlayerStrength = createMemo(() =>
-    getPlayerStrength(props.suit, players()[0]!.id, db.tiles),
-  )
-  const secondPlayerStrength = createMemo(() =>
-    getPlayerStrength(props.suit, players()[1]!.id, db.tiles),
-  )
-
-  function getPulse(num: number) {
-    const sign = Math.sign(num)
-    return (
-      ((Math.min(Math.abs(num), STRENGTH_THRESHOLD) * sign) /
-        STRENGTH_THRESHOLD /
-        2) *
-      100
-    )
-  }
-
-  const firstPlayerPulse = createMemo(
-    () => firstPlayerStrength() - secondPlayerStrength(),
-  )
-  const secondPlayerPulse = createMemo(
-    () => secondPlayerStrength() - firstPlayerStrength(),
-  )
-
-  return (
-    <div
-      class={barClass({ color: props.suit })}
-      data-second={secondPlayerStrength()}
-      data-first={firstPlayerStrength()}
-    >
-      <img
-        alt={props.suit}
-        src={`/tiles/${props.suit}.webp`}
-        width={20}
-        height={20}
-        data-pulse={secondPlayerPulse()}
-        class={barImageClass({ suit: props.suit })}
-      />
-      <Show when={firstPlayerPulse() !== 0}>
-        <div
-          class={barStrengthClass({ suit: props.suit })}
-          style={{
-            left: `calc(50% + ${getPulse(secondPlayerPulse())}%)`,
-          }}
-        >
-          {Math.max(firstPlayerPulse(), secondPlayerPulse())}
-        </div>
-      </Show>
-      <Show when={firstPlayerPulse() > 0}>
-        <div
-          class={barPlayerClass({ suit: props.suit })}
-          style={{
-            width: `calc(${getPulse(firstPlayerPulse())}% - 10px)`,
-            right: "50%",
-          }}
-        />
-      </Show>
-      <Show when={secondPlayerPulse() > 0}>
-        <div
-          class={barPlayerClass({ suit: props.suit })}
-          style={{
-            width: `calc(${getPulse(secondPlayerPulse())}% - 10px)`,
-            left: "50%",
-          }}
-        />
-      </Show>
     </div>
   )
 }

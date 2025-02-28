@@ -63,10 +63,10 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
 
 const FAST_SELECTION_THRESHOLD = 3000
 
-function play(track: Track) {
+function play(track: Track, volume = 1) {
   const audio = audioStore[track]
   if (audio) {
-    audio.volume = muted() ? 0 : 1
+    audio.volume = muted() ? 0 : volume
     audio.currentTime = 0
     audio.play()
   }

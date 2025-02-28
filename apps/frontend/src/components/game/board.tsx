@@ -11,7 +11,7 @@ import { Players } from "./players"
 import { Stats } from "./stats"
 import { gameRecipe, COMBO_ANIMATION_DURATION } from "./board.css"
 import { DustParticles } from "./dustParticles"
-import { getNumber, isDragon } from "@repo/game/deck"
+import { getNumber, isDragon, type Dragons } from "@repo/game/deck"
 import type { Game } from "@repo/game/game"
 import { db, userId } from "@/state/db"
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
@@ -56,13 +56,14 @@ export function Board(props: BoardProps) {
     () => {
       const [left, right] = db.players.all
         .sort((a, b) => a.order - b.order)
-        .flatMap((player) =>
-          db.powerups
+        .map((player) => {
+          const powerup = db.powerups
             .filterBy({ playerId: player.id })
-            .map((powerup) => isDragon(powerup.card))
-            .filter((card) => !!card)
-            .map((card) => getNumber(card)),
-        )
+            .find((powerup) => isDragon(powerup.card))
+          if (!powerup) return
+
+          return getNumber(powerup.card as Dragons)
+        })
 
       return { left, right }
     },
@@ -73,11 +74,14 @@ export function Board(props: BoardProps) {
     () => {
       const [left, right] = db.players.all
         .sort((a, b) => a.order - b.order)
-        .flatMap((player) =>
-          db.powerups
+        .map((player) => {
+          const powerup = db.powerups
             .filterBy({ playerId: player.id })
-            .map((powerup) => (isDragon(powerup.card) ? powerup.combo : 0)),
-        )
+            .find((powerup) => isDragon(powerup.card))
+          if (!powerup) return
+
+          return powerup.combo
+        })
 
       return { left: left, right: right }
     },

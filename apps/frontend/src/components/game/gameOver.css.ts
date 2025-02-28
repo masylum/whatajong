@@ -185,46 +185,6 @@ export const playersContainerClass = style({
   gap: 128,
 })
 
-export const winningSuitClass = recipe({
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    ...fontSize.h1,
-    gap: 18,
-    mixBlendMode: "luminosity",
-  },
-  variants: {
-    suit: {
-      b: { color: color.bamboo90 },
-      c: { color: color.character90 },
-      o: { color: color.bamboo90 },
-    },
-  },
-})
-
-export const winningSuitTilesClass = style({
-  display: "flex",
-})
-
-export const winningSuitTileClass = recipe({
-  base: {},
-  variants: {
-    order: {
-      1: {
-        transform: "rotate(-10deg)",
-      },
-      2: {
-        transform: "rotate(0deg)",
-      },
-      3: {
-        transform: "rotate(10deg)",
-      },
-    },
-  },
-})
-
 export const wreathClass = style({
   position: "absolute",
   top: 18,

@@ -1,6 +1,6 @@
 import { DustParticles } from "./dustParticles"
-import { didPlayerWin, getWinningSuit, type Game } from "@repo/game/game"
-import { bamboo, character, circle, getDeck, type Card } from "@repo/game/deck"
+import { didPlayerWin, type Game } from "@repo/game/game"
+import { getDeck, type Card } from "@repo/game/deck"
 import {
   bouncingCardClass,
   gameOverClass,
@@ -17,10 +17,7 @@ import {
   playerTitleClass,
   playerNameClass,
   playersContainerClass,
-  winningSuitClass,
   wreathClass,
-  winningSuitTileClass,
-  winningSuitTilesClass,
 } from "./gameOver.css"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
@@ -37,7 +34,6 @@ import { Rotate } from "../icon"
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Mission Accomplished!", "Winner!", "Glorious!", "Well Played!", "You Conquered!" ]
 // biome-ignore format:
 const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Try Again", "You Failed", "You Fell Short", "Crushed!", "Wasted!", "Out of Moves" ]
-const SUIT_TITLES = { b: "bamboo", c: "character", o: "circle" }
 
 type Props = {
   game: Game
@@ -53,7 +49,7 @@ export function GameOver(props: Props) {
       >
         <GameOverMultiPlayer game={props.game} ws={props.ws} />
       </Show>
-      <BouncingCards game={props.game} />
+      <BouncingCards />
       <DustParticles />
     </div>
   )
@@ -94,9 +90,7 @@ function GameOverMultiPlayer(props: { game: Game; ws: WebSocket }) {
   const otherPlayer = createMemo(
     () => db.players.all.find((player) => player.id !== userId())!,
   )
-  const win = createMemo(() =>
-    didPlayerWin(props.game, db.tiles, db.players, userId()),
-  )
+  const win = createMemo(() => didPlayerWin(props.game, db.players, userId()))
   const winningPlayer = createMemo(() => (win() ? player() : otherPlayer()))
 
   return (
@@ -136,9 +130,6 @@ function PlayerPoints(props: {
   winningPlayer: Player
 }) {
   const win = createMemo(() => props.winningPlayer === props.player)
-  const winningSuit = createMemo(() =>
-    getWinningSuit(db.tiles, props.player.id),
-  )
 
   return (
     <div
@@ -165,27 +156,6 @@ function PlayerPoints(props: {
         <Time game={props.game} />
         <TotalPoints game={props.game} points={props.player.points} />
       </div>
-      <Show when={winningSuit()}>
-        {(suit) => (
-          <div class={winningSuitClass({ suit: suit() })}>
-            <span>{`${SUIT_TITLES[suit()]} domination`}</span>
-            <div class={winningSuitTilesClass}>
-              <BasicTile
-                card={`${suit()}1`}
-                class={winningSuitTileClass({ order: 1 })}
-              />
-              <BasicTile
-                card={`${suit()}2`}
-                class={winningSuitTileClass({ order: 2 })}
-              />
-              <BasicTile
-                card={`${suit()}3`}
-                class={winningSuitTileClass({ order: 3 })}
-              />
-            </div>
-          </div>
-        )}
-      </Show>
     </div>
   )
 }
@@ -213,35 +183,11 @@ function BouncingCard(props: { card: Card }) {
   )
 }
 
-function BouncingCards(props: { game: Game }) {
-  const win = createMemo(() =>
-    didPlayerWin(props.game, db.tiles, db.players, userId()),
-  )
-  const player = createMemo(() => db.players.byId[userId()]!)
-  const otherPlayer = createMemo(
-    () => db.players.all.find((player) => player.id !== userId())!,
-  )
-  const winningPlayer = createMemo(() => (win() ? player() : otherPlayer()))
-  const winningSuit = createMemo(() => {
-    const player = winningPlayer()
-    if (!player) return null
-
-    return getWinningSuit(db.tiles, winningPlayer().id)
-  })
-
+function BouncingCards() {
   const cards = createMemo<Card[]>(() => {
-    switch (winningSuit()) {
-      case "b":
-        return [...bamboo]
-      case "c":
-        return [...character]
-      case "o":
-        return [...circle]
-      default:
-        return getDeck()
-          .slice(0, 10)
-          .flatMap(([p, _]) => p)
-    }
+    return getDeck()
+      .slice(0, 10)
+      .flatMap(([p, _]) => p)
   })
   return <For each={cards()}>{(card) => <BouncingCard card={card} />}</For>
 }

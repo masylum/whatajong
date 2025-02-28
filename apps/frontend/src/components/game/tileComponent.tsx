@@ -141,14 +141,16 @@ export function TileComponent(props: Props) {
 
       setDeletedAnimation(true)
 
+      const volume = props.tile.deletedBy === userId() ? 1 : 0.5
+
       if (isDragon(props.tile.card)) {
-        play(SOUNDS.DRAGON)
+        play(SOUNDS.DRAGON, volume)
       } else if (isJoker(props.tile.card)) {
-        play(SOUNDS.GONG)
+        play(SOUNDS.GONG, volume)
       } else if (isWind(props.tile.card)) {
-        play(SOUNDS.WIND)
+        play(SOUNDS.WIND, volume)
       } else {
-        play(SOUNDS.DING)
+        play(SOUNDS.DING, volume)
       }
 
       setTimeout(() => {

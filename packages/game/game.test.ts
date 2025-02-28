@@ -6,7 +6,6 @@ import {
   calculatePoints,
   getPoints,
   gameOverCondition,
-  getWinningSuit,
   didPlayerWin,
   type Game,
 } from "./game"
@@ -124,9 +123,7 @@ describe("gameOverCondition", () => {
         Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
       )
 
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(
-        "empty-board",
-      )
+      expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("empty-board")
     })
 
     it("returns no-pairs when there are no available pairs", () => {
@@ -135,30 +132,7 @@ describe("gameOverCondition", () => {
         "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] },
       })
 
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(
-        "no-pairs",
-      )
-    })
-
-    it("returns null when a player reaches strength threshold", () => {
-      // Create 16 bamboo tiles to reach strength of 8 (16/2)
-      const tiles = Array.from({ length: 16 }, (_, i) => ({
-        id: String(i + 1),
-        card: "b1" as Card,
-        x: i * 2,
-        y: 0,
-        z: 0,
-        selections: [],
-        deletedBy: "1",
-      }))
-
-      tileDb = initTileDb({
-        ...Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
-        "17": { id: "17", card: "b1", x: 0, y: 2, z: 0, selections: [] },
-        "18": { id: "18", card: "b1", x: 2, y: 2, z: 0, selections: [] },
-      })
-
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(null)
+      expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("no-pairs")
     })
   })
 
@@ -184,9 +158,7 @@ describe("gameOverCondition", () => {
         Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
       )
 
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(
-        "empty-board",
-      )
+      expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("empty-board")
     })
 
     it("returns no-pairs when there are no available pairs", () => {
@@ -195,32 +167,7 @@ describe("gameOverCondition", () => {
         "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] },
       })
 
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(
-        "no-pairs",
-      )
-    })
-
-    it("returns strength when a player reaches strength threshold", () => {
-      // Create 16 bamboo tiles to reach strength of 8 (16/2)
-      const tiles = Array.from({ length: 16 }, (_, i) => ({
-        id: String(i + 1),
-        card: "b1" as Card,
-        x: i * 2,
-        y: 0,
-        z: 0,
-        selections: [],
-        deletedBy: "1",
-      }))
-
-      tileDb = initTileDb({
-        ...Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
-        "17": { id: "17", card: "b1", x: 0, y: 2, z: 0, selections: [] },
-        "18": { id: "18", card: "b1", x: 2, y: 2, z: 0, selections: [] },
-      })
-
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(
-        "strength",
-      )
+      expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("no-pairs")
     })
 
     it("returns null when game is not over", () => {
@@ -229,56 +176,8 @@ describe("gameOverCondition", () => {
         "2": { id: "2", card: "b1", x: 2, y: 0, z: 0, selections: [] },
       })
 
-      expect(gameOverCondition(tileDb, powerupsDb, playersDb, "1")).toBe(null)
+      expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe(null)
     })
-  })
-})
-
-describe("getWinningSuit", () => {
-  let tileDb: TileDb
-
-  it("returns the winning suit when strength threshold is reached", () => {
-    // Create 16 bamboo tiles to reach strength of 8 (16/2)
-    const tiles = Array.from({ length: 16 }, (_, i) => ({
-      id: String(i + 1),
-      card: "b1" as Card,
-      x: i * 2,
-      y: 0,
-      z: 0,
-      selections: [],
-      deletedBy: "player1",
-    }))
-
-    tileDb = initTileDb(
-      Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
-    )
-
-    expect(getWinningSuit(tileDb, "player1")).toBe("b")
-  })
-
-  it("returns undefined when no suit reaches threshold", () => {
-    tileDb = initTileDb({
-      "1": {
-        id: "1",
-        card: "b1",
-        x: 0,
-        y: 0,
-        z: 0,
-        selections: [],
-        deletedBy: "player1",
-      },
-      "2": {
-        id: "2",
-        card: "c1",
-        x: 2,
-        y: 0,
-        z: 0,
-        selections: [],
-        deletedBy: "player1",
-      },
-    })
-
-    expect(getWinningSuit(tileDb, "player1")).toBeUndefined()
   })
 })
 
@@ -302,35 +201,14 @@ describe("didPlayerWin", () => {
     })
     game.endCondition = "empty-board"
 
-    expect(didPlayerWin(game, tileDb, playerDb, "1")).toBe(true)
+    expect(didPlayerWin(game, playerDb, "1")).toBe(true)
   })
 
   it("returns true for multiplayer when player has highest points", () => {
     game.endCondition = "no-pairs"
 
-    expect(didPlayerWin(game, tileDb, playerDb, "1")).toBe(true)
-    expect(didPlayerWin(game, tileDb, playerDb, "2")).toBe(false)
-  })
-
-  it("returns true for multiplayer when player reaches strength threshold", () => {
-    game.endCondition = "strength"
-    // Create 16 bamboo tiles to reach strength of 8 (16/2)
-    const tiles = Array.from({ length: 16 }, (_, i) => ({
-      id: String(i + 1),
-      card: "b1" as Card,
-      x: i * 2,
-      y: 0,
-      z: 0,
-      selections: [],
-      deletedBy: "1",
-    }))
-
-    tileDb = initTileDb(
-      Object.fromEntries(tiles.map((tile) => [tile.id, tile])),
-    )
-
-    expect(didPlayerWin(game, tileDb, playerDb, "1")).toBe(true)
-    expect(didPlayerWin(game, tileDb, playerDb, "2")).toBe(false)
+    expect(didPlayerWin(game, playerDb, "1")).toBe(true)
+    expect(didPlayerWin(game, playerDb, "2")).toBe(false)
   })
 
   it("returns false when another player has more points", () => {
@@ -340,6 +218,6 @@ describe("didPlayerWin", () => {
     })
     game.endCondition = "no-pairs"
 
-    expect(didPlayerWin(game, tileDb, playerDb, "1")).toBe(false)
+    expect(didPlayerWin(game, playerDb, "1")).toBe(false)
   })
 })

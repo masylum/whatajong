@@ -13,10 +13,6 @@ import {
   miniTileClass,
   boxClass,
   iconTextClass,
-  strengthBarClass,
-  strengthBarImageClass,
-  strengthPlayerBarClass,
-  strengthValueClass,
   tileColumnClass,
 } from "./instructions.css"
 import { SIDE_SIZES, TILE_WIDTH } from "@/state/constants"
@@ -31,7 +27,6 @@ import {
   seasons,
   winds,
   type Card,
-  type StrengthSuit,
 } from "@repo/game/deck"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
@@ -756,71 +751,6 @@ export function Instructions() {
       <p class={paragraphClass}>
         Once the game is finished, the player with the highest score wins.
       </p>
-      <section class={sectionClass}>
-        <h2 class={sectionTitleClass}>Color Victory</h2>
-        <p class={paragraphClass}>
-          In multiplayer mode, there's an additional way: Players compete for
-          control of each color.
-        </p>
-        <p class={paragraphClass}>
-          Every time you match a pair of color tiles, you will increase the
-          meter for that color.
-          <br />
-          <span class={highlightClass({ hue: "circle" })}>
-            If a meter reaches 8, that player wins the game.
-          </span>
-        </p>
-        <Box hue="tile">
-          <IconText
-            text={
-              <>
-                This{" "}
-                <span class={highlightClass({ hue: "bamboo" })}>Bamboo</span>{" "}
-                meter indicates that the player on the right has matched 4 more
-                pairs of bamboos than the player on the left.
-              </>
-            }
-          >
-            <StrengthBarExample suit="b" value={4} />
-          </IconText>
-        </Box>
-        <Box hue="tile">
-          <IconText
-            text={
-              <>
-                This{" "}
-                <span class={highlightClass({ hue: "character" })}>
-                  Character
-                </span>{" "}
-                meter indicates that the player on the left has matched 6 more
-                pairs of characters than the player on the right. Be careful,
-                they are about to win!
-              </>
-            }
-          >
-            <StrengthBarExample suit="c" value={-6} />
-          </IconText>
-        </Box>
-        <Box hue="tile">
-          <IconText
-            text={
-              <>
-                This{" "}
-                <span class={highlightClass({ hue: "circle" })}>Circle</span>{" "}
-                meter indicates that the player on the right has won, since he
-                has matched 8 more pairs of circles than the player on the left.
-              </>
-            }
-          >
-            <StrengthBarExample suit="o" value={8} />
-          </IconText>
-        </Box>
-        <p class={paragraphClass}>
-          To win the game, you can either focus on a color, or just try to make
-          as many points as possible. Both are viable strategies, but you will
-          need to observe what your opponent is doing and plan accordingly.
-        </p>
-      </section>
 
       <section class={sectionClass}>
         <h2 class={sectionTitleClass}>Strategy Tips</h2>
@@ -847,10 +777,6 @@ export function Instructions() {
             the matching color.
           </li>
           <li>Always think a few moves ahead - plan your sequence of moves.</li>
-          <li>
-            In multiplayer, consider focusing on a single color for a quick
-            victory, or trying to score as many points as possible.
-          </li>
         </ul>
       </section>
 
@@ -885,48 +811,6 @@ function IconText(props: { text: JSXElement } & ParentProps) {
     <div class={iconTextClass}>
       <div class={tileIconClass}>{props.children}</div>
       <div class={tileTextClass}>{props.text}</div>
-    </div>
-  )
-}
-
-function StrengthBarExample(props: { suit: StrengthSuit; value: number }) {
-  const getPulse = (val: number) => (Math.min(Math.abs(val), 8) / 8) * 50 // 8 is the threshold, 50 is half the bar
-  const isPositive = createMemo(() => props.value >= 0)
-
-  return (
-    <div class={strengthBarClass({ color: props.suit })}>
-      <img
-        alt={props.suit}
-        src={`/tiles/${props.suit}.webp`}
-        width={20}
-        height={20}
-        class={strengthBarImageClass({ suit: props.suit })}
-      />
-      <div
-        class={strengthValueClass({ suit: props.suit })}
-        style={{
-          left: `calc(50% + ${isPositive() ? getPulse(props.value) : -getPulse(props.value)}%)`,
-        }}
-      >
-        {props.value}
-      </div>
-      {isPositive() ? (
-        <div
-          class={strengthPlayerBarClass({ suit: props.suit })}
-          style={{
-            width: `calc(${getPulse(props.value)}% - 10px)`,
-            left: "50%",
-          }}
-        />
-      ) : (
-        <div
-          class={strengthPlayerBarClass({ suit: props.suit })}
-          style={{
-            width: `calc(${getPulse(props.value)}% - 10px)`,
-            right: "50%",
-          }}
-        />
-      )}
     </div>
   )
 }

@@ -1,5 +1,3 @@
-import { isJoker, type StrengthSuit } from "./deck"
-import type { TileDb } from "./tile"
 import { initDatabase, type Database } from "./in-memoriam"
 
 export interface Player {
@@ -18,17 +16,4 @@ export function initPlayersDb(players: PlayerById): PlayerDb {
 
 export function isMultiplayer(playersDb: PlayerDb) {
   return playersDb.all.length > 1
-}
-
-export function getPlayerStrength(
-  suit: StrengthSuit,
-  playerId: string,
-  tileDb: TileDb,
-) {
-  return (
-    tileDb
-      .filterBy({ deletedBy: playerId })
-      .filter((tile) => tile.card.startsWith(suit) || isJoker(tile.card))
-      .length / 2
-  )
 }

@@ -1,9 +1,6 @@
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 type Suit = (typeof suits)[number]
 
-export const STRENGTH_SUITS = ["b", "c", "o"] as const
-export type StrengthSuit = (typeof STRENGTH_SUITS)[number]
-
 // biome-ignore format:
 export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
 // biome-ignore format:
