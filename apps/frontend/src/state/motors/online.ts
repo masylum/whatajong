@@ -6,11 +6,12 @@ type DuelParams = {
   modality: "duel" | "solo"
 }
 
+const API_URL = import.meta.env.API_URL
+
 export function createOnlineMotor(params: DuelParams) {
   const ws = createMemo(() => {
-    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws"
     const ws = new WebSocket(
-      `${wsProtocol}://localhost:8787/ws/${params.id()}?id=${userId()}&modality=${params.modality}`,
+      `${API_URL}/ws/${params.id()}?id=${userId()}&modality=${params.modality}`,
     )
 
     if (params.modality === "duel") {
