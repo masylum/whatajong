@@ -93,6 +93,9 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
+      wrangler:
+        specifier: ^3.101.0
+        version: 3.108.1(@cloudflare/workers-types@4.20250204.0)
     devDependencies:
       '@solidjs/testing-library':
         specifier: ^0.8.10

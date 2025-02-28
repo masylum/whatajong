@@ -1,8 +1,7 @@
 {
   "name": "whatajong-frontend",
-  "main": "src/index.ts",
-  "compatibility_date": "2025-02-11",
   "pages_build_output_dir": "./dist",
+  "compatibility_date": "2025-02-28",
   "placement": {
     "mode": "smart"
   },
