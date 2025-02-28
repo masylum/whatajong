@@ -1,0 +1,16 @@
+{
+  "name": "whatajong-frontend",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-02-11",
+  "pages_build_output_dir": "./dist",
+  "placement": {
+    "mode": "smart"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    "API_URL": "wss://api.whatajong.com"
+  }
+}

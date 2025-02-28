@@ -23,5 +23,8 @@
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
+  },
+  "vars": {
+    "APP_URL": "https://whatajong.com"
   }
 }

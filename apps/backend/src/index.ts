@@ -18,7 +18,7 @@ app.onError((err, c) => {
 })
 app.use("/games/*", async (c, next) => {
   const corsMiddlewareHandler = cors({
-    origin: ["http://localhost:5173"],
+    origin: [c.env.APP_URL],
   })
   return corsMiddlewareHandler(c, next)
 })
