@@ -93,9 +93,6 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.7.3
-      webgl-fluid-enhanced:
-        specifier: ^0.8.0
-        version: 0.8.0
     devDependencies:
       '@solidjs/testing-library':
         specifier: ^0.8.10
@@ -2351,9 +2348,6 @@ packages:
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
-
-  webgl-fluid-enhanced@0.8.0:
-    resolution: {integrity: sha512-Yj3+AfQYC6bENe3mTpj1XExVfSZCG6pGxAqGXluUgdjCPCP8rvjrHXy4P5LChlJUgL8kf4E9dgmv5nLXjTJIAg==}
 
   webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
@@ -4686,8 +4680,6 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-
-  webgl-fluid-enhanced@0.8.0: {}
 
   webidl-conversions@7.0.0: {}
 
