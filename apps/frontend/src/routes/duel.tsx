@@ -4,7 +4,6 @@ import {
   Match,
   Show,
   Switch,
-  For,
   createEffect,
 } from "solid-js"
 import { writeClipboard } from "@solid-primitives/clipboard"
@@ -33,6 +32,8 @@ import { Avatar } from "@/components/avatar"
 import { SOUNDS } from "@/components/game/audio"
 import { play } from "@/components/game/audio"
 import { CursorArrows } from "@/components/game/cursorArrows"
+import { ArrowLeft, Copied, Copy } from "@/components/icon"
+import { LinkButton } from "@/components/button"
 
 export function Duel() {
   const params = useParams()
@@ -42,7 +43,7 @@ export function Duel() {
     modality: "duel",
   })
   const started = createMemo(() => {
-    const time = game()?.started_at
+    const time = game()?.startedAt
     if (!time) return false
 
     return time <= Date.now()
@@ -54,7 +55,7 @@ export function Duel() {
         <Show when={game()}>
           {(game) => (
             <Switch fallback={<Lobby />}>
-              <Match when={game().ended_at}>
+              <Match when={game().endedAt}>
                 <GameOver game={game()} ws={ws()} />
               </Match>
               <Match when={started()}>
@@ -89,19 +90,15 @@ function Lobby() {
     return `${origin}${location.pathname}${location.search}${location.hash}`
   })
   const [copied, setCopied] = createSignal(false)
-  const [copyTimestamp, setCopyTimestamp] = createSignal(Date.now())
 
   function onClickCopy() {
     writeClipboard(url())
     setCopied(true)
-    setCopyTimestamp(Date.now())
     setTimeout(() => setCopied(false), 3_000)
   }
 
-  createEffect((prevPlayers: Player[] | null) => {
-    const pl = players()
-
-    if (ready() === 3 && !prevPlayers && pl) {
+  createEffect(() => {
+    if (ready() === 3 && players()?.length === 2) {
       play(SOUNDS["321"])
       const interval = setInterval(() => {
         if (ready() === 1) {
@@ -110,9 +107,7 @@ function Lobby() {
         setReady(ready() - 1)
       }, 1_000)
     }
-
-    return pl
-  }, players())
+  })
 
   return (
     <div class={lobbyClass}>
@@ -131,47 +126,10 @@ function Lobby() {
             <pre class={urlClass}>
               {url()}
               <button type="button" onClick={onClickCopy} class={buttonClass}>
-                <Show
-                  when={copied()}
-                  fallback={
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class={copyIconClass}
-                    >
-                      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                      <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-                      <path d="M16 4h2a2 2 0 0 1 2 2v4" />
-                      <path d="M21 14H11" />
-                      <path d="m15 10-4 4 4 4" />
-                    </svg>
-                  }
-                >
+                <Show when={copied()} fallback={<Copy class={copyIconClass} />}>
                   <div class={copiedIconContainerClass}>
-                    <For each={[copyTimestamp()]}>
-                      {() => <div class={copySuccessCircleClass} />}
-                    </For>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class={copiedIconClass}
-                    >
-                      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                      <path d="m9 14 2 2 4-4" />
-                    </svg>
+                    <div class={copySuccessCircleClass} />
+                    <Copied class={copiedIconClass} />
                   </div>
                 </Show>
               </button>
@@ -187,6 +145,10 @@ function Lobby() {
           </div>
         )}
       </Show>
+      <LinkButton href="/" hue="bamboo" kind="dark">
+        <ArrowLeft />
+        back
+      </LinkButton>
     </div>
   )
 }

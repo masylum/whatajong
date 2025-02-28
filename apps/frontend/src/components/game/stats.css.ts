@@ -23,9 +23,15 @@ const statItem = style({
   alignItems: "center",
   fontSize: "32px",
   lineHeight: "1",
+  gap: 8,
 })
 
-export const timerClass = style([statItem, {}])
+export const timerClass = style([
+  statItem,
+  {
+    color: color.circle30,
+  },
+])
 export const movesClass = style([statItem, {}])
 
 export const statLabel = style({

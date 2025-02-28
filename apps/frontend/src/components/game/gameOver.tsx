@@ -27,10 +27,11 @@ import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { db, userId } from "@/state/db"
 import { Avatar } from "@/components/avatar"
 import { isMultiplayer, type Player } from "@repo/game/player"
-import { LinkButton } from "@/components/button"
+import { Button, LinkButton } from "@/components/button"
 import { BasicTile } from "./basicTile"
 import { huesAndShades } from "@/styles/colors"
 import { nanoid } from "nanoid"
+import { Rotate } from "../icon"
 
 // biome-ignore format:
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Mission Accomplished!", "Winner!", "Glorious!", "Well Played!", "You Conquered!" ]
@@ -40,7 +41,7 @@ const SUIT_TITLES = { b: "bamboo", c: "character", o: "circle" }
 
 type Props = {
   game: Game
-  ws?: WebSocket
+  ws: WebSocket
 }
 
 export function GameOver(props: Props) {
@@ -50,7 +51,7 @@ export function GameOver(props: Props) {
         when={isMultiplayer(db.players)}
         fallback={<GameOverSinglePlayer game={props.game} />}
       >
-        <GameOverMultiPlayer game={props.game} />
+        <GameOverMultiPlayer game={props.game} ws={props.ws} />
       </Show>
       <BouncingCards game={props.game} />
       <DustParticles />
@@ -78,15 +79,17 @@ function GameOverSinglePlayer(props: { game: Game }) {
       </div>
       <LinkButton
         hue={win() ? "bamboo" : "character"}
+        kind="dark"
         href={`/play/${nanoid()}`}
       >
+        <Rotate />
         Play again
       </LinkButton>
     </div>
   )
 }
 
-function GameOverMultiPlayer(props: { game: Game }) {
+function GameOverMultiPlayer(props: { game: Game; ws: WebSocket }) {
   const player = createMemo(() => db.players.byId[userId()]!)
   const otherPlayer = createMemo(
     () => db.players.all.find((player) => player.id !== userId())!,
@@ -113,9 +116,16 @@ function GameOverMultiPlayer(props: { game: Game }) {
           winningPlayer={winningPlayer()}
         />
       </div>
-      <LinkButton hue={win() ? "bamboo" : "character"} href="/game">
+      <Button
+        hue={win() ? "bamboo" : "character"}
+        kind="dark"
+        onClick={() => {
+          props.ws.send(JSON.stringify({ type: "restart-game" }))
+        }}
+      >
+        <Rotate />
         Play again
-      </LinkButton>
+      </Button>
     </div>
   )
 }
@@ -237,7 +247,7 @@ function BouncingCards(props: { game: Game }) {
 }
 
 function calculateSeconds(game: Game) {
-  return Math.floor((game.ended_at! - game.started_at!) / 1000)
+  return Math.floor((game.endedAt! - game.startedAt!) / 1000)
 }
 
 function Title(props: ParentProps) {

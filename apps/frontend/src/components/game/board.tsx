@@ -4,15 +4,12 @@ import {
   createSelector,
   createSignal,
   For,
+  onMount,
 } from "solid-js"
 import { TileComponent } from "./tileComponent"
 import { Players } from "./players"
 import { Stats } from "./stats"
-import {
-  gameRecipe,
-  COMBO_ANIMATION_DURATION,
-  mountainsClass,
-} from "./board.css"
+import { gameRecipe, COMBO_ANIMATION_DURATION } from "./board.css"
 import { DustParticles } from "./dustParticles"
 import { getNumber, isDragon } from "@repo/game/deck"
 import type { Game } from "@repo/game/game"
@@ -22,6 +19,7 @@ import { getFinder } from "@repo/game/tile"
 import { MAP_LEVELS } from "@repo/game/map"
 import { play, SOUNDS } from "./audio"
 import { isDeepEqual } from "remeda"
+import { Mountains } from "../mountains"
 
 type BoardProps = {
   ws?: WebSocket
@@ -131,6 +129,10 @@ export function Board(props: BoardProps) {
     )
   }
 
+  onMount(() => {
+    play(SOUNDS.GONG)
+  })
+
   return (
     <div
       class={gameRecipe({
@@ -165,7 +167,7 @@ export function Board(props: BoardProps) {
         </For>
       </div>
       <Stats />
-      <div class={mountainsClass} />
+      <Mountains />
       <DustParticles />
     </div>
   )

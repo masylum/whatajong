@@ -20,17 +20,17 @@ export const fontSize = {
   },
   hero4: {
     fontSize: rem(48),
-    lineHeight: rem(48),
+    lineHeight: rem(60),
     textWrap: "balance",
   },
   h1: {
     fontSize: rem(32),
-    lineHeight: rem(36),
+    lineHeight: rem(40),
     textWrap: "balance",
   },
   h2: {
     fontSize: rem(24),
-    lineHeight: rem(28),
+    lineHeight: rem(30),
     textWrap: "balance",
   },
   h3: {

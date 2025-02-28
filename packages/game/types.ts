@@ -25,6 +25,7 @@ export type WsMessage =
   | { type: "sessions-move"; id: string; x: number; y: number }
   | { type: "sessions-fetch" }
   | { type: "sessions-sync"; sessions: Session[] }
+  | { type: "restart-game" }
   | { type: "sync"; state: State }
   // mutations
   | { type: "select-tile"; id: string; selection: Selection }

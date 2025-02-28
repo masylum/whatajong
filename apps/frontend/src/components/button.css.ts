@@ -1,4 +1,4 @@
-import { alpha, hueVariants } from "@/styles/colors"
+import { alpha, hueVariants, mapHues } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { primary } from "@/styles/fontFamily.css"
 
@@ -17,13 +17,43 @@ export const buttonClass = recipe({
     cursor: "pointer",
   },
   variants: {
-    hue: hueVariants((kolor) => ({
-      backgroundColor: alpha(kolor(60), 0.1),
-      color: kolor(40),
-      ":hover": {
-        backgroundColor: alpha(kolor(60), 0.2),
-        color: kolor(30),
+    kind: {
+      dark: {},
+      light: {},
+    },
+    hue: hueVariants(() => ({})),
+  },
+  compoundVariants: mapHues((kolor, hue) => [
+    {
+      variants: {
+        kind: "light",
+        hue,
       },
-    })),
+      style: {
+        backgroundColor: alpha(kolor(60), 0.1),
+        color: kolor(40),
+        ":hover": {
+          backgroundColor: alpha(kolor(60), 0.2),
+          color: kolor(30),
+        },
+      },
+    },
+    {
+      variants: {
+        kind: "dark",
+        hue,
+      },
+      style: {
+        backgroundColor: alpha(kolor(60), 0.2),
+        color: kolor(80),
+        ":hover": {
+          backgroundColor: alpha(kolor(60), 0.3),
+          color: kolor(90),
+        },
+      },
+    },
+  ]),
+  defaultVariants: {
+    kind: "light",
   },
 })

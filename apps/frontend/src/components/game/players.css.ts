@@ -4,6 +4,7 @@ import { AVATAR_SIZE } from "@/components/avatar"
 import { SIDE_SIZES } from "@/state/constants"
 import { alpha, color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
+import { fontSize } from "@/styles/fontSize"
 
 const powerupSize = createVar()
 
@@ -66,7 +67,7 @@ export const barStrengthClass = recipe({
     alignItems: "center",
     justifyContent: "center",
     transform: "translate(-50%, -50%)",
-    fontSize: 24,
+    ...fontSize.h2,
     transition: "all 0.2s ease-in-out",
   },
   variants: {
@@ -85,7 +86,7 @@ export const barImageClass = recipe({
     left: "50%",
     borderRadius: "50%",
     transform: "translate(-50%, -50%)",
-    zIndex: 1,
+    zIndex: 2,
   },
   variants: {
     suit: {

@@ -2,7 +2,6 @@ import { createEffect, createMemo, createSignal, Show } from "solid-js"
 import { db, userId, playerColors } from "@/state/db"
 import {
   CORNER_RADIUS,
-  INNER_PADING,
   SIDE_SIZES,
   TILE_HEIGHT,
   TILE_WIDTH,
@@ -29,6 +28,7 @@ import { getPointsWithCombo } from "@repo/game/powerups"
 import { isDragon, isFlower, isJoker, isSeason, isWind } from "@repo/game/deck"
 import { play, SOUNDS } from "./audio"
 import { isDeepEqual } from "remeda"
+import { TileImage } from "./tileImage"
 
 type Props = {
   tile: Tile
@@ -209,13 +209,7 @@ export function TileComponent(props: Props) {
             <TileShades tile={props.tile} />
             <TileBody card={props.tile.card} />
             <Show when={!props.hideImage}>
-              <image
-                href={`/tiles3/${props.tile.card}.webp`}
-                x={INNER_PADING - SIDE_SIZES.xSide * 2}
-                y={INNER_PADING + SIDE_SIZES.ySide * 2}
-                width={TILE_WIDTH - 2 * INNER_PADING}
-                height={TILE_HEIGHT - 2 * INNER_PADING}
-              />
+              <TileImage card={props.tile.card} />
             </Show>
 
             {/* Stroke overlay */}

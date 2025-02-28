@@ -1,6 +1,6 @@
 import { color } from "@/styles/colors"
 import { style, keyframes } from "@vanilla-extract/css"
-import { primary, secondary } from "@/styles/fontFamily.css"
+import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 
 export const lobbyClass = style({
@@ -20,7 +20,6 @@ export const lobbyClass = style({
 export const titleClass = style({
   ...fontSize.hero1,
   textAlign: "center",
-  fontFamily: secondary,
   color: color.character60,
 })
 
@@ -44,7 +43,6 @@ export const playerClass = style({
 export const vsClass = style({
   ...fontSize.hero2,
   textAlign: "center",
-  fontFamily: secondary,
   color: color.circle80,
 })
 

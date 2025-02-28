@@ -10,10 +10,10 @@ export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] a
 export const character = [ "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9" ] as const
 // biome-ignore format:
 export const circle = [ "o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9" ] as const
-const winds = ["wn", "ww", "ws", "we"] as const
-const flowers = ["f1", "f2", "f3", "f4"] as const
-const seasons = ["s1", "s2", "s3", "s4"] as const
-const dragons = ["dc", "df", "dp"] as const
+export const winds = ["wn", "ww", "ws", "we"] as const
+export const flowers = ["f1", "f2", "f3", "f4"] as const
+export const seasons = ["s1", "s2", "s3", "s4"] as const
+export const dragons = ["dc", "df", "dp"] as const
 const dummy = ["d1"] as const
 
 export type Bamboo = (typeof bamboo)[number]

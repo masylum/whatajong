@@ -1,5 +1,5 @@
 import { color, hueVariants, alpha } from "@/styles/colors"
-import { primary, secondary } from "@/styles/fontFamily.css"
+import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
@@ -14,32 +14,21 @@ export const homeClass = style({
   gap: 64,
   height: "100vh",
   marginTop: -64,
-  ":before": {
-    backgroundImage: "url(/halftone.png)",
-    content: "",
-    position: "fixed",
-    height: "100vh",
-    width: "100vw",
-    mixBlendMode: "overlay",
-    top: 0,
-    left: 0,
-    zIndex: 1,
-  },
+  fontFamily: primary,
+  backgroundImage: "url(/halftone.png)",
 })
 
 export const titleClass = style({
   ...fontSize.hero2,
-  color: color.character20,
-  fontFamily: secondary,
+  color: color.character40,
   textAlign: "center",
 })
 
 export const navClass = style({
-  ...fontSize.hero4,
+  ...fontSize.h1,
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  fontFamily: primary,
   zIndex: 3,
   gap: 16,
 })
@@ -48,20 +37,20 @@ export const buttonClass = recipe({
   base: {
     display: "flex",
     width: "100%",
-    justifyContent: "center",
+    alignItems: "center",
     gap: 8,
     textDecoration: "none",
     textAlign: "center",
     paddingInline: 24,
-    paddingBlock: 12,
-    borderRadius: 24,
+    paddingBlock: 16,
+    borderRadius: 12,
   },
   variants: {
     hue: hueVariants((hue) => ({
-      backgroundColor: alpha(hue(60), 0.2),
+      background: `linear-gradient(to bottom, ${alpha(hue(60), 0.2)}, ${alpha(hue(60), 0.1)})`,
       color: hue(30),
       ":hover": {
-        backgroundColor: alpha(hue(60), 0.4),
+        background: `linear-gradient(to bottom, ${alpha(hue(60), 0.3)}, ${alpha(hue(60), 0.2)})`,
         color: hue(20),
       },
     })),

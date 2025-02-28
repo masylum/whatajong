@@ -143,8 +143,10 @@ export function getComboMultiplier(combo: number) {
       return 12
     case 5:
       return 16
-    default:
+    case 6:
       return 24
+    default:
+      return 48
   }
 }
 

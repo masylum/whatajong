@@ -14,7 +14,8 @@ import {
 import { initSelectionsDb, type Selection } from "@repo/game/selection"
 import { initPlayersDb } from "@repo/game/player"
 
-const GAME_TIMEOUT = 1000 * 60 * 10 // 10 minutes
+const GAME_TIMEOUT = 1000 * 60 * 30 // 30 minutes
+const GAME_COUNTDOWN = 3_000 // 3 seconds
 
 export class GameState extends DurableObject {
   sessions: Map<WebSocket, Session>
@@ -30,16 +31,7 @@ export class GameState extends DurableObject {
     ctx.blockConcurrencyWhile(async () => {
       const selections = await this.initState("selections", () => ({}))
       const players = await this.initState("players", () => ({}))
-      const game = await this.initState(
-        "game",
-        () =>
-          ({
-            state: "lobby",
-            started_at: 0,
-            firstPlayer: null,
-            secondPlayer: null,
-          }) as const,
-      )
+      const game = await this.initState("game", () => ({}) as const)
       const powerups = await this.initState("powerups", () => ({}))
       const tiles = await this.initState("tiles", () => setup())
 
@@ -76,6 +68,24 @@ export class GameState extends DurableObject {
             id: session.id,
             x: session.x,
             y: session.y,
+          })
+          break
+        }
+
+        case "restart-game": {
+          this.state.game = {
+            startedAt: new Date().getTime() + 3_000,
+          }
+          this.state.tiles = setup()
+          this.state.selections = {}
+          this.state.powerups = {}
+
+          await this.saveState({
+            game: this.state.game,
+            tiles: this.state.tiles,
+            selections: this.state.selections,
+            powerups: this.state.powerups,
+            players: this.state.players,
           })
           break
         }
@@ -180,13 +190,14 @@ export class GameState extends DurableObject {
         this.state.players[id] = { id, points: 0, strength: 0, order: 0 }
 
         if (modality === "solo") {
-          this.state.game.started_at = new Date().getTime()
+          this.state.game.startedAt = new Date().getTime()
         }
       } else if (!playerIds.has(id) && playerIds.size === 1) {
         this.state.players[id] = { id, points: 0, strength: 0, order: 1 }
 
         if (modality === "duel") {
-          this.state.game.started_at = new Date().getTime() + 3_000
+          // start the game!
+          this.storage.setAlarm(Date.now() + GAME_COUNTDOWN)
         }
       }
 
@@ -288,7 +299,7 @@ export class GameState extends DurableObject {
         )
 
         if (condition) {
-          this.state.game.ended_at = new Date().getTime()
+          this.state.game.endedAt = new Date().getTime()
           this.state.game.endCondition = condition
           return
         }
@@ -305,6 +316,19 @@ export class GameState extends DurableObject {
   }
 
   async alarm() {
+    if (!this.state.game.startedAt) {
+      this.state.game.startedAt = new Date().getTime()
+
+      await this.saveState({
+        selections: this.state.selections,
+        players: this.state.players,
+        powerups: this.state.powerups,
+        tiles: this.state.tiles,
+        game: this.state.game,
+      })
+      return
+    }
+
     await this.storage.deleteAll()
   }
 }

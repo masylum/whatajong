@@ -1,4 +1,4 @@
-import { createVar, keyframes, style } from "@vanilla-extract/css"
+import { createVar, keyframes } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const COMBO_ANIMATION_DURATION = 200
@@ -67,6 +67,7 @@ export const gameRecipe = recipe({
       top: 0,
       left: 0,
       zIndex: 1,
+      pointerEvents: "none",
     },
   },
   variants: {
@@ -111,21 +112,4 @@ export const gameRecipe = recipe({
       7: { vars: { [shakeIntensity]: "7" } },
     },
   },
-})
-
-// TODO: componentize
-export const mountainsClass = style({
-  position: "fixed",
-  bottom: 0,
-  left: 0,
-  width: "100vw",
-  height: "100vh",
-  background: "url(/mountains.webp)",
-  backgroundPosition: "bottom",
-  backgroundRepeat: "no-repeat",
-  maskImage:
-    "radial-gradient(ellipse 700px 1000px at bottom, black 20%, transparent 90%)",
-  zIndex: 2,
-  mixBlendMode: "color-burn",
-  pointerEvents: "none",
 })

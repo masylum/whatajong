@@ -6,6 +6,9 @@ import {
   STRENGTH_SUITS,
   type Card,
   isWind,
+  isCircle,
+  isCharacter,
+  isBamboo,
 } from "./deck"
 import { isFree } from "./tile"
 import type { PowerupDb } from "./powerups"
@@ -18,8 +21,8 @@ export const WIN_CONDITIONS = ["empty-board", "no-pairs", "strength"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
 
 export type Game = {
-  started_at?: number
-  ended_at?: number
+  startedAt?: number
+  endedAt?: number
   endCondition?: WinCondition
 }
 
@@ -111,8 +114,11 @@ export function getPoints(card: Card) {
   if (isFlower(card)) return 8
   if (isSeason(card)) return 8
   if (isWind(card)) return 16
+  if (isBamboo(card)) return 1
+  if (isCharacter(card)) return 2
+  if (isCircle(card)) return 3
 
-  return 2
+  return 0
 }
 
 export function calculatePoints(tiles: Tile[]) {

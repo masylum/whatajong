@@ -52,7 +52,7 @@ function PlayerComponent(props: { player: Player }) {
   const pColors = createMemo(() => playerColors(props.player.id))
 
   return (
-    <div class={playerClass} style={{ color: pColors()[1] }}>
+    <div class={playerClass} style={{ color: pColors()[2] }}>
       <Avatar name={props.player.id} colors={pColors()} />
       <div class={playerIdClass}>
         {props.player.id} ( <NumberFlow value={props.player.points} /> )
@@ -101,20 +101,22 @@ function SuitBar(props: { suit: StrengthSuit }) {
     >
       <img
         alt={props.suit}
-        src={`/tiles3/${props.suit}.webp`}
+        src={`/tiles/${props.suit}.webp`}
         width={20}
         height={20}
         data-pulse={secondPlayerPulse()}
         class={barImageClass({ suit: props.suit })}
       />
-      <div
-        class={barStrengthClass({ suit: props.suit })}
-        style={{
-          left: `calc(50% + ${getPulse(secondPlayerPulse())}%)`,
-        }}
-      >
-        {Math.max(firstPlayerPulse(), secondPlayerPulse())}
-      </div>
+      <Show when={firstPlayerPulse() !== 0}>
+        <div
+          class={barStrengthClass({ suit: props.suit })}
+          style={{
+            left: `calc(50% + ${getPulse(secondPlayerPulse())}%)`,
+          }}
+        >
+          {Math.max(firstPlayerPulse(), secondPlayerPulse())}
+        </div>
+      </Show>
       <Show when={firstPlayerPulse() > 0}>
         <div
           class={barPlayerClass({ suit: props.suit })}

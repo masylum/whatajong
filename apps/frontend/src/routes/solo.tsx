@@ -19,7 +19,7 @@ export function Solo() {
         <Show when={game()}>
           {(game) => (
             <Show
-              when={game()?.ended_at}
+              when={game()?.endedAt}
               fallback={<Board ws={ws()} game={game()} />}
             >
               <GameOver game={game()} ws={ws()} />

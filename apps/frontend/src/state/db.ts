@@ -18,6 +18,8 @@ import { colorsByOrder } from "@/styles/colors"
 import type { Game } from "@repo/game/game"
 import Haikunator from "haikunator"
 import { difference } from "@/lib/setMethods"
+import { nouns } from "./names"
+import { adjectives } from "./names"
 
 export const [sessions, setSessions] = createStore<Record<string, Session>>({})
 export const [game, setGame] = createSignal<Game | null>(null)
@@ -40,17 +42,30 @@ export const db = {
   game: game(),
 } as const
 
-export function userId() {
-  const storedId = localStorage.getItem("userId")
-  if (storedId) return storedId
+let cachedUserId: string | undefined
 
-  const userId = new Haikunator().haikunate({
+export function userId() {
+  if (cachedUserId) return cachedUserId
+
+  const storedId = localStorage.getItem("userId")
+  if (storedId) {
+    cachedUserId = storedId
+    return storedId
+  }
+
+  const userId = new Haikunator({ adjectives, nouns }).haikunate({
     tokenLength: 0,
     delimiter: " ",
   })
+  cachedUserId = userId
 
   localStorage.setItem("userId", userId)
   return userId
+}
+
+export function setUserId(id: string) {
+  cachedUserId = id
+  localStorage.setItem("userId", id)
 }
 
 function syncState(state: State) {
@@ -83,6 +98,7 @@ function syncState(state: State) {
 }
 
 export function onMessage(msg: WsMessage) {
+  if (msg.type !== "sessions-move") console.log("msg", msg)
   switch (msg.type) {
     case "sessions-quit":
       setSessions(
@@ -102,6 +118,8 @@ export function onMessage(msg: WsMessage) {
       )
       return
     case "sessions-move":
+      if (msg.id === userId()) return
+
       setSessions(
         msg.id,
         produce((session) => {

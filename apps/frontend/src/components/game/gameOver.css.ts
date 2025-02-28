@@ -1,6 +1,6 @@
 import { alpha, color } from "@/styles/colors"
 import { style, createVar } from "@vanilla-extract/css"
-import { primary, secondary } from "@/styles/fontFamily.css"
+import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes } from "@vanilla-extract/css"
@@ -98,7 +98,6 @@ export const pointsContainerClass = recipe({
 export const titleClass = style({
   ...fontSize.hero1,
   textAlign: "center",
-  fontFamily: secondary,
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
       color: color.bamboo90,

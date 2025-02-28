@@ -26,7 +26,7 @@ export function Stats() {
   makeTimer(
     () => {
       const now = new Date()
-      const startedAt = game()?.started_at
+      const startedAt = game()?.startedAt
       if (!startedAt) return
 
       const diff = Math.floor((now.getTime() - startedAt) / 1000)

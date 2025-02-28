@@ -1,3 +1,7 @@
-// TODO: buy
-export const primary = "DK Sushi bar"
-export const secondary = "Osake"
+import { globalFontFace } from "@vanilla-extract/css"
+
+export const primary = "Brave Gates"
+
+globalFontFace(primary, {
+  src: "url(/BraveGates.otf)",
+})

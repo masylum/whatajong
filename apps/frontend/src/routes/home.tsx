@@ -11,34 +11,55 @@ import {
   navClass,
   titleClass,
 } from "./home.css"
-import { mountainsClass } from "@/components/game/board.css"
 import { BasicTile } from "@/components/game/basicTile"
 import { getDeck } from "@repo/game/deck"
 import { For, createMemo } from "solid-js"
 import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
 import { nanoid } from "nanoid"
+import { SOUNDS } from "@/components/game/audio"
+import { play } from "@/components/game/audio"
+import { Mountains } from "@/components/mountains"
 
 function cards() {
   return getDeck().flatMap(([c, _]) => c)
 }
 
 export function Home() {
+  function onHover() {
+    play(SOUNDS.CLICK)
+  }
+
   return (
     <div class={homeClass}>
       <Frame />
-      <h1 class={titleClass}>Mahjong arena</h1>
+      <h1 class={titleClass}>Whatajong</h1>
       <nav class={navClass}>
-        <a href={`/play/${nanoid()}`} class={buttonClass({ hue: "bamboo" })}>
-          classic
+        <a
+          onMouseEnter={onHover}
+          href={`/play/${nanoid()}`}
+          class={buttonClass({ hue: "bamboo" })}
+        >
+          <img src="/tiles/b.webp" alt="classic" width={24} height={24} />
+          classic game
         </a>
-        <a href={`/duel/${nanoid()}`} class={buttonClass({ hue: "character" })}>
-          duel
+        <a
+          onMouseEnter={onHover}
+          href={`/duel/${nanoid()}`}
+          class={buttonClass({ hue: "character" })}
+        >
+          <img src="/tiles/c.webp" alt="duel" width={24} height={24} />
+          multiplayer
         </a>
-        <a href="/instructions" class={buttonClass({ hue: "circle" })}>
+        <a
+          onMouseEnter={onHover}
+          href="/instructions"
+          class={buttonClass({ hue: "circle" })}
+        >
+          <img src="/tiles/o.webp" alt="instructions" width={24} height={24} />
           instructions
         </a>
       </nav>
-      <div class={mountainsClass} />
+      <Mountains />
       <DustParticles />
     </div>
   )
