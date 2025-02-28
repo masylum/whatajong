@@ -165,25 +165,6 @@ export function mapHues<T>(map: (fn: HueShadeGetter, hue: AccentHue) => T[]) {
   return accentHues.flatMap((hue) => map(getHueColor(hue), hue))
 }
 
-export function objectHueMap<T>(
-  map: (fn: HueShadeGetter, hue: AccentHue) => T,
-) {
-  return accentHues.reduce<T>((acc, hue) => {
-    const result = map(getHueColor(hue), hue)
-    return Object.assign({}, acc, result)
-  }, {} as T)
-}
-
-export function forEachHue(
-  fn: (fn: HueShadeGetter, hue: AccentHuesWithNoHue) => void,
-  noHue?: boolean,
-) {
-  const hues = noHue ? accentHuesWithNoHue : accentHues
-  for (const hue of hues) {
-    fn(getHueColor(hue), hue)
-  }
-}
-
 export function alpha(colorName: string, alpha: number) {
   const r = Number.parseInt(colorName.slice(1, 3), 16)
   const g = Number.parseInt(colorName.slice(3, 5), 16)
