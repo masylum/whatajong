@@ -7,9 +7,9 @@ import {
   onCleanup,
 } from "solid-js"
 import { PerfectCursor } from "perfect-cursors"
-import { db } from "@/state/db"
-import type { Session, WsMessage } from "@repo/game/types"
-import { playerColors, sessions, userId } from "@/state/db"
+import { state } from "@/state/state"
+import type { Session } from "@repo/game/types"
+import { playerColors, sessions, userId } from "@/state/state"
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
 
 const CURSOR_UPDATE_INTERVAL = 55
@@ -23,9 +23,7 @@ export function CursorArrows(props: {
   createEffect(() => {
     if (!props.websocket) return
 
-    // Get the canvas position
     const getCanvasRect = () => {
-      // Canvas is centered in the window
       const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
       const canvasRight = canvasLeft + CANVAS_WIDTH
       const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
@@ -41,42 +39,41 @@ export function CursorArrows(props: {
       }
     }
 
-    document.addEventListener(
-      "mousemove",
-      (ev) => {
-        const rect = getCanvasRect()
+    function onMouseMove(ev: MouseEvent) {
+      const now = Date.now()
+      const ready = props.websocket?.readyState === WebSocket.OPEN
+      const lastSent = now - lastSentTimestamp() <= CURSOR_UPDATE_INTERVAL
+      if (!ready || !lastSent) return
 
-        // Calculate position relative to canvas (0-1)
-        // Clamp values to ensure they stay within the canvas
-        const relativeX = Math.max(
-          0,
-          Math.min(1, (ev.pageX - rect.left) / rect.width),
-        )
-        const relativeY = Math.max(
-          0,
-          Math.min(1, (ev.pageY - rect.top) / rect.height),
-        )
+      const rect = getCanvasRect()
 
-        const now = Date.now()
+      const relativeX = Math.max(
+        0,
+        Math.min(1, (ev.pageX - rect.left) / rect.width),
+      )
+      const relativeY = Math.max(
+        0,
+        Math.min(1, (ev.pageY - rect.top) / rect.height),
+      )
 
-        if (
-          now - lastSentTimestamp() > CURSOR_UPDATE_INTERVAL &&
-          props.websocket?.readyState === WebSocket.OPEN
-        ) {
-          const message = {
-            type: "sessions-move",
-            id: userId(),
-            x: relativeX,
-            y: relativeY,
-          } as WsMessage
-          props.websocket?.send(JSON.stringify(message))
-          setLastSentTimestamp(now)
-        }
-      },
-      {
-        signal: abortController().signal,
-      },
-    )
+      props.websocket?.send(
+        JSON.stringify({
+          type: "sessions-move",
+          id: userId(),
+          x: relativeX,
+          y: relativeY,
+        }),
+      )
+      setLastSentTimestamp(now)
+    }
+
+    document.addEventListener("mousemove", onMouseMove, {
+      signal: abortController().signal,
+    })
+
+    onCleanup(() => {
+      document.removeEventListener("mousemove", onMouseMove)
+    })
   })
 
   onCleanup(() => {
@@ -98,7 +95,6 @@ export function CursorArrows(props: {
 
 type Point = [number, number]
 function CursorArrow(props: { session: Session }) {
-  // Get the canvas position to convert relative coordinates (0-1) to absolute positions
   const getCanvasRect = () => {
     const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
     const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
@@ -111,7 +107,6 @@ function CursorArrow(props: { session: Session }) {
     }
   }
 
-  // Convert relative coordinates (0-1) to actual canvas positions
   const point = createMemo<Point>(() => {
     const rect = getCanvasRect()
     return [
@@ -120,7 +115,7 @@ function CursorArrow(props: { session: Session }) {
     ]
   })
 
-  const player = createMemo(() => db.players.get(props.session.id)!)
+  const player = createMemo(() => state.players.get(props.session.id)!)
   const [xy, setXy] = createSignal(point())
 
   PerfectCursor.MAX_INTERVAL = 58

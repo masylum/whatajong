@@ -1,5 +1,5 @@
 import { createMemo, createSignal, Show } from "solid-js"
-import { db, game, muted, setMuted } from "@/state/db"
+import { state, muted, setMuted } from "@/state/state"
 import { nanoid } from "nanoid"
 import { makeTimer } from "@solid-primitives/timer"
 import {
@@ -17,7 +17,7 @@ import { LinkButton, Button } from "../button"
 export function Stats() {
   const params = useParams()
   const [time, setTimer] = createSignal(0)
-  const players = createMemo(() => db.players.all)
+  const players = createMemo(() => state.players.all)
 
   const random = createMemo(() => {
     params.id // force a random id re-generation
@@ -27,7 +27,7 @@ export function Stats() {
   makeTimer(
     () => {
       const now = new Date()
-      const startedAt = game()?.startedAt
+      const startedAt = state.game.get().startedAt
       if (!startedAt) return
 
       const diff = Math.floor((now.getTime() - startedAt) / 1000)
@@ -68,7 +68,7 @@ export function Stats() {
       </nav>
       <div class={movesClass}>
         <span class={statLabel}>Moves</span>
-        <div>{getAvailablePairs(db.tiles).length}</div>
+        <div>{getAvailablePairs(state.tiles).length}</div>
       </div>
     </div>
   )

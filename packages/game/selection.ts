@@ -4,7 +4,6 @@ export interface Selection {
   id: string
   tileId: string
   playerId: string
-  confirmed: boolean
 }
 export type SelectionById = Record<string, Selection>
 

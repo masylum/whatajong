@@ -3,11 +3,12 @@ import {
   initTileDb,
   overlaps,
   isFree,
-  deleteTile,
+  deleteTiles,
   type Tile,
   type TileDb,
 } from "./tile"
 import type { Card } from "./deck"
+import { initSelectionsDb } from "./selection"
 
 describe("tile", () => {
   describe("initTileDb", () => {
@@ -18,8 +19,8 @@ describe("tile", () => {
 
     it("initializes database with tiles", () => {
       const db = initTileDb({
-        "1": { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0, selections: [] },
-        "2": { id: "2", card: "b2" as Card, x: 1, y: 0, z: 0, selections: [] },
+        "1": { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0 },
+        "2": { id: "2", card: "b2" as Card, x: 1, y: 0, z: 0 },
       })
       expect(db.size).toBe(2)
     })
@@ -31,9 +32,9 @@ describe("tile", () => {
 
     beforeEach(() => {
       db = initTileDb({
-        "1": { id: "1", card: "b1" as Card, x: 2, y: 2, z: 0, selections: [] },
-        "2": { id: "2", card: "b2" as Card, x: 2, y: 2, z: 1, selections: [] },
-        "3": { id: "3", card: "b3" as Card, x: 2, y: 2, z: -1, selections: [] },
+        "1": { id: "1", card: "b1" as Card, x: 2, y: 2, z: 0 },
+        "2": { id: "2", card: "b2" as Card, x: 2, y: 2, z: 1 },
+        "3": { id: "3", card: "b3" as Card, x: 2, y: 2, z: -1 },
       })
       tile = db.get("1")!
     })
@@ -75,11 +76,11 @@ describe("tile", () => {
 
     beforeEach(() => {
       db = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] }, // covered by "5"
-        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] }, // blocked
-        "3": { id: "3", card: "b3", x: 4, y: 0, z: 0, selections: [] },
-        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0, selections: [] },
-        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1, selections: [] },
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 }, // covered by "5"
+        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0 }, // blocked
+        "3": { id: "3", card: "b3", x: 4, y: 0, z: 0 },
+        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0 },
+        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1 },
       })
     })
 
@@ -98,11 +99,24 @@ describe("tile", () => {
   describe("deleteTile", () => {
     it("should mark tile as deleted", () => {
       const db = initTileDb({
-        "1": { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0, selections: [] },
+        "1": { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0 },
+      })
+      const selectionsDb = initSelectionsDb({})
+      const tile = db.get("1")!
+      deleteTiles(db, selectionsDb, [tile], "player1")
+      expect(db.get("1")!.deletedBy).toBe("player1")
+    })
+
+    it("should delete selection", () => {
+      const db = initTileDb({
+        "1": { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0 },
+      })
+      const selectionsDb = initSelectionsDb({
+        "1": { id: "1", tileId: "1", playerId: "player1" },
       })
       const tile = db.get("1")!
-      deleteTile(db, tile, "player1")
-      expect(db.get("1")!.deletedBy).toBe("player1")
+      deleteTiles(db, selectionsDb, [tile], "player1")
+      expect(selectionsDb.get("1")).toBeNull()
     })
   })
 })

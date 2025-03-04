@@ -34,6 +34,7 @@
     "haikunator": "^2.1.2",
     "nanoid": "^5.0.9",
     "perfect-cursors": "^1.0.5",
+    "rand-seed": "^2.1.7",
     "remeda": "^2.21.0",
     "solid-js": "^1.9.4",
     "solid-number-flow": "^0.5.3",

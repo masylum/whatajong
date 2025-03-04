@@ -1,3 +1,5 @@
+import type Rand from "rand-seed"
+
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 type Suit = (typeof suits)[number]
 
@@ -33,16 +35,16 @@ export type Card =
 export type Joker = Flowers | Seasons
 export type WindDirection = "n" | "s" | "e" | "w"
 
-function shuffle<T>(array: T[]): T[] {
+function shuffle<T>(array: T[], rng: Rand): T[] {
   const shuffled = [...array]
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = Math.floor(rng.next() * (i + 1))
     ;[shuffled[i]!, shuffled[j]!] = [shuffled[j]!, shuffled[i]!]
   }
   return shuffled
 }
 
-export function getDeck(): [Card, Card][] {
+export function getDeck(rng: Rand): [Card, Card][] {
   const pairs: [Card, Card][] = []
   const regularTiles = [
     ...bamboo,
@@ -62,7 +64,7 @@ export function getDeck(): [Card, Card][] {
   pairs.push([f1, f2], [f3, f4])
 
   // Shuffle the pairs
-  return shuffle(pairs)
+  return shuffle(pairs, rng)
 }
 
 type ExtractSuit<T> = T extends `${infer S}${string}`

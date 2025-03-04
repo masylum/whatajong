@@ -8,7 +8,7 @@ import {
 } from "solid-js"
 import { writeClipboard } from "@solid-primitives/clipboard"
 import { useLocation, useParams } from "@solidjs/router"
-import { game, userId, playerColors, db } from "@/state/db"
+import { userId, playerColors, state } from "@/state/state"
 import { Board } from "@/components/game/board"
 import { GameOver } from "@/components/game/gameOver"
 import { createOnlineMotor } from "@/state/motors/online"
@@ -37,44 +37,35 @@ import { LinkButton } from "@/components/button"
 
 export function Duel() {
   const params = useParams()
+  const controller = createOnlineMotor(params.id!)
 
-  const ws = createOnlineMotor({
-    id: () => params.id!,
-    modality: "duel",
-  })
   const started = createMemo(() => {
-    const time = game()?.startedAt
+    const time = state.game.get().startedAt
     if (!time) return false
 
     return time <= Date.now()
   })
 
   return (
-    <Show when={ws()}>
-      {(ws) => (
-        <Show when={game()}>
-          {(game) => (
-            <Switch fallback={<Lobby />}>
-              <Match when={game().endedAt}>
-                <GameOver game={game()} ws={ws()} />
-              </Match>
-              <Match when={started()}>
-                <Board ws={ws()} game={game()} />
-                <CursorArrows websocket={ws()} />
-              </Match>
-            </Switch>
-          )}
+    <Switch fallback={<Lobby />}>
+      <Match when={state.game.get().endedAt}>
+        <GameOver controller={controller} />
+      </Match>
+      <Match when={started()}>
+        <Board controller={controller} />
+        <Show when={controller.getWebSocket()}>
+          {(ws) => <CursorArrows websocket={ws()} />}
         </Show>
-      )}
-    </Show>
+      </Match>
+    </Switch>
   )
 }
 
 function Lobby() {
   const [ready, setReady] = createSignal<number>(3)
-  const player = createMemo(() => db.players.get(userId())!)
+  const player = createMemo(() => state.players.get(userId())!)
   const otherPlayer = createMemo(
-    () => db.players.all.find((player) => player.id !== userId())!,
+    () => state.players.all.find((player) => player.id !== userId())!,
   )
   const location = useLocation()
 

@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store"
 import { For, createSignal, createEffect, createMemo } from "solid-js"
-import { muted, db, userId } from "@/state/db"
+import { muted, state, userId } from "@/state/state"
 import type { Tile } from "@repo/game/tile"
 
 export const SOUNDS = {
@@ -84,7 +84,7 @@ export function Audio() {
   const [lastTileTime, setLastTileTime] = createSignal<number>(0)
   const [speedStreak, setSpeedStreak] = createSignal<number>(0)
   const userDeletions = createMemo(() =>
-    db.tiles.filterBy({ deletedBy: userId() }),
+    state.tiles.filterBy({ deletedBy: userId() }),
   )
 
   createEffect((prevDeletions: Tile[]) => {

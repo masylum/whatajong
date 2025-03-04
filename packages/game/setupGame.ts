@@ -4,8 +4,10 @@ import { DEFAULT_MAP } from "./maps/default"
 import type { Tile } from "./tile"
 import { initTileDb } from "./tile"
 import { getFreeTiles } from "./game"
+import type Rand from "rand-seed"
 
-export function setup() {
+// From paper: https://iivq.net/scriptie/scriptie-bsc.pdf
+export function setupGame(rng: Rand) {
   const tileDb = initTileDb({})
   const map = DEFAULT_MAP
 
@@ -20,7 +22,7 @@ export function setup() {
         const sameAsAbove = above ? above === id : false
 
         if (id !== null && !sameAsPrev && !sameAsAbove) {
-          tileDb.set(id, { card: "d1", selections: [], id, x, y, z })
+          tileDb.set(id, { card: "d1", id, x, y, z })
         }
       }
     }
@@ -35,11 +37,11 @@ export function setup() {
     if (freeTiles.length <= 1) break
 
     // Randomly select two free tiles
-    const idx1 = Math.floor(Math.random() * freeTiles.length)
+    const idx1 = Math.floor(rng.next() * freeTiles.length)
     const tile1 = freeTiles[idx1]!
     freeTiles.splice(idx1, 1)
 
-    const idx2 = Math.floor(Math.random() * freeTiles.length)
+    const idx2 = Math.floor(rng.next() * freeTiles.length)
     const tile2 = freeTiles[idx2]!
 
     // Remove the pair and store their positions
@@ -50,11 +52,11 @@ export function setup() {
 
   // If we couldn't remove all tiles, start over
   if (tileDb.size > 0) {
-    return setup()
+    return setupGame(rng)
   }
 
   // Get all possible card pairs
-  const allPairs = getDeck()
+  const allPairs = getDeck(rng)
 
   // Place tiles back in reverse order with actual cards
   for (let i = 0; i < pickOrder.length; i += 2) {
@@ -68,7 +70,6 @@ export function setup() {
     tileDb.set(id1, {
       id: id1,
       card: card1,
-      selections: [],
       x: tile1.x,
       y: tile1.y,
       z: tile1.z,
@@ -77,7 +78,6 @@ export function setup() {
     tileDb.set(id2, {
       id: id2,
       card: card2,
-      selections: [],
       x: tile2.x,
       y: tile2.y,
       z: tile2.z,

@@ -19,9 +19,11 @@ import { nanoid } from "nanoid"
 import { SOUNDS } from "@/components/game/audio"
 import { play } from "@/components/game/audio"
 import { Mountains } from "@/components/mountains"
+import Rand from "rand-seed"
 
 function cards() {
-  return getDeck().flatMap(([c, _]) => c)
+  const rng = new Rand()
+  return getDeck(rng).flatMap(([c, _]) => c)
 }
 
 export function Home() {

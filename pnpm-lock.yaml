@@ -26,6 +26,9 @@ importers:
       hono:
         specifier: ^4.6.20
         version: 4.7.0
+      rand-seed:
+        specifier: ^2.1.7
+        version: 2.1.7
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250109.0
@@ -81,6 +84,9 @@ importers:
       perfect-cursors:
         specifier: ^1.0.5
         version: 1.0.5
+      rand-seed:
+        specifier: ^2.1.7
+        version: 2.1.7
       remeda:
         specifier: ^2.21.0
         version: 2.21.0
@@ -124,6 +130,9 @@ importers:
       '@solid-primitives/set':
         specifier: ^0.6.0
         version: 0.6.0(solid-js@1.9.4)
+      rand-seed:
+        specifier: ^2.1.7
+        version: 2.1.7
       solid-js:
         specifier: ^1.9.4
         version: 1.9.4
@@ -1982,6 +1991,9 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  rand-seed@2.1.7:
+    resolution: {integrity: sha512-Yaz75D2fTWtIr69iDd+PGwtQkFkqOIMQZl+W8U3NMR6F2a1UEk2FmnQkNd6Z1eNtL96Z5nznw5PKYk1Z9m6lxw==}
 
   random-seed@0.3.0:
     resolution: {integrity: sha512-y13xtn3kcTlLub3HKWXxJNeC2qK4mB59evwZ5EkeRlolx+Bp2ztF7LbcZmyCnOqlHQrLnfuNbi1sVmm9lPDlDA==}
@@ -4303,6 +4315,8 @@ snapshots:
   printable-characters@1.0.42: {}
 
   punycode@2.3.1: {}
+
+  rand-seed@2.1.7: {}
 
   random-seed@0.3.0:
     dependencies:

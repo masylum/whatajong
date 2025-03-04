@@ -1,5 +1,5 @@
 import { DustParticles } from "./dustParticles"
-import { didPlayerWin, type Game } from "@repo/game/game"
+import { didPlayerWin } from "@repo/game/game"
 import { getDeck, type Card } from "@repo/game/deck"
 import {
   bouncingCardClass,
@@ -21,7 +21,7 @@ import {
 } from "./gameOver.css"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { db, userId } from "@/state/db"
+import { state, userId } from "@/state/state"
 import { Avatar } from "@/components/avatar"
 import { isMultiplayer, type Player } from "@repo/game/player"
 import { Button, LinkButton } from "@/components/button"
@@ -29,6 +29,8 @@ import { BasicTile } from "./basicTile"
 import { huesAndShades } from "@/styles/colors"
 import { nanoid } from "nanoid"
 import { Rotate } from "../icon"
+import type { GameController } from "@/state/motors/controller"
+import Rand from "rand-seed"
 
 // biome-ignore format:
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Mission Accomplished!", "Winner!", "Glorious!", "Well Played!", "You Conquered!" ]
@@ -36,18 +38,17 @@ const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Missio
 const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Try Again", "You Failed", "You Fell Short", "Crushed!", "Wasted!", "Out of Moves" ]
 
 type Props = {
-  game: Game
-  ws: WebSocket
+  controller: GameController
 }
 
 export function GameOver(props: Props) {
   return (
     <div class={gameOverClass}>
       <Show
-        when={isMultiplayer(db.players)}
-        fallback={<GameOverSinglePlayer game={props.game} />}
+        when={isMultiplayer(state.players)}
+        fallback={<GameOverSinglePlayer />}
       >
-        <GameOverMultiPlayer game={props.game} ws={props.ws} />
+        <GameOverMultiPlayer controller={props.controller} />
       </Show>
       <BouncingCards />
       <DustParticles />
@@ -59,9 +60,9 @@ function pick(arr: string[]) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-function GameOverSinglePlayer(props: { game: Game }) {
-  const player = createMemo(() => db.players.byId[userId()]!)
-  const win = createMemo(() => props.game.endCondition === "empty-board")
+function GameOverSinglePlayer() {
+  const player = createMemo(() => state.players.byId[userId()]!)
+  const win = createMemo(() => state.game.get().endCondition === "empty-board")
 
   return (
     <div class={screenClass({ win: win() })}>
@@ -70,8 +71,8 @@ function GameOverSinglePlayer(props: { game: Game }) {
       </Show>
       <div class={pointsContainerClass({ multiplayer: false })}>
         <Points points={player().points} />
-        <Time game={props.game} />
-        <TotalPoints game={props.game} points={player().points} />
+        <Time />
+        <TotalPoints points={player().points} />
       </div>
       <LinkButton
         hue={win() ? "bamboo" : "character"}
@@ -85,12 +86,16 @@ function GameOverSinglePlayer(props: { game: Game }) {
   )
 }
 
-function GameOverMultiPlayer(props: { game: Game; ws: WebSocket }) {
-  const player = createMemo(() => db.players.byId[userId()]!)
+function GameOverMultiPlayer(props: {
+  controller: GameController
+}) {
+  const player = createMemo(() => state.players.byId[userId()]!)
   const otherPlayer = createMemo(
-    () => db.players.all.find((player) => player.id !== userId())!,
+    () => state.players.all.find((player) => player.id !== userId())!,
   )
-  const win = createMemo(() => didPlayerWin(props.game, db.players, userId()))
+  const win = createMemo(() =>
+    didPlayerWin(state.game.get(), state.players, userId()),
+  )
   const winningPlayer = createMemo(() => (win() ? player() : otherPlayer()))
 
   return (
@@ -99,22 +104,14 @@ function GameOverMultiPlayer(props: { game: Game; ws: WebSocket }) {
         <Title>{pick(WIN_TITLES)}</Title>
       </Show>
       <div class={playersContainerClass}>
-        <PlayerPoints
-          player={player()}
-          game={props.game}
-          winningPlayer={winningPlayer()}
-        />
-        <PlayerPoints
-          player={otherPlayer()}
-          game={props.game}
-          winningPlayer={winningPlayer()}
-        />
+        <PlayerPoints player={player()} winningPlayer={winningPlayer()} />
+        <PlayerPoints player={otherPlayer()} winningPlayer={winningPlayer()} />
       </div>
       <Button
         hue={win() ? "bamboo" : "character"}
         kind="dark"
         onClick={() => {
-          props.ws.send(JSON.stringify({ type: "restart-game" }))
+          props.controller.restartGame()
         }}
       >
         <Rotate />
@@ -126,7 +123,6 @@ function GameOverMultiPlayer(props: { game: Game; ws: WebSocket }) {
 
 function PlayerPoints(props: {
   player: Player
-  game: Game
   winningPlayer: Player
 }) {
   const win = createMemo(() => props.winningPlayer === props.player)
@@ -153,8 +149,8 @@ function PlayerPoints(props: {
       />
       <div>
         <Points points={props.player.points} />
-        <Time game={props.game} />
-        <TotalPoints game={props.game} points={props.player.points} />
+        <Time />
+        <TotalPoints points={props.player.points} />
       </div>
     </div>
   )
@@ -185,33 +181,36 @@ function BouncingCard(props: { card: Card }) {
 
 function BouncingCards() {
   const cards = createMemo<Card[]>(() => {
-    return getDeck()
+    const rng = new Rand()
+    return getDeck(rng)
       .slice(0, 10)
       .flatMap(([p, _]) => p)
   })
   return <For each={cards()}>{(card) => <BouncingCard card={card} />}</For>
 }
 
-function calculateSeconds(game: Game) {
-  return Math.floor((game.endedAt! - game.startedAt!) / 1000)
+function calculateSeconds() {
+  return Math.floor(
+    (state.game.get().endedAt! - state.game.get().startedAt!) / 1000,
+  )
 }
 
 function Title(props: ParentProps) {
   return <h1 class={titleClass}>{props.children}</h1>
 }
 
-function Time(props: { game: Game }) {
-  return <h3 class={timeClass}>seconds : -{calculateSeconds(props.game)}</h3>
+function Time() {
+  return <h3 class={timeClass}>seconds : -{calculateSeconds()}</h3>
 }
 
 function Points(props: { points: number }) {
   return <h3 class={pointsClass}>points : +{props.points}</h3>
 }
 
-function TotalPoints(props: { game: Game; points: number }) {
+function TotalPoints(props: { points: number }) {
   return (
     <h3 class={totalPointsClass}>
-      total : {Math.max(props.points - calculateSeconds(props.game), 0)}
+      total : {Math.max(props.points - calculateSeconds(), 0)}
     </h3>
   )
 }

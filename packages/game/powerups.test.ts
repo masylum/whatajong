@@ -9,7 +9,7 @@ describe("powerups", () => {
   let powerupsDb: PowerupDb
 
   function createTile(card: Card): Tile {
-    return { id: "tile1", card, x: 0, y: 0, z: 0, selections: [] }
+    return { id: "tile1", card, x: 0, y: 0, z: 0 }
   }
 
   beforeEach(() => {

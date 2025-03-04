@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  Show,
 } from "solid-js"
 import {
   animationDelay,
@@ -19,31 +20,19 @@ import {
   scale,
   zIndex,
   animationRepeat,
+  windGustClass,
 } from "./dustParticles.css"
-import { db } from "@/state/db"
+import { state } from "@/state/state"
 import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { difference } from "@/lib/setMethods"
-import { WebGLFluidEnhanced } from "@/lib/smoke"
+import { difference } from "@repo/game/lib/setMethods"
 
 export function DustParticles() {
-  const [container, setContainer] = createSignal<HTMLDivElement>()
   const [windDirection, setWindDirection] = createSignal<WindDirection | null>(
     null,
   )
   let windTimeout: ReturnType<typeof setTimeout> | undefined
-
-  const simulation = createMemo(() => {
-    if (!container()) return
-
-    try {
-      return new WebGLFluidEnhanced(container())
-    } catch (e) {
-      console.error(e)
-      return null
-    }
-  })
 
   onCleanup(() => {
     clearTimeout(windTimeout)
@@ -53,40 +42,17 @@ export function DustParticles() {
     const direction = windDirection()
     if (!direction) return
 
-    const screenWidth = window.innerWidth
-    const screenHeight = window.innerHeight
-
-    const sim = simulation()
-
-    sim?.start()
-
-    switch (direction) {
-      case "n":
-        sim?.splatAtLocation(screenWidth / 2, screenHeight, 0, 500)
-        break
-      case "s":
-        sim?.splatAtLocation(screenWidth / 2, 0, 0, -300)
-        break
-      case "e":
-        sim?.splatAtLocation(0, screenHeight / 2, 300, 0)
-        break
-      case "w":
-        sim?.splatAtLocation(screenWidth, screenHeight / 2, -500, 0)
-        break
-    }
-
     if (windTimeout) {
       clearTimeout(windTimeout)
     }
 
     windTimeout = setTimeout(() => {
-      sim?.stop()
       setWindDirection(null)
     }, 3_000) // 1s delay + 2s duration. Enough for all snow to fall
   })
 
   const windTiles = createMemo(() =>
-    db.tiles.all.filter((tile) => tile.deletedBy && isWind(tile.card)),
+    state.tiles.all.filter((tile) => tile.deletedBy && isWind(tile.card)),
   )
   const hasWind = () => !!windDirection()
 
@@ -152,45 +118,38 @@ export function DustParticles() {
   )
 
   return (
-    <>
-      <div class={lightRaysContainer}>
-        <For each={dustParticles()}>
-          {(particle) => {
-            return (
-              <div
-                class={dustParticle({
-                  direction: particle.direction ?? "default",
-                })}
-                style={{
-                  ...assignInlineVars({
-                    [startX]: `${particle.startX}vw`,
-                    [startY]: `${particle.startY}vh`,
-                    [size]: `${particle.size}px`,
-                    [duration]: `${particle.speed}ms`,
-                    [drift]: `${particle.drift}`,
-                    [blur]: `${particle.blur}px`,
-                    [opacity]: `${particle.opacity}`,
-                    [animationDelay]: `${particle.animationDelay}s`,
-                    [scale]: `${particle.scale}`,
-                    [zIndex]: `${particle.zIndex}`,
-                    [animationRepeat]: particle.animationRepeat,
-                  }),
-                }}
-              />
-            )
-          }}
-        </For>
-        <div
-          ref={setContainer}
-          style={{
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            top: 0,
-            left: 0,
-          }}
-        />
-      </div>
-    </>
+    <Show when={windDirection()}>
+      {(windDirection) => (
+        <div class={lightRaysContainer}>
+          <div class={windGustClass({ direction: windDirection()! })} />
+          <For each={dustParticles()}>
+            {(particle) => {
+              return (
+                <div
+                  class={dustParticle({
+                    direction: particle.direction ?? "default",
+                  })}
+                  style={{
+                    ...assignInlineVars({
+                      [startX]: `${particle.startX}vw`,
+                      [startY]: `${particle.startY}vh`,
+                      [size]: `${particle.size}px`,
+                      [duration]: `${particle.speed}ms`,
+                      [drift]: `${particle.drift}`,
+                      [blur]: `${particle.blur}px`,
+                      [opacity]: `${particle.opacity}`,
+                      [animationDelay]: `${particle.animationDelay}s`,
+                      [scale]: `${particle.scale}`,
+                      [zIndex]: `${particle.zIndex}`,
+                      [animationRepeat]: particle.animationRepeat,
+                    }),
+                  }}
+                />
+              )
+            }}
+          </For>
+        </div>
+      )}
+    </Show>
   )
 }

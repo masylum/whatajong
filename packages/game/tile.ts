@@ -1,6 +1,7 @@
 import type { Card } from "./deck"
 import { type Database, initDatabase } from "./in-memoriam"
 import { getJokerPowerup, type PowerupDb } from "./powerups"
+import type { SelectionDb } from "./selection"
 
 export type Position = {
   x: number
@@ -11,7 +12,6 @@ export type Position = {
 export type Tile = {
   id: string
   card: Card
-  selections: Array<string | null>
   deletedBy?: string
 } & Position
 export type TileById = Record<string, Tile>
@@ -119,6 +119,17 @@ export function isFree(
   return isCovered && !isBlockedH
 }
 
-export function deleteTile(tileDb: TileDb, tile: Tile, playerId: string) {
-  tileDb.set(tile.id, { ...tile, deletedBy: playerId })
+export function deleteTiles(
+  tileDb: TileDb,
+  selectionDb: SelectionDb,
+  tiles: Tile[],
+  playerId: string,
+) {
+  for (const tile of tiles) {
+    tileDb.set(tile.id, { ...tile, deletedBy: playerId })
+    const selection = selectionDb.findBy({ tileId: tile.id })
+    if (selection) {
+      selectionDb.del(selection.id)
+    }
+  }
 }

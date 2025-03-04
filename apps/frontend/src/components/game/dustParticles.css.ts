@@ -84,6 +84,42 @@ const westDust = keyframes({
   },
 })
 
+const northWindGust = keyframes({
+  "0%": {
+    transform: "translateY(100%)",
+  },
+  "100%": {
+    transform: "translateY(-100%)",
+  },
+})
+
+const southWindGust = keyframes({
+  "0%": {
+    transform: "translateY(-100%)",
+  },
+  "100%": {
+    transform: "translateY(100%)",
+  },
+})
+
+const eastWindGust = keyframes({
+  "0%": {
+    transform: "translateX(-100vw)",
+  },
+  "100%": {
+    transform: "translateX(100vw)",
+  },
+})
+
+const westWindGust = keyframes({
+  "0%": {
+    transform: "translateX(100vw)",
+  },
+  "100%": {
+    transform: "translateX(-100vw)",
+  },
+})
+
 export const lightRaysContainer = style({
   position: "absolute",
   top: 0,
@@ -93,6 +129,44 @@ export const lightRaysContainer = style({
   pointerEvents: "none",
   overflow: "hidden",
   zIndex: 9000,
+})
+
+// Wind gust styles
+export const windGustClass = recipe({
+  base: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    pointerEvents: "none",
+    animation: `${animation} 1000ms ease-in`,
+    mixBlendMode: "screen",
+    backdropFilter: "blur(3px)",
+    width: "100vw",
+    height: "100vh",
+    zIndex: 9001,
+    background:
+      "radial-gradient(ellipse at 50% 50%,rgba(255, 255, 255, 0.6), transparent 70%)",
+  },
+  variants: {
+    direction: {
+      n: {
+        transform: "translateY(-100%)",
+        vars: { [animation]: northWindGust },
+      },
+      s: {
+        transform: "translateY(100%)",
+        vars: { [animation]: southWindGust },
+      },
+      e: {
+        transform: "translateX(-100%)",
+        vars: { [animation]: eastWindGust },
+      },
+      w: {
+        transform: "translateX(100%)",
+        vars: { [animation]: westWindGust },
+      },
+    },
+  },
 })
 
 export const dustParticle = recipe({
@@ -112,7 +186,6 @@ export const dustParticle = recipe({
     opacity: 0,
     transform: `scale(${scale})`,
     zIndex,
-    willChange: "transform, opacity",
   },
   variants: {
     direction: {

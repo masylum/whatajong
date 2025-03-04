@@ -1,5 +1,5 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { db, userId, playerColors } from "@/state/db"
+import { state, userId, playerColors } from "@/state/state"
 import {
   CORNER_RADIUS,
   SIDE_SIZES,
@@ -58,7 +58,7 @@ export function TileComponent(props: Props) {
   )
 
   const canBeSelected = createMemo(() => {
-    return isFree(db.tiles, props.tile, db.powerups, userId())
+    return isFree(state.tiles, props.tile, state.powerups, userId())
   })
 
   const zIndex = createMemo(
@@ -72,7 +72,7 @@ export function TileComponent(props: Props) {
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const powerups = createMemo(() =>
-    db.powerups.filterBy({ playerId: userId() }),
+    state.powerups.filterBy({ playerId: userId() }),
   )
   const flower = createMemo(() => powerups().find((p) => isFlower(p.card)))
   const season = createMemo(() => powerups().find((p) => isSeason(p.card)))
@@ -86,7 +86,7 @@ export function TileComponent(props: Props) {
 
   const selected = createMemo(
     () => {
-      const all = db.selections.filterBy({ tileId: props.tile.id })
+      const all = state.selections.filterBy({ tileId: props.tile.id })
 
       return (
         all.find((selection) => selection.playerId === userId()) ||
@@ -105,9 +105,10 @@ export function TileComponent(props: Props) {
 
   const fillOpacity = createMemo(() => {
     const sel = selected()
-    if (!sel) return props.hovered && canBeSelected() ? 0.3 : 0
+    if (sel) return 0.5
+    if (props.hovered && canBeSelected()) return 0.3
 
-    return sel.confirmed ? 0.5 : 0.3
+    return 0
   })
 
   createEffect((prevSelected: boolean) => {
@@ -180,7 +181,7 @@ export function TileComponent(props: Props) {
             }}
             class={floatingNumberAnimation}
           >
-            +{getPointsWithCombo(db.powerups, playerId(), props.tile)}
+            +{getPointsWithCombo(state.powerups, playerId(), props.tile)}
           </span>
         )}
       </Show>

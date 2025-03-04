@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest"
-import { initTileDb, deleteTile, type Tile, type TileDb } from "./tile"
+import { initTileDb, deleteTiles, type Tile, type TileDb } from "./tile"
 import {
   getFreeTiles,
   getAvailablePairs,
@@ -12,19 +12,22 @@ import {
 import type { Card } from "./deck"
 import { initPowerupsDb, type PowerupDb } from "./powerups"
 import { initPlayersDb, type PlayerDb } from "./player"
+import { initSelectionsDb, type SelectionDb } from "./selection"
 
 describe("game", () => {
   describe("getFreeTiles", () => {
     let db: TileDb
+    let selectionsDb: SelectionDb
 
     beforeEach(() => {
       db = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] }, // covered by "5"
-        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] }, // blocked
-        "3": { id: "3", card: "b3", x: 4, y: 0, z: 0, selections: [] },
-        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0, selections: [] },
-        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1, selections: [] },
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 }, // covered by "5"
+        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0 }, // blocked
+        "3": { id: "3", card: "b3", x: 4, y: 0, z: 0 },
+        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0 },
+        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1 },
       })
+      selectionsDb = initSelectionsDb({})
     })
 
     it("returns tiles that are not covered nor blocked", () => {
@@ -33,7 +36,7 @@ describe("game", () => {
     })
 
     it("does not return deleted tiles", () => {
-      deleteTile(db, db.get("5")!, "player1")
+      deleteTiles(db, selectionsDb, [db.get("5")!], "player1")
       const ids = getFreeTiles(db).map((t) => t.id)
       expect(ids).toEqual(["1", "3", "4"])
     })
@@ -44,11 +47,11 @@ describe("game", () => {
 
     it("should find matching free pairs", () => {
       db = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] },
-        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] }, // blocked
-        "3": { id: "3", card: "b4", x: 4, y: 0, z: 0, selections: [] },
-        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0, selections: [] },
-        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1, selections: [] }, // covering "1"
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 },
+        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0 }, // blocked
+        "3": { id: "3", card: "b4", x: 4, y: 0, z: 0 },
+        "4": { id: "4", card: "b4", x: 0, y: 2, z: 0 },
+        "5": { id: "5", card: "b5", x: 0, y: 0, z: 1 }, // covering "1"
       })
 
       const pairs = getAvailablePairs(db)
@@ -61,19 +64,19 @@ describe("game", () => {
   describe("calculatePoints", () => {
     it("should calculate points for regular tiles", () => {
       const tiles: Tile[] = [
-        { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0, selections: [] },
-        { id: "2", card: "b4" as Card, x: 0, y: 0, z: 0, selections: [] },
-        { id: "3", card: "b8" as Card, x: 0, y: 0, z: 0, selections: [] },
+        { id: "1", card: "b1" as Card, x: 0, y: 0, z: 0 },
+        { id: "2", card: "b4" as Card, x: 0, y: 0, z: 0 },
+        { id: "3", card: "b8" as Card, x: 0, y: 0, z: 0 },
       ]
       expect(calculatePoints(tiles)).toBe(3) // 1 + 1 + 1
     })
 
     it("should calculate points for special tiles", () => {
       const tiles: Tile[] = [
-        { id: "1", card: "f1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 12 points
-        { id: "2", card: "s1" as Card, x: 0, y: 0, z: 0, selections: [] }, // 12 points
-        { id: "3", card: "dc" as Card, x: 0, y: 0, z: 0, selections: [] }, // 8 points
-        { id: "4", card: "wn" as Card, x: 0, y: 0, z: 0, selections: [] }, // 24 points
+        { id: "1", card: "f1" as Card, x: 0, y: 0, z: 0 }, // 12 points
+        { id: "2", card: "s1" as Card, x: 0, y: 0, z: 0 }, // 12 points
+        { id: "3", card: "dc" as Card, x: 0, y: 0, z: 0 }, // 8 points
+        { id: "4", card: "wn" as Card, x: 0, y: 0, z: 0 }, // 24 points
       ]
       expect(calculatePoints(tiles)).toBe(36) // 8 + 8 + 4 + 16
     })
@@ -95,7 +98,6 @@ describe("game", () => {
 describe("gameOverCondition", () => {
   let tileDb: TileDb
   let powerupsDb: PowerupDb
-  let playersDb: PlayerDb
 
   beforeEach(() => {
     tileDb = initTileDb({})
@@ -103,12 +105,6 @@ describe("gameOverCondition", () => {
   })
 
   describe("when single player", () => {
-    beforeEach(() => {
-      playersDb = initPlayersDb({
-        "1": { id: "1", order: 0, points: 0 },
-      })
-    })
-
     it("returns empty-board when no tiles are alive", () => {
       const tiles = Array.from({ length: 2 }, (_, i) => ({
         id: String(i + 1),
@@ -128,8 +124,8 @@ describe("gameOverCondition", () => {
 
     it("returns no-pairs when there are no available pairs", () => {
       tileDb = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] },
-        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] },
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 },
+        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0 },
       })
 
       expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("no-pairs")
@@ -137,6 +133,8 @@ describe("gameOverCondition", () => {
   })
 
   describe("when multiplayer", () => {
+    let playersDb: PlayerDb
+
     beforeEach(() => {
       playersDb = initPlayersDb({
         "1": { id: "1", order: 0, points: 0 },
@@ -163,8 +161,8 @@ describe("gameOverCondition", () => {
 
     it("returns no-pairs when there are no available pairs", () => {
       tileDb = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] },
-        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0, selections: [] },
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 },
+        "2": { id: "2", card: "b2", x: 2, y: 0, z: 0 },
       })
 
       expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe("no-pairs")
@@ -172,8 +170,8 @@ describe("gameOverCondition", () => {
 
     it("returns null when game is not over", () => {
       tileDb = initTileDb({
-        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0, selections: [] },
-        "2": { id: "2", card: "b1", x: 2, y: 0, z: 0, selections: [] },
+        "1": { id: "1", card: "b1", x: 0, y: 0, z: 0 },
+        "2": { id: "2", card: "b1", x: 2, y: 0, z: 0 },
       })
 
       expect(gameOverCondition(tileDb, powerupsDb, "1")).toBe(null)
@@ -182,12 +180,10 @@ describe("gameOverCondition", () => {
 })
 
 describe("didPlayerWin", () => {
-  let tileDb: TileDb
   let playerDb: PlayerDb
   let game: Game
 
   beforeEach(() => {
-    tileDb = initTileDb({})
     playerDb = initPlayersDb({
       "1": { id: "1", order: 0, points: 10 },
       "2": { id: "2", order: 1, points: 8 },

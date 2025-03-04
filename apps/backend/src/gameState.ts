@@ -1,18 +1,13 @@
 import { DurableObject } from "cloudflare:workers"
-import { setup } from "@repo/game/setup"
 import type { Env } from "./types"
 import type { WsMessage, Session, State } from "@repo/game/types"
-import { deleteTile, initTileDb, isFree } from "@repo/game/tile"
-import { cardsMatch } from "@repo/game/deck"
-import { gameOverCondition } from "@repo/game/game"
-import { resolveWinds } from "@repo/game/winds"
-import {
-  getPointsWithCombo,
-  getPowerups,
-  initPowerupsDb,
-} from "@repo/game/powerups"
 import { initSelectionsDb, type Selection } from "@repo/game/selection"
 import { initPlayersDb } from "@repo/game/player"
+import { restartGame, selectTile } from "@repo/game/game"
+import Rand from "rand-seed"
+import { Value } from "@repo/game/in-memoriam"
+import { initPowerupsDb } from "@repo/game/powerups"
+import { initTileDb } from "@repo/game/tile"
 
 const GAME_TIMEOUT = 1000 * 60 * 30 // 30 minutes
 const GAME_COUNTDOWN = 3_000 // 3 seconds
@@ -29,14 +24,23 @@ export class GameState extends DurableObject {
     this.storage = ctx.storage
 
     ctx.blockConcurrencyWhile(async () => {
-      const selections = await this.initState("selections", () => ({}))
-      const players = await this.initState("players", () => ({}))
-      const game = await this.initState("game", () => ({}) as const)
-      const powerups = await this.initState("powerups", () => ({}))
-      const tiles = await this.initState("tiles", () => setup())
+      const state = await this.storage.get("state")
+
+      if (state) {
+        this.state = state as State
+      } else {
+        this.state = {
+          tiles: initTileDb({}),
+          selections: initSelectionsDb({}),
+          powerups: initPowerupsDb({}),
+          players: initPlayersDb({}),
+          game: new Value({}),
+        }
+        restartGame(this.state, new Rand())
+        await this.storage.put("state", this.serializeState())
+      }
 
       this.storage.setAlarm(Date.now() + GAME_TIMEOUT)
-      this.state = { tiles, selections, powerups, game, players }
     })
 
     for (const ws of this.ctx.getWebSockets()) {
@@ -73,25 +77,13 @@ export class GameState extends DurableObject {
         }
 
         case "restart-game": {
-          this.state.game = {
-            startedAt: new Date().getTime() + 3_000,
-          }
-          this.state.tiles = setup()
-          this.state.selections = {}
-          this.state.powerups = {}
-
-          await this.saveState({
-            game: this.state.game,
-            tiles: this.state.tiles,
-            selections: this.state.selections,
-            powerups: this.state.powerups,
-            players: this.state.players,
-          })
+          restartGame(this.state, new Rand())
+          await this.saveState()
           break
         }
 
         case "select-tile": {
-          await this.selectTile(parsedMsg.selection, session)
+          await this.selectTile(parsedMsg.selection)
           break
         }
 
@@ -169,7 +161,6 @@ export class GameState extends DurableObject {
     this.ctx.acceptWebSocket(server)
 
     const id = url.searchParams.get("id")
-    const modality = url.searchParams.get("modality") ?? "solo"
 
     if (!id) {
       return new Response("Missing id", { status: 400 })
@@ -187,18 +178,10 @@ export class GameState extends DurableObject {
       )
 
       if (playerIds.size === 0) {
-        this.state.players[id] = { id, points: 0, order: 0 }
-
-        if (modality === "solo") {
-          this.state.game.startedAt = new Date().getTime()
-        }
+        this.state.players.set(id, { id, points: 0, order: 0 })
       } else if (!playerIds.has(id) && playerIds.size === 1) {
-        this.state.players[id] = { id, points: 0, order: 1 }
-
-        if (modality === "duel") {
-          // start the game!
-          this.storage.setAlarm(Date.now() + GAME_COUNTDOWN)
-        }
+        this.state.players.set(id, { id, points: 0, order: 1 })
+        this.storage.setAlarm(Date.now() + GAME_COUNTDOWN)
       }
 
       return new Response(null, {
@@ -206,123 +189,41 @@ export class GameState extends DurableObject {
         webSocket: client,
       })
     } finally {
-      await this.saveState({
-        selections: this.state.selections,
-        players: this.state.players,
-        powerups: this.state.powerups,
-        tiles: this.state.tiles,
-        game: this.state.game,
-      })
+      await this.saveState()
     }
   }
 
-  async initState<T>(key: string, defaultValue: () => T) {
-    let state = (await this.storage.get(key)) as T
-
-    if (!state) {
-      state = defaultValue()
-      await this.storage.put(key, state)
+  serializeState() {
+    return {
+      tiles: this.state.tiles.byId,
+      selections: this.state.selections.byId,
+      players: this.state.players.byId,
+      powerups: this.state.powerups.byId,
+      game: this.state.game.get(),
     }
-
-    return state
   }
 
-  async saveState(state: State) {
-    this.state = state
-
-    await Promise.all(
-      Object.keys(this.state).map((key) =>
-        this.storage.put(key, this.state[key as keyof State]),
-      ),
-    )
-
-    this.broadcast({ type: "sync", state: this.state })
+  async saveState() {
+    const state = this.serializeState()
+    this.storage.put("state", state)
+    this.broadcast({ type: "sync", state })
   }
 
-  async selectTile(selection: Selection, session: Session) {
-    const tileDb = initTileDb(this.state.tiles)
-    const powerupsDb = initPowerupsDb(this.state.powerups)
-    const selectionsDb = initSelectionsDb(this.state.selections)
-    const playersDb = initPlayersDb(this.state.players)
-    const playerId = session.id
-
-    const player = playersDb.get(playerId)
-    if (!player) throw new Error("Player not found")
-
-    const tile = tileDb.get(selection.tileId)
-    if (!tile) throw new Error("Tile not found")
-
+  async selectTile(selection: Selection) {
     try {
-      if (!isFree(tileDb, tile, powerupsDb, playerId)) {
-        selectionsDb.del(selection.id)
-        return
-      }
-
-      const firstSelection = selectionsDb.findBy({ playerId })
-      if (!firstSelection || firstSelection.id === selection.id) {
-        selectionsDb.set(selection.id, { ...selection, confirmed: true })
-        return
-      }
-
-      const firstTile = tileDb.get(firstSelection.tileId)
-      if (!firstTile || firstTile.deletedBy) {
-        selectionsDb.del(firstSelection.id)
-        selectionsDb.set(selection.id, { ...selection, confirmed: true })
-        return
-      }
-
-      selectionsDb.del(firstSelection.id)
-
-      if (cardsMatch(firstTile.card, tile.card)) {
-        deleteTile(tileDb, tile, playerId)
-        deleteTile(tileDb, firstTile, playerId)
-        resolveWinds(tileDb, powerupsDb, tile)
-        getPowerups(powerupsDb, playerId, tile)
-
-        const points =
-          player.points + getPointsWithCombo(powerupsDb, playerId, tile)
-        playersDb.set(playerId, { ...player, points })
-      }
-
-      for (const player of Object.values(this.state.players)) {
-        const condition = gameOverCondition(
-          tileDb,
-          powerupsDb,
-          playersDb,
-          player.id,
-        )
-
-        if (condition) {
-          this.state.game.endedAt = new Date().getTime()
-          this.state.game.endCondition = condition
-          return
-        }
-      }
+      selectTile(this.state, selection)
+    } catch (error) {
+      console.error(error)
     } finally {
-      await this.saveState({
-        selections: selectionsDb.byId,
-        players: playersDb.byId,
-        powerups: powerupsDb.byId,
-        tiles: tileDb.byId,
-        game: this.state.game,
-      })
+      await this.saveState()
     }
   }
 
   async alarm() {
-    if (!this.state.game.startedAt) {
-      this.state.game.startedAt = new Date().getTime()
-
-      await this.saveState({
-        selections: this.state.selections,
-        players: this.state.players,
-        powerups: this.state.powerups,
-        tiles: this.state.tiles,
-        game: this.state.game,
-      })
+    if (!this.state.game.get().startedAt) {
+      this.state.game.set({ startedAt: new Date().getTime() })
+      await this.saveState()
       return
     }
-
-    await this.storage.deleteAll()
   }
 }

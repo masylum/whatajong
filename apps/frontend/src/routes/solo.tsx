@@ -1,32 +1,29 @@
-import { Show } from "solid-js"
-import { game } from "@/state/db"
+import { createMemo, Show } from "solid-js"
+import { state } from "@/state/state"
 import { Board } from "@/components/game/board"
 import { GameOver } from "@/components/game/gameOver"
-import { createOnlineMotor } from "@/state/motors/online"
 import { useParams } from "@solidjs/router"
+import { createOfflineMotor } from "@/state/motors/offline"
 
 export function Solo() {
   const params = useParams()
+  const controller = createOfflineMotor(() => params.id!)
 
-  const ws = createOnlineMotor({
-    id: () => params.id!,
-    modality: "solo",
+  const started = createMemo(() => {
+    const time = state.game.get().startedAt
+    if (!time) return false
+
+    return time <= Date.now()
   })
 
   return (
-    <Show when={ws()}>
-      {(ws) => (
-        <Show when={game()}>
-          {(game) => (
-            <Show
-              when={game()?.endedAt}
-              fallback={<Board ws={ws()} game={game()} />}
-            >
-              <GameOver game={game()} ws={ws()} />
-            </Show>
-          )}
-        </Show>
-      )}
+    <Show when={started()}>
+      <Show
+        when={state.game.get().endedAt}
+        fallback={<Board controller={controller} />}
+      >
+        <GameOver controller={controller} />
+      </Show>
     </Show>
   )
 }

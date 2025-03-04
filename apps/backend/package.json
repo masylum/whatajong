@@ -5,8 +5,9 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
+    "@repo/game": "workspace:*",
     "hono": "^4.6.20",
-    "@repo/game": "workspace:*"
+    "rand-seed": "^2.1.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250109.0",
