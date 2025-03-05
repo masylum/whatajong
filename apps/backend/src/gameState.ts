@@ -3,11 +3,12 @@ import type { Env } from "./types"
 import type { WsMessage, Session, State } from "@repo/game/types"
 import { initSelectionsDb, type Selection } from "@repo/game/selection"
 import { initPlayersDb } from "@repo/game/player"
-import { restartGame, selectTile } from "@repo/game/game"
+import { type Game, restartGame, selectTile } from "@repo/game/game"
 import Rand from "rand-seed"
 import { Value } from "@repo/game/in-memoriam"
 import { initPowerupsDb } from "@repo/game/powerups"
 import { initTileDb } from "@repo/game/tile"
+import { getDefaultDuelSettings } from "@repo/game/settings"
 
 const GAME_TIMEOUT = 1000 * 60 * 30 // 30 minutes
 const GAME_COUNTDOWN = 3_000 // 3 seconds
@@ -34,9 +35,9 @@ export class GameState extends DurableObject {
           selections: initSelectionsDb({}),
           powerups: initPowerupsDb({}),
           players: initPlayersDb({}),
-          game: new Value({}),
+          game: new Value<Game>({ map: "default" }),
         }
-        restartGame(this.state, new Rand())
+        restartGame(this.state, new Rand(), getDefaultDuelSettings())
         await this.storage.put("state", this.serializeState())
       }
 
@@ -77,7 +78,7 @@ export class GameState extends DurableObject {
         }
 
         case "restart-game": {
-          restartGame(this.state, new Rand())
+          restartGame(this.state, new Rand(), getDefaultDuelSettings())
           await this.saveState()
           break
         }

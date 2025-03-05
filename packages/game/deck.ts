@@ -35,7 +35,7 @@ export type Card =
 export type Joker = Flowers | Seasons
 export type WindDirection = "n" | "s" | "e" | "w"
 
-function shuffle<T>(array: T[], rng: Rand): T[] {
+export function shuffle<T>(array: T[], rng: Rand): T[] {
   const shuffled = [...array]
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rng.next() * (i + 1))
@@ -44,7 +44,7 @@ function shuffle<T>(array: T[], rng: Rand): T[] {
   return shuffled
 }
 
-export function getDeck(rng: Rand): [Card, Card][] {
+export function getStandardPairs(): [Card, Card][] {
   const pairs: [Card, Card][] = []
   const regularTiles = [
     ...bamboo,
@@ -63,8 +63,25 @@ export function getDeck(rng: Rand): [Card, Card][] {
   pairs.push([s1, s2], [s3, s4])
   pairs.push([f1, f2], [f3, f4])
 
-  // Shuffle the pairs
-  return shuffle(pairs, rng)
+  return pairs
+}
+
+export function getRunPairs(): [Card, Card][] {
+  const pairs: [Card, Card][] = []
+  const regularTiles = [
+    ...bamboo,
+    ...character,
+    ...circle,
+    ...winds,
+    ...dragons,
+  ]
+
+  // Add 1 pair of each regular tile
+  for (const tile of regularTiles) {
+    pairs.push([tile, tile])
+  }
+
+  return pairs
 }
 
 type ExtractSuit<T> = T extends `${infer S}${string}`

@@ -17,8 +17,10 @@ import { isMultiplayer, type PlayerDb } from "./player"
 import type { Selection } from "./selection"
 import { resolveWinds } from "./winds"
 import type { State } from "./types"
-import { setupGame } from "./setupGame"
+import { setupTiles } from "./setupTiles"
 import type Rand from "rand-seed"
+import type { Settings } from "./settings"
+import type { MapName } from "./map"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
@@ -27,6 +29,7 @@ export type Game = {
   startedAt?: number
   endedAt?: number
   endCondition?: WinCondition
+  map: MapName
 }
 
 export function gameOverCondition(
@@ -169,12 +172,13 @@ export function selectTile(db: State, selection: Selection) {
   }
 }
 
-export function restartGame(db: State, rng: Rand) {
+export function restartGame(db: State, rng: Rand, settings: Settings) {
   db.game.set({
     startedAt: new Date().getTime(),
+    map: settings.map,
   })
 
-  const newTiles = setupGame(rng)
+  const newTiles = setupTiles(rng, settings)
   for (const tile of Object.values(newTiles)) {
     db.tiles.set(tile.id, tile)
   }
@@ -182,7 +186,7 @@ export function restartGame(db: State, rng: Rand) {
   for (const player of db.players.all) {
     db.players.set(player.id, {
       ...player,
-      points: 0,
+      points: settings.initialPoints || 0,
     })
   }
   db.selections.update({})

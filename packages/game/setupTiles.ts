@@ -1,15 +1,16 @@
-import { getDeck } from "./deck"
+import { shuffle, type Card } from "./deck"
 import { mapGet } from "./map"
-import { DEFAULT_MAP } from "./maps/default"
 import type { Tile } from "./tile"
 import { initTileDb } from "./tile"
 import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
+import type { Settings } from "./settings"
+import { maps } from "./map"
 
 // From paper: https://iivq.net/scriptie/scriptie-bsc.pdf
-export function setupGame(rng: Rand) {
+export function setupTiles(rng: Rand, settings: Settings) {
   const tileDb = initTileDb({})
-  const map = DEFAULT_MAP
+  const map = maps[settings.map]
 
   // Get all valid positions from the map
   for (const z of map.keys()) {
@@ -52,17 +53,19 @@ export function setupGame(rng: Rand) {
 
   // If we couldn't remove all tiles, start over
   if (tileDb.size > 0) {
-    return setupGame(rng)
+    return setupTiles(rng, settings)
   }
 
-  // Get all possible card pairs
-  const allPairs = getDeck(rng)
+  const shuffledPairs = shuffle(settings.deck, rng)
 
   // Place tiles back in reverse order with actual cards
   for (let i = 0; i < pickOrder.length; i += 2) {
     const tile1 = pickOrder[pickOrder.length - 1 - i]!
     const tile2 = pickOrder[pickOrder.length - 2 - i]!
-    const [card1, card2] = allPairs[i / 2]!
+
+    // We might run out of pairs if restrictions are applied, use dummy in that case
+    const pair = shuffledPairs[i / 2] || ["d1" as Card, "d1" as Card]
+    const [card1, card2] = pair
 
     const id1 = mapGet(map, tile1.x, tile1.y, tile1.z)!
     const id2 = mapGet(map, tile2.x, tile2.y, tile2.z)!

@@ -12,29 +12,36 @@ import { Stats } from "./stats"
 import { gameRecipe, COMBO_ANIMATION_DURATION } from "./board.css"
 import { DustParticles } from "./dustParticles"
 import { getNumber, isDragon, type Dragons } from "@repo/game/deck"
-import { state, userId } from "@/state/state"
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
+import { gameState, userId } from "@/state/gameState"
+import { getCanvasHeight, getCanvasWidth } from "@/state/constants"
 import { getFinder } from "@repo/game/tile"
-import { MAP_LEVELS } from "@repo/game/map"
-import { play, SOUNDS } from "./audio"
+import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
 import { Mountains } from "../mountains"
-import type { GameController } from "@/state/motors/controller"
+import type { Selection } from "@repo/game/selection"
+import { maps } from "@repo/game/map"
+import { mapGetLevels } from "@repo/game/map"
+import { createVoicesEffect } from "./createVoicesEffect"
 
 type BoardProps = {
-  controller?: GameController
+  onSelectTile: (selection: Selection) => void
 }
 export function Board(props: BoardProps) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
   const [hover, setHover] = createSignal<string | null>(null)
   const isHovered = createSelector(hover)
 
+  createVoicesEffect()
+
+  const map = createMemo(() => maps[gameState.game.get().map])
+  const mapLevels = createMemo(() => mapGetLevels(map()))
+
   const disclosedTile = createMemo(() => {
     const id = hover()
     if (!id) return
-    const find = getFinder(state.tiles, state.tiles.get(id)!)
+    const find = getFinder(gameState.tiles, gameState.tiles.get(id)!)
 
-    for (let z = MAP_LEVELS - 1; z >= 1; z--) {
+    for (let z = mapLevels() - 1; z >= 1; z--) {
       const leftTile = find(-2, -1, z) || find(-2, 0, z) || find(-2, 1, z)
       if (leftTile) {
         return leftTile.id
@@ -46,17 +53,17 @@ export function Board(props: BoardProps) {
   const hiddenImageId = createMemo(() => {
     const id = disclosedTile()
     if (!id) return
-    const tile = state.tiles.get(id)!
-    return getFinder(state.tiles, tile)(0, 0, -1)?.id
+    const tile = gameState.tiles.get(id)!
+    return getFinder(gameState.tiles, tile)(0, 0, -1)?.id
   })
   const isHiddenImage = createSelector(hiddenImageId)
 
   const dragons = createMemo(
     () => {
-      const [left, right] = state.players.all
+      const [left, right] = gameState.players.all
         .sort((a, b) => a.order - b.order)
         .map((player) => {
-          const powerup = state.powerups
+          const powerup = gameState.powerups
             .filterBy({ playerId: player.id })
             .find((powerup) => isDragon(powerup.card))
           if (!powerup) return
@@ -71,10 +78,10 @@ export function Board(props: BoardProps) {
 
   const combo = createMemo(
     () => {
-      const [left, right] = state.players.all
+      const [left, right] = gameState.players.all
         .sort((a, b) => a.order - b.order)
         .map((player) => {
-          const powerup = state.powerups
+          const powerup = gameState.powerups
             .filterBy({ playerId: player.id })
             .find((powerup) => isDragon(powerup.card))
           if (!powerup) return
@@ -122,7 +129,7 @@ export function Board(props: BoardProps) {
       playerId: userId(),
     }
 
-    props.controller?.selectTile(selection)
+    props.onSelectTile(selection)
   }
 
   onMount(() => {
@@ -143,12 +150,12 @@ export function Board(props: BoardProps) {
       <div
         style={{
           position: "relative",
-          width: `${CANVAS_WIDTH}px`,
-          height: `${CANVAS_HEIGHT}px`,
+          width: `${getCanvasWidth(map())}px`,
+          height: `${getCanvasHeight(map())}px`,
           margin: "0 auto",
         }}
       >
-        <For each={state.tiles.all}>
+        <For each={gameState.tiles.all}>
           {(tile) => (
             <TileComponent
               tile={tile}

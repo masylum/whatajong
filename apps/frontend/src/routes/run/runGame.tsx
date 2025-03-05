@@ -1,3 +1,4 @@
+import { useParams } from "@solidjs/router"
 import { batch, createEffect, createMemo, Show } from "solid-js"
 import {
   GameStateProvider,
@@ -7,18 +8,18 @@ import {
 } from "@/state/gameState"
 import { Board } from "@/components/game/board"
 import { GameOverSinglePlayer } from "@/components/game/gameOver"
-import { useParams } from "@solidjs/router"
-import { getStandardPairs } from "@repo/game/deck"
+import { useRunState } from "@/state/runState"
 import { selectTile } from "@repo/game/game"
 
-export function Solo() {
+export default function RunGame() {
   const params = useParams()
+  const run = useRunState()
 
   const gameState = createMemo(() =>
-    initGameState(params.id!, {
-      map: "default",
-      initialPoints: 150,
-      deck: getStandardPairs(),
+    initGameState(params.gameId!, {
+      map: run.get().map,
+      initialPoints: run.get().initialPoints,
+      deck: run.get().deck,
     }),
   )
 

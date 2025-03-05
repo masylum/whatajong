@@ -1,5 +1,5 @@
 import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { state, userId, playerColors } from "@/state/state"
+import { userId, playerColors, useGameState } from "@/state/gameState"
 import {
   CORNER_RADIUS,
   SIDE_SIZES,
@@ -17,7 +17,7 @@ import {
   clickableClass,
   tileRecipe,
 } from "./tileComponent.css"
-import { MAP_HEIGHT, MAP_WIDTH } from "@repo/game/map"
+import { mapGetHeight, mapGetWidth } from "@repo/game/map"
 import { TileShades } from "./tileShades"
 import { isFree, type Tile } from "@repo/game/tile"
 import { VISIBILITY_MASK_ID } from "./defs"
@@ -26,9 +26,10 @@ import { TileSide } from "./tileSide"
 import { color, alpha } from "@/styles/colors"
 import { getPointsWithCombo } from "@repo/game/powerups"
 import { isDragon, isFlower, isJoker, isSeason, isWind } from "@repo/game/deck"
-import { play, SOUNDS } from "./audio"
+import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
+import { maps } from "@repo/game/map"
 
 type Props = {
   tile: Tile
@@ -41,6 +42,8 @@ type Props = {
 }
 
 export function TileComponent(props: Props) {
+  const gameState = useGameState()
+
   const coords = createMemo(
     () => {
       const x = props.tile.x
@@ -58,21 +61,25 @@ export function TileComponent(props: Props) {
   )
 
   const canBeSelected = createMemo(() => {
-    return isFree(state.tiles, props.tile, state.powerups, userId())
+    return isFree(gameState.tiles, props.tile, gameState.powerups, userId())
   })
+
+  const map = createMemo(() => maps[gameState.game.get().map])
+  const mapWidth = createMemo(() => mapGetWidth(map()))
+  const mapHeight = createMemo(() => mapGetHeight(map()))
 
   const zIndex = createMemo(
     () =>
-      props.tile.z * MAP_WIDTH * MAP_HEIGHT +
-      (MAP_WIDTH - props.tile.x - 1) * MAP_HEIGHT,
-    props.tile.y,
+      props.tile.z * mapWidth() * mapHeight() +
+      mapWidth() * props.tile.y +
+      (mapWidth() - props.tile.x),
   )
 
   const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const powerups = createMemo(() =>
-    state.powerups.filterBy({ playerId: userId() }),
+    gameState.powerups.filterBy({ playerId: userId() }),
   )
   const flower = createMemo(() => powerups().find((p) => isFlower(p.card)))
   const season = createMemo(() => powerups().find((p) => isSeason(p.card)))
@@ -86,7 +93,7 @@ export function TileComponent(props: Props) {
 
   const selected = createMemo(
     () => {
-      const all = state.selections.filterBy({ tileId: props.tile.id })
+      const all = gameState.selections.filterBy({ tileId: props.tile.id })
 
       return (
         all.find((selection) => selection.playerId === userId()) ||
@@ -181,7 +188,7 @@ export function TileComponent(props: Props) {
             }}
             class={floatingNumberAnimation}
           >
-            +{getPointsWithCombo(state.powerups, playerId(), props.tile)}
+            +{getPointsWithCombo(gameState.powerups, playerId(), props.tile)}
           </span>
         )}
       </Show>
@@ -199,7 +206,6 @@ export function TileComponent(props: Props) {
           data-tile={JSON.stringify(props.tile)}
           class={tileRecipe({ highlight: highlight() })}
         >
-          <title>{props.tile.id}</title>
           <g
             class={animation()}
             mask={

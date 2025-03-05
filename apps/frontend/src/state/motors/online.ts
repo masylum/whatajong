@@ -1,13 +1,12 @@
 import { onCleanup, createMemo } from "solid-js"
-import { setSessions, userId, syncState } from "../state"
-import type { GameController } from "./controller"
+import { setSessions, userId, syncState } from "../gameState"
 import type { Selection } from "@repo/game/selection"
 import { produce } from "solid-js/store"
-import type { WsMessage } from "@repo/game/types"
+import type { State, WsMessage } from "@repo/game/types"
 
 const API_URL = import.meta.env.VITE_API_URL
 
-export function createOnlineMotor(id: string): GameController {
+export function createOnlineMotor(gameState: State, id: string) {
   const ws = createMemo(() => {
     const ws = new WebSocket(`${API_URL}/ws/${id}?id=${userId()}`)
 
@@ -49,7 +48,7 @@ export function createOnlineMotor(id: string): GameController {
           return
         case "sync":
           console.log(msg)
-          syncState(msg.state)
+          syncState(gameState, msg.state)
           return
         default:
           break
@@ -66,7 +65,7 @@ export function createOnlineMotor(id: string): GameController {
   })
 
   return {
-    selectTile: (selection: Selection) => {
+    onSelectTile: (selection: Selection) => {
       ws().send(
         JSON.stringify({
           type: "select-tile",
@@ -75,7 +74,7 @@ export function createOnlineMotor(id: string): GameController {
         }),
       )
     },
-    restartGame: () => {
+    onRestartGame: () => {
       ws().send(JSON.stringify({ type: "restart-game" }))
     },
     getWebSocket: ws,

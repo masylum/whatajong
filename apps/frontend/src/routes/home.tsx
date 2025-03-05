@@ -1,4 +1,3 @@
-import { DustParticles } from "@/components/game/dustParticles"
 import {
   buttonClass,
   cardClass,
@@ -12,18 +11,17 @@ import {
   titleClass,
 } from "./home.css"
 import { BasicTile } from "@/components/game/basicTile"
-import { getDeck } from "@repo/game/deck"
+import { getStandardPairs, shuffle } from "@repo/game/deck"
 import { For, createMemo } from "solid-js"
 import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
 import { nanoid } from "nanoid"
-import { SOUNDS } from "@/components/game/audio"
-import { play } from "@/components/game/audio"
 import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
+import { play, SOUNDS } from "@/components/audio"
 
 function cards() {
   const rng = new Rand()
-  return getDeck(rng).flatMap(([c, _]) => c)
+  return shuffle(getStandardPairs(), rng).flatMap(([c, _]) => c)
 }
 
 export function Home() {
@@ -54,6 +52,13 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
+          href={`/run/${nanoid()}`}
+          class={buttonClass({ hue: "tile" })}
+        >
+          adventure game
+        </a>
+        <a
+          onMouseEnter={onHover}
           href="/instructions"
           class={buttonClass({ hue: "circle" })}
         >
@@ -62,7 +67,6 @@ export function Home() {
         </a>
       </nav>
       <Mountains />
-      <DustParticles />
     </div>
   )
 }

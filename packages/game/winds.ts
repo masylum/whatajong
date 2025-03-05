@@ -1,22 +1,16 @@
 import { getNumber, getSuit } from "./deck"
-import { MAP_HEIGHT, MAP_LEVELS, MAP_WIDTH } from "./map"
 import type { PowerupDb } from "./powerups"
 import { fullyOverlaps, overlaps, type Tile, type TileDb } from "./tile"
-
-const limit = { x: MAP_WIDTH - 2, y: MAP_HEIGHT - 2 } as const
 
 function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
   const value = tile[axis]
 
   if (bias === 0) return tile
   const direction = Math.sign(bias)
-  if (direction === -1 && value === 0) return tile
-  if (direction === 1 && value === limit[axis]) return tile
 
   for (let attempt = Math.abs(bias); attempt > 0; attempt--) {
     const displacement = attempt * direction
     const newValue = value + displacement
-    if (newValue < 0 || newValue > limit[axis]) continue
 
     const newTile = { ...tile, [axis]: newValue }
     if (overlaps(tileDb, newTile, 0)) continue
@@ -50,8 +44,12 @@ export function resolveWinds(
   }
 
   const [axis, bias] = biases[wind]
+  const highestLevel = tileDb.all.reduce(
+    (max, tile) => Math.max(max, tile.z),
+    0,
+  )
 
-  for (let z = 0; z < MAP_LEVELS; z++) {
+  for (let z = 0; z <= highestLevel; z++) {
     const direction = Math.sign(bias)
     const zTiles = tileDb
       .filterBy({ z })

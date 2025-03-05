@@ -1,6 +1,6 @@
 import { DustParticles } from "./dustParticles"
 import { didPlayerWin } from "@repo/game/game"
-import { getDeck, type Card } from "@repo/game/deck"
+import { getStandardPairs, shuffle, type Card } from "@repo/game/deck"
 import {
   bouncingCardClass,
   gameOverClass,
@@ -21,15 +21,14 @@ import {
 } from "./gameOver.css"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { state, userId } from "@/state/state"
+import { useGameState, userId } from "@/state/gameState"
 import { Avatar } from "@/components/avatar"
-import { isMultiplayer, type Player } from "@repo/game/player"
+import type { Player } from "@repo/game/player"
 import { Button, LinkButton } from "@/components/button"
 import { BasicTile } from "./basicTile"
 import { huesAndShades } from "@/styles/colors"
 import { nanoid } from "nanoid"
 import { Rotate } from "../icon"
-import type { GameController } from "@/state/motors/controller"
 import Rand from "rand-seed"
 
 // biome-ignore format:
@@ -37,86 +36,82 @@ const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Missio
 // biome-ignore format:
 const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Try Again", "You Failed", "You Fell Short", "Crushed!", "Wasted!", "Out of Moves" ]
 
-type Props = {
-  controller: GameController
-}
-
-export function GameOver(props: Props) {
-  return (
-    <div class={gameOverClass}>
-      <Show
-        when={isMultiplayer(state.players)}
-        fallback={<GameOverSinglePlayer />}
-      >
-        <GameOverMultiPlayer controller={props.controller} />
-      </Show>
-      <BouncingCards />
-      <DustParticles />
-    </div>
-  )
-}
-
 function pick(arr: string[]) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-function GameOverSinglePlayer() {
-  const player = createMemo(() => state.players.byId[userId()]!)
-  const win = createMemo(() => state.game.get().endCondition === "empty-board")
+export function GameOverSinglePlayer() {
+  const gameState = useGameState()
+  const player = createMemo(() => gameState.players.byId[userId()]!)
+  const win = createMemo(
+    () => gameState.game.get().endCondition === "empty-board",
+  )
 
   return (
-    <div class={screenClass({ win: win() })}>
-      <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
-        <Title>{pick(WIN_TITLES)}</Title>
-      </Show>
-      <div class={pointsContainerClass({ multiplayer: false })}>
-        <Points points={player().points} />
-        <Time />
-        <TotalPoints points={player().points} />
-      </div>
-      <LinkButton
-        hue={win() ? "bamboo" : "character"}
-        kind="dark"
-        href={`/play/${nanoid()}`}
-      >
-        <Rotate />
-        Play again
-      </LinkButton>
+    <div class={gameOverClass}>
+      <div class={screenClass({ win: win() })}>
+        <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
+          <Title>{pick(WIN_TITLES)}</Title>
+        </Show>
+        <div class={pointsContainerClass({ multiplayer: false })}>
+          <Points points={player().points} />
+          <Time />
+          <TotalPoints points={player().points} />
+        </div>
+        <LinkButton
+          hue={win() ? "bamboo" : "character"}
+          kind="dark"
+          href={`/play/${nanoid()}`}
+        >
+          <Rotate />
+          Play again
+        </LinkButton>
+        <BouncingCards />
+        <DustParticles />
+      </div>{" "}
     </div>
   )
 }
 
-function GameOverMultiPlayer(props: {
-  controller: GameController
+export function GameOverMultiPlayer(props: {
+  onRestartGame: () => void
 }) {
-  const player = createMemo(() => state.players.byId[userId()]!)
+  const gameState = useGameState()
+  const player = createMemo(() => gameState.players.byId[userId()]!)
   const otherPlayer = createMemo(
-    () => state.players.all.find((player) => player.id !== userId())!,
+    () => gameState.players.all.find((player) => player.id !== userId())!,
   )
   const win = createMemo(() =>
-    didPlayerWin(state.game.get(), state.players, userId()),
+    didPlayerWin(gameState.game.get(), gameState.players, userId()),
   )
   const winningPlayer = createMemo(() => (win() ? player() : otherPlayer()))
 
   return (
-    <div class={screenClass({ win: win() })}>
-      <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
-        <Title>{pick(WIN_TITLES)}</Title>
-      </Show>
-      <div class={playersContainerClass}>
-        <PlayerPoints player={player()} winningPlayer={winningPlayer()} />
-        <PlayerPoints player={otherPlayer()} winningPlayer={winningPlayer()} />
-      </div>
-      <Button
-        hue={win() ? "bamboo" : "character"}
-        kind="dark"
-        onClick={() => {
-          props.controller.restartGame()
-        }}
-      >
-        <Rotate />
-        Play again
-      </Button>
+    <div class={gameOverClass}>
+      <div class={screenClass({ win: win() })}>
+        <Show when={win()} fallback={<Title>{pick(DEFEAT_TITLES)}</Title>}>
+          <Title>{pick(WIN_TITLES)}</Title>
+        </Show>
+        <div class={playersContainerClass}>
+          <PlayerPoints player={player()} winningPlayer={winningPlayer()} />
+          <PlayerPoints
+            player={otherPlayer()}
+            winningPlayer={winningPlayer()}
+          />
+        </div>
+        <Button
+          hue={win() ? "bamboo" : "character"}
+          kind="dark"
+          onClick={() => {
+            props.onRestartGame()
+          }}
+        >
+          <Rotate />
+          Play again
+        </Button>
+        <BouncingCards />
+        <DustParticles />
+      </div>{" "}
     </div>
   )
 }
@@ -182,7 +177,7 @@ function BouncingCard(props: { card: Card }) {
 function BouncingCards() {
   const cards = createMemo<Card[]>(() => {
     const rng = new Rand()
-    return getDeck(rng)
+    return shuffle(getStandardPairs(), rng)
       .slice(0, 10)
       .flatMap(([p, _]) => p)
   })
@@ -190,8 +185,10 @@ function BouncingCards() {
 }
 
 function calculateSeconds() {
+  const gameState = useGameState()
+
   return Math.floor(
-    (state.game.get().endedAt! - state.game.get().startedAt!) / 1000,
+    (gameState.game.get().endedAt! - gameState.game.get().startedAt!) / 1000,
   )
 }
 

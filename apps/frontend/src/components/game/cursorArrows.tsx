@@ -7,35 +7,40 @@ import {
   onCleanup,
 } from "solid-js"
 import { PerfectCursor } from "perfect-cursors"
-import { state } from "@/state/state"
+import { useGameState } from "@/state/gameState"
 import type { Session } from "@repo/game/types"
-import { playerColors, sessions, userId } from "@/state/state"
-import { CANVAS_HEIGHT, CANVAS_WIDTH } from "@/state/constants"
+import { playerColors, sessions, userId } from "@/state/gameState"
+import { getCanvasHeight, getCanvasWidth } from "@/state/constants"
+import { maps } from "@repo/game/map"
 
 const CURSOR_UPDATE_INTERVAL = 55
 
 export function CursorArrows(props: {
   websocket?: WebSocket
 }) {
+  const gameState = useGameState()
   const [abortController] = createSignal(new AbortController())
   const [lastSentTimestamp, setLastSentTimestamp] = createSignal(0)
+  const map = createMemo(() => maps[gameState.game.get().map])
+  const canvasWidth = createMemo(() => getCanvasWidth(map()))
+  const canvasHeight = createMemo(() => getCanvasHeight(map()))
 
   createEffect(() => {
     if (!props.websocket) return
 
     const getCanvasRect = () => {
-      const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
-      const canvasRight = canvasLeft + CANVAS_WIDTH
-      const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
-      const canvasBottom = canvasTop + CANVAS_HEIGHT
+      const canvasLeft = (window.innerWidth - canvasWidth()) / 2
+      const canvasRight = canvasLeft + canvasWidth()
+      const canvasTop = Math.max(0, (window.innerHeight - canvasHeight()) / 2)
+      const canvasBottom = canvasTop + canvasHeight()
 
       return {
         left: canvasLeft,
         right: canvasRight,
         top: canvasTop,
         bottom: canvasBottom,
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
+        width: canvasWidth(),
+        height: canvasHeight(),
       }
     }
 
@@ -88,22 +93,34 @@ export function CursorArrows(props: {
 
   return (
     <For each={otherSessions()}>
-      {(session) => <CursorArrow session={session} />}
+      {(session) => (
+        <CursorArrow
+          session={session}
+          canvasWidth={canvasWidth()}
+          canvasHeight={canvasHeight()}
+        />
+      )}
     </For>
   )
 }
 
 type Point = [number, number]
-function CursorArrow(props: { session: Session }) {
+function CursorArrow(props: {
+  session: Session
+  canvasWidth: number
+  canvasHeight: number
+}) {
+  const gameState = useGameState()
+
   const getCanvasRect = () => {
-    const canvasLeft = (window.innerWidth - CANVAS_WIDTH) / 2
-    const canvasTop = Math.max(0, (window.innerHeight - CANVAS_HEIGHT) / 2)
+    const canvasLeft = (window.innerWidth - props.canvasWidth) / 2
+    const canvasTop = Math.max(0, (window.innerHeight - props.canvasHeight) / 2)
 
     return {
       left: canvasLeft,
       top: canvasTop,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
+      width: props.canvasWidth,
+      height: props.canvasHeight,
     }
   }
 
@@ -115,7 +132,7 @@ function CursorArrow(props: { session: Session }) {
     ]
   })
 
-  const player = createMemo(() => state.players.get(props.session.id)!)
+  const player = createMemo(() => gameState.players.get(props.session.id)!)
   const [xy, setXy] = createSignal(point())
 
   PerfectCursor.MAX_INTERVAL = 58

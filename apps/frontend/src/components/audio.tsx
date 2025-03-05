@@ -1,7 +1,6 @@
 import { createStore } from "solid-js/store"
-import { For, createSignal, createEffect, createMemo } from "solid-js"
-import { muted, state, userId } from "@/state/state"
-import type { Tile } from "@repo/game/tile"
+import { For } from "solid-js"
+import { muted } from "@/state/gameState"
 
 export const SOUNDS = {
   CLICK: "click",
@@ -61,8 +60,6 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS["321"]]: undefined,
 })
 
-const FAST_SELECTION_THRESHOLD = 3000
-
 function play(track: Track, volume = 1) {
   const audio = audioStore[track]
   if (audio) {
@@ -80,41 +77,6 @@ export function Audio() {
   const soundEntries = Object.entries(SOUNDS).map(
     ([_, value]) => value as Track,
   )
-
-  const [lastTileTime, setLastTileTime] = createSignal<number>(0)
-  const [speedStreak, setSpeedStreak] = createSignal<number>(0)
-  const userDeletions = createMemo(() =>
-    state.tiles.filterBy({ deletedBy: userId() }),
-  )
-
-  createEffect((prevDeletions: Tile[]) => {
-    const deletions = userDeletions()
-    if (deletions.length === prevDeletions.length) return deletions
-
-    // Only process if selection count has increased (a new selection was made)
-    // We use the length as a proxy for a new selection being added
-    const now = Date.now()
-    const lastTime = lastTileTime()
-    const timeDiff = now - lastTime
-
-    if (lastTime === 0 || timeDiff > FAST_SELECTION_THRESHOLD) {
-      setSpeedStreak(0)
-    } else {
-      const newStreak = speedStreak() + 1
-      setSpeedStreak(newStreak)
-
-      if (newStreak >= 3) {
-        const expressionIndex = Math.min(newStreak - 3, EXPRESSIONS.length - 1)
-        const expressionSound = EXPRESSIONS[expressionIndex]
-        if (expressionSound) {
-          play(expressionSound)
-        }
-      }
-    }
-
-    setLastTileTime(now)
-    return deletions
-  }, userDeletions())
 
   return (
     <>

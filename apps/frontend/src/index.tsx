@@ -5,11 +5,14 @@ import { Duel } from "./routes/duel"
 import { Home } from "./routes/home"
 import { Solo } from "./routes/solo"
 import { Instructions } from "./routes/instructions"
-
-const root = document.getElementById("root")
+import RunSelectGame from "./routes/run/selectGame"
+import { Layout } from "./components/layout"
+import Run from "./routes/run"
+import RunGame from "./routes/run/runGame"
 
 import "./styles/reset.css"
-import { Layout } from "./components/layout"
+
+const root = document.getElementById("root")
 
 render(
   () => (
@@ -17,6 +20,10 @@ render(
       <Route path="/" component={Home} />
       <Route path="/play/:id" component={Solo} />
       <Route path="/duel/:id" component={Duel} />
+      <Route path="/run/:id" component={Run}>
+        <Route path="/" component={RunSelectGame} />
+        <Route path="/game/:gameId" component={RunGame} />
+      </Route>
       <Route path="/instructions" component={Instructions} />
     </Router>
   ),

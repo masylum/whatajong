@@ -1,5 +1,5 @@
 import { createMemo, For, Show } from "solid-js"
-import { state, playerColors } from "@/state/state"
+import { playerColors, useGameState } from "@/state/gameState"
 import {
   comboRecipe,
   playerClass,
@@ -17,8 +17,10 @@ import { Avatar } from "@/components/avatar"
 import { BasicTile } from "./basicTile"
 
 export function Players() {
-  const firstPlayer = createMemo(() => state.players.all[0]!)
-  const secondPlayer = createMemo(() => state.players.all[1]!)
+  const gameState = useGameState()
+
+  const firstPlayer = createMemo(() => gameState.players.all[0]!)
+  const secondPlayer = createMemo(() => gameState.players.all[1]!)
 
   return (
     <div class={playersClass}>
@@ -31,8 +33,9 @@ export function Players() {
 }
 
 function PlayerComponent(props: { player: Player }) {
+  const gameState = useGameState()
   const powerups = createMemo(() =>
-    state.powerups.filterBy({ playerId: props.player.id }),
+    gameState.powerups.filterBy({ playerId: props.player.id }),
   )
   const pColors = createMemo(() => playerColors(props.player.id))
 

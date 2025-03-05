@@ -97,4 +97,4 @@ export const DEFAULT_MAP = [
     [n , n , n , n , n , n , n , n , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n , n , n , n , n , n , n , n , n , n ],
     [n , n , n , n , n , n , n , n , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n  , n , n , n , n , n , n , n , n , n , n ],
   ]
-] as const
+]
