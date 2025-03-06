@@ -3,6 +3,7 @@ export const huesAndShades = {
     "0": "oklch(99.85% 0.002 85)",
     "1000": "oklch(12% 0.003 85)",
   },
+
   flower: {
     90: "#FFE699",
     80: "#FFE699",
@@ -74,6 +75,7 @@ export const huesAndShades = {
     20: "#040F25",
     10: "#010710",
   },
+
   firstPlayer: {
     90: "#F1E3F3",
     80: "#E3C7E5",
@@ -85,6 +87,7 @@ export const huesAndShades = {
     20: "#553A58",
     10: "#352438",
   },
+
   secondPlayer: {
     90: "#FDE8D2",
     80: "#F8D5A8",
@@ -99,12 +102,15 @@ export const huesAndShades = {
 } as const
 
 export const accentHues = [
-  "tile",
+  // suits
   "bamboo",
   "character",
   "circle",
+  // TODO: deprecate
+  "tile",
   "season",
   "flower",
+  // players
   "firstPlayer",
   "secondPlayer",
 ] as const

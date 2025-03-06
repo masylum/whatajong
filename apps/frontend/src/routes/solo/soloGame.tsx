@@ -1,38 +1,34 @@
 import { createMemo, Show } from "solid-js"
 import {
-  GameStateProvider,
   createGameState,
+  GameStateProvider,
   muted,
   setMuted,
   useGameState,
   userId,
 } from "@/state/gameState"
 import { Board } from "@/components/game/board"
-import { GameOverRun } from "./gameOverRun"
-import { useRound, useRunState } from "@/state/runState"
+import { useParams } from "@solidjs/router"
+import { getStandardDeck } from "@repo/game/deck"
 import { selectTile } from "@repo/game/game"
+import { GameOverSolo } from "./gameOverSolo"
 import { Frame } from "@/components/game/frame"
-import { container, menuContainer } from "../solo/soloGame.css"
+import { LinkButton } from "@/components/button"
 import { Powerups } from "@/components/game/powerups"
-import { Bell } from "@/components/icon"
+import { Points, Moves } from "@/components/game/stats"
 import { Button } from "@/components/button"
-import { Moves, Points } from "@/components/game/stats"
-import { BellOff } from "@/components/icon"
-import { useDeckState } from "@/state/deckState"
+import { ArrowLeft, Bell, BellOff, Rotate } from "@/components/icon"
+import { nanoid } from "nanoid"
+import { menuContainer, container } from "./soloGame.css"
 
-export default function RunGame() {
-  const run = useRunState()
-  const round = useRound()
-  const deck = useDeckState()
+export function Solo() {
+  const params = useParams()
 
-  const { state, started } = createGameState(
-    () => `game-${run.get().runId}-${round().id}`,
-    {
-      map: run.get().map,
-      initialPoints: run.get().initialPoints,
-      deck: deck.all,
-    },
-  )
+  const { state, started } = createGameState(() => params.id!, {
+    map: "default",
+    initialPoints: 150,
+    deck: getStandardDeck(),
+  })
 
   return (
     <GameStateProvider gameState={state()}>
@@ -51,26 +47,25 @@ export default function RunGame() {
             />
           }
         >
-          <GameOverRun />
+          <GameOverSolo />
         </Show>
       </Show>
     </GameStateProvider>
   )
 }
 
-function Top() {
+export function Top() {
   const gameState = useGameState()
   const player = createMemo(() => gameState.players.get(userId())!)
 
   return (
     <div class={container}>
-      TODO: info about the round
       <Powerups player={player()} />
     </div>
   )
 }
 
-function Bottom() {
+export function Bottom() {
   const gameState = useGameState()
   const player = createMemo(() => gameState.players.get(userId())!)
 
@@ -78,6 +73,14 @@ function Bottom() {
     <div class={container}>
       <Points player={player()} />
       <nav class={menuContainer}>
+        <LinkButton href="/" hue="bamboo">
+          <ArrowLeft />
+          back
+        </LinkButton>
+        <LinkButton href={`/play/${nanoid()}`} hue="character">
+          <Rotate />
+          restart
+        </LinkButton>
         <Button
           type="button"
           hue="circle"

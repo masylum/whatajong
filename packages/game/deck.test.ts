@@ -1,34 +1,17 @@
 import { describe, it, expect } from "vitest"
-import { getDeck, getSuit, getNumber, matchesSuit, cardsMatch } from "./deck"
-import Rand from "rand-seed"
+import {
+  getStandardDeck,
+  getSuit,
+  getNumber,
+  matchesSuit,
+  cardsMatch,
+} from "./deck"
 
 describe("deck", () => {
-  const rng = new Rand()
-
   it("should generate correct number of pairs", () => {
-    const deck = getDeck(rng)
+    const deck = getStandardDeck()
 
-    expect(deck.length).toBe(36 * 2)
-  })
-
-  it("should generate shuffled deck", () => {
-    const deck1 = getDeck(rng)
-    const deck2 = getDeck(rng)
-
-    // Note: There's a 1 out of 144! chance that this test fails.
-    // If it does, please go buy a lottery ticket since the odds are
-    // smaller than finding a particular atom in the whole universe.
-    expect(deck1).not.toEqual(deck2)
-  })
-
-  it("should generate same deck for same seed", () => {
-    const rng = new Rand("test")
-    const deck1 = getDeck(rng)
-
-    const rng2 = new Rand("test")
-    const deck2 = getDeck(rng2)
-
-    expect(deck1).toEqual(deck2)
+    expect(deck.length).toBe(144 / 2)
   })
 
   describe("card utility functions", () => {

@@ -2,7 +2,10 @@ import { createStore } from "solid-js/store"
 import {
   batch,
   createContext,
+  createEffect,
+  createMemo,
   createSignal,
+  on,
   useContext,
   type ParentProps,
 } from "solid-js"
@@ -25,8 +28,8 @@ import Haikunator from "haikunator"
 import { nouns } from "./names"
 import { adjectives } from "./names"
 import Rand from "rand-seed"
-import type { Card } from "@repo/game/deck"
 import type { MapName } from "@repo/game/map"
+import type { DeckTile } from "@repo/game/deck"
 
 const STATE_NAMESPACE = "state"
 
@@ -36,23 +39,10 @@ export const [sessions, setSessions] = createStore<Record<string, Session>>({})
 // TODO: move to board?
 export const [muted, setMuted] = createSignal(false)
 
-// TODO: move to player?
-export function playerColors(playerId: string) {
-  const player = gameState.players.get(playerId)!
+// TODO: move elsewhere?
+export function playerColors(player: Player) {
   return colorsByOrder[player.order]!
 }
-
-export const gameState = {
-  tiles: new Database<Tile, TileIndexes>({ indexes: tileIndexes }),
-  players: new Database<Player, PlayerIndexes>({ indexes: playerIndexes }),
-  selections: new Database<Selection, SelectionIndexes>({
-    indexes: selectionIndexes,
-  }),
-  powerups: new Database<Powerup, PowerupIndexes>({
-    indexes: powerupIndexes,
-  }),
-  game: new Value<Game>({ map: "default" }),
-} as State
 
 const GameStateContext = createContext<State | undefined>()
 
@@ -78,32 +68,17 @@ function key(id: string) {
   return `${STATE_NAMESPACE}-${id}`
 }
 
-export function started(game: Game) {
-  const time = game.startedAt
-  if (!time) return false
-
-  return time <= Date.now()
-}
-
-export function initGameState(
-  id: string,
+export function createGameState(
+  id: () => string,
   {
     map,
     initialPoints,
     deck,
-  }: { map: MapName; initialPoints: number; deck: [Card, Card][] },
+  }: { map: MapName; initialPoints: number; deck: DeckTile[] },
 ) {
-  const gameState = localStorage.getItem(key(id))
-
-  const state = {
+  const state = createMemo<State>(() => ({
     tiles: new Database<Tile, TileIndexes>({ indexes: tileIndexes }),
-    players: new Database<Player, PlayerIndexes>({ indexes: playerIndexes }, [
-      {
-        id: userId(),
-        points: 0,
-        order: 0,
-      },
-    ]),
+    players: new Database<Player, PlayerIndexes>({ indexes: playerIndexes }),
     selections: new Database<Selection, SelectionIndexes>({
       indexes: selectionIndexes,
     }),
@@ -111,16 +86,56 @@ export function initGameState(
       indexes: powerupIndexes,
     }),
     game: new Value<Game>({ map: "default" }),
-  } as State
+  }))
 
-  if (gameState) {
-    syncState(state, JSON.parse(gameState))
-  } else {
-    const rng = new Rand(id)
-    restartGame(state, rng, { map, initialPoints, deck })
-  }
+  createEffect(
+    on(id, (id) => {
+      const persistedState = localStorage.getItem(key(id))
+      if (persistedState) {
+        syncState(state(), JSON.parse(persistedState))
+      } else {
+        const rng = new Rand(id)
+        state().players.set(userId(), {
+          id: userId(),
+          points: initialPoints,
+          order: 0,
+        })
+        restartGame({
+          db: state(),
+          rng,
+          mapName: map,
+          initialPoints,
+          deck,
+        })
+      }
+    }),
+  )
 
-  return state
+  const started = createMemo(() => {
+    const time = state().game.get().startedAt
+    if (!time) return false
+
+    return time <= Date.now()
+  })
+
+  createEffect(() => {
+    try {
+      localStorage.setItem(
+        key(id()),
+        JSON.stringify({
+          tiles: state().tiles.byId,
+          players: state().players.byId,
+          selections: state().selections.byId,
+          powerups: state().powerups.byId,
+          game: state().game.get(),
+        }),
+      )
+    } catch (error) {
+      console.error(error)
+    }
+  })
+
+  return { state, started }
 }
 
 export function syncState(gameState: State, rawState: RawState) {
@@ -140,34 +155,7 @@ export function syncState(gameState: State, rawState: RawState) {
   })
 }
 
-export function saveGameState(id: string) {
-  try {
-    localStorage.setItem(
-      key(id),
-      JSON.stringify({
-        tiles: gameState.tiles.byId,
-        players: gameState.players.byId,
-        selections: gameState.selections.byId,
-        powerups: gameState.powerups.byId,
-        game: gameState.game.get(),
-      }),
-    )
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-export function readState(id: string) {
-  try {
-    const state = localStorage.getItem(key(id))
-    if (state) {
-      return JSON.parse(state)
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
+// TODO: move elsewhere? Is this game state?
 let cachedUserId: string | undefined
 
 export function userId() {
@@ -192,4 +180,11 @@ export function userId() {
 export function setUserId(id: string) {
   cachedUserId = id
   localStorage.setItem("userId", id)
+}
+
+// TODO: move elsewhere?
+export function calculateSeconds(gameState: State) {
+  return Math.floor(
+    (gameState.game.get().endedAt! - gameState.game.get().startedAt!) / 1000,
+  )
 }

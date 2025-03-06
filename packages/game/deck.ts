@@ -1,4 +1,5 @@
-import type Rand from "rand-seed"
+import type { Database } from "./in-memoriam"
+import type { Material } from "./tile"
 
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 type Suit = (typeof suits)[number]
@@ -35,14 +36,15 @@ export type Card =
 export type Joker = Flowers | Seasons
 export type WindDirection = "n" | "s" | "e" | "w"
 
-export function shuffle<T>(array: T[], rng: Rand): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(rng.next() * (i + 1))
-    ;[shuffled[i]!, shuffled[j]!] = [shuffled[j]!, shuffled[i]!]
-  }
-  return shuffled
+export const deckTileIndexes = ["card", "material"] as const
+export type DeckTileIndexes = (typeof deckTileIndexes)[number]
+export type DeckTile = {
+  id: string
+  card: Card
+  material: Material
+  count: number
 }
+export type Deck = Database<DeckTile, DeckTileIndexes>
 
 export function getStandardPairs(): [Card, Card][] {
   const pairs: [Card, Card][] = []
@@ -143,4 +145,15 @@ export function isCharacter(card: Card) {
 
 export function isCircle(card: Card) {
   return matchesSuit(card, "o") ? (card as Circle) : null
+}
+
+export function getStandardDeck() {
+  return getStandardPairs().map(
+    ([card1, _]) =>
+      ({
+        card: card1,
+        material: "bone",
+        count: 2,
+      }) as DeckTile,
+  )
 }

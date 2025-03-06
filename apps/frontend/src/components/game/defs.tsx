@@ -1,14 +1,25 @@
 import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
-import { color } from "@/styles/colors"
+import { materials } from "@repo/game/tile"
+import { entries, fromEntries, map } from "remeda"
+import { For } from "solid-js"
+import { materialColors } from "@/styles/materialColors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
-export const SIDE_GRADIENT_ID = "side-gradient"
-export const SIDE_FLOWER_GRADIENT_ID = "side-flower-gradient"
-export const SIDE_SEASON_GRADIENT_ID = "side-season-gradient"
 export const VISIBILITY_MASK_ID = "visibility-mask"
-export const BODY_GRADIENT_ID = "body-gradient"
-export const FLOWER_BODY_GRADIENT_ID = "flower-body-gradient"
-export const SEASON_BODY_GRADIENT_ID = "season-body-gradient"
+
+export const MATERIALS = fromEntries(
+  map(
+    materials,
+    (material) =>
+      [
+        material,
+        {
+          body: `${material}-body-gradient`,
+          side: `${material}-side-gradient`,
+        },
+      ] as const,
+  ),
+)
 
 const VISIBILITY_GRADIENT_ID = "visibility-gradient"
 
@@ -20,56 +31,27 @@ export function Defs() {
           <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur" />
         </filter>
 
-        <linearGradient id={SIDE_GRADIENT_ID} gradientTransform="rotate(45)">
-          <stop offset="0%" stop-color="#fc9" />
-          <stop offset="73%" stop-color="#eb8" />
-          <stop offset="73%" stop-color="#ea6" />
-          <stop offset="100%" stop-color="#e95" />
-        </linearGradient>
-
-        <linearGradient id={BODY_GRADIENT_ID} gradientTransform="rotate(-45)">
-          <stop offset="0%" stop-color={color.tile80} />
-          <stop offset="100%" stop-color={color.tile60} />
-        </linearGradient>
-        <linearGradient
-          id={FLOWER_BODY_GRADIENT_ID}
-          gradientTransform="rotate(-45)"
-        >
-          <stop offset="0%" stop-color={color.flower80} />
-          <stop offset="100%" stop-color={color.flower60} />
-        </linearGradient>
-        <linearGradient
-          id={SEASON_BODY_GRADIENT_ID}
-          gradientTransform="rotate(-45)"
-        >
-          <stop offset="0%" stop-color={color.season80} />
-          <stop offset="100%" stop-color={color.season60} />
-        </linearGradient>
-
-        <linearGradient
-          id={SIDE_FLOWER_GRADIENT_ID}
-          gradientTransform="rotate(45)"
-        >
-          <stop offset="0%" stop-color={color.flower40} />
-          <stop offset="73%" stop-color={color.flower30} />
-          <stop offset="73%" stop-color={color.flower20} />
-          <stop offset="100%" stop-color={color.flower10} />
-        </linearGradient>
-
-        <linearGradient
-          id={SIDE_SEASON_GRADIENT_ID}
-          gradientTransform="rotate(45)"
-        >
-          <stop offset="0%" stop-color={color.season40} />
-          <stop offset="73%" stop-color={color.season30} />
-          <stop offset="73%" stop-color={color.season20} />
-          <stop offset="100%" stop-color={color.season10} />
-        </linearGradient>
+        <For each={entries(MATERIALS)}>
+          {([material, ids]) => (
+            <>
+              <linearGradient id={ids.body} gradientTransform="rotate(-45)">
+                <stop offset="0%" stop-color={materialColors[material][60]} />
+                <stop offset="100%" stop-color={materialColors[material][50]} />
+              </linearGradient>
+              <linearGradient id={ids.side} gradientTransform="rotate(45)">
+                <stop offset="0%" stop-color={materialColors[material][40]} />
+                <stop offset="73%" stop-color={materialColors[material][30]} />
+                <stop offset="73%" stop-color={materialColors[material][20]} />
+                <stop offset="100%" stop-color={materialColors[material][10]} />
+              </linearGradient>
+            </>
+          )}
+        </For>
 
         <linearGradient id={`${VISIBILITY_GRADIENT_ID}`}>
           <stop offset="0%" stop-color="white" stop-opacity="1" />
           <stop offset="30%" stop-color="white" stop-opacity="1" />
-          <stop offset="100%" stop-color="white" stop-opacity="0.2" />
+          <stop offset="70%" stop-color="white" stop-opacity="0.2" />
         </linearGradient>
 
         <mask id={VISIBILITY_MASK_ID}>

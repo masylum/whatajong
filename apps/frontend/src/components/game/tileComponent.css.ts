@@ -90,7 +90,11 @@ export const tileRecipe = recipe({
   },
 })
 
-export const clickableClass = style({
-  pointerEvents: "auto",
-  cursor: "pointer",
+export const clickableClass = recipe({
+  base: { pointerEvents: "auto" },
+  variants: {
+    canBeSelected: {
+      true: { cursor: "pointer" },
+    },
+  },
 })

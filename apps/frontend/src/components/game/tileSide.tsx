@@ -1,21 +1,21 @@
-import { SIDE_SEASON_GRADIENT_ID } from "./defs"
-import { SIDE_FLOWER_GRADIENT_ID } from "./defs"
-import { isSeason, type Card } from "@repo/game/deck"
-import { isFlower } from "@repo/game/deck"
+import { MATERIALS } from "./defs"
 import { strokePath } from "./tileComponent"
-import { createMemo } from "solid-js"
-import { SIDE_GRADIENT_ID } from "./defs"
+import { createMemo, mergeProps } from "solid-js"
+import type { Material } from "@repo/game/tile"
 
 type Props = {
-  card: Card
+  material?: Material
 }
-export function TileSide(props: Props) {
-  const sideGradientId = createMemo(() => {
-    if (isFlower(props.card)) return SIDE_FLOWER_GRADIENT_ID
-    if (isSeason(props.card)) return SIDE_SEASON_GRADIENT_ID
+export function TileSide(iProps: Props) {
+  const props = mergeProps({ material: "bone" } as const, iProps)
+  const sideGradientId = createMemo(() => MATERIALS[props.material].side)
+  const isGlass = createMemo(() => props.material === "glass")
 
-    return SIDE_GRADIENT_ID
-  })
-
-  return <path d={strokePath} fill={`url(#${sideGradientId()})`} />
+  return (
+    <path
+      d={strokePath}
+      fill-opacity={isGlass() ? 0.2 : 1}
+      fill={`url(#${sideGradientId()})`}
+    />
+  )
 }

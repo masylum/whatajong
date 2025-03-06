@@ -1,5 +1,5 @@
 import { createMemo, Show } from "solid-js"
-import { gameState } from "@/state/gameState"
+import { useGameState } from "@/state/gameState"
 import { getFinder, type Tile } from "@repo/game/tile"
 import { TILE_HEIGHT, TILE_WIDTH, SIDE_SIZES } from "@/state/constants"
 import { shadeClass } from "./tileShades.css"
@@ -9,6 +9,8 @@ type Props = {
   tile: Tile
 }
 export function TileShades(props: Props) {
+  const gameState = useGameState()
+
   const shadeVariants = createMemo(() => {
     const find = getFinder(gameState.tiles, props.tile)
     const pos1 = !!find(-1, -2)

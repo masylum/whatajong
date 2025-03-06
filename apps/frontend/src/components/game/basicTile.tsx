@@ -3,25 +3,29 @@ import { color, getHueColor, type AccentHue } from "@/styles/colors"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import type { Card } from "@repo/game/deck"
-import { Show, type JSX } from "solid-js"
+import { Show, splitProps, type JSX } from "solid-js"
 import { TileImage } from "./tileImage"
 import { strokePath } from "./tileComponent"
+import type { Material } from "@repo/game/tile"
 
 type Props = {
-  card: Card
+  card?: Card
   highlighted?: AccentHue | "white"
+  material?: Material
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
+  const [local, other] = splitProps(props, ["card", "highlighted", "material"])
+
   return (
     <svg
       width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
       height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
-      {...props}
+      {...other}
     >
-      <TileSide card={props.card} />
-      <TileBody card={props.card} />
-      <TileImage card={props.card} />
-      <Show when={props.highlighted}>
+      <TileSide material={local.material} />
+      <TileBody material={local.material} />
+      <Show when={local.card}>{(card) => <TileImage card={card()} />}</Show>
+      <Show when={local.highlighted}>
         {(color) => (
           <path
             d={strokePath}

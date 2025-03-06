@@ -1,41 +1,10 @@
 import { createVar, style } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
 import { AVATAR_SIZE } from "@/components/avatar"
 import { SIDE_SIZES } from "@/state/constants"
 import { alpha, color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
-import { fontSize } from "@/styles/fontSize"
 
 const powerupSize = createVar()
-
-export const playersClass = style({
-  position: "relative",
-  zIndex: 1,
-  display: "flex",
-  width: "100%",
-  gap: 50,
-  justifyContent: "space-between",
-  alignItems: "center",
-  paddingBlock: "24px",
-  paddingInline: "24px",
-  fontFamily: primary,
-})
-
-export const playerClass = style({
-  display: "flex",
-  alignItems: "center",
-  flexDirection: "row-reverse",
-  gap: 32,
-  position: "relative",
-  ":first-child": {
-    flexDirection: "row",
-  },
-})
-
-export const playerIdClass = style({
-  ...fontSize.h3,
-  lineHeight: "1",
-})
 
 export const playerPowerupsClass = style({
   position: "absolute",
@@ -43,14 +12,7 @@ export const playerPowerupsClass = style({
   right: 2 * SIDE_SIZES.xSide,
   display: "flex",
   flexDirection: "column",
-  selectors: {
-    [`${playerClass}:first-child &`]: {
-      left: SIDE_SIZES.xSide,
-      right: "inherit",
-    },
-  },
 })
-
 export const powerupRecipe = recipe({
   base: {
     vars: { [powerupSize]: "1.25" },
@@ -60,11 +22,6 @@ export const powerupRecipe = recipe({
     position: "relative",
     transform: `scale(${powerupSize})`,
     transformOrigin: "top right",
-    selectors: {
-      [`${playerClass}:first-child &`]: {
-        transformOrigin: "top left",
-      },
-    },
   },
   variants: {
     size: {
@@ -79,6 +36,7 @@ export const powerupRecipe = recipe({
     },
   },
 })
+
 export const powerupTileRecipe = recipe({
   base: {},
   variants: {
@@ -106,13 +64,6 @@ export const comboRecipe = recipe({
     paddingInline: 8,
     paddingBlock: 2,
     borderRadius: 8,
-    selectors: {
-      [`${playerClass}:first-child &`]: {
-        right: 0,
-        left: "inherit",
-        transform: "translate(50%, -50%)",
-      },
-    },
   },
   variants: {
     dragon: {

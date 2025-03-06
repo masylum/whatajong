@@ -1,25 +1,7 @@
-import {
-  createMemo,
-  createSignal,
-  Match,
-  Show,
-  Switch,
-  createEffect,
-} from "solid-js"
+import { createMemo, createSignal, Show, createEffect } from "solid-js"
 import { writeClipboard } from "@solid-primitives/clipboard"
-import { useLocation, useParams } from "@solidjs/router"
-import {
-  GameStateProvider,
-  userId,
-  playerColors,
-  initGameState,
-  saveGameState,
-  started,
-  useGameState,
-} from "@/state/gameState"
-import { Board } from "@/components/game/board"
-import { GameOverMultiPlayer } from "@/components/game/gameOver"
-import { createOnlineMotor } from "@/state/motors/online"
+import { useLocation } from "@solidjs/router"
+import { userId, playerColors, useGameState } from "@/state/gameState"
 import {
   lobbyClass,
   titleClass,
@@ -34,53 +16,14 @@ import {
   copiedIconClass,
   copySuccessCircleClass,
   copiedIconContainerClass,
-} from "./duel.css"
+} from "./duelLobby.css"
 import type { Player } from "@repo/game/player"
 import { Avatar } from "@/components/avatar"
 import { play, SOUNDS } from "@/components/audio"
-import { CursorArrows } from "@/components/game/cursorArrows"
 import { ArrowLeft, Copied, Copy } from "@/components/icon"
 import { LinkButton } from "@/components/button"
-import { getStandardPairs } from "@repo/game/deck"
 
-export function Duel() {
-  const params = useParams()
-
-  const gameState = createMemo(() =>
-    initGameState(params.id!, {
-      map: "default",
-      initialPoints: 150,
-      deck: getStandardPairs(),
-    }),
-  )
-
-  const { onSelectTile, onRestartGame, getWebSocket } = createOnlineMotor(
-    gameState(),
-    params.id!,
-  )
-
-  createEffect(() => {
-    saveGameState(params.id!)
-  })
-
-  return (
-    <GameStateProvider gameState={gameState()}>
-      <Switch fallback={<Lobby />}>
-        <Match when={gameState().game.get().endedAt}>
-          <GameOverMultiPlayer onRestartGame={onRestartGame} />
-        </Match>
-        <Match when={started(gameState().game.get())}>
-          <Board onSelectTile={onSelectTile} />
-          <Show when={getWebSocket()}>
-            {(ws) => <CursorArrows websocket={ws()} />}
-          </Show>
-        </Match>
-      </Switch>
-    </GameStateProvider>
-  )
-}
-
-function Lobby() {
+export function Lobby() {
   const gameState = useGameState()
   const [ready, setReady] = createSignal<number>(3)
   const player = createMemo(() => gameState.players.get(userId())!)
@@ -171,13 +114,13 @@ function PlayerComponent(props: { player: Player }) {
       style={{
         background: `linear-gradient(
           to bottom,
-          rgba(from ${playerColors(props.player.id)[1]} r g b / 0.8),
-          rgba(from ${playerColors(props.player.id)[1]} r g b / 0.1)
+          rgba(from ${playerColors(props.player)[1]} r g b / 0.8),
+          rgba(from ${playerColors(props.player)[1]} r g b / 0.1)
         )`,
-        color: playerColors(props.player.id)[5],
+        color: playerColors(props.player)[5],
       }}
     >
-      <Avatar name={props.player.id} colors={playerColors(props.player.id)} />
+      <Avatar name={props.player.id} colors={playerColors(props.player)} />
       {props.player.id}
     </div>
   )

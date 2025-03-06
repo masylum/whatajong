@@ -8,6 +8,7 @@ import {
   isCircle,
   isCharacter,
   isBamboo,
+  type DeckTile,
 } from "./deck"
 import { deleteTiles, isFree } from "./tile"
 import { getPointsWithCombo, getPowerups, type PowerupDb } from "./powerups"
@@ -19,8 +20,8 @@ import { resolveWinds } from "./winds"
 import type { State } from "./types"
 import { setupTiles } from "./setupTiles"
 import type Rand from "rand-seed"
-import type { Settings } from "./settings"
 import type { MapName } from "./map"
+import { batch } from "solid-js"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
@@ -119,76 +120,93 @@ export function getFreeTiles(
 }
 
 export function selectTile(db: State, selection: Selection) {
-  const playerId = selection.playerId
-  const player = db.players.get(playerId)
-  if (!player) throw new Error("Player not found")
+  batch(() => {
+    const playerId = selection.playerId
+    const player = db.players.get(playerId)
+    if (!player) throw new Error("Player not found")
 
-  const tile = db.tiles.get(selection.tileId)
-  if (!tile) throw new Error("Tile not found")
+    const tile = db.tiles.get(selection.tileId)
+    if (!tile) throw new Error("Tile not found")
 
-  if (!isFree(db.tiles, tile, db.powerups, playerId)) {
-    db.selections.del(selection.id)
-    return
-  }
-
-  const firstSelection = db.selections.findBy({ playerId })
-  if (!firstSelection) {
-    db.selections.set(selection.id, selection)
-    return
-  }
-
-  if (firstSelection.id === selection.id) {
-    db.selections.del(selection.id)
-    return
-  }
-
-  const firstTile = db.tiles.get(firstSelection.tileId)
-  if (!firstTile) {
-    throw new Error("First tile not found")
-  }
-
-  db.selections.del(firstSelection.id)
-
-  if (cardsMatch(firstTile.card, tile.card)) {
-    deleteTiles(db.tiles, db.selections, [tile, firstTile], playerId)
-    resolveWinds(db.tiles, db.powerups, tile)
-    getPowerups(db.powerups, playerId, tile)
-
-    const points =
-      player.points + getPointsWithCombo(db.powerups, playerId, tile)
-    db.players.set(playerId, { ...player, points })
-  }
-
-  for (const player of db.players.all) {
-    const condition = gameOverCondition(db.tiles, db.powerups, player.id)
-
-    if (condition) {
-      db.game.set({
-        endedAt: new Date().getTime(),
-        endCondition: condition,
-      })
+    if (!isFree(db.tiles, tile, db.powerups, playerId)) {
+      db.selections.del(selection.id)
       return
     }
-  }
+
+    const firstSelection = db.selections.findBy({ playerId })
+    if (!firstSelection) {
+      db.selections.set(selection.id, selection)
+      return
+    }
+
+    if (firstSelection.id === selection.id) {
+      db.selections.del(selection.id)
+      return
+    }
+
+    const firstTile = db.tiles.get(firstSelection.tileId)
+    if (!firstTile) {
+      throw new Error("First tile not found")
+    }
+
+    db.selections.del(firstSelection.id)
+
+    if (cardsMatch(firstTile.card, tile.card)) {
+      deleteTiles(db.tiles, db.selections, [tile, firstTile], playerId)
+      resolveWinds(db.tiles, db.powerups, tile)
+      getPowerups(db.powerups, playerId, tile)
+
+      const points =
+        player.points + getPointsWithCombo(db.powerups, playerId, tile)
+      db.players.set(playerId, { ...player, points })
+    }
+
+    for (const player of db.players.all) {
+      const condition = gameOverCondition(db.tiles, db.powerups, player.id)
+
+      if (condition) {
+        db.game.set({
+          endedAt: new Date().getTime(),
+          endCondition: condition,
+        })
+        return
+      }
+    }
+  })
 }
 
-export function restartGame(db: State, rng: Rand, settings: Settings) {
-  db.game.set({
-    startedAt: new Date().getTime(),
-    map: settings.map,
-  })
-
-  const newTiles = setupTiles(rng, settings)
-  for (const tile of Object.values(newTiles)) {
-    db.tiles.set(tile.id, tile)
-  }
-
-  for (const player of db.players.all) {
-    db.players.set(player.id, {
-      ...player,
-      points: settings.initialPoints || 0,
+export function restartGame({
+  db,
+  rng,
+  mapName,
+  initialPoints,
+  deck,
+}: {
+  db: State
+  rng: Rand
+  mapName: MapName
+  initialPoints: number
+  deck: DeckTile[]
+}) {
+  batch(() => {
+    db.game.set({
+      startedAt: new Date().getTime(),
+      // TODO: rename
+      map: mapName,
     })
-  }
-  db.selections.update({})
-  db.powerups.update({})
+
+    const newTiles = setupTiles({ rng, mapName, deck })
+    for (const tile of Object.values(newTiles)) {
+      db.tiles.set(tile.id, tile)
+    }
+
+    for (const player of db.players.all) {
+      db.players.set(player.id, {
+        ...player,
+        points: initialPoints || 0,
+      })
+    }
+    db.selections.update({})
+    db.powerups.update({})
+  })
 }

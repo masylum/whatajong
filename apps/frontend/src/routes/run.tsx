@@ -1,14 +1,32 @@
 import { useParams } from "@solidjs/router"
-import { RunStateProvider, initRunState, saveRunState } from "../state/runState"
-import { createEffect, createMemo, type ParentProps } from "solid-js"
+import { createRunState, RunStateProvider } from "../state/runState"
+import RunGame from "./run/runGame"
+import RunSelect from "./run/runSelect"
+import { Match, Switch } from "solid-js"
+import RunShop from "./run/runShop"
+import { createDeckState, DeckStateProvider } from "@/state/deckState"
 
-export default function Run(props: ParentProps) {
+export default function Run() {
   const params = useParams()
-  const newRun = createMemo(() => initRunState(params.id!))
 
-  createEffect(() => {
-    saveRunState(newRun().get())
-  })
+  const newRun = createRunState(() => params.id!)
+  const newDeck = createDeckState(() => params.id!)
 
-  return <RunStateProvider run={newRun()}>{props.children}</RunStateProvider>
+  return (
+    <RunStateProvider run={newRun()}>
+      <DeckStateProvider deck={newDeck()}>
+        <Switch>
+          <Match when={newRun().get().roundStage === "select"}>
+            <RunSelect />
+          </Match>
+          <Match when={newRun().get().roundStage === "game"}>
+            <RunGame />
+          </Match>
+          <Match when={newRun().get().roundStage === "shop"}>
+            <RunShop />
+          </Match>
+        </Switch>
+      </DeckStateProvider>
+    </RunStateProvider>
+  )
 }

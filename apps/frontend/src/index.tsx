@@ -1,14 +1,12 @@
 /* @refresh reload */
 import { Route, Router } from "@solidjs/router"
 import { render } from "solid-js/web"
-import { Duel } from "./routes/duel"
+import { Duel } from "./routes/duel/duelGame"
 import { Home } from "./routes/home"
-import { Solo } from "./routes/solo"
+import { Solo } from "./routes/solo/soloGame"
 import { Instructions } from "./routes/instructions"
-import RunSelectGame from "./routes/run/selectGame"
 import { Layout } from "./components/layout"
 import Run from "./routes/run"
-import RunGame from "./routes/run/runGame"
 
 import "./styles/reset.css"
 
@@ -20,10 +18,7 @@ render(
       <Route path="/" component={Home} />
       <Route path="/play/:id" component={Solo} />
       <Route path="/duel/:id" component={Duel} />
-      <Route path="/run/:id" component={Run}>
-        <Route path="/" component={RunSelectGame} />
-        <Route path="/game/:gameId" component={RunGame} />
-      </Route>
+      <Route path="/run/:id" component={Run} />
       <Route path="/instructions" component={Instructions} />
     </Router>
   ),

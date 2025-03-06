@@ -1,6 +1,6 @@
-import type { Card } from "./deck"
+import { isFlower, type Card } from "./deck"
 import { type Database, initDatabase } from "./in-memoriam"
-import { getJokerPowerup, type PowerupDb } from "./powerups"
+import type { PowerupDb } from "./powerups"
 import type { SelectionDb } from "./selection"
 
 export type Position = {
@@ -13,6 +13,7 @@ export type Tile = {
   id: string
   card: Card
   deletedBy?: string
+  material: Material
 } & Position
 export type TileById = Record<string, Tile>
 export const tileIndexes = ["x", "y", "z", "deletedBy"] as const
@@ -68,20 +69,19 @@ export function overlaps(tileDb: TileDb, position: Position, z: number) {
   return null
 }
 
-function isBlockedHorizontally(tileDb: TileDb, position: Position): boolean {
+function getFreedoms(tileDb: TileDb, position: Position) {
   const find = getFinder(tileDb, position)
   const hasLeftTile = find(-2, -1) || find(-2, 0) || find(-2, 1)
   const hasRightTile = find(2, -1) || find(2, 0) || find(2, 1)
-
-  return !!(hasLeftTile && hasRightTile)
-}
-
-function isBlockedVertically(tileDb: TileDb, position: Position): boolean {
-  const find = getFinder(tileDb, position)
   const hasTopTile = find(-1, -2) || find(0, -2) || find(1, -2)
   const hasBottomTile = find(-1, 2) || find(0, 2) || find(1, 2)
 
-  return !!(hasTopTile && hasBottomTile)
+  return {
+    left: !hasLeftTile,
+    right: !hasRightTile,
+    top: !hasTopTile,
+    bottom: !hasBottomTile,
+  }
 }
 
 export function getFinder(tileDb: TileDb, position: Position) {
@@ -101,22 +101,46 @@ export function getFinder(tileDb: TileDb, position: Position) {
 
 export function isFree(
   tileDb: TileDb,
-  position: Position,
+  tile: Tile,
   powerupsDb?: PowerupDb,
   playerId?: string,
-): boolean {
-  const isCovered = !overlaps(tileDb, position, 1)
-  const isBlockedH = isBlockedHorizontally(tileDb, position)
+) {
+  const isCovered = overlaps(tileDb, tile, 1)
+  const freedoms = getFreedoms(tileDb, tile)
+  const countFreedoms = Object.values(freedoms).filter((v) => v).length
+  const material = getMaterial(tile, powerupsDb, playerId)
 
-  if (powerupsDb && playerId) {
-    const powerup = getJokerPowerup(powerupsDb, playerId)
-    if (powerup) {
-      const isBlockedV = isBlockedVertically(tileDb, position)
-      return isCovered && (!isBlockedH || !isBlockedV)
-    }
+  if (material === "ivory") return !isCovered
+  if (material === "glass" || material === "wood") {
+    return countFreedoms >= 1 && !isCovered
   }
 
-  return isCovered && !isBlockedH
+  if (material === "bone") {
+    const isFreeH = freedoms.left || freedoms.right
+    return isFreeH && !isCovered
+  }
+
+  if (material === "bronze" || material === "gold") {
+    return countFreedoms >= 3 && !isCovered
+  }
+
+  return countFreedoms === 4 && !isCovered
+}
+
+export function getMaterial(
+  tile: Tile,
+  powerupsDb?: PowerupDb,
+  playerId?: string,
+) {
+  if (powerupsDb && playerId) {
+    const flower = powerupsDb
+      .filterBy({ playerId })
+      .find((p) => isFlower(p.card))
+    if (flower) return "wood"
+    // TODO: flower+
+  }
+
+  return tile.material
 }
 
 export function deleteTiles(
@@ -133,3 +157,14 @@ export function deleteTiles(
     }
   }
 }
+
+export const materials = [
+  "wood",
+  "glass",
+  "ivory",
+  "bone",
+  "bronze",
+  "gold",
+  "jade",
+] as const
+export type Material = (typeof materials)[number]

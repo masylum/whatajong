@@ -11,7 +11,8 @@ import {
   titleClass,
 } from "./home.css"
 import { BasicTile } from "@/components/game/basicTile"
-import { getStandardPairs, shuffle } from "@repo/game/deck"
+import { getStandardPairs } from "@repo/game/deck"
+import { shuffle } from "@repo/game/lib/rand"
 import { For, createMemo } from "solid-js"
 import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
 import { nanoid } from "nanoid"

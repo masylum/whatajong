@@ -147,20 +147,6 @@ export const pointsClass = style([
   },
 ])
 
-export const totalPointsClass = style([
-  numberClass,
-  {
-    selectors: {
-      [`${screenClass.classNames.variants.win.true} &`]: {
-        color: color.bamboo90,
-      },
-      [`${screenClass.classNames.variants.win.false} &`]: {
-        color: color.character90,
-      },
-    },
-  },
-])
-
 export const playerTitleClass = style({
   display: "flex",
   alignItems: "center",

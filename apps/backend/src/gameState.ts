@@ -8,7 +8,7 @@ import Rand from "rand-seed"
 import { Value } from "@repo/game/in-memoriam"
 import { initPowerupsDb } from "@repo/game/powerups"
 import { initTileDb } from "@repo/game/tile"
-import { getDefaultDuelSettings } from "@repo/game/settings"
+import { getStandardDeck } from "@repo/game/deck"
 
 const GAME_TIMEOUT = 1000 * 60 * 30 // 30 minutes
 const GAME_COUNTDOWN = 3_000 // 3 seconds
@@ -37,7 +37,13 @@ export class GameState extends DurableObject {
           players: initPlayersDb({}),
           game: new Value<Game>({ map: "default" }),
         }
-        restartGame(this.state, new Rand(), getDefaultDuelSettings())
+        restartGame({
+          db: this.state,
+          rng: new Rand(),
+          mapName: "default",
+          initialPoints: 150,
+          deck: getStandardDeck(),
+        })
         await this.storage.put("state", this.serializeState())
       }
 
@@ -78,7 +84,14 @@ export class GameState extends DurableObject {
         }
 
         case "restart-game": {
-          restartGame(this.state, new Rand(), getDefaultDuelSettings())
+          // TODO: DRY
+          restartGame({
+            db: this.state,
+            rng: new Rand(),
+            mapName: "default",
+            initialPoints: 150,
+            deck: getStandardDeck(),
+          })
           await this.saveState()
           break
         }

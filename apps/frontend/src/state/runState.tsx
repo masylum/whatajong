@@ -1,33 +1,41 @@
-import { getRunPairs, type Card } from "@repo/game/deck"
 import { Value } from "@repo/game/in-memoriam"
 import type { MapName } from "@repo/game/map"
-import { customRandom, urlAlphabet } from "nanoid"
-import { nanoid } from "nanoid"
 import Rand from "rand-seed"
-import { createContext, useContext, type ParentProps } from "solid-js"
-
+import {
+  createContext,
+  createEffect,
+  createMemo,
+  on,
+  useContext,
+  type ParentProps,
+} from "solid-js"
+import type { Item } from "./itemState"
 const RUN_STATE_NAMESPACE = "run-state"
-const RunStateContext = createContext<Value<RunState> | undefined>()
 
 export type RunState = {
   runId: string
-  currentGameId: string
   money: number
-  deck: [Card, Card][]
+  // TODO: rename to mapName
   map: MapName
   round: number
+  reroll: number
+  // TODO: rename to stage
+  roundStage: RoundStage
   initialPoints: number
   timerSpeed: number
   shufflesAvailable: number
   incomeMultiplier: number
   packLuck: number
+  currentItem: Item | null
 }
 
+export type RoundStage = "select" | "game" | "shop"
 export type ChallengeType = "points" | "suddenDeath"
-export type RunGameSettings = {
+export type Round = {
+  id: number
+  reward: number
   challengeType: ChallengeType
-  gameId: string
-  pointObjective?: number
+  pointObjective: number
   timerPoints?: number
   noDragons?: boolean
   noWinds?: boolean
@@ -35,6 +43,9 @@ export type RunGameSettings = {
   noSeasons?: boolean
 }
 
+const RunStateContext = createContext<Value<RunState> | undefined>()
+
+// TODO: deprecate?
 export function RunStateProvider(
   props: { run: Value<RunState> } & ParentProps,
 ) {
@@ -45,6 +56,7 @@ export function RunStateProvider(
   )
 }
 
+// TODO: deprecate?
 export function useRunState() {
   const context = useContext(RunStateContext)
 
@@ -55,70 +67,96 @@ export function useRunState() {
   return context
 }
 
+export function useRound() {
+  const run = useRunState()
+  const round = createMemo(() =>
+    generateRound(run.get().round, run.get().runId),
+  )
+  return round
+}
+
 function key(runId: string) {
   return `${RUN_STATE_NAMESPACE}-${runId}`
 }
 
-export function saveRunState(runState: RunState) {
-  localStorage.setItem(key(runState.runId), JSON.stringify(runState))
-}
-
-export function initRunState(runId: string): Value<RunState> {
-  const runState = localStorage.getItem(key(runId))
-
-  if (runState) {
-    return new Value(JSON.parse(runState))
-  }
-
-  return new Value({
-    runId,
-    currentGameId: nanoid(),
-    money: 0,
-    deck: getRunPairs(),
-    map: "map54" as MapName,
-    round: 0,
-    initialPoints: 150,
-    timerSpeed: 0,
-    shufflesAvailable: 1,
-    incomeMultiplier: 1,
-    packLuck: 0.1,
-  })
-}
-
-export function generateRounds(round: number, seed: string): RunGameSettings {
-  const rng = new Rand(`${seed}${round}`)
-  const difficultyFactor = 1 + round * 0.1
-  const challengeType = rng.next() > 0.7 ? "suddenDeath" : "points"
-  const gameId = customRandom(urlAlphabet, 10, (size) =>
-    new Uint8Array(size).map(() => 256 * rng.next()),
+export function createRunState(runId: () => string) {
+  const run = createMemo(
+    () =>
+      new Value<RunState>({
+        runId: runId(),
+        money: 0,
+        map: "map68",
+        round: 1,
+        reroll: 0,
+        roundStage: "select",
+        initialPoints: 150,
+        timerSpeed: 0,
+        shufflesAvailable: 1,
+        incomeMultiplier: 1,
+        packLuck: 0.1,
+        currentItem: null,
+      }),
   )
 
-  const settings: RunGameSettings = {
+  createEffect(
+    on(runId, (id) => {
+      const persistedState = localStorage.getItem(key(id))
+      if (persistedState) {
+        run().set(JSON.parse(persistedState))
+      }
+    }),
+  )
+
+  createEffect(() => {
+    localStorage.setItem(key(runId()), JSON.stringify(run().get()))
+  })
+
+  return run
+}
+
+function generateChallengeType(id: number, rng: Rand) {
+  const rand = rng.next()
+  if (id < 3) return "points"
+  if (rand > 0.7) return "suddenDeath"
+  // TODO: boss round
+
+  return "points"
+}
+
+export function generateRound(id: number, runId: string): Round {
+  const rng = new Rand(`round-${runId}-${id}`)
+  const difficultyFactor = 1 + id * 0.1
+  const challengeType = generateChallengeType(id, rng)
+  const reward = Math.floor(5 + id * rng.next())
+
+  const round: Round = {
+    id,
+    reward,
     challengeType,
-    gameId: gameId(),
     timerPoints: Math.ceil(1 + difficultyFactor * 0.5),
+    pointObjective: 0,
   }
 
   if (challengeType === "points") {
-    const baseObjective = 100 + round * 20
-    settings.pointObjective = Math.ceil(baseObjective * difficultyFactor)
+    const baseObjective = 100 + id * 20
+    round.pointObjective = Math.ceil(baseObjective * difficultyFactor)
   } else {
-    const baseObjective = round * 10
-    settings.pointObjective = Math.ceil(baseObjective * difficultyFactor)
+    const baseObjective = id * 10
+    round.pointObjective = Math.ceil(baseObjective * difficultyFactor)
   }
 
   // boss round
-  if (round % 3 === 0) {
+  if (id % 3 === 0) {
     const restrictionCount = Math.floor(rng.next() * 2)
 
     for (let i = 0; i < restrictionCount; i++) {
       const restriction = Math.floor(rng.next() * 4)
-      if (restriction === 0) settings.noDragons = true
-      if (restriction === 1) settings.noWinds = true
-      if (restriction === 2) settings.noFlowers = true
-      if (restriction === 3) settings.noSeasons = true
+      if (restriction === 0) round.noDragons = true
+      if (restriction === 1) round.noWinds = true
+      if (restriction === 2) round.noFlowers = true
+      if (restriction === 3) round.noSeasons = true
     }
   }
 
-  return settings
+  return round
 }

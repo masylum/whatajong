@@ -3,7 +3,7 @@
   "scripts": {
     "start": "vite",
     "dev": "vite dev --port 8788",
-    "build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "serve": "vite preview",
     "test": "vitest"
   },
@@ -31,6 +31,7 @@
     "@vanilla-extract/recipes": "^0.5.5",
     "@vanilla-extract/vite-plugin": "^5.0.1",
     "@vitejs/plugin-legacy": "^6.0.2",
+    "date-fns": "^4.1.0",
     "haikunator": "^2.1.2",
     "nanoid": "^5.0.9",
     "perfect-cursors": "^1.0.5",

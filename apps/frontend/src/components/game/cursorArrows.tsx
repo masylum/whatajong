@@ -167,8 +167,8 @@ function CursorArrow(props: {
   onCleanup(() => pc().dispose())
 
   const cursorBias = [21, 18] as const
-  const cursorColor = createMemo(() => playerColors(player().id)[5])
-  const borderColor = createMemo(() => playerColors(player().id)[2])
+  const cursorColor = createMemo(() => playerColors(player())[5])
+  const borderColor = createMemo(() => playerColors(player())[2])
 
   return (
     <svg

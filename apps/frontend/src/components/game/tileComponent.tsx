@@ -19,7 +19,7 @@ import {
 } from "./tileComponent.css"
 import { mapGetHeight, mapGetWidth } from "@repo/game/map"
 import { TileShades } from "./tileShades"
-import { isFree, type Tile } from "@repo/game/tile"
+import { getMaterial, isFree, type Tile } from "@repo/game/tile"
 import { VISIBILITY_MASK_ID } from "./defs"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
@@ -59,6 +59,9 @@ export function TileComponent(props: Props) {
     },
     { equal: isDeepEqual },
   )
+  const material = createMemo(() =>
+    getMaterial(props.tile, gameState.powerups, userId()),
+  )
 
   const canBeSelected = createMemo(() => {
     return isFree(gameState.tiles, props.tile, gameState.powerups, userId())
@@ -68,12 +71,12 @@ export function TileComponent(props: Props) {
   const mapWidth = createMemo(() => mapGetWidth(map()))
   const mapHeight = createMemo(() => mapGetHeight(map()))
 
-  const zIndex = createMemo(
-    () =>
-      props.tile.z * mapWidth() * mapHeight() +
-      mapWidth() * props.tile.y +
-      (mapWidth() - props.tile.x),
-  )
+  const zIndex = createMemo(() => {
+    const zLayer = props.tile.z * mapWidth() * mapHeight() * 10
+    const xScore = (mapWidth() - props.tile.x) * 2
+    const yScore = props.tile.y * 3
+    return zLayer + xScore + yScore
+  })
 
   const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
@@ -105,7 +108,10 @@ export function TileComponent(props: Props) {
 
   const fillColor = createMemo(() => {
     const sel = selected()
-    if (sel) return playerColors(sel.playerId)[4] ?? "#963"
+    if (sel) {
+      const player = gameState.players.get(sel.playerId)!
+      return playerColors(player)[4] ?? "#963"
+    }
 
     return "#ffffff"
   })
@@ -184,7 +190,10 @@ export function TileComponent(props: Props) {
             style={{
               left: `${coords().x + TILE_WIDTH / 2 + SIDE_SIZES.xSide}px`,
               top: `${coords().y + TILE_HEIGHT / 2 + 2 * SIDE_SIZES.ySide}px`,
-              background: alpha(playerColors(playerId())[1], 0.5),
+              background: alpha(
+                playerColors(gameState.players.get(playerId())!)[1],
+                0.5,
+              ),
             }}
             class={floatingNumberAnimation}
           >
@@ -214,9 +223,9 @@ export function TileComponent(props: Props) {
                 : undefined
             }
           >
-            <TileSide card={props.tile.card} />
+            <TileSide material={material()} />
             <TileShades tile={props.tile} />
-            <TileBody card={props.tile.card} />
+            <TileBody material={material()} />
             <Show when={!props.hideImage}>
               <TileImage card={props.tile.card} />
             </Show>
@@ -235,15 +244,16 @@ export function TileComponent(props: Props) {
               fill={fillColor()}
               fill-opacity={fillOpacity()}
               stroke="none"
-              class={clickableClass}
+              class={clickableClass({ canBeSelected: canBeSelected() })}
+              onMouseDown={() => {
+                if (!canBeSelected()) return
+                play(SOUNDS.CLICK)
+                props.onSelect(props.tile)
+              }}
               onMouseEnter={() => {
                 props.onMouseEnter(props.tile)
               }}
               onMouseLeave={props.onMouseLeave}
-              onMouseDown={() => {
-                play(SOUNDS.CLICK)
-                props.onSelect(props.tile)
-              }}
             />
           </g>
         </svg>
