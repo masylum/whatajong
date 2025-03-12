@@ -55,7 +55,7 @@ import {
   MATERIAL_ITEMS,
   sellDeckTile,
 } from "@/state/shopState"
-import { DECK_SIZE_LEVEL } from "@repo/game/deck"
+import { getDeckPairsSize, type DeckSizeLevel } from "@repo/game/deck"
 import { BasicTile } from "@/components/game/basicTile"
 import { useDeckState } from "@/state/deckState"
 import {
@@ -175,8 +175,7 @@ function Shop() {
       <div class={deckClass}>
         <div class={statusClass}>
           <span>
-            Your Deck ({totalPairs()} /{" "}
-            {DECK_SIZE_LEVEL[(shopLevel() + 1) as keyof typeof DECK_SIZE_LEVEL]}{" "}
+            Your Deck ({totalPairs()} / {getDeckPairsSize(shopLevel() + 1)}{" "}
             pairs)
           </span>
           <span class={moneyClass}>${run.get().money} coins</span>
@@ -370,6 +369,9 @@ function TileDetails(props: {
   const shop = useShopState()
   const run = useRunState()
   const deck = useDeckState()
+  const canSell = createMemo(
+    () => deck.all.length > getDeckPairsSize(run.get().shopLevel),
+  )
 
   return (
     <>
@@ -388,16 +390,18 @@ function TileDetails(props: {
           <X />
           close
         </button>
-        <button
-          type="button"
-          class={buttonClass({ suit: "circle", disabled: false })}
-          onClick={() => {
-            sellDeckTile(run, deck, shop, props.deckTile)
-          }}
-        >
-          <Buy />
-          sell
-        </button>
+        <Show when={canSell()}>
+          <button
+            type="button"
+            class={buttonClass({ suit: "circle", disabled: false })}
+            onClick={() => {
+              sellDeckTile(run, deck, shop, props.deckTile)
+            }}
+          >
+            <Buy />
+            sell
+          </button>
+        </Show>
       </div>
     </>
   )
@@ -478,18 +482,13 @@ function UpgradeItemDetails() {
         <dl class={detailListClass({ type: "points" })}>
           <dt class={detailTermClass}>Deck size:</dt>
           <dd class={detailDescriptionClass}>
-            {DECK_SIZE_LEVEL[item().level as keyof typeof DECK_SIZE_LEVEL]} /{" "}
-            {
-              DECK_SIZE_LEVEL[
-                (item().level + 1) as keyof typeof DECK_SIZE_LEVEL
-              ]
-            }{" "}
-            pairs
+            {getDeckPairsSize(item().level)} /{" "}
+            {getDeckPairsSize(item().level + 1)} pairs
           </dd>
         </dl>
         <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>gold per game:</dt>
-          <dd class={detailDescriptionClass}>{item().level} coins</dd>
+          <dt class={detailTermClass}>passive income:</dt>
+          <dd class={detailDescriptionClass}>{item().level - 1} coins</dd>
         </dl>
         <div class={detailListClass({ type: "bronze" })}>
           <span class={detailTermClass}>new tiles:</span>
@@ -767,18 +766,15 @@ function UpgradeButton() {
   const shop = useShopState()
   const cost = createMemo(() => shopUpgradeCost(run.get()))
   const deck = useDeckState()
-  const upgradeDeckSize = createMemo(
-    () =>
-      DECK_SIZE_LEVEL[
-        (run.get().shopLevel + 1) as keyof typeof DECK_SIZE_LEVEL
-      ],
+  const upgradeDeckSize = createMemo(() =>
+    getDeckPairsSize(run.get().shopLevel + 1),
   )
   const disabled = createMemo(
     () => cost() > run.get().money || deck.all.length < upgradeDeckSize(),
   )
   const shopLevel = createMemo(() => run.get().shopLevel)
 
-  function selectUpgrade(level: number) {
+  function selectUpgrade(level: DeckSizeLevel) {
     const item: UpgradeItem = {
       id: `upgrade-${level}`,
       type: "upgrade",
@@ -803,7 +799,7 @@ function UpgradeButton() {
         type="button"
         title="upgrade shop"
         disabled={disabled()}
-        onClick={() => selectUpgrade(shopLevel() + 1)}
+        onClick={() => selectUpgrade((shopLevel() + 1) as DeckSizeLevel)}
       >
         <Upgrade />
       </button>

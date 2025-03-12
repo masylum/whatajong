@@ -28,7 +28,6 @@ import Haikunator from "haikunator"
 import { nouns } from "./names"
 import { adjectives } from "./names"
 import Rand from "rand-seed"
-import type { MapName } from "@repo/game/map"
 import type { DeckTile } from "@repo/game/deck"
 
 const STATE_NAMESPACE = "state"
@@ -70,11 +69,7 @@ function key(id: string) {
 
 export function createGameState(
   id: () => string,
-  {
-    map,
-    initialPoints,
-    deck,
-  }: { map: MapName; initialPoints: number; deck: DeckTile[] },
+  { deck }: { deck: DeckTile[] },
 ) {
   const state = createMemo<State>(() => ({
     tiles: new Database<Tile, TileIndexes>({ indexes: tileIndexes }),
@@ -85,7 +80,7 @@ export function createGameState(
     powerups: new Database<Powerup, PowerupIndexes>({
       indexes: powerupIndexes,
     }),
-    game: new Value<Game>({ map: "default" }),
+    game: new Value<Game>({}),
   }))
 
   createEffect(
@@ -97,16 +92,10 @@ export function createGameState(
         const rng = new Rand(id)
         state().players.set(userId(), {
           id: userId(),
-          points: initialPoints,
+          points: 0,
           order: 0,
         })
-        restartGame({
-          db: state(),
-          rng,
-          mapName: map,
-          initialPoints,
-          deck,
-        })
+        restartGame({ db: state(), rng, deck })
       }
     }),
   )

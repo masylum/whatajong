@@ -25,8 +25,6 @@ export function Solo() {
   const params = useParams()
 
   const { state, started } = createGameState(() => params.id!, {
-    map: "default",
-    initialPoints: 150,
     deck: getStandardDeck(),
   })
 

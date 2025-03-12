@@ -49,11 +49,7 @@ export default function RunGame() {
 
   const { state, started } = createGameState(
     () => `game-${run.get().runId}-${round().id}`,
-    {
-      map: run.get().map,
-      initialPoints: run.get().initialPoints,
-      deck: deck.all,
-    },
+    { deck: deck.all },
   )
 
   return (

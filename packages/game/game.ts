@@ -17,7 +17,6 @@ import { resolveWinds } from "./winds"
 import type { State } from "./types"
 import { setupTiles } from "./setupTiles"
 import type Rand from "rand-seed"
-import type { MapName } from "./map"
 import { batch } from "solid-js"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
@@ -27,7 +26,6 @@ export type Game = {
   startedAt?: number
   endedAt?: number
   endCondition?: WinCondition
-  map: MapName
 }
 
 export function gameOverCondition(
@@ -125,7 +123,7 @@ export function getPoints(powerupsDb: PowerupDb, playerId: string, tile: Tile) {
   return getRawPoints(tile) * getRawMultiplier(powerupsDb, playerId, tile)
 }
 
-export function getCoins(material: Material) {
+export function getCoins(material: Material): number {
   switch (material) {
     case "gold":
       return 1
@@ -198,7 +196,6 @@ export function selectTile(db: State, selection: Selection) {
 
     if (cardsMatch(firstTile.card, tile.card)) {
       const newPoints = getPoints(db.powerups, playerId, tile)
-      console.log("newPoints", newPoints)
       deleteTiles(db.tiles, db.selections, [tile, firstTile], playerId)
       resolveWinds(db.tiles, db.powerups, tile)
       getPowerups(db.powerups, playerId, tile)
@@ -225,13 +222,10 @@ export function selectTile(db: State, selection: Selection) {
 export function restartGame({
   db,
   rng,
-  initialPoints,
   deck,
 }: {
   db: State
   rng: Rand
-  mapName: MapName
-  initialPoints: number
   deck: DeckTile[]
 }) {
   batch(() => {
@@ -247,7 +241,7 @@ export function restartGame({
     for (const player of db.players.all) {
       db.players.set(player.id, {
         ...player,
-        points: initialPoints || 0,
+        points: 0,
       })
     }
     db.selections.update({})

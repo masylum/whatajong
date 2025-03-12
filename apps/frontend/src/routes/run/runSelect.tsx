@@ -10,8 +10,9 @@ import {
   titleClass,
   titleContainerClass,
   gameTitleClass,
-  gameDescriptionClass,
-  gameRewardsClass,
+  detailTermClass,
+  detailListClass,
+  detailDescriptionClass,
 } from "./runSelect.css"
 
 export default function RunSelect() {
@@ -46,38 +47,30 @@ export default function RunSelect() {
         <For each={nextRounds()}>
           {(round) => (
             <div class={gameClass({ current: isCurrentRound(round.id) })}>
-              <Show
-                when={round.challengeType === "points"}
-                fallback={
-                  <>
-                    <h2 class={gameTitleClass}>Sudden death</h2>
-                    <h3
-                      class={gameDescriptionClass({
-                        current: isCurrentRound(round.id),
-                      })}
-                    >
-                      Solve the board before {round.pointObjective} seconds
-                    </h3>
-                  </>
-                }
-              >
-                <h2 class={gameTitleClass}>High stakes</h2>
-                <h3
-                  class={gameDescriptionClass({
-                    current: isCurrentRound(round.id),
-                  })}
-                >
-                  Score at least {round.pointObjective} points
-                </h3>
-              </Show>
-              <h4
-                class={gameRewardsClass({ current: isCurrentRound(round.id) })}
-              >
-                ${round.reward}
-              </h4>
+              <h2 class={gameTitleClass}>Round {round.id}</h2>
+              <dl class={detailListClass}>
+                <dd class={detailTermClass}>Objective</dd>
+                <dt class={detailDescriptionClass}>
+                  {round.pointObjective} points
+                </dt>
+                <Show when={round.timerPoints}>
+                  <dd class={detailTermClass}>Time penalty</dd>
+                  <dt class={detailDescriptionClass}>
+                    {round.timerPoints} points
+                  </dt>
+                </Show>
+                <Show when={round.emptyBoardBonus}>
+                  <dd class={detailTermClass}>Clear bonus</dd>
+                  <dt class={detailDescriptionClass}>
+                    {round.emptyBoardBonus} points
+                  </dt>
+                </Show>
+                <dd class={detailTermClass}>Reward</dd>
+                <dt class={detailDescriptionClass}>${round.reward}</dt>
+              </dl>
               <Show when={isCurrentRound(round.id)}>
                 <Button
-                  hue="character"
+                  hue="bamboo"
                   kind="dark"
                   onClick={() => selectRound(round)}
                 >

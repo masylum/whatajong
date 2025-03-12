@@ -35,13 +35,11 @@ export class GameState extends DurableObject {
           selections: initSelectionsDb({}),
           powerups: initPowerupsDb({}),
           players: initPlayersDb({}),
-          game: new Value<Game>({ map: "default" }),
+          game: new Value<Game>({}),
         }
         restartGame({
           db: this.state,
           rng: new Rand(),
-          mapName: "default",
-          initialPoints: 150,
           deck: getStandardDeck(),
         })
         await this.storage.put("state", this.serializeState())
@@ -88,8 +86,6 @@ export class GameState extends DurableObject {
           restartGame({
             db: this.state,
             rng: new Rand(),
-            mapName: "default",
-            initialPoints: 150,
             deck: getStandardDeck(),
           })
           await this.saveState()

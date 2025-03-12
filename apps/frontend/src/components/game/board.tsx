@@ -4,7 +4,7 @@ import { useGameState, userId } from "@/state/gameState"
 import { getCanvasHeight, getCanvasWidth } from "@/state/constants"
 import { getFinder } from "@repo/game/tile"
 import type { Selection } from "@repo/game/selection"
-import { maps } from "@repo/game/map"
+import { mapName, maps } from "@repo/game/map"
 import { mapGetLevels } from "@repo/game/map"
 import { createVoicesEffect } from "./createVoicesEffect"
 
@@ -18,7 +18,7 @@ export function Board(props: BoardProps) {
 
   createVoicesEffect()
 
-  const map = createMemo(() => maps[gameState.game.get().map])
+  const map = createMemo(() => maps[mapName(gameState.tiles.all.length)])
   const mapLevels = createMemo(() => mapGetLevels(map()))
 
   const disclosedTile = createMemo(() => {

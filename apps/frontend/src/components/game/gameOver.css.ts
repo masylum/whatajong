@@ -66,7 +66,7 @@ export const pointsContainerClass = recipe({
   base: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
     position: "relative",
     paddingInline: 32,
@@ -96,7 +96,7 @@ export const pointsContainerClass = recipe({
 })
 
 export const titleClass = style({
-  ...fontSize.hero1,
+  ...fontSize.hero2,
   textAlign: "center",
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
@@ -124,10 +124,10 @@ export const timeClass = style([
   {
     selectors: {
       [`${screenClass.classNames.variants.win.true} &`]: {
-        color: color.bamboo80,
+        color: color.bamboo70,
       },
       [`${screenClass.classNames.variants.win.false} &`]: {
-        color: color.character80,
+        color: color.character70,
       },
     },
   },
@@ -138,10 +138,10 @@ export const pointsClass = style([
   {
     selectors: {
       [`${screenClass.classNames.variants.win.true} &`]: {
-        color: color.bamboo70,
+        color: color.bamboo80,
       },
       [`${screenClass.classNames.variants.win.false} &`]: {
-        color: color.character70,
+        color: color.character80,
       },
     },
   },

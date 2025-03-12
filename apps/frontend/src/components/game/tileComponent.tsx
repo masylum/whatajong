@@ -18,7 +18,7 @@ import {
   clickableClass,
   tileRecipe,
 } from "./tileComponent.css"
-import { mapGetHeight, mapGetWidth } from "@repo/game/map"
+import { mapGetHeight, mapGetWidth, mapName } from "@repo/game/map"
 import { TileShades } from "./tileShades"
 import { getMaterial, isFree, type Tile } from "@repo/game/tile"
 import { VISIBILITY_MASK_ID } from "./defs"
@@ -30,6 +30,7 @@ import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
 import { maps } from "@repo/game/map"
+import { getCoins } from "@repo/game/game"
 
 type Props = {
   tile: Tile
@@ -76,7 +77,7 @@ export function TileComponent(iProps: Props) {
     isFree(gameState.tiles, props.tile, gameState.powerups, userId()),
   )
 
-  const map = createMemo(() => maps[gameState.game.get().map])
+  const map = createMemo(() => maps[mapName(gameState.tiles.all.length)])
   const mapWidth = createMemo(() => mapGetWidth(map()))
   const mapHeight = createMemo(() => mapGetHeight(map()))
 
@@ -175,6 +176,12 @@ export function TileComponent(iProps: Props) {
         play(SOUNDS.WIND, volume)
       } else {
         play(SOUNDS.DING, volume)
+      }
+
+      if (getCoins(props.tile.material)) {
+        setTimeout(() => {
+          play(SOUNDS.COIN, volume)
+        }, 300)
       }
 
       setDeletedAnimation(true)

@@ -5,6 +5,16 @@ import { nanoid } from "nanoid"
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 export type Suit = (typeof suits)[number]
 
+export const DECK_SIZE_LEVEL = {
+  1: 72,
+  2: 84, // +12
+  3: 100, // +16
+  4: 120, // +20
+  5: 144, // +24
+  6: 174, // +24
+} as const
+export type DeckSizeLevel = keyof typeof DECK_SIZE_LEVEL
+
 // biome-ignore format:
 export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
 // biome-ignore format:
@@ -158,10 +168,6 @@ export function getStandardDeck() {
   )
 }
 
-export const DECK_SIZE_LEVEL = {
-  1: 36,
-  2: 42, // +6
-  3: 50, // +8
-  4: 60, // +10
-  5: 72, // +12
-} as const
+export function getDeckPairsSize(level: number) {
+  return DECK_SIZE_LEVEL[level as keyof typeof DECK_SIZE_LEVEL] / 2
+}

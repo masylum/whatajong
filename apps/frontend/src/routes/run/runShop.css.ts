@@ -397,6 +397,12 @@ export const detailTermClass = style({
     [`${detailListClass.classNames.variants.type.total} &`]: {
       color: color.bamboo30,
     },
+    [`${detailListClass.classNames.variants.type.bronze} &`]: {
+      color: color.tile30,
+    },
+    [`${detailListClass.classNames.variants.type.gold} &`]: {
+      color: color.tile30,
+    },
   },
 })
 
@@ -414,6 +420,12 @@ export const detailDescriptionClass = style({
     },
     [`${detailListClass.classNames.variants.type.total} &`]: {
       color: color.bamboo10,
+    },
+    [`${detailListClass.classNames.variants.type.bronze} &`]: {
+      color: color.tile10,
+    },
+    [`${detailListClass.classNames.variants.type.gold} &`]: {
+      color: color.tile10,
     },
   },
 })

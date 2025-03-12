@@ -7,9 +7,9 @@ import { recipe } from "@vanilla-extract/recipes"
 export const containerClass = style({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
   justifyContent: "center",
   gap: 128,
+  padding: 32,
   height: "100vh",
   width: "100vw",
   background: color.circle10,
@@ -18,7 +18,7 @@ export const containerClass = style({
 export const gamesClass = style({
   display: "flex",
   justifyContent: "space-between",
-  gap: 64,
+  gap: 32,
 })
 
 export const gameClass = recipe({
@@ -34,8 +34,12 @@ export const gameClass = recipe({
   variants: {
     current: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.character30, 0.6)}, ${alpha(color.character30, 0)})`,
-        color: color.character80,
+        background: `linear-gradient(to bottom, ${alpha(color.bamboo40, 0.6)}, ${alpha(color.bamboo40, 0.2)})`,
+        boxShadow: `
+          1px 1px 0px 0px inset ${alpha(color.bamboo60, 0.5)},
+          -1px -1px 0px 0px inset ${alpha(color.bamboo40, 1)}
+        `,
+        color: color.bamboo80,
       },
       false: {
         background: `linear-gradient(to bottom, ${alpha(color.circle30, 0.6)}, ${alpha(color.circle30, 0)})`,
@@ -46,42 +50,14 @@ export const gameClass = recipe({
 })
 
 export const gameTitleClass = style({
-  ...fontSize.h2,
+  ...fontSize.h1,
   fontFamily: primary,
-})
-
-export const gameDescriptionClass = recipe({
-  base: {
-    ...fontSize.h1,
-    textAlign: "center",
-    fontFamily: primary,
-  },
-  variants: {
-    current: {
-      true: {
-        color: color.character70,
-      },
-      false: {
-        color: color.circle70,
-      },
+  selectors: {
+    [`${gameClass.classNames.variants.current.true} &`]: {
+      color: color.bamboo60,
     },
-  },
-})
-
-export const gameRewardsClass = recipe({
-  base: {
-    ...fontSize.h1,
-    textAlign: "center",
-    fontFamily: primary,
-  },
-  variants: {
-    current: {
-      true: {
-        color: color.character60,
-      },
-      false: {
-        color: color.circle60,
-      },
+    [`${gameClass.classNames.variants.current.false} &`]: {
+      color: color.circle50,
     },
   },
 })
@@ -99,7 +75,44 @@ export const titleClass = style({
 })
 
 export const subtitleClass = style({
-  ...fontSize.h2,
+  ...fontSize.h1,
   fontFamily: primary,
   color: color.circle70,
+  textAlign: "center",
+})
+
+export const detailListClass = style({
+  display: "grid",
+  gridGap: 12,
+  width: "100%",
+  gridTemplateColumns: "max-content",
+})
+
+export const detailTermClass = style({
+  ...fontSize.l,
+  fontFamily: primary,
+  justifySelf: "end",
+  selectors: {
+    [`${gameClass.classNames.variants.current.true} &`]: {
+      color: color.bamboo60,
+    },
+    [`${gameClass.classNames.variants.current.false} &`]: {
+      color: color.circle50,
+    },
+  },
+})
+
+export const detailDescriptionClass = style({
+  ...fontSize.l,
+  fontFamily: primary,
+  justifySelf: "start",
+  gridColumnStart: 2,
+  selectors: {
+    [`${gameClass.classNames.variants.current.true} &`]: {
+      color: color.bamboo80,
+    },
+    [`${gameClass.classNames.variants.current.false} &`]: {
+      color: color.circle70,
+    },
+  },
 })

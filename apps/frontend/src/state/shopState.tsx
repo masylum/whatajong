@@ -24,6 +24,7 @@ import {
   winds,
   type Card,
   type Deck,
+  type DeckSizeLevel,
   type DeckTile,
 } from "@repo/game/deck"
 const SHOP_STATE_NAMESPACE = "shop-state"
@@ -50,7 +51,7 @@ export type TileItem = BaseItem & {
 }
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
-  level: number
+  level: DeckSizeLevel
 }
 export type Item = MaterialItem | TileItem | UpgradeItem | OtherItem
 export type ShopState = {
@@ -200,7 +201,19 @@ export const MATERIAL_ITEMS: MaterialItem[] = entries(SUITS).flatMap(
   ],
 )
 
-const ITEMS = [...TILE_ITEMS, ...MATERIAL_ITEMS]
+// We include several copies of the same items so people can
+// buy the same item multiple times, but statistically it's
+// the same as if we only included one copy.
+const ITEMS = [
+  ...TILE_ITEMS,
+  ...TILE_ITEMS,
+  ...TILE_ITEMS,
+  ...TILE_ITEMS,
+  ...MATERIAL_ITEMS,
+  ...MATERIAL_ITEMS,
+  ...MATERIAL_ITEMS,
+  ...MATERIAL_ITEMS,
+]
 
 export function generateItems(run: RunState, reroll: number) {
   const runId = run.runId
