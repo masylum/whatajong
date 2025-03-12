@@ -100,7 +100,7 @@ export function generateRound(id: number, runId: string): Round {
 
   const rand = rng.next()
   const timerPoints = Math.round((rand * id) / 5)
-  const pointObjective = (90 + (id - 1)) ^ 3
+  const pointObjective = 90 + (id - 1) ** 3
 
   const round: Round = {
     id,

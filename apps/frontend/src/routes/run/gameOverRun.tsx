@@ -35,6 +35,7 @@ export function GameOverRun() {
 
     return true
   })
+  const achievement = createMemo(() => totalPoints() / round().pointObjective)
 
   const tileCoins = createMemo(() => {
     return gameState.tiles.all
@@ -42,13 +43,25 @@ export function GameOverRun() {
       .map((tile) => getCoins(tile.material))
       .reduce((a, b) => a + b, 0)
   })
+  const overAchievementCoins = createMemo(() => {
+    const overAchievement = achievement() - 1
+    if (overAchievement <= 0) return 0
+
+    return Math.floor((overAchievement * 10) / 3)
+  })
+
   const passiveIncome = createMemo(() => run.get().shopLevel - 1)
   const reward = createMemo(() => round().reward)
 
   function onShop() {
     run.set({
       stage: "shop",
-      money: run.get().money + reward() + tileCoins() + passiveIncome(),
+      money:
+        run.get().money +
+        reward() +
+        tileCoins() +
+        passiveIncome() +
+        overAchievementCoins(),
     })
   }
 
@@ -56,7 +69,7 @@ export function GameOverRun() {
     <GameOver win={win()}>
       <div class={pointsContainerClass}>
         <dl class={detailListClass({ hue: "gold" })}>
-          <dt class={detailTermClass}>Reward</dt>
+          <dt class={detailTermClass}>Round Reward</dt>
           <dd class={detailDescriptionClass}>+{reward()}</dd>
           <Show when={tileCoins()}>
             {(coins) => (
@@ -70,6 +83,16 @@ export function GameOverRun() {
             {(coins) => (
               <>
                 <dt class={detailTermClass}>Passive income</dt>
+                <dd class={detailDescriptionClass}>+{coins()}</dd>
+              </>
+            )}
+          </Show>
+          <Show when={overAchievementCoins()}>
+            {(coins) => (
+              <>
+                <dt class={detailTermClass}>
+                  Over achiever ({Math.round(achievement() * 100)} %)
+                </dt>
                 <dd class={detailDescriptionClass}>+{coins()}</dd>
               </>
             )}

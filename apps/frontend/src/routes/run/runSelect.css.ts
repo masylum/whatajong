@@ -72,6 +72,7 @@ export const titleClass = style({
   ...fontSize.hero3,
   fontFamily: primary,
   color: color.circle90,
+  textAlign: "center",
 })
 
 export const subtitleClass = style({
