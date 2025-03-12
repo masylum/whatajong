@@ -1,5 +1,8 @@
 import { DEFAULT_MAP } from "./maps/default"
 import { MAP_68 } from "./maps/map68"
+import { MAP_100 } from "./maps/map100"
+import { MAP_120 } from "./maps/map120"
+import { MAP_84 } from "./maps/map84"
 
 export type MapType = (number | null)[][][]
 export type MapName = keyof typeof maps
@@ -24,5 +27,8 @@ export function mapGetLevels(map: MapType) {
 
 export const maps = {
   map68: MAP_68,
+  map84: MAP_84,
+  map100: MAP_100,
+  map120: MAP_120,
   default: DEFAULT_MAP,
 }

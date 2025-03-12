@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest"
 import {
   getStandardDeck,
   getSuit,
-  getNumber,
+  getRank,
   matchesSuit,
   cardsMatch,
 } from "./deck"
@@ -23,10 +23,10 @@ describe("deck", () => {
     })
 
     it("should extract number correctly", () => {
-      expect(getNumber("b1")).toBe("1")
-      expect(getNumber("c5")).toBe("5")
-      expect(getNumber("wn")).toBe("n")
-      expect(getNumber("dc")).toBe("c")
+      expect(getRank("b1")).toBe("1")
+      expect(getRank("c5")).toBe("5")
+      expect(getRank("wn")).toBe("n")
+      expect(getRank("dc")).toBe("c")
     })
 
     it("should match suits correctly", () => {

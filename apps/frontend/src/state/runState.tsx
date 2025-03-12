@@ -1,5 +1,4 @@
 import { Value } from "@repo/game/in-memoriam"
-import type { MapName } from "@repo/game/map"
 import Rand from "rand-seed"
 import {
   createContext,
@@ -9,24 +8,18 @@ import {
   useContext,
   type ParentProps,
 } from "solid-js"
-import type { Item } from "./itemState"
+import type { Item } from "./shopState"
+
 const RUN_STATE_NAMESPACE = "run-state"
 
 export type RunState = {
   runId: string
   money: number
-  // TODO: rename to mapName
-  map: MapName
   round: number
-  reroll: number
-  // TODO: rename to stage
-  roundStage: RoundStage
+  stage: RoundStage
   initialPoints: number
-  timerSpeed: number
-  shufflesAvailable: number
-  incomeMultiplier: number
-  packLuck: number
-  currentItem: Item | null
+  shopLevel: number
+  items: Item[]
 }
 
 export type RoundStage = "select" | "game" | "shop"
@@ -85,16 +78,11 @@ export function createRunState(runId: () => string) {
       new Value<RunState>({
         runId: runId(),
         money: 0,
-        map: "map68",
         round: 1,
-        reroll: 0,
-        roundStage: "select",
+        stage: "select",
         initialPoints: 150,
-        timerSpeed: 0,
-        shufflesAvailable: 1,
-        incomeMultiplier: 1,
-        packLuck: 0.1,
-        currentItem: null,
+        shopLevel: 1,
+        items: [],
       }),
   )
 
@@ -159,4 +147,8 @@ export function generateRound(id: number, runId: string): Round {
   }
 
   return round
+}
+
+export function shopUpgradeCost(run: RunState) {
+  return 4 + run.shopLevel
 }

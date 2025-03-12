@@ -6,7 +6,7 @@ import { recipe } from "@vanilla-extract/recipes"
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
 export const DELETED_DURATION = 300
-export const FLOATING_NUMBER_DURATION = 800
+export const FLOATING_NUMBER_DURATION = 1000
 
 const shakeKeyframes = keyframes({
   "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
@@ -38,8 +38,11 @@ const floatingNumberKeyframes = keyframes({
     transform: "translate(0, 0)",
     opacity: 1,
   },
+  "80%": {
+    opacity: 0.8,
+  },
   "100%": {
-    transform: "translate(0, -60px)",
+    transform: "translate(0, -80px)",
     opacity: 0,
   },
 })
@@ -67,7 +70,7 @@ export const floatingNumberAnimation = style({
   pointerEvents: "none",
   color: "white",
   padding: "4px 8px",
-  borderRadius: 8,
+  borderRadius: 4,
 })
 
 export const tileRecipe = recipe({

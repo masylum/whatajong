@@ -1,4 +1,4 @@
-import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
+import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { materials } from "@repo/game/tile"
 import { entries, fromEntries, map } from "remeda"
 import { For } from "solid-js"
@@ -28,7 +28,7 @@ export function Defs() {
     <svg style={{ position: "absolute" }}>
       <defs>
         <filter id={SOFT_SHADE_FILTER_ID}>
-          <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="blur" />
         </filter>
 
         <For each={entries(MATERIALS)}>
@@ -58,8 +58,8 @@ export function Defs() {
           <rect
             x={0}
             y={0}
-            width={TILE_WIDTH + Math.abs(SIDE_SIZES.xSide) * 4}
-            height={TILE_HEIGHT + Math.abs(SIDE_SIZES.ySide) * 4}
+            width={TILE_WIDTH}
+            height={TILE_HEIGHT}
             fill={`url(#${VISIBILITY_GRADIENT_ID})`}
           />
         </mask>

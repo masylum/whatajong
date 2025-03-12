@@ -1,8 +1,9 @@
 import type { Database } from "./in-memoriam"
 import type { Material } from "./tile"
+import { nanoid } from "nanoid"
 
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
-type Suit = (typeof suits)[number]
+export type Suit = (typeof suits)[number]
 
 // biome-ignore format:
 export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
@@ -42,7 +43,6 @@ export type DeckTile = {
   id: string
   card: Card
   material: Material
-  count: number
 }
 export type Deck = Database<DeckTile, DeckTileIndexes>
 
@@ -97,11 +97,11 @@ export function getSuit<T extends Card>(card: T): ExtractSuit<T> {
   return card[0] as ExtractSuit<T>
 }
 
-export function getNumber<T extends Card>(card: T): ExtractNumber<T> {
+export function getRank<T extends Card>(card: T): ExtractNumber<T> {
   return card.charAt(1) as ExtractNumber<T>
 }
 
-export function matchesSuit(card: Card, suit: Suit) {
+export function matchesSuit(card: Card | Suit, suit: Suit) {
   return card.startsWith(suit)
 }
 
@@ -116,34 +116,34 @@ export function cardsMatch(card1: Card, card2: Card) {
   return false
 }
 
-export function isDragon(card: Card) {
+export function isDragon(card: Card | Suit) {
   return matchesSuit(card, "d") ? (card as Dragons) : null
 }
 
-export function isFlower(card: Card) {
+export function isFlower(card: Card | Suit) {
   return matchesSuit(card, "f") ? (card as Flowers) : null
 }
 
-export function isSeason(card: Card) {
+export function isSeason(card: Card | Suit) {
   return matchesSuit(card, "s") ? (card as Seasons) : null
 }
 
-export function isJoker(card: Card) {
+export function isJoker(card: Card | Suit) {
   return isFlower(card) || isSeason(card)
 }
-export function isWind(card: Card) {
+export function isWind(card: Card | Suit) {
   return matchesSuit(card, "w") ? (card as Winds) : null
 }
 
-export function isBamboo(card: Card) {
+export function isBamboo(card: Card | Suit) {
   return matchesSuit(card, "b") ? (card as Bamboo) : null
 }
 
-export function isCharacter(card: Card) {
+export function isCharacter(card: Card | Suit) {
   return matchesSuit(card, "c") ? (card as Character) : null
 }
 
-export function isCircle(card: Card) {
+export function isCircle(card: Card | Suit) {
   return matchesSuit(card, "o") ? (card as Circle) : null
 }
 
@@ -151,9 +151,17 @@ export function getStandardDeck() {
   return getStandardPairs().map(
     ([card1, _]) =>
       ({
+        id: nanoid(),
         card: card1,
         material: "bone",
-        count: 2,
       }) as DeckTile,
   )
 }
+
+export const DECK_SIZE_LEVEL = {
+  1: 36,
+  2: 42, // +6
+  3: 50, // +8
+  4: 60, // +10
+  5: 72, // +12
+} as const

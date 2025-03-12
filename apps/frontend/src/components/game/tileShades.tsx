@@ -1,15 +1,19 @@
-import { createMemo, Show } from "solid-js"
+import { createMemo, mergeProps, Show } from "solid-js"
 import { useGameState } from "@/state/gameState"
 import { getFinder, type Tile } from "@repo/game/tile"
-import { TILE_HEIGHT, TILE_WIDTH, SIDE_SIZES } from "@/state/constants"
+import { TILE_HEIGHT, TILE_WIDTH, getSideSize } from "@/state/constants"
 import { shadeClass } from "./tileShades.css"
 import { SOFT_SHADE_FILTER_ID } from "./defs"
 
 type Props = {
   tile: Tile
+  width?: number
+  height?: number
 }
-export function TileShades(props: Props) {
+export function TileShades(iProps: Props) {
   const gameState = useGameState()
+  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const sideSize = createMemo(() => getSideSize(props.height))
 
   const shadeVariants = createMemo(() => {
     const find = getFinder(gameState.tiles, props.tile)
@@ -31,13 +35,26 @@ export function TileShades(props: Props) {
   })
   return (
     <>
-      <TopShade shadeVariants={shadeVariants()} />
-      <RightShade shadeVariants={shadeVariants()} />
+      <TopShade
+        height={props.height}
+        width={props.width}
+        sideSize={sideSize()}
+        shadeVariants={shadeVariants()}
+      />
+      <RightShade
+        height={props.height}
+        width={props.width}
+        sideSize={sideSize()}
+        shadeVariants={shadeVariants()}
+      />
     </>
   )
 }
 
 type SideShadeProps = {
+  height: number
+  width: number
+  sideSize: number
   shadeVariants: {
     topLeft: boolean
     top: boolean
@@ -53,42 +70,42 @@ export function TopShade(props: SideShadeProps) {
 
     if (topLeft && !top) {
       return `
-        M ${TILE_WIDTH / 2 - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        h ${TILE_WIDTH / 2 + SIDE_SIZES.xSide}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        M ${props.width / 2} 0
+        l ${props.sideSize} ${-props.sideSize}
+        h ${props.width / 2 - props.sideSize}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }
 
     if (!topLeft && top) {
       return `
-        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        h ${TILE_WIDTH / 2 + SIDE_SIZES.xSide}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        v ${SIDE_SIZES.ySide * 2}
+        M 0 0
+        l ${props.sideSize} ${-props.sideSize}
+        h ${props.width / 2 - props.sideSize}
+        l ${props.sideSize} ${-props.sideSize}
+        v ${props.sideSize * 2}
         Z
       `
     }
 
     if (!topLeft && !top && topRight) {
       return `
-        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        h ${TILE_WIDTH + SIDE_SIZES.xSide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        v ${SIDE_SIZES.ySide * 2}
+        M 0 0
+        l ${props.sideSize} ${-props.sideSize}
+        h ${props.width - props.sideSize * 2}
+        l ${props.sideSize} ${-props.sideSize}
+        v ${props.sideSize * 2}
         Z
       `
     }
 
     if (!topLeft && !top && !topRight) {
       return `
-        M ${-SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
-        h ${TILE_WIDTH}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        M 0 0
+        l ${props.sideSize} ${-props.sideSize}
+        h ${props.width}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }
@@ -112,42 +129,42 @@ export function RightShade(props: SideShadeProps) {
 
     if (bottomRight && !right) {
       return `
-        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
+        M ${props.width} 0
+        l ${props.sideSize} ${-props.sideSize}
         v ${TILE_HEIGHT / 2}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }
 
     if (!bottomRight && right) {
       return `
-        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${TILE_HEIGHT / 2 + SIDE_SIZES.ySide * 2}
-        h ${-SIDE_SIZES.xSide * 2}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
-        v ${TILE_HEIGHT / 2 - 2 * SIDE_SIZES.ySide}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        M ${props.width} ${TILE_HEIGHT / 2}
+        h ${props.sideSize * 2}
+        l ${-props.sideSize} ${props.sideSize}
+        v ${TILE_HEIGHT / 2 - 2 * props.sideSize}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }
 
     if (!bottomRight && !right && topRight) {
       return `
-        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        h ${-SIDE_SIZES.xSide * 2}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
-        v ${TILE_HEIGHT - SIDE_SIZES.ySide * 2}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        M ${TILE_WIDTH} 0
+        h ${props.sideSize * 2}
+        l ${-props.sideSize} ${props.sideSize}
+        v ${TILE_HEIGHT - props.sideSize * 2}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }
 
     if (!bottomRight && !right && !topRight) {
       return `
-        M ${TILE_WIDTH - SIDE_SIZES.xSide * 2} ${SIDE_SIZES.ySide * 2}
-        l ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide}
+        M ${TILE_WIDTH} 0
+        l ${props.sideSize} ${-props.sideSize}
         v ${TILE_HEIGHT}
-        l ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide}
+        l ${-props.sideSize} ${props.sideSize}
         Z
       `
     }

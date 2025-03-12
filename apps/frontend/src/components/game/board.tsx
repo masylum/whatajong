@@ -81,7 +81,7 @@ export function Board(props: BoardProps) {
             hideImage={isHiddenImage(tile.id)}
             enhanceVisibility={isDisclosed(tile.id)}
             onSelect={onSelect}
-            onMouseEnter={(tile) => setHover(tile.id)}
+            onMouseEnter={() => setHover(tile.id)}
             onMouseLeave={() => setHover(null)}
           />
         )}

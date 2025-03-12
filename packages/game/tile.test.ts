@@ -1,14 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest"
-import {
-  initTileDb,
-  overlaps,
-  isFree,
-  deleteTiles,
-  type Tile,
-  type TileDb,
-} from "./tile"
+import { initTileDb, overlaps, isFree, type Tile, type TileDb } from "./tile"
 import type { Card } from "./deck"
-import { initSelectionsDb } from "./selection"
 
 describe("tile", () => {
   describe("initTileDb", () => {
@@ -128,44 +120,6 @@ describe("tile", () => {
       expect(isFree(db, db.get("3")!)).toBe(true)
       expect(isFree(db, db.get("4")!)).toBe(true)
       expect(isFree(db, db.get("5")!)).toBe(true)
-    })
-  })
-
-  describe("deleteTile", () => {
-    it("should mark tile as deleted", () => {
-      const db = initTileDb({
-        "1": {
-          id: "1",
-          card: "b1" as Card,
-          x: 0,
-          y: 0,
-          z: 0,
-          material: "bone",
-        },
-      })
-      const selectionsDb = initSelectionsDb({})
-      const tile = db.get("1")!
-      deleteTiles(db, selectionsDb, [tile], "player1")
-      expect(db.get("1")!.deletedBy).toBe("player1")
-    })
-
-    it("should delete selection", () => {
-      const db = initTileDb({
-        "1": {
-          id: "1",
-          card: "b1" as Card,
-          x: 0,
-          y: 0,
-          z: 0,
-          material: "bone",
-        },
-      })
-      const selectionsDb = initSelectionsDb({
-        "1": { id: "1", tileId: "1", playerId: "player1" },
-      })
-      const tile = db.get("1")!
-      deleteTiles(db, selectionsDb, [tile], "player1")
-      expect(selectionsDb.get("1")).toBeNull()
     })
   })
 })

@@ -23,7 +23,7 @@ import {
   windGustClass,
 } from "./dustParticles.css"
 import { useGameState } from "@/state/gameState"
-import { getNumber, isWind, type WindDirection } from "@repo/game/deck"
+import { getRank, isWind, type WindDirection } from "@repo/game/deck"
 import type { Tile } from "@repo/game/tile"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { difference } from "@repo/game/lib/setMethods"
@@ -64,7 +64,7 @@ export function DustParticles() {
 
     if (newWindTiles.size) {
       const windTile = newWindTiles.values().next().value!
-      const direction = getNumber(windTile.card) as WindDirection
+      const direction = getRank(windTile.card) as WindDirection
       setWindDirection(direction)
     }
 

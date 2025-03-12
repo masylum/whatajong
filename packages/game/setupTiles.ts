@@ -1,19 +1,24 @@
-import type { DeckTile } from "./deck"
+import { DECK_SIZE_LEVEL, type DeckTile } from "./deck"
 import { shuffle } from "./lib/rand"
-import { mapGet, maps, type MapName } from "./map"
+import { mapGet, maps } from "./map"
 import type { Tile } from "./tile"
 import { initTileDb } from "./tile"
 import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
 
+function mapName(tiles: number) {
+  if (tiles < DECK_SIZE_LEVEL[2]) return "map68"
+  if (tiles < DECK_SIZE_LEVEL[3]) return "map84"
+  if (tiles < DECK_SIZE_LEVEL[4]) return "map100"
+  if (tiles < DECK_SIZE_LEVEL[5]) return "map120"
+
+  return "default"
+}
+
 // From paper: https://iivq.net/scriptie/scriptie-bsc.pdf
-export function setupTiles({
-  rng,
-  mapName,
-  deck,
-}: { rng: Rand; mapName: MapName; deck: DeckTile[] }) {
+export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
   const tileDb = initTileDb({})
-  const map = maps[mapName]
+  const map = maps[mapName(deck.length)]
 
   // Get all valid positions from the map
   for (const z of map.keys()) {
@@ -56,16 +61,13 @@ export function setupTiles({
 
   // If we couldn't remove all tiles, start over
   if (tileDb.size > 0) {
-    return setupTiles({ rng, mapName, deck })
+    return setupTiles({ rng, deck })
   }
 
   // Convert deck into pairs of cards based on tile counts
   const pairs: [DeckTile, DeckTile][] = []
   for (const deckTile of deck) {
-    const pairCount = Math.floor(deckTile.count / 2)
-    for (let i = 0; i < pairCount; i++) {
-      pairs.push([deckTile, deckTile])
-    }
+    pairs.push([deckTile, deckTile])
   }
   const shuffledPairs = shuffle(pairs, rng)
 

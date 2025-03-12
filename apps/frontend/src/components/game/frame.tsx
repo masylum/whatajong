@@ -5,9 +5,9 @@ import {
   onMount,
   type JSXElement,
 } from "solid-js"
-import { gameRecipe, COMBO_ANIMATION_DURATION } from "./board.css"
+import { gameRecipe, COMBO_ANIMATION_DURATION } from "./frame.css"
 import { DustParticles } from "./dustParticles"
-import { getNumber, isDragon, type Dragons } from "@repo/game/deck"
+import { isDragon } from "@repo/game/deck"
 import { useGameState } from "@/state/gameState"
 import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
@@ -21,25 +21,6 @@ type Props = {
 export function Frame(props: Props) {
   const gameState = useGameState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
-
-  // TODO: move to powerups
-  const dragons = createMemo(
-    () => {
-      const [left, right] = gameState.players.all
-        .sort((a, b) => a.order - b.order)
-        .map((player) => {
-          const powerup = gameState.powerups
-            .filterBy({ playerId: player.id })
-            .find((powerup) => isDragon(powerup.card))
-          if (!powerup) return
-
-          return getNumber(powerup.card as Dragons)
-        })
-
-      return { left, right }
-    },
-    { equals: isDeepEqual },
-  )
 
   // TODO: move to powerups
   const combo = createMemo(
@@ -94,10 +75,6 @@ export function Frame(props: Props) {
   return (
     <div
       class={gameRecipe({
-        left: dragons().left,
-        right: dragons().right,
-        leftCombo: (combo().left as any) ?? "0",
-        rightCombo: (combo().right as any) ?? "0",
         comboAnimation: comboAnimation() as any,
       })}
     >

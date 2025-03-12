@@ -37,7 +37,6 @@ export function createDeckState(runId: () => string) {
             id,
             card: tiles[0],
             material: "bone",
-            count: tiles.length,
           })
         }
       }

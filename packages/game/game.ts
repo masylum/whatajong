@@ -5,17 +5,14 @@ import {
   isFlower,
   type Card,
   isWind,
-  isCircle,
-  isCharacter,
-  isBamboo,
   type DeckTile,
 } from "./deck"
-import { deleteTiles, isFree } from "./tile"
-import { getPointsWithCombo, getPowerups, type PowerupDb } from "./powerups"
-import type { Tile } from "./tile"
+import { isFree } from "./tile"
+import { getDragonMultiplier, getPowerups, type PowerupDb } from "./powerups"
+import type { Material, Tile } from "./tile"
 import type { TileDb } from "./tile"
 import { isMultiplayer, type PlayerDb } from "./player"
-import type { Selection } from "./selection"
+import type { Selection, SelectionDb } from "./selection"
 import { resolveWinds } from "./winds"
 import type { State } from "./types"
 import { setupTiles } from "./setupTiles"
@@ -87,26 +84,74 @@ export function getAvailablePairs(
   return pairs
 }
 
-export function getPoints(card: Card) {
-  if (isDragon(card)) return 4
-  if (isFlower(card)) return 8
-  if (isSeason(card)) return 8
-  if (isWind(card)) return 16
-  if (isBamboo(card)) return 1
-  if (isCharacter(card)) return 2
-  if (isCircle(card)) return 3
+export function getCardPoints(card: Card) {
+  if (isDragon(card)) return 2
+  if (isFlower(card)) return 4
+  if (isSeason(card)) return 4
+  if (isWind(card)) return 8
 
-  return 0
+  return 1
 }
 
-export function calculatePoints(tiles: Tile[]) {
-  let points = 0
-
-  for (const tile of tiles) {
-    points += getPoints(tile.card)
+export function getMaterialPoints(material: Material) {
+  switch (material) {
+    case "ivory":
+      return 0
+    case "wood":
+    case "glass":
+    case "bronze":
+      return 1
+    case "bone":
+    case "gold":
+      return 2
+    case "jade":
+      return 3
   }
+}
 
-  return points
+export function getMaterialMultiplier(material: Material) {
+  switch (material) {
+    case "glass":
+    case "bronze":
+      return 1
+    case "jade":
+      return 2
+    default:
+      return 0
+  }
+}
+
+export function getPoints(powerupsDb: PowerupDb, playerId: string, tile: Tile) {
+  return getRawPoints(tile) * getRawMultiplier(powerupsDb, playerId, tile)
+}
+
+export function getCoins(material: Material) {
+  switch (material) {
+    case "gold":
+      return 1
+    case "jade":
+      return 2
+    default:
+      return 0
+  }
+}
+
+export function getRawPoints(tile: Tile) {
+  const cardPoints = getCardPoints(tile.card)
+  const materialPoints = getMaterialPoints(tile.material)
+
+  return cardPoints + materialPoints
+}
+
+export function getRawMultiplier(
+  powerupsDb: PowerupDb,
+  playerId: string,
+  tile: Tile,
+) {
+  const materialMultiplier = getMaterialMultiplier(tile.material)
+  const dragonRunMultiplier = getDragonMultiplier(powerupsDb, playerId, tile)
+
+  return 1 + materialMultiplier + dragonRunMultiplier
 }
 
 export function getFreeTiles(
@@ -152,13 +197,15 @@ export function selectTile(db: State, selection: Selection) {
     db.selections.del(firstSelection.id)
 
     if (cardsMatch(firstTile.card, tile.card)) {
+      const newPoints = getPoints(db.powerups, playerId, tile)
+      console.log("newPoints", newPoints)
       deleteTiles(db.tiles, db.selections, [tile, firstTile], playerId)
       resolveWinds(db.tiles, db.powerups, tile)
       getPowerups(db.powerups, playerId, tile)
 
-      const points =
-        player.points + getPointsWithCombo(db.powerups, playerId, tile)
+      const points = player.points + newPoints
       db.players.set(playerId, { ...player, points })
+      db.tiles.set(tile.id, { ...tile, points: newPoints })
     }
 
     for (const player of db.players.all) {
@@ -178,7 +225,6 @@ export function selectTile(db: State, selection: Selection) {
 export function restartGame({
   db,
   rng,
-  mapName,
   initialPoints,
   deck,
 }: {
@@ -191,11 +237,9 @@ export function restartGame({
   batch(() => {
     db.game.set({
       startedAt: new Date().getTime(),
-      // TODO: rename
-      map: mapName,
     })
 
-    const newTiles = setupTiles({ rng, mapName, deck })
+    const newTiles = setupTiles({ rng, deck })
     for (const tile of Object.values(newTiles)) {
       db.tiles.set(tile.id, tile)
     }
@@ -209,4 +253,19 @@ export function restartGame({
     db.selections.update({})
     db.powerups.update({})
   })
+}
+
+export function deleteTiles(
+  tileDb: TileDb,
+  selectionDb: SelectionDb,
+  tiles: Tile[],
+  playerId: string,
+) {
+  for (const tile of tiles) {
+    tileDb.set(tile.id, { ...tile, deletedBy: playerId })
+    const selection = selectionDb.findBy({ tileId: tile.id })
+    if (selection) {
+      selectionDb.del(selection.id)
+    }
+  }
 }

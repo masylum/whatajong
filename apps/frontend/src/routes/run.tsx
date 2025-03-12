@@ -16,13 +16,13 @@ export default function Run() {
     <RunStateProvider run={newRun()}>
       <DeckStateProvider deck={newDeck()}>
         <Switch>
-          <Match when={newRun().get().roundStage === "select"}>
+          <Match when={newRun().get().stage === "select"}>
             <RunSelect />
           </Match>
-          <Match when={newRun().get().roundStage === "game"}>
+          <Match when={newRun().get().stage === "game"}>
             <RunGame />
           </Match>
-          <Match when={newRun().get().roundStage === "shop"}>
+          <Match when={newRun().get().stage === "shop"}>
             <RunShop />
           </Match>
         </Switch>

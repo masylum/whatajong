@@ -32,7 +32,7 @@ export default function RunSelect() {
     // TODO: skip
     run.set({
       round: round.id,
-      roundStage: "game",
+      stage: "game",
     })
   }
 

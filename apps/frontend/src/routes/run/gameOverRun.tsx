@@ -27,8 +27,7 @@ export function GameOverRun() {
 
   function onShop() {
     run.set({
-      roundStage: "shop",
-      reroll: 0,
+      stage: "shop",
       money: run.get().money + round().reward,
     })
   }

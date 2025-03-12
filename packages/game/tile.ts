@@ -1,7 +1,17 @@
-import { isFlower, type Card } from "./deck"
+import {
+  isBamboo,
+  isDragon,
+  isCharacter,
+  isFlower,
+  isSeason,
+  isWind,
+  type Card,
+  isCircle,
+  getRank,
+  type Suit,
+} from "./deck"
 import { type Database, initDatabase } from "./in-memoriam"
 import type { PowerupDb } from "./powerups"
-import type { SelectionDb } from "./selection"
 
 export type Position = {
   x: number
@@ -13,6 +23,7 @@ export type Tile = {
   id: string
   card: Card
   deletedBy?: string
+  points?: number
   material: Material
 } & Position
 export type TileById = Record<string, Tile>
@@ -111,8 +122,11 @@ export function isFree(
   const material = getMaterial(tile, powerupsDb, playerId)
 
   if (material === "ivory") return !isCovered
-  if (material === "glass" || material === "wood") {
+  if (material === "wood") {
     return countFreedoms >= 1 && !isCovered
+  }
+  if (material === "glass") {
+    return countFreedoms >= 2 && !isCovered
   }
 
   if (material === "bone") {
@@ -137,25 +151,41 @@ export function getMaterial(
       .filterBy({ playerId })
       .find((p) => isFlower(p.card))
     if (flower) return "wood"
-    // TODO: flower+
+
+    const season = powerupsDb
+      .filterBy({ playerId })
+      .find((p) => isSeason(p.card))
+    if (season) return "glass"
   }
 
   return tile.material
 }
 
-export function deleteTiles(
-  tileDb: TileDb,
-  selectionDb: SelectionDb,
-  tiles: Tile[],
-  playerId: string,
-) {
-  for (const tile of tiles) {
-    tileDb.set(tile.id, { ...tile, deletedBy: playerId })
-    const selection = selectionDb.findBy({ tileId: tile.id })
-    if (selection) {
-      selectionDb.del(selection.id)
+export function suitName(card: Card | Suit) {
+  if (isFlower(card)) return "flower"
+  if (isSeason(card)) return "season"
+  if (isBamboo(card)) return "bamb"
+  if (isCharacter(card)) return "crack"
+  if (isCircle(card)) return "dot"
+  if (isDragon(card)) return "dragon"
+  if (isWind(card)) return "wind"
+
+  return "unknown"
+}
+
+export function cardName(card: Card) {
+  if (isDragon(card)) {
+    switch (getRank(card)) {
+      case "f":
+        return "bamb dragon"
+      case "c":
+        return "crack dragon"
+      case "p":
+        return "dot dragon"
     }
   }
+
+  return `${suitName(card)} ${getRank(card)}`
 }
 
 export const materials = [

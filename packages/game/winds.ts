@@ -1,4 +1,4 @@
-import { getNumber, getSuit } from "./deck"
+import { getRank, getSuit } from "./deck"
 import type { PowerupDb } from "./powerups"
 import { fullyOverlaps, overlaps, type Tile, type TileDb } from "./tile"
 
@@ -29,7 +29,7 @@ export function resolveWinds(
   tile: Tile,
 ) {
   if (getSuit(tile.card) !== "w") return
-  const wind = getNumber(tile.card) as keyof typeof biases
+  const wind = getRank(tile.card) as keyof typeof biases
   const biases = {
     n: ["y", -2],
     s: ["y", 2],

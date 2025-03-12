@@ -1,11 +1,12 @@
-import { createEffect, createMemo, createSignal, Show } from "solid-js"
-import { userId, playerColors, useGameState } from "@/state/gameState"
 import {
-  CORNER_RADIUS,
-  SIDE_SIZES,
-  TILE_HEIGHT,
-  TILE_WIDTH,
-} from "@/state/constants"
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+  mergeProps,
+} from "solid-js"
+import { userId, playerColors, useGameState } from "@/state/gameState"
+import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -24,7 +25,6 @@ import { VISIBILITY_MASK_ID } from "./defs"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import { color, alpha } from "@/styles/colors"
-import { getPointsWithCombo } from "@repo/game/powerups"
 import { isDragon, isFlower, isJoker, isSeason, isWind } from "@repo/game/deck"
 import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
@@ -39,33 +39,42 @@ type Props = {
   onSelect: (tile: Tile) => void
   onMouseEnter: (tile: Tile) => void
   onMouseLeave: () => void
+  width?: number
+  height?: number
 }
+type State = "idle" | "selected" | "deleted"
 
-export function TileComponent(props: Props) {
+export function TileComponent(iProps: Props) {
   const gameState = useGameState()
+  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const sideSize = createMemo(() => Math.floor(props.height / 10))
 
   const coords = createMemo(
     () => {
       const x = props.tile.x
       const y = props.tile.y
       const z = props.tile.z
-      const baseX = (x * TILE_WIDTH) / 2
-      const baseY = (y * TILE_HEIGHT) / 2
+      const baseX = (x * props.width) / 2
+      const baseY = (y * props.height) / 2
 
       return {
-        x: baseX + z * -SIDE_SIZES.xSide,
-        y: baseY + z * -SIDE_SIZES.ySide,
+        x: baseX + z * sideSize(),
+        y: baseY + z * -sideSize(),
       }
     },
     { equal: isDeepEqual },
   )
+  const dPath = createMemo(() =>
+    strokePath({ width: props.width, height: props.height }),
+  )
+
   const material = createMemo(() =>
     getMaterial(props.tile, gameState.powerups, userId()),
   )
 
-  const canBeSelected = createMemo(() => {
-    return isFree(gameState.tiles, props.tile, gameState.powerups, userId())
-  })
+  const canBeSelected = createMemo(() =>
+    isFree(gameState.tiles, props.tile, gameState.powerups, userId()),
+  )
 
   const map = createMemo(() => maps[gameState.game.get().map])
   const mapWidth = createMemo(() => mapGetWidth(map()))
@@ -81,6 +90,7 @@ export function TileComponent(props: Props) {
   const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
+  const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
   const powerups = createMemo(() =>
     gameState.powerups.filterBy({ playerId: userId() }),
   )
@@ -106,6 +116,13 @@ export function TileComponent(props: Props) {
     { equal: isDeepEqual },
   )
 
+  const state = createMemo<State>(() => {
+    if (selected()) return "selected"
+    if (props.tile.deletedBy) return "deleted"
+
+    return "idle"
+  })
+
   const fillColor = createMemo(() => {
     const sel = selected()
     if (sel) {
@@ -124,36 +141,29 @@ export function TileComponent(props: Props) {
     return 0
   })
 
-  createEffect((prevSelected: boolean) => {
-    if (props.tile.deletedBy) return false
-    const sel = !!selected()
+  createEffect((prevState: State) => {
+    const currentState = state()
 
-    if (prevSelected && !sel) {
+    if (prevState === "selected" && currentState === "idle") {
       setOopsie(true)
       play(SOUNDS.SHAKE)
       setTimeout(() => {
         setOopsie(false)
       }, SHAKE_DURATION * SHAKE_REPEAT)
-      return false
+
+      return currentState
     }
 
-    return sel
-  }, !!selected())
-
-  createEffect((prevDeleted: boolean) => {
-    const deleted = !!props.tile.deletedBy
-
-    if (prevDeleted && !deleted) {
+    // when refreshing the board
+    if (prevState === "deleted" && currentState === "idle") {
       setDeleted(false)
-      return false
+      return currentState
     }
 
-    if (!prevDeleted && deleted) {
+    if (prevState !== "deleted" && currentState === "deleted") {
       setTimeout(() => {
         setDeleted(true)
       }, DELETED_DURATION)
-
-      setDeletedAnimation(true)
 
       const volume = props.tile.deletedBy === userId() ? 1 : 0.5
 
@@ -167,13 +177,27 @@ export function TileComponent(props: Props) {
         play(SOUNDS.DING, volume)
       }
 
+      setDeletedAnimation(true)
       setTimeout(() => {
         setDeletedAnimation(false)
+      }, DELETED_DURATION)
+    }
+
+    return currentState
+  }, state())
+
+  createEffect((prevPoints: number | undefined) => {
+    const points = props.tile.points
+
+    if (prevPoints !== points) {
+      setNumberAnimation(true)
+      setTimeout(() => {
+        setNumberAnimation(false)
       }, FLOATING_NUMBER_DURATION)
     }
 
-    return deleted
-  }, !!props.tile.deletedBy)
+    return points
+  }, props.tile.points)
 
   const animation = createMemo(() => {
     if (oopsie()) return shakeAnimation
@@ -184,20 +208,20 @@ export function TileComponent(props: Props) {
 
   return (
     <>
-      <Show when={deletedAnimation() && props.tile.deletedBy}>
+      <Show when={numberAnimation() && props.tile.deletedBy}>
         {(playerId) => (
           <span
             style={{
-              left: `${coords().x + TILE_WIDTH / 2 + SIDE_SIZES.xSide}px`,
-              top: `${coords().y + TILE_HEIGHT / 2 + 2 * SIDE_SIZES.ySide}px`,
+              left: `${coords().x + props.width / 2}px`,
+              top: `${coords().y + props.height / 2}px`,
               background: alpha(
                 playerColors(gameState.players.get(playerId())!)[1],
-                0.5,
+                0.8,
               ),
             }}
             class={floatingNumberAnimation}
           >
-            +{getPointsWithCombo(gameState.powerups, playerId(), props.tile)}
+            +{props.tile.points}
           </span>
         )}
       </Show>
@@ -207,10 +231,11 @@ export function TileComponent(props: Props) {
             position: "absolute",
             left: `${coords().x}px`,
             top: `${coords().y}px`,
+            overflow: "visible",
             "z-index": zIndex(),
           }}
-          width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
-          height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
+          width={props.width}
+          height={props.height}
           data-id={props.tile.id}
           data-tile={JSON.stringify(props.tile)}
           class={tileRecipe({ highlight: highlight() })}
@@ -223,7 +248,7 @@ export function TileComponent(props: Props) {
                 : undefined
             }
           >
-            <TileSide material={material()} />
+            <TileSide d={dPath()} material={material()} />
             <TileShades tile={props.tile} />
             <TileBody material={material()} />
             <Show when={!props.hideImage}>
@@ -232,7 +257,7 @@ export function TileComponent(props: Props) {
 
             {/* Stroke overlay */}
             <path
-              d={strokePath}
+              d={dPath()}
               fill="none"
               stroke={color.tile30}
               stroke-width={selected() ? 2 : 1}
@@ -240,7 +265,7 @@ export function TileComponent(props: Props) {
 
             {/* Clickable overlay with hover effect */}
             <path
-              d={strokePath}
+              d={dPath()}
               fill={fillColor()}
               fill-opacity={fillOpacity()}
               stroke="none"
@@ -262,17 +287,24 @@ export function TileComponent(props: Props) {
   )
 }
 
-export const strokePath = `
-  M ${-SIDE_SIZES.xSide * 2 + CORNER_RADIUS} ${SIDE_SIZES.ySide * 2}
-  h ${TILE_WIDTH - 2 * CORNER_RADIUS}
-  a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
-  v ${TILE_HEIGHT - 3 * CORNER_RADIUS}
-  t 0 ${CORNER_RADIUS}
-  t ${SIDE_SIZES.xSide} ${SIDE_SIZES.ySide + CORNER_RADIUS}
-  h ${-TILE_WIDTH + CORNER_RADIUS}
-  a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
-  v ${-TILE_HEIGHT + 3 * CORNER_RADIUS}
-  t 0 ${-CORNER_RADIUS}
-  t ${-SIDE_SIZES.xSide} ${-SIDE_SIZES.ySide - CORNER_RADIUS}
-  Z
-`
+export function strokePath({
+  width,
+  height,
+}: { width: number; height: number }) {
+  const sideSize = Math.floor(height / 10)
+
+  return `
+    M ${CORNER_RADIUS} 0
+    h ${width - 2 * CORNER_RADIUS}
+    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
+    v ${height - 3 * CORNER_RADIUS}
+    t 0 ${CORNER_RADIUS}
+    t ${-sideSize} ${sideSize + CORNER_RADIUS}
+    h ${-width + CORNER_RADIUS}
+    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
+    v ${-height + 3 * CORNER_RADIUS}
+    t 0 ${-CORNER_RADIUS}
+    t ${sideSize} ${-sideSize - CORNER_RADIUS}
+    Z
+  `
+}

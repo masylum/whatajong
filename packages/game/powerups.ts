@@ -1,6 +1,6 @@
 import {
   getSuit,
-  getNumber,
+  getRank,
   type Dragons,
   type Seasons,
   type Flowers,
@@ -10,7 +10,6 @@ import {
   type Card,
   isJoker,
 } from "./deck"
-import { getPoints } from "./game"
 import { type Database, initDatabase } from "./in-memoriam"
 import type { Tile } from "./tile"
 
@@ -38,13 +37,13 @@ export function getJokerPowerup(powerupsDb: PowerupDb, playerId: string) {
 }
 
 function matchesSuit(powerup: Powerup, card: Card) {
-  const dragon = getNumber(powerup.card) as keyof typeof DRAGON_SUIT
+  const dragon = getRank(powerup.card) as keyof typeof DRAGON_SUIT
   const targetSuit = DRAGON_SUIT[dragon]
 
   return targetSuit === getSuit(card) || isFlower(card) || isSeason(card)
 }
 
-export function getComboPowerup(
+export function getDragonMultiplier(
   powerupsDb: PowerupDb,
   playerId: string,
   tile: Tile,
@@ -52,13 +51,13 @@ export function getComboPowerup(
   const dragonPowerup = powerupsDb
     .filterBy({ playerId })
     .find((p) => isDragon(p.card))
-  if (!dragonPowerup) return null
+  if (!dragonPowerup) return 0
 
   if (matchesSuit(dragonPowerup, tile.card)) {
-    return dragonPowerup
+    return dragonPowerup.combo
   }
 
-  return null
+  return 0
 }
 
 export function getPowerups(
@@ -119,37 +118,4 @@ export function getPowerups(
   } else if (jokerPowerup) {
     removeAllPowerups()
   }
-}
-
-export function getComboMultiplier(combo: number) {
-  switch (combo) {
-    case 0:
-      return 1
-    case 1:
-      return 2
-    case 2:
-      return 4
-    case 3:
-      return 8
-    case 4:
-      return 12
-    case 5:
-      return 16
-    case 6:
-      return 24
-    default:
-      return 48
-  }
-}
-
-export function getPointsWithCombo(
-  powerupsDb: PowerupDb,
-  playerId: string,
-  tile: Tile,
-) {
-  const points = getPoints(tile.card)
-  const powerup = getComboPowerup(powerupsDb, playerId, tile)
-  if (!powerup) return points
-
-  return Math.min(points * getComboMultiplier(powerup.combo), 48)
 }

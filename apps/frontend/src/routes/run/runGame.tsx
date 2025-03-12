@@ -1,4 +1,4 @@
-import { createMemo, Show } from "solid-js"
+import { createMemo, Show, type ParentProps } from "solid-js"
 import {
   GameStateProvider,
   createGameState,
@@ -10,15 +10,37 @@ import {
 import { Board } from "@/components/game/board"
 import { GameOverRun } from "./gameOverRun"
 import { useRound, useRunState } from "@/state/runState"
-import { selectTile } from "@repo/game/game"
+import {
+  getCardPoints,
+  getMaterialPoints,
+  getRawPoints,
+  getRawMultiplier,
+  selectTile,
+  getMaterialMultiplier,
+} from "@repo/game/game"
 import { Frame } from "@/components/game/frame"
-import { container, menuContainer } from "../solo/soloGame.css"
+import { BasicTile } from "@/components/game/basicTile"
+import { HoverCard } from "@kobalte/core/hover-card"
+import {
+  containerClass,
+  menuContainerClass,
+  pointsContainerClass,
+  pointsClass,
+  pointsListClass,
+  pointsListItemClass,
+  pointsListItemPointsClass,
+  pointsListItemTitleClass,
+  xClass,
+  pointsContentClass,
+} from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
 import { Bell } from "@/components/icon"
 import { Button } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
+import { suitName } from "@repo/game/tile"
+import { getDragonMultiplier } from "@repo/game/powerups"
 
 export default function RunGame() {
   const run = useRunState()
@@ -61,11 +83,51 @@ export default function RunGame() {
 function Top() {
   const gameState = useGameState()
   const player = createMemo(() => gameState.players.get(userId())!)
+  const tile = createMemo(() => {
+    const sel = gameState.selections.findBy({ playerId: userId() })
+    if (!sel) return null
+    return gameState.tiles.get(sel.tileId)
+  })
 
   return (
-    <div class={container}>
-      TODO: info about the round
+    <div class={containerClass}>
       <Powerups player={player()} />
+      <Show when={tile()}>
+        {(tile) => (
+          <div class={pointsContainerClass}>
+            <BasicTile card={tile().card} material={tile().material} />
+            <Counter kind="points" count={getRawPoints(tile())}>
+              <CounterItem
+                name={tile().material}
+                points={getMaterialPoints(tile().material)}
+              />
+              <CounterItem
+                name={suitName(tile().card)}
+                points={getCardPoints(tile().card)}
+              />
+            </Counter>
+            <div class={xClass}>x</div>
+            <Counter
+              kind="multiplier"
+              count={getRawMultiplier(gameState.powerups, userId(), tile())}
+            >
+              <CounterItem name="base" points={1} />
+              <Show when={getMaterialMultiplier(tile().material)}>
+                {(multiplier) => (
+                  <CounterItem name={tile().material} points={multiplier()} />
+                )}
+              </Show>
+              <Show
+                when={getDragonMultiplier(gameState.powerups, userId(), tile())}
+              >
+                {(multiplier) => (
+                  <CounterItem name="dragon run" points={multiplier()} />
+                )}
+              </Show>
+            </Counter>
+          </div>
+        )}
+      </Show>
     </div>
   )
 }
@@ -75,9 +137,9 @@ function Bottom() {
   const player = createMemo(() => gameState.players.get(userId())!)
 
   return (
-    <div class={container}>
+    <div class={containerClass}>
       <Points player={player()} />
-      <nav class={menuContainer}>
+      <nav class={menuContainerClass}>
         <Button
           type="button"
           hue="circle"
@@ -91,5 +153,31 @@ function Bottom() {
       </nav>
       <Moves />
     </div>
+  )
+}
+
+function Counter(
+  props: { count: number; kind: "points" | "multiplier" } & ParentProps,
+) {
+  return (
+    <HoverCard gutter={8} openDelay={100} closeDelay={100}>
+      <HoverCard.Trigger class={pointsClass({ kind: props.kind })}>
+        {props.count}
+      </HoverCard.Trigger>
+      <HoverCard.Portal>
+        <HoverCard.Content class={pointsContentClass({ kind: props.kind })}>
+          <ul class={pointsListClass}>{props.children}</ul>
+        </HoverCard.Content>
+      </HoverCard.Portal>
+    </HoverCard>
+  )
+}
+
+function CounterItem(props: { name: string; points: number }) {
+  return (
+    <li class={pointsListItemClass}>
+      <h3 class={pointsListItemTitleClass}>{props.name}</h3>
+      <p class={pointsListItemPointsClass}>+{props.points}</p>
+    </li>
   )
 }
