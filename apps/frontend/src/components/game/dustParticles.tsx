@@ -22,14 +22,13 @@ import {
   animationRepeat,
   windGustClass,
 } from "./dustParticles.css"
-import { useGameState } from "@/state/gameState"
-import { getRank, isWind, type WindDirection } from "@repo/game/deck"
-import type { Tile } from "@repo/game/tile"
+import { getRank, isWind, type WindDirection, type Tile } from "@/lib/game"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { difference } from "@repo/game/lib/setMethods"
+import { difference } from "@/lib/setMethods"
+import { useTileState } from "@/state/tileState"
 
 export function DustParticles() {
-  const gameState = useGameState()
+  const tiles = useTileState()
 
   const [windDirection, setWindDirection] = createSignal<WindDirection | null>(
     null,
@@ -54,7 +53,7 @@ export function DustParticles() {
   })
 
   const windTiles = createMemo(() =>
-    gameState.tiles.all.filter((tile) => tile.deletedBy && isWind(tile.card)),
+    tiles.filterBy({ deleted: true }).filter((tile) => isWind(tile.card)),
   )
   const hasWind = () => !!windDirection()
 

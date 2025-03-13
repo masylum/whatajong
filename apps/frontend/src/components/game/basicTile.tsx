@@ -2,11 +2,10 @@ import { TILE_RATIO, TILE_WIDTH } from "@/state/constants"
 import { color, getHueColor, type AccentHue } from "@/styles/colors"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import type { Card, Suit } from "@repo/game/deck"
+import type { Card, Suit, Material } from "@/lib/game"
 import { createMemo, Show, splitProps, type JSX } from "solid-js"
 import { TileImage } from "./tileImage"
 import { strokePath } from "./tileComponent"
-import type { Material } from "@repo/game/tile"
 import { tileClass } from "./basicTile.css"
 
 type Props = {

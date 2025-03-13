@@ -1,7 +1,7 @@
 import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
-import type { Material } from "@repo/game/tile"
+import { isTransparent, type Material } from "@/lib/game"
 
 type Props = {
   material?: Material
@@ -15,7 +15,6 @@ export function TileBody(iProps: Props) {
     iProps,
   )
   const fill = createMemo(() => MATERIALS[props.material].body)
-  const isGlass = createMemo(() => props.material === "glass")
 
   return (
     <>
@@ -30,7 +29,7 @@ export function TileBody(iProps: Props) {
           v ${-props.height + 2 * CORNER_RADIUS}
           a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} -${CORNER_RADIUS}
           Z`}
-        fill-opacity={isGlass() ? 0.5 : 1}
+        fill-opacity={isTransparent(props.material) ? 0.5 : 1}
         fill={`url(#${fill()})`}
       />
     </>

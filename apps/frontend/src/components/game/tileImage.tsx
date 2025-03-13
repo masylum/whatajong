@@ -1,6 +1,6 @@
-import type { Card, Suit } from "@repo/game/deck"
 import { TILE_WIDTH, TILE_HEIGHT, TILE_RATIO } from "@/state/constants"
 import { mergeProps } from "solid-js"
+import type { Card, Suit } from "@/lib/game"
 
 type Props = {
   width?: number

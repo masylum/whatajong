@@ -1,30 +1,27 @@
 import { createMemo, createSelector, createSignal, For } from "solid-js"
 import { TileComponent } from "./tileComponent"
-import { useGameState, userId } from "@/state/gameState"
 import { getCanvasHeight, getCanvasWidth } from "@/state/constants"
-import { getFinder } from "@repo/game/tile"
-import type { Selection } from "@repo/game/selection"
-import { mapName, maps } from "@repo/game/map"
-import { mapGetLevels } from "@repo/game/map"
+import { getFinder, mapGetLevels, mapName, maps } from "@/lib/game"
 import { createVoicesEffect } from "./createVoicesEffect"
+import { useTileState } from "@/state/tileState"
 
 type BoardProps = {
-  onSelectTile: (selection: Selection) => void
+  onSelectTile: (tileId: string) => void
 }
 export function Board(props: BoardProps) {
-  const gameState = useGameState()
   const [hover, setHover] = createSignal<string | null>(null)
   const isHovered = createSelector(hover)
+  const tiles = useTileState()
 
   createVoicesEffect()
 
-  const map = createMemo(() => maps[mapName(gameState.tiles.all.length)])
+  const map = createMemo(() => maps[mapName(tiles.all.length)])
   const mapLevels = createMemo(() => mapGetLevels(map()))
 
   const disclosedTile = createMemo(() => {
     const id = hover()
     if (!id) return
-    const find = getFinder(gameState.tiles, gameState.tiles.get(id)!)
+    const find = getFinder(tiles, tiles.get(id)!)
 
     for (let z = mapLevels() - 1; z >= 1; z--) {
       const leftTile =
@@ -45,24 +42,12 @@ export function Board(props: BoardProps) {
   const hiddenImageId = createMemo(() => {
     const id = disclosedTile()
     if (!id) return
-    const tile = gameState.tiles.get(id)!
+    const tile = tiles.get(id)!
     if (tile.material === "glass") return
 
-    return getFinder(gameState.tiles, tile)(0, 0, -1)?.id
+    return getFinder(tiles, tile)(0, 0, -1)?.id
   })
   const isHiddenImage = createSelector(hiddenImageId)
-
-  function onSelect(tile: any) {
-    const id = `${tile.id}-${userId()}`
-
-    const selection = {
-      id,
-      tileId: tile.id,
-      playerId: userId(),
-    }
-
-    props.onSelectTile(selection)
-  }
 
   return (
     <div
@@ -73,14 +58,14 @@ export function Board(props: BoardProps) {
         margin: "0 auto",
       }}
     >
-      <For each={gameState.tiles.all}>
+      <For each={tiles.all}>
         {(tile) => (
           <TileComponent
             tile={tile}
             hovered={isHovered(tile.id)}
             hideImage={isHiddenImage(tile.id)}
             enhanceVisibility={isDisclosed(tile.id)}
-            onSelect={onSelect}
+            onSelect={() => props.onSelectTile(tile.id)}
             onMouseEnter={() => setHover(tile.id)}
             onMouseLeave={() => setHover(null)}
           />

@@ -1,4 +1,4 @@
-import { mapGetHeight, mapGetWidth, type MapType } from "@repo/game/map"
+import { mapGetHeight, mapGetWidth, type MapType } from "@/lib/game"
 
 export const TILE_HEIGHT = 65
 export const TILE_WIDTH = 45

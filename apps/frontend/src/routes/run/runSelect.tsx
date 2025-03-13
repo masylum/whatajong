@@ -1,5 +1,5 @@
 import { generateRound, type Round } from "@/state/runState"
-import { createMemo, createSelector, For, Show } from "solid-js"
+import { batch, createMemo, createSelector, For, Show } from "solid-js"
 import { Button } from "@/components/button"
 import { useRunState } from "@/state/runState"
 import {
@@ -17,23 +17,21 @@ import {
 
 export default function RunSelect() {
   const run = useRunState()
-  const isCurrentRound = createSelector(() => run.get().round)
+  const isCurrentRound = createSelector(() => run.round)
   const nextRounds = createMemo(() => {
-    const currentRun = run.get()
     const rounds = []
 
     for (let i = 0; i < 3; i++) {
-      rounds.push(generateRound(currentRun.round + i, currentRun.runId))
+      rounds.push(generateRound(run.round + i, run.runId))
     }
 
     return rounds
   })
 
   function selectRound(round: Round) {
-    // TODO: skip
-    run.set({
-      round: round.id,
-      stage: "game",
+    batch(() => {
+      run.round = round.id
+      run.stage = "game"
     })
   }
 

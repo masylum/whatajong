@@ -5,10 +5,9 @@ import {
   produce,
   reconcile,
   type SetStoreFunction,
-  type StoreSetter,
 } from "solid-js/store"
 import { batch } from "solid-js"
-import { intersection, difference } from "./lib/setMethods"
+import { intersection, difference } from "./setMethods"
 
 type Id = string
 type Indexes<Type, Attr extends keyof Type> = Map<
@@ -18,23 +17,6 @@ type Indexes<Type, Attr extends keyof Type> = Map<
 type ById<Type> = Record<Id, Type>
 type DatabaseConfig<Type, Attr extends keyof Type> = {
   indexes: Readonly<Attr[]>
-}
-
-export class Value<Type extends Record<string, unknown>> {
-  private value: Type
-  private setValue: SetStoreFunction<Type>
-
-  constructor(value: Type) {
-    ;[this.value, this.setValue] = createStore(value)
-  }
-
-  set(value: StoreSetter<Type>) {
-    this.setValue(value)
-  }
-
-  get() {
-    return this.value
-  }
 }
 
 export class Database<Type extends { id: Id }, Attr extends keyof Type> {

@@ -5,7 +5,6 @@ import {
   Show,
   mergeProps,
 } from "solid-js"
-import { userId, playerColors, useGameState } from "@/state/gameState"
 import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import {
   shakeAnimation,
@@ -18,19 +17,31 @@ import {
   clickableClass,
   tileRecipe,
 } from "./tileComponent.css"
-import { mapGetHeight, mapGetWidth, mapName } from "@repo/game/map"
 import { TileShades } from "./tileShades"
-import { getMaterial, isFree, type Tile } from "@repo/game/tile"
-import { VISIBILITY_MASK_ID } from "./defs"
+import {
+  mapGetHeight,
+  mapGetWidth,
+  mapName,
+  maps,
+  getCoins,
+  getMaterial,
+  isFree,
+  isDragon,
+  isFlower,
+  isJoker,
+  isSeason,
+  isWind,
+  type Tile,
+} from "@/lib/game"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import { color, alpha } from "@/styles/colors"
-import { isDragon, isFlower, isJoker, isSeason, isWind } from "@repo/game/deck"
 import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
-import { maps } from "@repo/game/map"
-import { getCoins } from "@repo/game/game"
+import { useTileState } from "@/state/tileState"
+import { usePowerupState } from "@/state/powerupState"
+import { VISIBILITY_GRADIENT_ID } from "./defs"
 
 type Props = {
   tile: Tile
@@ -46,9 +57,11 @@ type Props = {
 type State = "idle" | "selected" | "deleted"
 
 export function TileComponent(iProps: Props) {
-  const gameState = useGameState()
+  const powerups = usePowerupState()
+  const tiles = useTileState()
+
   const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
-  const sideSize = createMemo(() => Math.floor(props.height / 10))
+  const sideSize = createMemo(() => getSideSize(props.height))
 
   const coords = createMemo(
     () => {
@@ -69,15 +82,11 @@ export function TileComponent(iProps: Props) {
     strokePath({ width: props.width, height: props.height }),
   )
 
-  const material = createMemo(() =>
-    getMaterial(props.tile, gameState.powerups, userId()),
-  )
+  const material = createMemo(() => getMaterial(props.tile, powerups))
 
-  const canBeSelected = createMemo(() =>
-    isFree(gameState.tiles, props.tile, gameState.powerups, userId()),
-  )
+  const canBeSelected = createMemo(() => isFree(tiles, props.tile, powerups))
 
-  const map = createMemo(() => maps[mapName(gameState.tiles.all.length)])
+  const map = createMemo(() => maps[mapName(tiles.all.length)])
   const mapWidth = createMemo(() => mapGetWidth(map()))
   const mapHeight = createMemo(() => mapGetHeight(map()))
 
@@ -88,15 +97,12 @@ export function TileComponent(iProps: Props) {
     return zLayer + xScore + yScore
   })
 
-  const [deleted, setDeleted] = createSignal(!!props.tile.deletedBy)
+  const [deleted, setDeleted] = createSignal(props.tile.deleted)
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
-  const powerups = createMemo(() =>
-    gameState.powerups.filterBy({ playerId: userId() }),
-  )
-  const flower = createMemo(() => powerups().find((p) => isFlower(p.card)))
-  const season = createMemo(() => powerups().find((p) => isSeason(p.card)))
+  const flower = createMemo(() => powerups.all.find((p) => isFlower(p.card)))
+  const season = createMemo(() => powerups.all.find((p) => isSeason(p.card)))
   const highlight = createMemo(() => {
     if (!canBeSelected()) return "null"
     if (flower()) return "flower"
@@ -105,31 +111,16 @@ export function TileComponent(iProps: Props) {
     return "null"
   })
 
-  const selected = createMemo(
-    () => {
-      const all = gameState.selections.filterBy({ tileId: props.tile.id })
-
-      return (
-        all.find((selection) => selection.playerId === userId()) ||
-        all.find((selection) => selection.playerId !== userId())
-      )
-    },
-    { equal: isDeepEqual },
-  )
-
+  const selected = createMemo(() => props.tile.selected)
   const state = createMemo<State>(() => {
     if (selected()) return "selected"
-    if (props.tile.deletedBy) return "deleted"
+    if (props.tile.deleted) return "deleted"
 
     return "idle"
   })
 
   const fillColor = createMemo(() => {
-    const sel = selected()
-    if (sel) {
-      const player = gameState.players.get(sel.playerId)!
-      return playerColors(player)[4] ?? "#963"
-    }
+    if (selected()) return "#963"
 
     return "#ffffff"
   })
@@ -166,7 +157,7 @@ export function TileComponent(iProps: Props) {
         setDeleted(true)
       }, DELETED_DURATION)
 
-      const volume = props.tile.deletedBy === userId() ? 1 : 0.5
+      const volume = props.tile.deleted ? 1 : 0.5
 
       if (isDragon(props.tile.card)) {
         play(SOUNDS.DRAGON, volume)
@@ -213,24 +204,21 @@ export function TileComponent(iProps: Props) {
     return undefined
   })
 
+  const visibilityMaskId = createMemo(() => `visibility-mask-${props.tile.id}`)
+
   return (
     <>
-      <Show when={numberAnimation() && props.tile.deletedBy}>
-        {(playerId) => (
-          <span
-            style={{
-              left: `${coords().x + props.width / 2}px`,
-              top: `${coords().y + props.height / 2}px`,
-              background: alpha(
-                playerColors(gameState.players.get(playerId())!)[1],
-                0.8,
-              ),
-            }}
-            class={floatingNumberAnimation}
-          >
-            +{props.tile.points}
-          </span>
-        )}
+      <Show when={numberAnimation()}>
+        <span
+          style={{
+            left: `${coords().x + props.width / 2}px`,
+            top: `${coords().y + props.height / 2}px`,
+            background: alpha(color.bamboo50, 0.8),
+          }}
+          class={floatingNumberAnimation}
+        >
+          +{props.tile.points}
+        </span>
       </Show>
       <Show when={!deleted()}>
         <svg
@@ -247,11 +235,20 @@ export function TileComponent(iProps: Props) {
           data-tile={JSON.stringify(props.tile)}
           class={tileRecipe({ highlight: highlight() })}
         >
+          <mask id={visibilityMaskId()}>
+            <rect
+              x={-sideSize()}
+              y={0}
+              width={props.width + sideSize()}
+              height={props.height + sideSize()}
+              fill={`url(#${VISIBILITY_GRADIENT_ID})`}
+            />
+          </mask>
           <g
             class={animation()}
             mask={
               props.enhanceVisibility
-                ? `url(#${VISIBILITY_MASK_ID})`
+                ? `url(#${visibilityMaskId()})`
                 : undefined
             }
           >
@@ -298,7 +295,7 @@ export function strokePath({
   width,
   height,
 }: { width: number; height: number }) {
-  const sideSize = Math.floor(height / 10)
+  const sideSize = getSideSize(height)
 
   return `
     M ${CORNER_RADIUS} 0
@@ -314,4 +311,8 @@ export function strokePath({
     t ${sideSize} ${-sideSize - CORNER_RADIUS}
     Z
   `
+}
+
+function getSideSize(height: number) {
+  return Math.floor(height / 10)
 }

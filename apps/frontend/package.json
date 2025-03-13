@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.13.9",
-    "@repo/game": "workspace:*",
     "@solid-primitives/clipboard": "^1.6.0",
     "@solid-primitives/map": "^0.6.0",
     "@solid-primitives/set": "^0.6.0",

@@ -23,7 +23,7 @@ import {
   flowers,
   seasons,
   winds,
-} from "@repo/game/deck"
+} from "@/lib/game"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
 import { ArrowLeft } from "@/components/icon"
@@ -210,13 +210,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "firstPlayer" })}>
-                  Dragon
-                </span>{" "}
+                <span class={highlightClass({ hue: "bamboo" })}>Dragon</span>{" "}
                 tiles are worth{" "}
-                <span class={highlightClass({ hue: "firstPlayer" })}>
-                  4 points
-                </span>{" "}
+                <span class={highlightClass({ hue: "bamboo" })}>4 points</span>{" "}
                 each.
               </>
             }
@@ -535,44 +531,6 @@ export function Instructions() {
           If you are playing against another player, removing a pair of wind
           tiles will end your opponent's current dragon run (if they have one).
         </p>
-      </section>
-
-      <h1 class={headerClass}>Multiplayer</h1>
-      <p class={paragraphClass}>
-        When you play against another player, you both compete on the same
-        board. The game ends when you both complete the board or there are no
-        more tiles to remove.
-      </p>
-      <p class={paragraphClass}>
-        Once the game is finished, the player with the highest score wins.
-      </p>
-
-      <section class={sectionClass}>
-        <h2 class={sectionTitleClass}>Strategy Tips</h2>
-        <ul class={paragraphClass}>
-          <li>Clear outer tiles first to access inner tiles</li>
-          <li>
-            Look for opportunities to start dragon combos by matching dragons
-            early.
-          </li>
-          <li>
-            Save <span class={highlightClass({ hue: "flower" })}>Flowers</span>{" "}
-            and{" "}
-            <span class={highlightClass({ hue: "season" })}>Professions</span>{" "}
-            for when you need to access difficult-to-reach tiles.
-          </li>
-          <li>
-            Use <span class={highlightClass({ hue: "circle" })}>Winds</span>{" "}
-            strategically to disrupt your opponent's combo in multiplayer mode.
-          </li>
-          <li>
-            Plan when is the best time to use your{" "}
-            <span class={highlightClass({ hue: "bamboo" })}>Dragons</span> to
-            maximize the points. Use them when they are plenty of free tiles of
-            the matching color.
-          </li>
-          <li>Always think a few moves ahead - plan your sequence of moves.</li>
-        </ul>
       </section>
 
       <LinkButton href="/" hue="bamboo">

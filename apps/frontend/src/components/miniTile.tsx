@@ -1,6 +1,5 @@
 import { miniTileClass } from "./miniTile.css"
-import type { Card, Suit } from "@repo/game/deck"
-import type { Material } from "@repo/game/tile"
+import type { Card, Suit, Material } from "@/lib/game"
 import { Show, mergeProps } from "solid-js"
 
 export function MiniTile(props: {

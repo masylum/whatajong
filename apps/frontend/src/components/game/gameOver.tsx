@@ -1,28 +1,21 @@
-import { getStandardPairs, type Card } from "@repo/game/deck"
+import { getStandardPairs, type Card } from "@/lib/game"
 import {
   bouncingCardClass,
   pointsClass,
-  pointsContainerClass,
   timeClass,
   titleClass,
   startX,
   endX,
   rotation,
   duration,
-  playerTitleClass,
-  playerNameClass,
-  wreathClass,
   gameOverClass,
   screenClass,
 } from "./gameOver.css"
-import { shuffle } from "@repo/game/lib/rand"
+import { shuffle } from "@/lib/rand"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { calculateSeconds, useGameState, userId } from "@/state/gameState"
-import { Avatar } from "@/components/avatar"
-import type { Player } from "@repo/game/player"
+import { calculateSeconds, useGameState } from "@/state/gameState"
 import { BasicTile } from "./basicTile"
-import { huesAndShades } from "@/styles/colors"
 import Rand from "rand-seed"
 import { formatDuration, intervalToDuration } from "date-fns"
 
@@ -41,40 +34,6 @@ function GameOver(props: { win: boolean } & ParentProps) {
       <div class={screenClass({ win: props.win })}>
         <Title win={props.win} />
         {props.children}
-      </div>
-    </div>
-  )
-}
-
-function PlayerPoints(props: {
-  player: Player
-  winningPlayer: Player
-}) {
-  const win = createMemo(() => props.winningPlayer === props.player)
-
-  return (
-    <div
-      class={pointsContainerClass({
-        multiplayer: true,
-        win: win(),
-      })}
-    >
-      <Show when={win()}>
-        <img
-          class={wreathClass}
-          src="/wreath.svg"
-          alt="winner"
-          width="80"
-          height="80"
-        />
-      </Show>
-      <PlayerTitle
-        player={props.player}
-        win={props.winningPlayer.id === userId()}
-      />
-      <div>
-        <Points points={props.player.points} />
-        <Time />
       </div>
     </div>
   )
@@ -147,21 +106,8 @@ function Points(props: { points: number }) {
   return <h3 class={pointsClass}>points: {props.points}</h3>
 }
 
-function PlayerTitle(props: { player: Player; win: boolean }) {
-  const colors = createMemo(() =>
-    Object.values(props.win ? huesAndShades.bamboo : huesAndShades.character),
-  )
-  return (
-    <div class={playerTitleClass}>
-      <Avatar name={props.player.id} colors={colors()} />
-      <h2 class={playerNameClass}>{props.player.id}</h2>
-    </div>
-  )
-}
-
 GameOver.Time = Time
 GameOver.Points = Points
-GameOver.PlayerPoints = PlayerPoints
 GameOver.BouncingCards = BouncingCards
 
 export { GameOver }

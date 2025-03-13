@@ -1,19 +1,7 @@
 import type { RunState } from "@/state/runState"
-import type { Value } from "@repo/game/in-memoriam"
-import { shuffle } from "@repo/game/lib/rand"
-import type { Material } from "@repo/game/tile"
+import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
-import { entries } from "remeda"
-import {
-  batch,
-  createContext,
-  createEffect,
-  createMemo,
-  on,
-  useContext,
-  type ParentProps,
-} from "solid-js"
-import { createMutable, modifyMutable, reconcile } from "solid-js/store"
+import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
   bamboo,
   character,
@@ -26,11 +14,17 @@ import {
   type Deck,
   type DeckSizeLevel,
   type DeckTile,
-} from "@repo/game/deck"
+  type Material,
+} from "@/lib/game"
+import { createPersistantMutable } from "./persistantMutable"
+import { nanoid } from "nanoid"
+import { countBy, entries } from "remeda"
 const SHOP_STATE_NAMESPACE = "shop-state"
 export const ITEM_COST = 3
 export const SELL_TILE_AMOUNT = 1
 export const SELL_MATERIAL_AMOUNT = 1
+const MINERAL_PATH = ["glass", "amber", "jade"] as const
+const METAL_PATH = ["bronze", "silver", "gold"] as const
 
 type BaseItem = {
   id: string
@@ -81,66 +75,40 @@ export function useShopState() {
   return context
 }
 
-function key(runId: string) {
-  return `${SHOP_STATE_NAMESPACE}-${runId}`
+type CreateShopStateParams = { id: () => string }
+export function createShopState(params: CreateShopStateParams) {
+  return createPersistantMutable<ShopState>({
+    namespace: SHOP_STATE_NAMESPACE,
+    id: params.id,
+    init: {
+      reroll: 0,
+      currentItem: null,
+      currentDeckTile: null,
+    },
+  })
 }
 
-export function createShopState(run: RunState) {
-  const shop = createMutable<ShopState>({
-    reroll: 0,
-    currentItem: null,
-    currentDeckTile: null,
-  })
-  const runId = createMemo(() => run.runId)
-
-  createEffect(
-    on(runId, (id) => {
-      const persistedState = localStorage.getItem(key(id))
-      if (persistedState) {
-        modifyMutable(shop, reconcile(JSON.parse(persistedState)))
-      }
-    }),
-  )
-
-  createEffect(() => {
-    localStorage.setItem(key(runId()), JSON.stringify(shop))
-  })
-
-  return shop
+function generateTileItems(num: number, cards: Card[], level: number) {
+  return Array.from({ length: num }, () =>
+    cards.flatMap(
+      (card) => ({ id: nanoid(), card, type: "tile", level }) as const,
+    ),
+  ).flat()
 }
 
-/**
- * +-----------+
- * | Pool size |
- * +-----------+----------+----------+----------+----------+----------+
- * | ITEM TYPE | LEVEL 1  | LEVEL 2  | LEVEL 3  | LEVEL 4  | LEVEL 5  |
- * +-----------+----------+----------+----------+----------+----------+
- * | TILE      | 27 (82%) | 34 (68%) | 42 (57%) | 42 (53%) | 42 (50%) |
- * |-----------+----------+----------+----------+----------+----------+
- * | MATERIAL  |  6 (18%) | 16 (32%) | 30 (43%) | 38 (47%) | 42 (50%) |
- * +-----------+----------+----------+----------+----------+----------+
- */
-// TODO: perhaps unify honors?
-export const TILE_ITEMS: TileItem[] = [
-  ...bamboo.map(
-    (card) => ({ id: card, card, type: "tile", level: 1 }) as const,
-  ),
-  ...character.map(
-    (card) => ({ id: card, card, type: "tile", level: 1 }) as const,
-  ),
-  ...circle.map(
-    (card) => ({ id: card, card, type: "tile", level: 1 }) as const,
-  ),
-  ...winds.map((card) => ({ id: card, card, type: "tile", level: 2 }) as const),
-  ...dragons.map(
-    (card) => ({ id: card, card, type: "tile", level: 2 }) as const,
-  ),
-  ...flowers.map(
-    (card) => ({ id: card, card, type: "tile", level: 3 }) as const,
-  ),
-  ...seasons.map(
-    (card) => ({ id: card, card, type: "tile", level: 3 }) as const,
-  ),
+const TILE_ITEMS: TileItem[] = [
+  ...generateTileItems(4, [...bamboo, ...character, ...circle], 1),
+  ...generateTileItems(1, [...bamboo, ...character, ...circle], 2),
+  ...generateTileItems(5, [...winds, ...dragons], 2),
+  ...generateTileItems(1, [...bamboo, ...character, ...circle], 3),
+  ...generateTileItems(1, [...winds, ...dragons], 3),
+  ...generateTileItems(6, [...flowers, ...seasons], 3),
+  ...generateTileItems(1, [...bamboo, ...character, ...circle], 4),
+  ...generateTileItems(1, [...winds, ...dragons], 4),
+  ...generateTileItems(1, [...flowers, ...seasons], 4),
+  ...generateTileItems(1, [...bamboo, ...character, ...circle], 5),
+  ...generateTileItems(1, [...winds, ...dragons], 5),
+  ...generateTileItems(1, [...flowers, ...seasons], 5),
   // TODO: tier 4 and 5 tiles
 ]
 
@@ -154,66 +122,7 @@ const SUITS = {
   s: 2,
 } as const
 
-export const MATERIAL_ITEMS: MaterialItem[] = entries(SUITS).flatMap(
-  ([suit, level]) => [
-    {
-      id: `wood-${suit}`,
-      material: "wood",
-      type: "material",
-      level: 1 + level,
-      suit,
-    },
-    {
-      id: `glass-${suit}`,
-      material: "glass",
-      type: "material",
-      level: 2 + level,
-      suit,
-    },
-    {
-      id: `ivory-${suit}`,
-      material: "ivory",
-      type: "material",
-      level: 3 + level,
-      suit,
-    },
-    {
-      id: `bronze-${suit}`,
-      material: "bronze",
-      type: "material",
-      level: 1 + level,
-      suit,
-    },
-    {
-      id: `gold-${suit}`,
-      material: "gold",
-      type: "material",
-      level: 2 + level,
-      suit,
-    },
-    {
-      id: `jade-${suit}`,
-      material: "jade",
-      type: "material",
-      level: 3 + level,
-      suit,
-    },
-  ],
-)
-
-// We include several copies of the same items so people can
-// buy the same item multiple times, but statistically it's
-// the same as if we only included one copy.
-const ITEMS = [
-  ...TILE_ITEMS,
-  ...TILE_ITEMS,
-  ...TILE_ITEMS,
-  ...TILE_ITEMS,
-  ...MATERIAL_ITEMS,
-  ...MATERIAL_ITEMS,
-  ...MATERIAL_ITEMS,
-  ...MATERIAL_ITEMS,
-]
+const ITEMS = [...TILE_ITEMS]
 
 export function generateItems(run: RunState, reroll: number) {
   const runId = run.runId
@@ -240,42 +149,106 @@ export function generateItems(run: RunState, reroll: number) {
 }
 
 export function buyItem(
-  run: Value<RunState>,
+  run: RunState,
   shop: ShopState,
   item: Item,
   fn: () => void,
 ) {
   const cost = ITEM_COST
-  const money = run.get().money
+  const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 
   batch(() => {
-    run.set({
-      money: money - cost,
-      items: run.get().items.concat([item]),
-    })
+    run.money = money - cost
+    run.items.push(item)
     shop.currentItem = null
     fn()
   })
 }
 
 export function sellDeckTile(
-  run: Value<RunState>,
+  run: RunState,
   deck: Deck,
   shop: ShopState,
   deckTile: DeckTile,
 ) {
   let cost = SELL_TILE_AMOUNT
   const material = deckTile.material
-  const money = run.get().money
+  const money = run.money
 
   if (material === "bone") {
     cost += SELL_MATERIAL_AMOUNT
   }
 
   batch(() => {
-    run.set({ money: money + cost })
+    run.money = money + cost
     shop.currentDeckTile = null
     deck.del(deckTile.id)
   })
+}
+
+function mergeCounts(
+  count: Partial<Record<Material, number | undefined>>,
+  path: "mineral" | "metal",
+) {
+  const order = [
+    "bone",
+    ...(path === "mineral" ? MINERAL_PATH : METAL_PATH),
+  ] as const
+  const newCount = { ...count }
+
+  for (const [i, material] of order.entries()) {
+    const next = order[i + 1]
+    if (!next) continue
+    if (!newCount[material]) continue
+
+    while (newCount[material] === 2) {
+      delete newCount[material]
+      newCount[next] = (newCount[next] || 0) + 1
+    }
+  }
+
+  return newCount
+}
+
+export function getNextMaterials(tiles: DeckTile[], path: "mineral" | "metal") {
+  const count = countBy(tiles, (tile) => tile.material)
+  count.bone = (count.bone || 0) + 1
+  const newCount = mergeCounts(count, path)
+
+  const result: Material[] = []
+  for (const [material, count] of entries(newCount)) {
+    for (let i = 0; i < count; i++) {
+      result.push(material)
+    }
+  }
+  return result
+}
+
+export function getNextMaterial(tiles: DeckTile[], path: "mineral" | "metal") {
+  const materials = getNextMaterials(tiles, path)
+  return materials[materials.length - 1]
+}
+
+export type MaterialTransformation = {
+  updates: Record<string, Material>
+  removes: string[]
+}
+export function getTransformation(
+  tiles: DeckTile[],
+  path: "mineral" | "metal",
+): MaterialTransformation {
+  const nextMaterials = getNextMaterials(tiles, path)
+  const updates: Record<string, Material> = {}
+  const removes: string[] = []
+
+  for (const [index, tile] of tiles.entries()) {
+    if (nextMaterials[index]) {
+      updates[tile.id] = nextMaterials[index]
+    } else {
+      removes.push(tile.id)
+    }
+  }
+
+  return { updates, removes }
 }

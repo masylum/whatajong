@@ -7,11 +7,10 @@ import {
 } from "solid-js"
 import { gameRecipe, COMBO_ANIMATION_DURATION } from "./frame.css"
 import { DustParticles } from "./dustParticles"
-import { isDragon } from "@repo/game/deck"
-import { useGameState } from "@/state/gameState"
+import { isDragon } from "@/lib/game"
 import { play, SOUNDS } from "../audio"
-import { isDeepEqual } from "remeda"
 import { Mountains } from "../mountains"
+import { usePowerupState } from "@/state/powerupState"
 
 type Props = {
   board: JSXElement
@@ -19,54 +18,26 @@ type Props = {
   top: JSXElement
 }
 export function Frame(props: Props) {
-  const gameState = useGameState()
+  const powerups = usePowerupState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
-  // TODO: move to powerups
-  const combo = createMemo(
-    () => {
-      const [left, right] = gameState.players.all
-        .sort((a, b) => a.order - b.order)
-        .map((player) => {
-          const powerup = gameState.powerups
-            .filterBy({ playerId: player.id })
-            .find((powerup) => isDragon(powerup.card))
-          if (!powerup) return
-
-          return powerup.combo
-        })
-
-      return { left: left, right: right }
-    },
-    { equals: isDeepEqual },
+  const getCombo = createMemo(
+    () => powerups.all.find((powerup) => isDragon(powerup.card))?.combo || 0,
   )
 
-  // TODO: move to powerups
-  createEffect((prevCombo: { left?: number; right?: number }) => {
-    const { left, right } = combo()
-    const { left: prevLeft, right: prevRight } = prevCombo
+  createEffect((prevCombo: number) => {
+    const combo = getCombo()
 
-    const values = []
-
-    if (left && prevLeft && left > prevLeft) {
-      values.push(left)
-    }
-
-    if (right && prevRight && right > prevRight) {
-      values.push(right)
-    }
-
-    if (values.length > 0) {
-      const value = values.sort((a, b) => a - b)[0]!
-      setComboAnimation(value)
+    if (combo > prevCombo) {
+      setComboAnimation(combo)
       play(SOUNDS.COMBO)
       setTimeout(() => {
         setComboAnimation(0)
       }, COMBO_ANIMATION_DURATION)
     }
 
-    return { left, right }
-  }, combo())
+    return combo
+  }, getCombo())
 
   onMount(() => {
     play(SOUNDS.GONG)

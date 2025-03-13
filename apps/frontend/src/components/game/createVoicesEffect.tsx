@@ -1,7 +1,7 @@
 import { createSignal, createEffect, createMemo } from "solid-js"
-import { userId, useGameState } from "@/state/gameState"
-import type { Tile } from "@repo/game/tile"
+import type { Tile } from "@/lib/game"
 import { play, SOUNDS } from "../audio"
+import { useTileState } from "@/state/tileState"
 
 export const EXPRESSIONS = [
   SOUNDS.GREAT,
@@ -17,13 +17,11 @@ export const EXPRESSIONS = [
 const FAST_SELECTION_THRESHOLD = 3000
 
 export function createVoicesEffect() {
-  const gameState = useGameState()
+  const tiles = useTileState()
 
   const [lastTileTime, setLastTileTime] = createSignal<number>(0)
   const [speedStreak, setSpeedStreak] = createSignal<number>(0)
-  const userDeletions = createMemo(() =>
-    gameState.tiles.filterBy({ deletedBy: userId() }),
-  )
+  const userDeletions = createMemo(() => tiles.filterBy({ deleted: true }))
 
   createEffect((prevDeletions: Tile[]) => {
     const deletions = userDeletions()

@@ -1,11 +1,11 @@
-import { calculateSeconds, userId } from "@/state/gameState"
+import { calculateSeconds } from "@/state/gameState"
 import { useGameState } from "@/state/gameState"
-import { createMemo, Show } from "solid-js"
+import { batch, createMemo, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
 import { useRound, useRunState } from "@/state/runState"
-import { getCoins } from "@repo/game/game"
+import { getCoins } from "@/lib/game"
 import {
   pointsContainerClass,
   detailListClass,
@@ -13,21 +13,23 @@ import {
   detailTermClass,
 } from "./gameOverRun.css"
 import { nanoid } from "nanoid"
+import { useTileState } from "@/state/tileState"
 
 export function GameOverRun() {
-  const gameState = useGameState()
+  const game = useGameState()
   const run = useRunState()
-  const player = createMemo(() => gameState.players.byId[userId()]!)
+  const tiles = useTileState()
+
   const round = useRound()
-  const time = createMemo(() => calculateSeconds(gameState))
+  const time = createMemo(() => calculateSeconds(game))
   const penalty = createMemo(() => time() * round().timerPoints)
   const bonus = createMemo(() => {
-    const isEmpty = gameState.game.get().endCondition === "empty-board"
+    const isEmpty = game.endCondition === "empty-board"
     if (!isEmpty) return 0
 
     return round().emptyBoardBonus
   })
-  const points = createMemo(() => player().points)
+  const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty() + bonus())
   const win = createMemo(() => {
     const enoughPoints = totalPoints() >= round().pointObjective
@@ -38,8 +40,8 @@ export function GameOverRun() {
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
 
   const tileCoins = createMemo(() => {
-    return gameState.tiles.all
-      .filter((tile) => tile.deletedBy)
+    return tiles
+      .filterBy({ deleted: true })
       .map((tile) => getCoins(tile.material))
       .reduce((a, b) => a + b, 0)
   })
@@ -50,18 +52,18 @@ export function GameOverRun() {
     return Math.floor((overAchievement * 10) / 3)
   })
 
-  const passiveIncome = createMemo(() => run.get().shopLevel - 1)
+  const passiveIncome = createMemo(() => run.shopLevel - 1)
   const reward = createMemo(() => round().reward)
 
   function onShop() {
-    run.set({
-      stage: "shop",
-      money:
-        run.get().money +
+    batch(() => {
+      run.stage = "shop"
+      run.money =
+        run.money +
         reward() +
         tileCoins() +
         passiveIncome() +
-        overAchievementCoins(),
+        overAchievementCoins()
     })
   }
 

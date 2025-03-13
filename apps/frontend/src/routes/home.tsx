@@ -11,8 +11,8 @@ import {
   titleClass,
 } from "./home.css"
 import { BasicTile } from "@/components/game/basicTile"
-import { getStandardPairs } from "@repo/game/deck"
-import { shuffle } from "@repo/game/lib/rand"
+import { getStandardPairs } from "@/lib/game"
+import { shuffle } from "@/lib/rand"
 import { For, createMemo } from "solid-js"
 import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
 import { nanoid } from "nanoid"
@@ -45,17 +45,10 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href={`/duel/${nanoid()}`}
+          href={`/run/${nanoid()}`}
           class={buttonClass({ hue: "character" })}
         >
           <img src="/tiles/c.webp" alt="duel" width={24} height={24} />
-          multiplayer
-        </a>
-        <a
-          onMouseEnter={onHover}
-          href={`/run/${nanoid()}`}
-          class={buttonClass({ hue: "tile" })}
-        >
           adventure game
         </a>
         <a

@@ -1,11 +1,10 @@
-import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
-import { materials } from "@repo/game/tile"
+import { materials } from "@/lib/game"
 import { entries, fromEntries, map } from "remeda"
 import { For } from "solid-js"
 import { materialColors } from "@/styles/materialColors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
-export const VISIBILITY_MASK_ID = "visibility-mask"
+export const VISIBILITY_GRADIENT_ID = "visibility-gradient"
 
 export const MATERIALS = fromEntries(
   map(
@@ -20,8 +19,6 @@ export const MATERIALS = fromEntries(
       ] as const,
   ),
 )
-
-const VISIBILITY_GRADIENT_ID = "visibility-gradient"
 
 export function Defs() {
   return (
@@ -53,16 +50,6 @@ export function Defs() {
           <stop offset="30%" stop-color="white" stop-opacity="1" />
           <stop offset="70%" stop-color="white" stop-opacity="0.2" />
         </linearGradient>
-
-        <mask id={VISIBILITY_MASK_ID}>
-          <rect
-            x={0}
-            y={0}
-            width={TILE_WIDTH}
-            height={TILE_HEIGHT}
-            fill={`url(#${VISIBILITY_GRADIENT_ID})`}
-          />
-        </mask>
       </defs>
     </svg>
   )

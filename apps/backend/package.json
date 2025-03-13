@@ -5,7 +5,6 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
-    "@repo/game": "workspace:*",
     "hono": "^4.6.20",
     "rand-seed": "^2.1.7"
   },

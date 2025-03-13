@@ -1,6 +1,6 @@
 import { MATERIALS } from "./defs"
 import { createMemo, mergeProps } from "solid-js"
-import type { Material } from "@repo/game/tile"
+import { isTransparent, type Material } from "@/lib/game"
 
 type Props = {
   material?: Material
@@ -9,12 +9,11 @@ type Props = {
 export function TileSide(iProps: Props) {
   const props = mergeProps({ material: "bone" } as const, iProps)
   const sideGradientId = createMemo(() => MATERIALS[props.material].side)
-  const isGlass = createMemo(() => props.material === "glass")
 
   return (
     <path
       d={props.d}
-      fill-opacity={isGlass() ? 0.2 : 1}
+      fill-opacity={isTransparent(props.material) ? 0.5 : 1}
       fill={`url(#${sideGradientId()})`}
     />
   )

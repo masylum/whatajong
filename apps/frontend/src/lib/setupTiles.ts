@@ -1,8 +1,12 @@
-import type { DeckTile } from "./deck"
-import { shuffle } from "./lib/rand"
-import { mapGet, mapName, maps } from "./map"
-import type { Tile } from "./tile"
-import { initTileDb } from "./tile"
+import {
+  type DeckTile,
+  type Tile,
+  initTileDb,
+  mapGet,
+  mapName,
+  maps,
+} from "./game"
+import { shuffle } from "./rand"
 import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
 
@@ -22,7 +26,16 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
         const sameAsAbove = above ? above === id : false
 
         if (id !== null && !sameAsPrev && !sameAsAbove) {
-          tileDb.set(id, { card: "d1", material: "bone", id, x, y, z })
+          tileDb.set(id, {
+            card: "d1",
+            material: "bone",
+            id,
+            x,
+            y,
+            z,
+            deleted: false,
+            selected: false,
+          })
         }
       }
     }
@@ -80,6 +93,8 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       x: tile1.x,
       y: tile1.y,
       z: tile1.z,
+      deleted: false,
+      selected: false,
     })
 
     tileDb.set(id2, {
@@ -89,6 +104,8 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       x: tile2.x,
       y: tile2.y,
       z: tile2.z,
+      deleted: false,
+      selected: false,
     })
   }
 

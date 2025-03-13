@@ -15,14 +15,14 @@ export const miniTileClass = recipe({
   },
   variants: {
     material: {
-      ivory: {
-        background: `linear-gradient(45deg, ${materialColors.ivory[60]} 60%, ${materialColors.ivory[50]})`,
-      },
-      wood: {
-        background: `linear-gradient(45deg, ${materialColors.wood[60]} 60%, ${materialColors.wood[50]})`,
-      },
       glass: {
         background: `linear-gradient(45deg, ${materialColors.glass[60]} 60%, ${materialColors.glass[50]})`,
+      },
+      amber: {
+        background: `linear-gradient(45deg, ${materialColors.gold[60]} 60%, ${materialColors.gold[50]})`,
+      },
+      jade: {
+        background: `linear-gradient(45deg, ${materialColors.jade[60]} 60%, ${materialColors.jade[50]})`,
       },
       bone: {
         background: `linear-gradient(45deg, ${materialColors.bone[60]} 60%, ${materialColors.bone[50]})`,
@@ -30,11 +30,11 @@ export const miniTileClass = recipe({
       bronze: {
         background: `linear-gradient(45deg, ${materialColors.bronze[60]} 60%, ${materialColors.bronze[50]})`,
       },
+      silver: {
+        background: `linear-gradient(45deg, ${materialColors.silver[60]} 60%, ${materialColors.silver[50]})`,
+      },
       gold: {
         background: `linear-gradient(45deg, ${materialColors.gold[60]} 60%, ${materialColors.gold[50]})`,
-      },
-      jade: {
-        background: `linear-gradient(45deg, ${materialColors.jade[60]} 60%, ${materialColors.jade[50]})`,
       },
     },
     highlighted: {

@@ -75,30 +75,6 @@ export const huesAndShades = {
     20: "#040F25",
     10: "#010710",
   },
-
-  firstPlayer: {
-    90: "#F1E3F3",
-    80: "#E3C7E5",
-    70: "#D5ADD7",
-    60: "#C794C6",
-    50: "#B67CB3",
-    40: "#976696",
-    30: "#765077",
-    20: "#553A58",
-    10: "#352438",
-  },
-
-  secondPlayer: {
-    90: "#FDE8D2",
-    80: "#F8D5A8",
-    70: "#F0C481",
-    60: "#E4B55D",
-    50: "#D6A63C",
-    40: "#B28430",
-    30: "#8E6425",
-    20: "#68461A",
-    10: "#432A10",
-  },
 } as const
 
 export const accentHues = [
@@ -110,9 +86,6 @@ export const accentHues = [
   "tile",
   "season",
   "flower",
-  // players
-  "firstPlayer",
-  "secondPlayer",
 ] as const
 
 export const noHue = "no-color"
@@ -198,28 +171,3 @@ export function getHueColor(hue: AccentHuesWithNoHue): HueShadeGetter {
 
   return (shade: ShadeTypes<AccentHue>) => color[colorize(hue, shade)]
 }
-
-export const colorsByOrder = [
-  [
-    color.firstPlayer10,
-    color.firstPlayer20,
-    color.firstPlayer30,
-    color.firstPlayer40,
-    color.firstPlayer50,
-    color.firstPlayer60,
-    color.firstPlayer70,
-    color.firstPlayer80,
-    color.firstPlayer90,
-  ],
-  [
-    color.secondPlayer10,
-    color.secondPlayer20,
-    color.secondPlayer30,
-    color.secondPlayer40,
-    color.secondPlayer50,
-    color.secondPlayer60,
-    color.secondPlayer70,
-    color.secondPlayer80,
-    color.secondPlayer90,
-  ],
-] as const

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { setupTiles } from "./setupTiles"
 import Rand from "rand-seed"
-import { getStandardDeck } from "./deck"
+import { getStandardDeck } from "@/lib/game"
 
 describe("setup", () => {
   describe("initializeGame", () => {
@@ -9,7 +9,6 @@ describe("setup", () => {
       const rng = new Rand()
       const tiles = setupTiles({
         rng,
-        mapName: "default",
         deck: getStandardDeck(),
       })
       expect(Object.keys(tiles).length).toBe(144)

@@ -7,18 +7,19 @@ import {
   pointsClass,
   pointsContainerClass,
 } from "./stats.css"
-import { getAvailablePairs } from "@repo/game/game"
-import type { Player } from "@repo/game/player"
+import { getAvailablePairs } from "@/lib/game"
 import { useRound } from "@/state/runState"
+import { useTileState } from "@/state/tileState"
 
-export function Points(props: { player: Player }) {
+export function Points() {
+  const game = useGameState()
   const round = useRound()
 
   return (
     <div class={pointsContainerClass}>
       <div class={pointsClass}>
         <span class={statLabel}>Points</span>
-        <div>{props.player.points}</div>
+        <div>{game.points}</div>
       </div>
       <Show when={round().timerPoints}>
         {(timerPoints) => <Timer timerPoints={timerPoints()} />}
@@ -28,13 +29,13 @@ export function Points(props: { player: Player }) {
 }
 
 function Timer(props: { timerPoints: number }) {
-  const gameState = useGameState()
+  const game = useGameState()
   const [time, setTimer] = createSignal(0)
 
   makeTimer(
     () => {
       const now = new Date()
-      const startedAt = gameState.game.get().startedAt
+      const startedAt = game.startedAt
       if (!startedAt) return
 
       const diff = Math.floor((now.getTime() - startedAt) / 1000)
@@ -54,12 +55,12 @@ function Timer(props: { timerPoints: number }) {
 }
 
 export function Moves() {
-  const gameState = useGameState()
+  const tiles = useTileState()
 
   return (
     <div class={movesClass}>
       <span class={statLabel}>Moves</span>
-      <div>{getAvailablePairs(gameState.tiles).length}</div>
+      <div>{getAvailablePairs(tiles).length}</div>
     </div>
   )
 }

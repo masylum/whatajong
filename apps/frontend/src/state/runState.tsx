@@ -1,15 +1,13 @@
-import { Value } from "@repo/game/in-memoriam"
 import Rand from "rand-seed"
 import {
   createContext,
-  createEffect,
   createMemo,
-  on,
   useContext,
   type ParentProps,
 } from "solid-js"
 import type { Item } from "./shopState"
-import type { DeckSizeLevel } from "@repo/game/deck"
+import type { DeckSizeLevel } from "@/lib/game"
+import { createPersistantMutable } from "./persistantMutable"
 
 const RUN_STATE_NAMESPACE = "run-state"
 
@@ -31,11 +29,9 @@ export type Round = {
   emptyBoardBonus: number
 }
 
-const RunStateContext = createContext<Value<RunState> | undefined>()
+const RunStateContext = createContext<RunState | undefined>()
 
-export function RunStateProvider(
-  props: { run: Value<RunState> } & ParentProps,
-) {
+export function RunStateProvider(props: { run: RunState } & ParentProps) {
   return (
     <RunStateContext.Provider value={props.run}>
       {props.children}
@@ -55,43 +51,24 @@ export function useRunState() {
 
 export function useRound() {
   const run = useRunState()
-  const round = createMemo(() =>
-    generateRound(run.get().round, run.get().runId),
-  )
-  return round
+
+  return createMemo(() => generateRound(run.round, run.runId))
 }
 
-function key(runId: string) {
-  return `${RUN_STATE_NAMESPACE}-${runId}`
-}
-
-export function createRunState(runId: () => string) {
-  const run = createMemo(
-    () =>
-      new Value<RunState>({
-        runId: runId(),
-        money: 0,
-        round: 1,
-        stage: "select",
-        shopLevel: 1,
-        items: [],
-      }),
-  )
-
-  createEffect(
-    on(runId, (id) => {
-      const persistedState = localStorage.getItem(key(id))
-      if (persistedState) {
-        run().set(JSON.parse(persistedState))
-      }
-    }),
-  )
-
-  createEffect(() => {
-    localStorage.setItem(key(runId()), JSON.stringify(run().get()))
+type CreateRunStateParams = { id: () => string }
+export function createRunState(params: CreateRunStateParams) {
+  return createPersistantMutable<RunState>({
+    namespace: RUN_STATE_NAMESPACE,
+    id: params.id,
+    init: {
+      runId: params.id(),
+      money: 0,
+      round: 1,
+      stage: "select",
+      shopLevel: 1,
+      items: [],
+    },
   })
-
-  return run
 }
 
 export function generateRound(id: number, runId: string): Round {

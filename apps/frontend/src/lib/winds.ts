@@ -1,6 +1,12 @@
-import { getRank, getSuit } from "./deck"
-import type { PowerupDb } from "./powerups"
-import { fullyOverlaps, overlaps, type Tile, type TileDb } from "./tile"
+import {
+  getRank,
+  getSuit,
+  fullyOverlaps,
+  overlaps,
+  type Tile,
+  type TileDb,
+  type PowerupDb,
+} from "./game"
 
 function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
   const value = tile[axis]
@@ -52,9 +58,8 @@ export function resolveWinds(
   for (let z = 0; z <= highestLevel; z++) {
     const direction = Math.sign(bias)
     const zTiles = tileDb
-      .filterBy({ z })
+      .filterBy({ z, deleted: false })
       .toSorted((a, b) => direction * (b[axis] - a[axis]))
-      .filter((tile) => !tile.deletedBy)
 
     for (const tile of zTiles) {
       tileDb.set(

@@ -1,20 +1,15 @@
 import { createMemo, For, Show } from "solid-js"
-import { useGameState } from "@/state/gameState"
+import { usePowerupState } from "@/state/powerupState"
 import { comboRecipe, playerPowerupsClass, powerupRecipe } from "./powerups.css"
-import { getRank, isDragon } from "@repo/game/deck"
-import type { Player } from "@repo/game/player"
-import type { Powerup } from "@repo/game/powerups"
+import { getRank, isDragon, type Powerup } from "@/lib/game"
 import { MiniTile } from "../miniTile"
 
-export function Powerups(props: { player: Player }) {
-  const gameState = useGameState()
-  const powerups = createMemo(() =>
-    gameState.powerups.filterBy({ playerId: props.player.id }),
-  )
+export function Powerups() {
+  const powerups = usePowerupState()
 
   return (
     <div class={playerPowerupsClass}>
-      <For each={powerups()}>
+      <For each={powerups.all}>
         {(powerup) => <PowerupComponent powerup={powerup} />}
       </For>
     </div>
