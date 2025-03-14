@@ -1,11 +1,4 @@
-import {
-  type DeckTile,
-  type Tile,
-  initTileDb,
-  mapGet,
-  mapName,
-  maps,
-} from "./game"
+import { type DeckTile, type Tile, getMap, initTileDb, mapGet } from "./game"
 import { shuffle } from "./rand"
 import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
@@ -13,7 +6,7 @@ import type Rand from "rand-seed"
 // From paper: https://iivq.net/scriptie/scriptie-bsc.pdf
 export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
   const tileDb = initTileDb({})
-  const map = maps[mapName(deck.length * 2)]
+  const map = getMap(deck.length * 2)
 
   // Get all valid positions from the map
   for (const z of map.keys()) {

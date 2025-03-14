@@ -37,6 +37,8 @@ import {
   itemsTitleClass,
   detailFreedomClass,
   detailFreedomTitleClass,
+  materialUpgradeClass,
+  materialUpgradeTitleClass,
 } from "./runShop.css"
 import {
   generateItems,
@@ -56,7 +58,6 @@ import { BasicTile } from "@/components/game/basicTile"
 import { useDeckState } from "@/state/deckState"
 import {
   getCoins,
-  getDeckPairsSize,
   cardName,
   type Material,
   type Card,
@@ -65,9 +66,9 @@ import {
   isWind,
   getSuit,
   getRank,
-  type DeckSizeLevel,
   getRawPoints,
   getMaterialMultiplier,
+  getMaterialPoints,
 } from "@/lib/game"
 import { Button } from "@/components/button"
 import { ArrowRight, Dices, Upgrade, X, Buy } from "@/components/icon"
@@ -164,10 +165,7 @@ function Shop() {
 
       <div class={deckClass}>
         <div class={statusClass}>
-          <span>
-            Your Deck ({totalPairs()} / {getDeckPairsSize(shopLevel() + 1)}{" "}
-            pairs)
-          </span>
+          <span>Your Deck ({totalPairs()} / 144 pairs)</span>
           <span class={moneyClass}>${run.money} coins</span>
         </div>
         <div class={deckRowsClass}>
@@ -328,9 +326,7 @@ function TileDetails(props: {
   const shop = useShopState()
   const run = useRunState()
   const deck = useDeckState()
-  const canSell = createMemo(
-    () => deck.all.length > getDeckPairsSize(run.shopLevel),
-  )
+  const canSell = createMemo(() => deck.all.length > 34)
 
   return (
     <>
@@ -376,17 +372,22 @@ function TileItemDetails() {
   const tilesWithSameCard = createMemo(() =>
     deck.filterBy({ card: item().card }),
   )
-  const existingBoneTile = createMemo(() => existingTile("bone"))
-
-  function existingTile(material: Material) {
-    return tilesWithSameCard().find((tile) => tile.material === material)
-  }
+  const transformation = createMemo(() =>
+    getTransformation(tilesWithSameCard(), path()!),
+  )
+  const isUpgrading = createMemo(() => !transformation().adds)
+  const mineralUpgrade = createMemo(() =>
+    getNextMaterial(tilesWithSameCard(), "mineral"),
+  )
+  const metalUpgrade = createMemo(() =>
+    getNextMaterial(tilesWithSameCard(), "metal"),
+  )
 
   function buyTile(item: TileItem) {
     buyItem(run, shop, item, () => {
-      const boneTile = existingBoneTile()
+      const { updates, removes } = transformation()
 
-      if (!boneTile) {
+      if (!isUpgrading()) {
         const id = nanoid()
         deck.set(id, { id, material: "bone", card: item.card })
         return
@@ -394,8 +395,6 @@ function TileItemDetails() {
 
       const p = path()
       if (!p) throw Error("No path")
-
-      const { updates, removes } = getTransformation(tilesWithSameCard(), p)
 
       for (const [id, material] of entries(updates)) {
         deck.set(id, { id, material, card: item.card })
@@ -411,27 +410,32 @@ function TileItemDetails() {
     <>
       <CardDetails card={item().card} material="bone" />
 
-      <Show when={existingBoneTile()}>
+      <Show when={isUpgrading()}>
         <div class={detailsContentClass}>
           <div class={detailTitleClass}>Upgrade Options</div>
-          <p>You already have this tile. Pick an upgrade:</p>
+          <p>
+            Collecting 3 identical pairs lets you upgrade them into a stronger
+            version.
+          </p>
           <div class={buttonsClass}>
-            <button type="button" onClick={() => setPath("mineral")}>
-              Mineral
-              <BasicTile
-                card={item().card}
-                material={getNextMaterial(tilesWithSameCard(), "mineral")}
-              />
-              TODO: properties over previous material
-            </button>
-            <button type="button" onClick={() => setPath("metal")}>
-              Metal
-              <BasicTile
-                card={item().card}
-                material={getNextMaterial(tilesWithSameCard(), "metal")}
-              />
-              TODO: properties over previous material
-            </button>
+            <Show when={mineralUpgrade()}>
+              {(material) => (
+                <MaterialUpgradeButton
+                  card={item().card}
+                  material={material()}
+                  onClick={() => setPath("mineral")}
+                />
+              )}
+            </Show>
+            <Show when={metalUpgrade()}>
+              {(material) => (
+                <MaterialUpgradeButton
+                  card={item().card}
+                  material={material()}
+                  onClick={() => setPath("metal")}
+                />
+              )}
+            </Show>
           </div>
         </div>
       </Show>
@@ -448,7 +452,7 @@ function TileItemDetails() {
           close
         </button>
 
-        <Show when={!existingBoneTile() || path()}>
+        <Show when={!isUpgrading() || path()}>
           <button
             type="button"
             class={buttonClass({ suit: "bamboo", disabled: false })}
@@ -489,13 +493,6 @@ function UpgradeItemDetails() {
     <>
       <div class={detailsContentClass}>
         <div class={detailTitleClass}>Shop level {item().level}</div>
-        <dl class={detailListClass({ type: "points" })}>
-          <dt class={detailTermClass}>Deck size:</dt>
-          <dd class={detailDescriptionClass}>
-            {getDeckPairsSize(item().level)} /{" "}
-            {getDeckPairsSize(item().level + 1)} pairs
-          </dd>
-        </dl>
         <dl class={detailListClass({ type: "gold" })}>
           <dt class={detailTermClass}>passive income:</dt>
           <dd class={detailDescriptionClass}>{item().level - 1} coins</dd>
@@ -538,10 +535,7 @@ function MaterialFreedom(props: { material: Material }) {
       <span class={detailFreedomTitleClass}>Freedom</span>
       <Switch>
         <Match when={props.material === "glass"}>
-          Glass tiles are free if at least 2 sides are open.
-        </Match>
-        <Match when={props.material === "amber"}>
-          Amber tiles are free if at least 2 sides are open.
+          Glass tiles are free if at least 1 side is open.
         </Match>
         <Match when={props.material === "jade"}>
           Jade tiles are always free.
@@ -550,13 +544,10 @@ function MaterialFreedom(props: { material: Material }) {
           Bone tiles are free if left or right is open.
         </Match>
         <Match when={props.material === "bronze"}>
-          Bronze tiles are free if at least 3 sides are open.
-        </Match>
-        <Match when={props.material === "silver"}>
-          Silver tiles are free if at least 3 sides are open.
+          Bronze tiles are free if at least 2 sides are open.
         </Match>
         <Match when={props.material === "gold"}>
-          Gold tiles are free if all 4 sides are open.
+          Gold tiles are free if at least 3 sides are open.
         </Match>
       </Switch>
     </div>
@@ -587,7 +578,7 @@ function RerollButton() {
     if (cost > money) throw Error("You don't have enough money")
 
     batch(() => {
-      run.money = money - cost
+      run.money = money
       shop.reroll++
     })
   }
@@ -613,14 +604,10 @@ function UpgradeButton() {
   const run = useRunState()
   const shop = useShopState()
   const cost = createMemo(() => shopUpgradeCost(run))
-  const deck = useDeckState()
-  const upgradeDeckSize = createMemo(() => getDeckPairsSize(run.shopLevel + 1))
-  const disabled = createMemo(
-    () => cost() > run.money || deck.all.length < upgradeDeckSize(),
-  )
+  const disabled = createMemo(() => cost() > run.money)
   const shopLevel = createMemo(() => run.shopLevel)
 
-  function selectUpgrade(level: DeckSizeLevel) {
+  function selectUpgrade(level: number) {
     const item: UpgradeItem = {
       id: `upgrade-${level}`,
       type: "upgrade",
@@ -645,11 +632,53 @@ function UpgradeButton() {
         type="button"
         title="upgrade shop"
         disabled={disabled()}
-        onClick={() => selectUpgrade((shopLevel() + 1) as DeckSizeLevel)}
+        onClick={() => selectUpgrade(shopLevel() + 1)}
       >
         <Upgrade />
       </button>
       <span class={itemCostClass}>${shopUpgradeCost(run)}</span>
     </div>
+  )
+}
+
+function MaterialUpgradeButton(props: {
+  material: Material
+  card: Card
+  onClick: (material: Material) => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => props.onClick(props.material)}
+      class={materialUpgradeClass}
+    >
+      <span class={materialUpgradeTitleClass({ material: props.material })}>
+        {props.material}
+      </span>
+      <BasicTile card={props.card} material={props.material} />
+      <dl class={detailListClass({ type: "points" })}>
+        <dt class={detailTermClass}>Points</dt>
+        <dd class={detailDescriptionClass}>
+          +{getMaterialPoints(props.material)}
+        </dd>
+        <Show when={getMaterialMultiplier(props.material)}>
+          {(multiplier) => (
+            <>
+              <dt class={detailTermClass}>Multiplier</dt>
+              <dd class={detailDescriptionClass}>+{multiplier()}</dd>
+            </>
+          )}
+        </Show>
+      </dl>
+      <Show when={getCoins(props.material)}>
+        {(coins) => (
+          <dl class={detailListClass({ type: "gold" })}>
+            <dt class={detailTermClass}>Coins</dt>
+            <dd class={detailDescriptionClass}>+{coins()}</dd>
+          </dl>
+        )}
+      </Show>
+      <MaterialFreedom material={props.material} />
+    </button>
   )
 }

@@ -6,7 +6,6 @@ import {
   type ParentProps,
 } from "solid-js"
 import type { Item } from "./shopState"
-import type { DeckSizeLevel } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
 
 const RUN_STATE_NAMESPACE = "run-state"
@@ -16,7 +15,7 @@ export type RunState = {
   money: number
   round: number
   stage: RoundStage
-  shopLevel: DeckSizeLevel
+  shopLevel: number
   items: Item[]
 }
 

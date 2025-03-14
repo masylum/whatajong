@@ -12,19 +12,20 @@ import {
   winds,
   type Card,
   type Deck,
-  type DeckSizeLevel,
   type DeckTile,
   type Material,
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
 import { nanoid } from "nanoid"
 import { countBy, entries } from "remeda"
+
 const SHOP_STATE_NAMESPACE = "shop-state"
 export const ITEM_COST = 3
 export const SELL_TILE_AMOUNT = 1
 export const SELL_MATERIAL_AMOUNT = 1
-const MINERAL_PATH = ["glass", "amber", "jade"] as const
-const METAL_PATH = ["bronze", "silver", "gold"] as const
+
+const MINERAL_PATH = ["glass", "jade"] as const
+const METAL_PATH = ["bronze", "gold"] as const
 
 type BaseItem = {
   id: string
@@ -45,7 +46,7 @@ export type TileItem = BaseItem & {
 }
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
-  level: DeckSizeLevel
+  level: number
 }
 export type Item = MaterialItem | TileItem | UpgradeItem | OtherItem
 export type ShopState = {
@@ -202,9 +203,13 @@ function mergeCounts(
     if (!next) continue
     if (!newCount[material]) continue
 
-    while (newCount[material] === 2) {
-      delete newCount[material]
+    while (newCount[material] >= 3) {
+      newCount[material] = (newCount[material] || 0) - 3
       newCount[next] = (newCount[next] || 0) + 1
+
+      if (newCount[material] === 0) {
+        delete newCount[material]
+      }
     }
   }
 
@@ -231,6 +236,7 @@ export function getNextMaterial(tiles: DeckTile[], path: "mineral" | "metal") {
 }
 
 export type MaterialTransformation = {
+  adds: boolean
   updates: Record<string, Material>
   removes: string[]
 }
@@ -239,16 +245,26 @@ export function getTransformation(
   path: "mineral" | "metal",
 ): MaterialTransformation {
   const nextMaterials = getNextMaterials(tiles, path)
+  const currentMaterials = tiles.map((tile) => tile.material)
   const updates: Record<string, Material> = {}
   const removes: string[] = []
+  let adds = false
 
   for (const [index, tile] of tiles.entries()) {
-    if (nextMaterials[index]) {
-      updates[tile.id] = nextMaterials[index]
-    } else {
+    const mat = nextMaterials[index]
+    if (!mat) {
       removes.push(tile.id)
+      continue
+    }
+
+    if (mat !== tile.material) {
+      updates[tile.id] = mat
     }
   }
 
-  return { updates, removes }
+  for (const [index, _] of nextMaterials.entries()) {
+    if (!currentMaterials[index]) adds = true
+  }
+
+  return { adds, updates, removes }
 }

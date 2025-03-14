@@ -25,7 +25,7 @@ import {
   type Tile,
   type TileDb,
 } from "./game"
-import { DEFAULT_MAP } from "./maps/default"
+import { PROGRESSIVE_MAP } from "./maps/progressive"
 
 function createTile({
   card,
@@ -43,24 +43,24 @@ function createTile({
 describe("map", () => {
   describe("mapGet", () => {
     it("should return null for negative coordinates", () => {
-      expect(mapGet(DEFAULT_MAP, -1, 0, 0)).toBeNull()
-      expect(mapGet(DEFAULT_MAP, 0, -1, 0)).toBeNull()
-      expect(mapGet(DEFAULT_MAP, 0, 0, -1)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, -1, 0, 0)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, 0, -1, 0)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, 0, 0, -1)).toBeNull()
     })
 
     it("should return null for out of bounds coordinates", () => {
-      expect(mapGet(DEFAULT_MAP, mapGetWidth(DEFAULT_MAP), 0, 0)).toBeNull()
-      expect(mapGet(DEFAULT_MAP, 0, mapGetHeight(DEFAULT_MAP), 0)).toBeNull()
-      expect(mapGet(DEFAULT_MAP, 0, 0, mapGetLevels(DEFAULT_MAP))).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, mapGetWidth(), 0, 0)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, 0, mapGetHeight(), 0)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, 0, 0, mapGetLevels())).toBeNull()
     })
 
     it("should return null for empty spaces", () => {
-      expect(mapGet(DEFAULT_MAP, 0, 0, 0)).toBeNull()
+      expect(mapGet(PROGRESSIVE_MAP, 0, 0, 0)).toBeNull()
     })
 
     it("should return tile id as string for valid positions", () => {
-      expect(mapGet(DEFAULT_MAP, 2, 0, 0)).toBe("12")
-      expect(mapGet(DEFAULT_MAP, 3, 0, 0)).toBe("12")
+      expect(mapGet(PROGRESSIVE_MAP, 2, 0, 0)).toBe("12")
+      expect(mapGet(PROGRESSIVE_MAP, 3, 0, 0)).toBe("12")
     })
   })
 })
@@ -230,112 +230,81 @@ describe("getPoints", () => {
     powerupsDb = initPowerupsDb({})
   })
 
-  describe("card points", () => {
-    it("assigns correct base points to each card type", () => {
-      const standardTile = createTile({ card: "c1" })
-      const dragonTile = createTile({ card: "dc" })
-      const flowerTile = createTile({ card: "f1" })
-      const seasonTile = createTile({ card: "s1" })
-      const windTile = createTile({ card: "wn" })
+  it("assigns correct base points to each card type", () => {
+    const standardTile = createTile({ card: "c1" })
+    const dragonTile = createTile({ card: "dc" })
+    const flowerTile = createTile({ card: "f1" })
+    const seasonTile = createTile({ card: "s1" })
+    const windTile = createTile({ card: "wn" })
 
-      expect(
-        getPoints(powerupsDb, standardTile.card, standardTile.material),
-      ).toBe(3)
-      expect(getPoints(powerupsDb, dragonTile.card, dragonTile.material)).toBe(
-        5,
-      )
-      expect(getPoints(powerupsDb, flowerTile.card, flowerTile.material)).toBe(
-        9,
-      )
-      expect(getPoints(powerupsDb, seasonTile.card, seasonTile.material)).toBe(
-        9,
-      )
-      expect(getPoints(powerupsDb, windTile.card, windTile.material)).toBe(13)
-    })
+    expect(getPoints(powerupsDb, [standardTile])).toBe(2)
+    expect(getPoints(powerupsDb, [dragonTile])).toBe(4)
+    expect(getPoints(powerupsDb, [flowerTile])).toBe(8)
+    expect(getPoints(powerupsDb, [seasonTile])).toBe(8)
+    expect(getPoints(powerupsDb, [windTile])).toBe(16)
   })
 
-  describe("material effects", () => {
-    it("adds correct point values for different materials", () => {
-      const glassTile = createTile({ card: "c1", material: "glass" })
-      const amberTile = createTile({ card: "c1", material: "amber" })
-      const jadeTile = createTile({ card: "c1", material: "jade" })
-      const bronzeTile = createTile({ card: "c1", material: "bronze" })
-      const silverTile = createTile({ card: "c1", material: "silver" })
-      const goldTile = createTile({ card: "c1", material: "gold" })
+  it("accepts two tiles", () => {
+    const boneTile = createTile({ card: "c1", material: "bone" })
+    const jadeTile = createTile({ card: "c1", material: "jade" })
 
-      expect(getPoints(powerupsDb, glassTile.card, glassTile.material)).toBe(4)
-      expect(getPoints(powerupsDb, amberTile.card, amberTile.material)).toBe(12)
-      expect(getPoints(powerupsDb, jadeTile.card, jadeTile.material)).toBe(30)
-      expect(getPoints(powerupsDb, bronzeTile.card, bronzeTile.material)).toBe(
-        12,
-      )
-      expect(getPoints(powerupsDb, silverTile.card, silverTile.material)).toBe(
-        30,
-      )
-      expect(getPoints(powerupsDb, goldTile.card, goldTile.material)).toBe(72)
-    })
-
-    it("applies multipliers correctly for special materials", () => {
-      const glassTile = createTile({ card: "c1", material: "glass" })
-      const bronzeTile = createTile({ card: "c1", material: "bronze" })
-      const jadeTile = createTile({ card: "c1", material: "jade" })
-
-      expect(getPoints(powerupsDb, glassTile.card, glassTile.material)).toBe(4)
-      expect(getPoints(powerupsDb, bronzeTile.card, bronzeTile.material)).toBe(
-        12,
-      )
-      expect(getPoints(powerupsDb, jadeTile.card, jadeTile.material)).toBe(30)
-    })
-
-    it("multiplies correctly for high-value cards", () => {
-      const glassWindTile = createTile({ card: "wn", material: "glass" })
-      const bronzeWindTile = createTile({ card: "wn", material: "bronze" })
-      const jadeWindTile = createTile({ card: "wn", material: "jade" })
-
-      expect(
-        getPoints(powerupsDb, glassWindTile.card, glassWindTile.material),
-      ).toBe(14)
-      expect(
-        getPoints(powerupsDb, bronzeWindTile.card, bronzeWindTile.material),
-      ).toBe(32)
-      expect(
-        getPoints(powerupsDb, jadeWindTile.card, jadeWindTile.material),
-      ).toBe(60)
-    })
+    expect(getPoints(powerupsDb, [boneTile, jadeTile])).toBe(8)
   })
 
-  describe("dragon powerups", () => {
-    it("applies dragon multipliers to matching suits", () => {
-      const circleTile = createTile({ card: "c1", material: "bone" })
-      const bambooTile = createTile({ card: "b1", material: "bone" })
+  it("adds correct point values for different materials", () => {
+    const glassTile = createTile({ card: "c1", material: "glass" })
+    const jadeTile = createTile({ card: "c1", material: "jade" })
+    const bronzeTile = createTile({ card: "c1", material: "bronze" })
+    const goldTile = createTile({ card: "c1", material: "gold" })
 
-      createDragonPowerup("dc", 3)
+    expect(getPoints(powerupsDb, [glassTile])).toBe(4)
+    expect(getPoints(powerupsDb, [jadeTile])).toBe(20)
+    expect(getPoints(powerupsDb, [bronzeTile])).toBe(9)
+    expect(getPoints(powerupsDb, [goldTile])).toBe(45)
+  })
 
-      expect(getPoints(powerupsDb, circleTile.card, circleTile.material)).toBe(
-        12,
-      )
-      expect(getPoints(powerupsDb, bambooTile.card, bambooTile.material)).toBe(
-        3,
-      )
-    })
+  it("applies multipliers correctly for special materials", () => {
+    const glassTile = createTile({ card: "c1", material: "glass" })
+    const bronzeTile = createTile({ card: "c1", material: "bronze" })
+    const jadeTile = createTile({ card: "c1", material: "jade" })
 
-    it("applies different dragons to their matching suits", () => {
-      const bambooTile = createTile({ card: "b1", material: "bone" })
-      createDragonPowerup("df", 2)
+    expect(getPoints(powerupsDb, [glassTile])).toBe(4)
+    expect(getPoints(powerupsDb, [bronzeTile])).toBe(9)
+    expect(getPoints(powerupsDb, [jadeTile])).toBe(20)
+  })
 
-      expect(getPoints(powerupsDb, bambooTile.card, bambooTile.material)).toBe(
-        9,
-      )
-    })
+  it("multiplies correctly for high-value cards", () => {
+    const glassWindTile = createTile({ card: "wn", material: "glass" })
+    const bronzeWindTile = createTile({ card: "wn", material: "bronze" })
+    const jadeWindTile = createTile({ card: "wn", material: "jade" })
 
-    it("combines material and dragon multipliers correctly", () => {
-      createDragonPowerup("dc", 2)
-      const jadeCircleTile = createTile({ card: "c1", material: "jade" })
+    expect(getPoints(powerupsDb, [glassWindTile])).toBe(18)
+    expect(getPoints(powerupsDb, [bronzeWindTile])).toBe(30)
+    expect(getPoints(powerupsDb, [jadeWindTile])).toBe(48)
+  })
 
-      expect(
-        getPoints(powerupsDb, jadeCircleTile.card, jadeCircleTile.material),
-      ).toBe(50)
-    })
+  it("applies dragon multipliers to matching suits", () => {
+    const circleTile = createTile({ card: "c1", material: "bone" })
+    const bambooTile = createTile({ card: "b1", material: "bone" })
+
+    createDragonPowerup("dc", 3)
+
+    expect(getPoints(powerupsDb, [circleTile])).toBe(5)
+    expect(getPoints(powerupsDb, [bambooTile])).toBe(2)
+  })
+
+  it("applies different dragons to their matching suits", () => {
+    const bambooTile = createTile({ card: "b1", material: "bone" })
+    createDragonPowerup("df", 2)
+
+    expect(getPoints(powerupsDb, [bambooTile])).toBe(4)
+  })
+
+  it("combines material and dragon multipliers correctly", () => {
+    createDragonPowerup("dc", 2)
+    const jadeCircleTile = createTile({ card: "c1", material: "jade" })
+
+    expect(getPoints(powerupsDb, [jadeCircleTile])).toBe(25)
   })
 })
 

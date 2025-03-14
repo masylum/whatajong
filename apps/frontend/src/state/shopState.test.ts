@@ -17,21 +17,26 @@ describe("getNextMaterials", () => {
 
   it("returns the appropiate material", () => {
     subject([], ["bone"])
-    subject(["bone"], ["glass"])
+    subject(["bone"], ["bone", "bone"])
+    subject(["bone", "bone"], ["glass"])
     subject(["glass"], ["glass", "bone"])
-    subject(["glass", "bone"], ["amber"])
-    subject(["amber"], ["amber", "bone"])
-    subject(["amber", "bone"], ["amber", "glass"])
-    subject(["amber", "glass", "bone"], ["jade"])
+    subject(["glass", "bone"], ["glass", "bone", "bone"])
+    subject(["glass", "bone", "bone"], ["glass", "glass"])
+    subject(["glass", "glass"], ["glass", "glass", "bone"])
+    subject(["glass", "glass", "bone"], ["glass", "glass", "bone", "bone"])
+    subject(["glass", "glass", "bone", "bone"], ["jade"])
     subject(["jade"], ["jade", "bone"])
-    subject(["jade", "bone"], ["jade", "glass"])
+    subject(["jade", "bone"], ["jade", "bone", "bone"])
+    subject(["jade", "bone", "bone"], ["jade", "glass"])
     subject(["jade", "glass"], ["jade", "glass", "bone"])
-    subject(["jade", "glass", "bone"], ["jade", "amber"])
-    subject(["jade", "amber"], ["jade", "amber", "bone"])
-    subject(["jade", "amber", "bone"], ["jade", "amber", "glass"])
-    subject(["jade", "amber", "glass"], ["jade", "amber", "glass", "bone"])
-    subject(["jade", "amber", "glass", "bone"], ["jade", "jade"])
-    subject(["jade", "jade"], ["jade", "jade", "bone"])
+    subject(["jade", "glass", "bone"], ["jade", "glass", "bone", "bone"])
+    subject(["jade", "glass", "bone", "bone"], ["jade", "glass", "glass"])
+    subject(["jade", "glass", "glass"], ["jade", "glass", "glass", "bone"])
+    subject(
+      ["jade", "glass", "glass", "bone"],
+      ["jade", "glass", "glass", "bone", "bone"],
+    )
+    subject(["jade", "glass", "glass", "bone", "bone"], ["jade", "jade"])
   })
 })
 
@@ -44,36 +49,45 @@ describe("getTransformation", () => {
 
   function subject(
     inputs: Record<string, Material>,
-    updates: Record<string, Material>,
-    removes: string[],
+    {
+      adds,
+      updates,
+      removes,
+    }: {
+      adds: boolean
+      updates: Record<string, Material>
+      removes: string[]
+    },
   ) {
     expect(getTransformation(createDeckTiles(inputs), "mineral")).toStrictEqual(
-      {
-        updates: updates,
-        removes: removes,
-      },
+      { adds, updates, removes },
     )
   }
 
   it("returns the appropiate material", () => {
-    subject({}, {}, [])
-    subject({ 1: "bone" }, { 1: "glass" }, [])
-    subject({ 1: "glass", 2: "bone" }, { 1: "amber" }, ["2"])
-    subject({ 1: "amber", 2: "bone" }, { 1: "amber", 2: "glass" }, [])
-    subject({ 1: "amber", 2: "glass", 3: "bone" }, { 1: "jade" }, ["2", "3"])
-    subject({ 1: "jade", 2: "bone" }, { 1: "jade", 2: "glass" }, [])
-    subject({ 1: "jade", 2: "glass", 3: "bone" }, { 1: "jade", 2: "amber" }, [
-      "3",
-    ])
+    subject({}, { adds: true, updates: {}, removes: [] })
+    subject({ 1: "bone" }, { adds: true, updates: {}, removes: [] })
     subject(
-      { 1: "jade", 2: "amber", 3: "bone" },
-      { 1: "jade", 2: "amber", 3: "glass" },
-      [],
+      { 1: "bone", 2: "bone" },
+      { adds: false, updates: { 1: "glass" }, removes: ["2"] },
+    )
+    subject({ 1: "glass" }, { adds: true, updates: {}, removes: [] })
+    subject({ 1: "glass", 2: "bone" }, { adds: true, updates: {}, removes: [] })
+    subject(
+      { 1: "glass", 2: "bone", 3: "bone" },
+      { adds: false, updates: { 2: "glass" }, removes: ["3"] },
     )
     subject(
-      { 1: "jade", 2: "amber", 3: "glass", 4: "bone" },
-      { 1: "jade", 2: "jade" },
-      ["3", "4"],
+      { 1: "glass", 2: "glass" },
+      { adds: true, updates: {}, removes: [] },
+    )
+    subject(
+      { 1: "glass", 2: "glass", 3: "bone" },
+      { adds: true, updates: {}, removes: [] },
+    )
+    subject(
+      { 1: "glass", 2: "glass", 3: "bone", 4: "bone" },
+      { adds: false, updates: { 1: "jade" }, removes: ["2", "3", "4"] },
     )
   })
 })

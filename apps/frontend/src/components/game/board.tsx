@@ -1,7 +1,7 @@
 import { createMemo, createSelector, createSignal, For } from "solid-js"
 import { TileComponent } from "./tileComponent"
 import { getCanvasHeight, getCanvasWidth } from "@/state/constants"
-import { getFinder, mapGetLevels, mapName, maps } from "@/lib/game"
+import { getFinder, mapGetLevels } from "@/lib/game"
 import { createVoicesEffect } from "./createVoicesEffect"
 import { useTileState } from "@/state/tileState"
 
@@ -15,8 +15,7 @@ export function Board(props: BoardProps) {
 
   createVoicesEffect()
 
-  const map = createMemo(() => maps[mapName(tiles.all.length)])
-  const mapLevels = createMemo(() => mapGetLevels(map()))
+  const mapLevels = createMemo(() => mapGetLevels())
 
   const disclosedTile = createMemo(() => {
     const id = hover()
@@ -53,8 +52,8 @@ export function Board(props: BoardProps) {
     <div
       style={{
         position: "relative",
-        width: `${getCanvasWidth(map())}px`,
-        height: `${getCanvasHeight(map())}px`,
+        width: `${getCanvasWidth()}px`,
+        height: `${getCanvasHeight()}px`,
         margin: "0 auto",
       }}
     >

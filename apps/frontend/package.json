@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.13.9",
-    "@solid-primitives/clipboard": "^1.6.0",
     "@solid-primitives/map": "^0.6.0",
     "@solid-primitives/set": "^0.6.0",
     "@solid-primitives/timer": "^1.4.0",
@@ -32,9 +31,7 @@
     "@vanilla-extract/vite-plugin": "^5.0.1",
     "@vitejs/plugin-legacy": "^6.0.2",
     "date-fns": "^4.1.0",
-    "haikunator": "^2.1.2",
     "nanoid": "^5.0.9",
-    "perfect-cursors": "^1.0.5",
     "rand-seed": "^2.1.7",
     "remeda": "^2.21.0",
     "solid-js": "^1.9.4",

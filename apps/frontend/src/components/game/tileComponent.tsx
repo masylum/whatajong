@@ -21,8 +21,6 @@ import { TileShades } from "./tileShades"
 import {
   mapGetHeight,
   mapGetWidth,
-  mapName,
-  maps,
   getCoins,
   getMaterial,
   isFree,
@@ -83,12 +81,9 @@ export function TileComponent(iProps: Props) {
   )
 
   const material = createMemo(() => getMaterial(props.tile, powerups))
-
   const canBeSelected = createMemo(() => isFree(tiles, props.tile, powerups))
-
-  const map = createMemo(() => maps[mapName(tiles.all.length)])
-  const mapWidth = createMemo(() => mapGetWidth(map()))
-  const mapHeight = createMemo(() => mapGetHeight(map()))
+  const mapWidth = createMemo(() => mapGetWidth())
+  const mapHeight = createMemo(() => mapGetHeight())
 
   const zIndex = createMemo(() => {
     const zLayer = props.tile.z * mapWidth() * mapHeight() * 10

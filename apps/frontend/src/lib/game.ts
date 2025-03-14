@@ -1,12 +1,8 @@
 import { resolveWinds } from "./winds"
 import { batch } from "solid-js"
 import { nanoid } from "nanoid"
-import { MAP_84 } from "./maps/map84"
-import { MAP_100 } from "./maps/map100"
-import { MAP_120 } from "./maps/map120"
-import { DEFAULT_MAP } from "./maps/default"
-import { MAP_68 } from "./maps/map68"
 import { initDatabase, type Database } from "./in-memoriam"
+import { PROGRESSIVE_MAP } from "./maps/progressive"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
@@ -53,40 +49,34 @@ export function getAvailablePairs(
 }
 
 export function getCardPoints(card: Card) {
-  if (isDragon(card)) return 4
-  if (isFlower(card)) return 8
-  if (isSeason(card)) return 8
-  if (isWind(card)) return 12
+  if (isDragon(card)) return 2
+  if (isFlower(card)) return 4
+  if (isSeason(card)) return 4
+  if (isWind(card)) return 8
 
-  return 2
+  return 1
 }
 
 export function getMaterialPoints(material: Material) {
   switch (material) {
     case "glass":
-      return 2
-    case "amber":
-      return 4
-    case "jade":
-      return 8
-    case "bronze":
-      return 4
-    case "silver":
-      return 8
-    case "gold":
-      return 16
-    default:
       return 1
+    case "jade":
+      return 3
+    case "bronze":
+      return 2
+    case "gold":
+      return 8
+    default:
+      return 0
   }
 }
 
 export function getMaterialMultiplier(material: Material) {
   switch (material) {
-    case "amber":
     case "bronze":
       return 1
     case "jade":
-    case "silver":
       return 2
     case "gold":
       return 3
@@ -95,22 +85,27 @@ export function getMaterialMultiplier(material: Material) {
   }
 }
 
-export function getPoints(
-  powerupsDb: PowerupDb,
-  card: Card,
-  material: Material,
-) {
-  return (
-    getRawPoints(card, material) * getRawMultiplier(powerupsDb, card, material)
-  )
+export function getPoints(powerupsDb: PowerupDb, tiles: Tile[]) {
+  let points = 0
+  let multiplier = 1
+
+  for (const tile of tiles) {
+    points += getRawPoints(tile.card, tile.material)
+    console.log(
+      tile,
+      getRawPoints(tile.card, tile.material),
+      getRawMultiplier(powerupsDb, tile.card, tile.material),
+    )
+    multiplier += getRawMultiplier(powerupsDb, tile.card, tile.material)
+  }
+
+  return points * multiplier
 }
 
 export function getCoins(material: Material): number {
   switch (material) {
     case "bronze":
       return 1
-    case "silver":
-      return 3
     case "gold":
       return 5
     default:
@@ -133,7 +128,7 @@ export function getRawMultiplier(
   const materialMultiplier = getMaterialMultiplier(material)
   const dragonRunMultiplier = getDragonMultiplier(powerupsDb, card)
 
-  return 1 + materialMultiplier + dragonRunMultiplier
+  return materialMultiplier + dragonRunMultiplier
 }
 
 export function getFreeTiles(tileDb: TileDb, powerupsDb?: PowerupDb): Tile[] {
@@ -176,7 +171,7 @@ export function selectTile({
     tileDb.set(firstTile.id, { ...firstTile, selected: false })
 
     if (cardsMatch(firstTile.card, tile.card)) {
-      const newPoints = getPoints(powerupsDb, tile.card, tile.material)
+      const newPoints = getPoints(powerupsDb, [tile, firstTile])
       deleteTiles(tileDb, [tile, firstTile])
       resolveWinds(tileDb, powerupsDb, tile)
       getPowerups(powerupsDb, tile)
@@ -204,16 +199,6 @@ export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
 
 const suits = ["b", "c", "o", "d", "w", "f", "s"] as const
 export type Suit = (typeof suits)[number]
-
-export const DECK_SIZE_LEVEL = {
-  1: 72,
-  2: 84, // +12
-  3: 100, // +16
-  4: 120, // +20
-  5: 144, // +24
-  6: 174, // +24
-} as const
-export type DeckSizeLevel = keyof typeof DECK_SIZE_LEVEL
 
 // biome-ignore format:
 export const bamboo = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
@@ -368,10 +353,6 @@ export function getStandardDeck() {
   )
 }
 
-export function getDeckPairsSize(level: number) {
-  return DECK_SIZE_LEVEL[level as keyof typeof DECK_SIZE_LEVEL] / 2
-}
-
 export type Position = {
   x: number
   y: number
@@ -477,7 +458,7 @@ export function isFree(tileDb: TileDb, tile: Tile, powerupsDb?: PowerupDb) {
   const material = getMaterial(tile, powerupsDb)
 
   if (material === "jade") return !isCovered
-  if (material === "amber" || material === "glass") {
+  if (material === "glass") {
     return countFreedoms >= 1 && !isCovered
   }
 
@@ -486,11 +467,11 @@ export function isFree(tileDb: TileDb, tile: Tile, powerupsDb?: PowerupDb) {
     return isFreeH && !isCovered
   }
 
-  if (material === "bronze" || material === "silver") {
-    return countFreedoms >= 3 && !isCovered
+  if (material === "bronze") {
+    return countFreedoms >= 2 && !isCovered
   }
 
-  return countFreedoms === 4 && !isCovered
+  return countFreedoms >= 3 && !isCovered
 }
 
 export function getMaterial(tile: Tile, powerupsDb?: PowerupDb) {
@@ -532,15 +513,7 @@ export function cardName(card: Card) {
   return `${suitName(card)} ${getRank(card)}`
 }
 
-export const materials = [
-  "glass",
-  "amber",
-  "jade",
-  "bone",
-  "bronze",
-  "silver",
-  "gold",
-] as const
+export const materials = ["glass", "jade", "bone", "bronze", "gold"] as const
 export type Material = (typeof materials)[number]
 
 export type Powerup = {
@@ -635,7 +608,6 @@ export function getPowerups(powerupsDb: PowerupDb, tile: Tile) {
 }
 
 export type MapType = (number | null)[][][]
-export type MapName = keyof typeof maps
 
 export function mapGet(map: MapType, x: number, y: number, z: number) {
   if (x < 0 || y < 0 || z < 0) return null
@@ -643,35 +615,30 @@ export function mapGet(map: MapType, x: number, y: number, z: number) {
   return map[z]?.[y]?.[x]?.toString() ?? null
 }
 
-export function mapName(tiles: number): MapName {
-  if (tiles < DECK_SIZE_LEVEL[2]) return "map68"
-  if (tiles < DECK_SIZE_LEVEL[3]) return "map84"
-  if (tiles < DECK_SIZE_LEVEL[4]) return "map100"
-  if (tiles < DECK_SIZE_LEVEL[5]) return "map120"
-
-  return "default"
+export function mapGetWidth() {
+  return PROGRESSIVE_MAP[0]![0]!.length
 }
 
-export function mapGetWidth(map: MapType) {
-  return map[0]![0]!.length
+export function mapGetHeight() {
+  return PROGRESSIVE_MAP[0]!.length
 }
 
-export function mapGetHeight(map: MapType) {
-  return map[0]!.length
-}
-
-export function mapGetLevels(map: MapType) {
-  return map.length
-}
-
-export const maps = {
-  map68: MAP_68,
-  map84: MAP_84,
-  map100: MAP_100,
-  map120: MAP_120,
-  default: DEFAULT_MAP,
+export function mapGetLevels() {
+  return PROGRESSIVE_MAP.length
 }
 
 export function isTransparent(material: Material) {
-  return material === "glass" || material === "amber" || material === "jade"
+  return material === "glass" || material === "jade"
+}
+
+export function getMap(tiles: number) {
+  const limitedMap = JSON.parse(JSON.stringify(PROGRESSIVE_MAP))
+
+  return limitedMap.map((level: (number | null)[][]) =>
+    level.map((row: (number | null)[]) =>
+      row.map((tile: number | null) =>
+        tile !== null && tile > tiles ? null : tile,
+      ),
+    ),
+  )
 }

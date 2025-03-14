@@ -315,9 +315,49 @@ export const detailsContentClass = style({
 
 export const buttonsClass = style({
   display: "flex",
-  gap: 12,
+  gap: 24,
   justifyContent: "space-between",
-  alignItems: "end",
+})
+
+export const materialUpgradeClass = style({
+  border: "none",
+  background: "none",
+  transition: "all 0.2s ease-in-out",
+  cursor: "pointer",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 12,
+  padding: 0,
+  ":hover": {
+    filter: "brightness(1.1)",
+  },
+})
+
+export const materialUpgradeTitleClass = recipe({
+  base: {
+    ...fontSize.l,
+    fontFamily: primary,
+  },
+  variants: {
+    material: {
+      glass: {
+        color: materialColors.glass[10],
+      },
+      jade: {
+        color: materialColors.jade[10],
+      },
+      bone: {
+        color: materialColors.bone[10],
+      },
+      bronze: {
+        color: materialColors.bronze[10],
+      },
+      gold: {
+        color: materialColors.gold[10],
+      },
+    },
+  },
 })
 
 export const detailTitleClass = style({
@@ -332,17 +372,17 @@ export const detailTitleClass = style({
 })
 
 export const detailInfoClass = style({
-  padding: 12,
-  borderRadius: 8,
+  padding: 8,
+  borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(color.tile90, 0.2)}, ${alpha(color.tile90, 0.4)})`,
 })
 
 export const detailFreedomClass = style({
   display: "flex",
   flexDirection: "column",
-  gap: 12,
-  padding: 12,
-  borderRadius: 8,
+  gap: 4,
+  padding: 8,
+  borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[50], 0.2)}, ${alpha(materialColors.bronze[50], 0.4)})`,
 })
 
@@ -358,8 +398,8 @@ export const detailListClass = recipe({
     gridGap: 12,
     width: "100%",
     gridTemplateColumns: "max-content",
-    padding: 12,
-    borderRadius: 8,
+    padding: 8,
+    borderRadius: 4,
     fontVariantLigatures: "none",
   },
   variants: {
@@ -384,7 +424,7 @@ export const detailListClass = recipe({
 })
 
 export const detailTermClass = style({
-  ...fontSize.m,
+  ...fontSize.s,
   fontFamily: primary,
   justifySelf: "start",
   selectors: {
@@ -407,7 +447,7 @@ export const detailTermClass = style({
 })
 
 export const detailDescriptionClass = style({
-  ...fontSize.l,
+  ...fontSize.s,
   fontFamily: primary,
   justifySelf: "end",
   gridColumnStart: 2,

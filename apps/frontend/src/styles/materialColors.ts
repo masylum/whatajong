@@ -8,15 +8,6 @@ export const materialColors = {
     10: "#4A7B92",
   },
 
-  amber: {
-    60: "#ffeaa5",
-    50: "#efce64",
-    40: "#d8bc4a",
-    30: "#c5a82e",
-    20: "#b6991e",
-    10: "#ab8e09",
-  },
-
   jade: {
     60: "#e0f3dd",
     50: "#c4e1bf",
@@ -42,15 +33,6 @@ export const materialColors = {
     30: "#f09465",
     20: "#d1713d",
     10: "#bd6339",
-  },
-
-  silver: {
-    60: "#fcf8f1",
-    50: "#f2eee7",
-    40: "#e5e1da",
-    30: "#d4d0ca",
-    20: "#c1bdb7",
-    10: "#b1ada7",
   },
 
   gold: {
