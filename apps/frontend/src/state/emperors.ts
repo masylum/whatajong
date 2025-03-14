@@ -26,7 +26,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "the_odd_one",
-    description: "Matching odd numbers have +1 points.",
+    description: "Matching odd numbers have +2 points.",
     getRawPoints({ card }) {
       if (!card) return 0
       const rank = Number.parseInt(getRank(card))
@@ -38,7 +38,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "the_even_one",
-    description: "Matching even numbers have +1 points.",
+    description: "Matching even numbers have +2 points.",
     getRawPoints({ card }) {
       if (!card) return 0
       const rank = Number.parseInt(getRank(card))
@@ -52,15 +52,15 @@ export const EMPERORS: Emperor[] = [
     name: "the_mathematician",
     description: "Crack tiles have +1 mult.",
     getRawMultiplier({ card }) {
-      return card && isCharacter(card) ? 1 : 0
+      return card && isCharacter(card) ? 1 / 2 : 0
     },
   },
   {
     level: 1,
     name: "the_gardener",
-    description: "Bamb tiles have +3 points.",
+    description: "Bamb tiles have +2 points.",
     getRawPoints({ card }) {
-      return card && isBamboo(card) ? 3 : 0
+      return card && isBamboo(card) ? 1 : 0
     },
   },
   // {
@@ -71,9 +71,9 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "the_bird_watcher",
-    description: "'Bamb 1' tile have +30 points.",
+    description: "'Bamb 1' tile has +12 points.",
     getRawPoints({ card }) {
-      return card === "b1" ? 30 : 0
+      return card === "b1" ? 6 : 0
     },
   },
   {
@@ -81,7 +81,7 @@ export const EMPERORS: Emperor[] = [
     name: "the_third_eye",
     description: "Matching a 3 has +1 mult.",
     getRawMultiplier({ card }) {
-      return card && getRank(card) === "3" ? 1 : 0
+      return card && getRank(card) === "3" ? 1 / 2 : 0
     },
   },
   // {
@@ -125,7 +125,7 @@ export const EMPERORS: Emperor[] = [
     name: "the_glass_blower",
     description: "+3 points for glass tiles.",
     getRawPoints({ material }) {
-      return material === "glass" ? 3 : 0
+      return material === "glass" ? 3 / 2 : 0
     },
   },
   {
@@ -133,7 +133,7 @@ export const EMPERORS: Emperor[] = [
     name: "the_jadeist",
     description: "+2 mult for jade tiles.",
     getRawMultiplier({ material }) {
-      return material === "jade" ? 2 : 0
+      return material === "jade" ? 1 : 0
     },
   },
   {
@@ -141,7 +141,7 @@ export const EMPERORS: Emperor[] = [
     name: "the_smith",
     description: "Bronze tiles have +1 mult.",
     getRawMultiplier({ material }) {
-      return material === "bronze" ? 1 : 0
+      return material === "bronze" ? 1 / 2 : 0
     },
   },
   // {
