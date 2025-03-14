@@ -7,7 +7,6 @@ export const miniTileClass = recipe({
     border: `1px solid ${color.tile40}`,
     borderRadius: "4px",
     padding: 2,
-    background: `linear-gradient(45deg, ${color.tile80} 60%, ${color.tile70})`,
     display: "inline-block",
     verticalAlign: "middle",
     boxShadow: `0 0 4px -1px ${alpha(color.tile40, 0.5)}`,
@@ -16,19 +15,19 @@ export const miniTileClass = recipe({
   variants: {
     material: {
       glass: {
-        background: `linear-gradient(45deg, ${materialColors.glass[60]} 60%, ${materialColors.glass[50]})`,
+        background: `linear-gradient(45deg, ${materialColors.glass[90]} 60%, ${materialColors.glass[80]})`,
       },
       jade: {
-        background: `linear-gradient(45deg, ${materialColors.jade[60]} 60%, ${materialColors.jade[50]})`,
+        background: `linear-gradient(45deg, ${materialColors.jade[90]} 60%, ${materialColors.jade[80]})`,
       },
       bone: {
-        background: `linear-gradient(45deg, ${materialColors.bone[60]} 60%, ${materialColors.bone[50]})`,
+        background: `linear-gradient(45deg, ${materialColors.bone[90]} 60%, ${materialColors.bone[80]})`,
       },
       bronze: {
-        background: `linear-gradient(45deg, ${materialColors.bronze[60]} 60%, ${materialColors.bronze[50]})`,
+        background: `linear-gradient(45deg, ${materialColors.bronze[90]} 60%, ${materialColors.bronze[80]})`,
       },
       gold: {
-        background: `linear-gradient(45deg, ${materialColors.gold[60]} 60%, ${materialColors.gold[50]})`,
+        background: `linear-gradient(45deg, ${materialColors.gold[90]} 60%, ${materialColors.gold[80]})`,
       },
     },
     highlighted: {

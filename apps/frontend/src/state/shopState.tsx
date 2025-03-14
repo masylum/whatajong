@@ -16,13 +16,15 @@ import {
   type Material,
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
-import { nanoid } from "nanoid"
 import { countBy, entries } from "remeda"
+import { EMPERORS } from "./emperors"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 export const ITEM_COST = 3
+export const EMPEROR_COST = 5
 export const SELL_TILE_AMOUNT = 1
 export const SELL_MATERIAL_AMOUNT = 1
+export const SELL_EMPEROR_AMOUNT = 2
 
 const MINERAL_PATH = ["glass", "jade"] as const
 const METAL_PATH = ["bronze", "gold"] as const
@@ -31,15 +33,13 @@ type BaseItem = {
   id: string
   level: number
 }
-export type MaterialItem = BaseItem & {
-  material: Material
-  suit: keyof typeof SUITS
-  type: "material"
+
+export type EmperorItem = BaseItem & {
+  type: "emperor"
+  name: string
+  description: string
 }
-// TODO: Add other items
-type OtherItem = BaseItem & {
-  type: "emperor" | "horoscope"
-}
+
 export type TileItem = BaseItem & {
   card: Card
   type: "tile"
@@ -48,7 +48,7 @@ export type UpgradeItem = BaseItem & {
   type: "upgrade"
   level: number
 }
-export type Item = MaterialItem | TileItem | UpgradeItem | OtherItem
+export type Item = TileItem | UpgradeItem | EmperorItem
 export type ShopState = {
   reroll: number
   currentItem: Item | null
@@ -89,41 +89,41 @@ export function createShopState(params: CreateShopStateParams) {
   })
 }
 
-function generateTileItems(num: number, cards: Card[], level: number) {
-  return Array.from({ length: num }, () =>
+function generateTileItems(level: number, num: number, cards: Card[]) {
+  return Array.from({ length: num }, (_, i) =>
     cards.flatMap(
-      (card) => ({ id: nanoid(), card, type: "tile", level }) as const,
+      (card, j) =>
+        ({ id: `tile-${level}-${i}-${j}`, card, type: "tile", level }) as const,
     ),
   ).flat()
 }
 
-const TILE_ITEMS: TileItem[] = [
-  ...generateTileItems(4, [...bamboo, ...character, ...circle], 1),
-  ...generateTileItems(1, [...bamboo, ...character, ...circle], 2),
-  ...generateTileItems(5, [...winds, ...dragons], 2),
-  ...generateTileItems(1, [...bamboo, ...character, ...circle], 3),
-  ...generateTileItems(1, [...winds, ...dragons], 3),
-  ...generateTileItems(6, [...flowers, ...seasons], 3),
-  ...generateTileItems(1, [...bamboo, ...character, ...circle], 4),
-  ...generateTileItems(1, [...winds, ...dragons], 4),
-  ...generateTileItems(1, [...flowers, ...seasons], 4),
-  ...generateTileItems(1, [...bamboo, ...character, ...circle], 5),
-  ...generateTileItems(1, [...winds, ...dragons], 5),
-  ...generateTileItems(1, [...flowers, ...seasons], 5),
+export function generateEmperorItems() {
+  return EMPERORS.flatMap((emperor, i) => ({
+    id: `emperor-${i}`,
+    name: emperor.name,
+    type: "emperor" as const,
+    level: emperor.level,
+    description: emperor.description,
+  }))
+}
+
+export const ITEMS: Item[] = [
+  ...generateTileItems(1, 5, [...bamboo, ...character, ...circle]),
+  ...generateTileItems(2, 1, [...bamboo, ...character, ...circle]),
+  ...generateTileItems(2, 6, [...winds, ...dragons]),
+  ...generateTileItems(3, 1, [...bamboo, ...character, ...circle]),
+  ...generateTileItems(3, 1, [...winds, ...dragons]),
+  ...generateTileItems(3, 7, [...flowers, ...seasons]),
+  ...generateTileItems(4, 1, [...bamboo, ...character, ...circle]),
+  ...generateTileItems(4, 1, [...winds, ...dragons]),
+  ...generateTileItems(4, 1, [...flowers, ...seasons]),
+  ...generateTileItems(5, 1, [...bamboo, ...character, ...circle]),
+  ...generateTileItems(5, 1, [...winds, ...dragons]),
+  ...generateTileItems(5, 1, [...flowers, ...seasons]),
+  ...generateEmperorItems(),
   // TODO: tier 4 and 5 tiles
 ]
-
-const SUITS = {
-  b: 0,
-  c: 0,
-  o: 0,
-  d: 1,
-  w: 1,
-  f: 2,
-  s: 2,
-} as const
-
-const ITEMS = [...TILE_ITEMS]
 
 export function generateItems(run: RunState, reroll: number) {
   const runId = run.runId
@@ -155,7 +155,7 @@ export function buyItem(
   item: Item,
   fn: () => void,
 ) {
-  const cost = ITEM_COST
+  const cost = item.type === "emperor" ? EMPEROR_COST : ITEM_COST
   const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 
@@ -267,4 +267,23 @@ export function getTransformation(
   }
 
   return { adds, updates, removes }
+}
+
+export function sellEmperor(
+  run: RunState,
+  shop: ShopState,
+  emperor: EmperorItem,
+) {
+  const cost = SELL_EMPEROR_AMOUNT
+  const money = run.money
+
+  batch(() => {
+    run.money = money + cost
+    shop.currentItem = null
+    run.items = run.items.filter((item) => item.id !== emperor.id)
+  })
+}
+
+export function maxEmperors(run: RunState) {
+  return 2 + run.shopLevel
 }

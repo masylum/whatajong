@@ -1,4 +1,4 @@
-import { createMemo, Show } from "solid-js"
+import { createMemo, For, Show } from "solid-js"
 import {
   GameStateProvider,
   createGameState,
@@ -10,16 +10,23 @@ import { Board } from "@/components/game/board"
 import { GameOverRun } from "./gameOverRun"
 import { useRound, useRunState } from "@/state/runState"
 import { Frame } from "@/components/game/frame"
-import { containerClass, menuContainerClass } from "./runGame.css"
+import {
+  containerClass,
+  menuContainerClass,
+  roundBoxClass,
+  roundClass,
+  topContainerClass,
+} from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
 import { Bell } from "@/components/icon"
 import { Button } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
-import { selectTile } from "@/lib/game"
+import { getEmperors, selectTile } from "@/lib/game"
 import { createTileState, TileStateProvider } from "@/state/tileState"
 import { createPowerupState, PowerupStateProvider } from "@/state/powerupState"
+import { Emperor } from "@/components/emperor"
 
 export default function RunGame() {
   const run = useRunState()
@@ -46,6 +53,7 @@ export default function RunGame() {
                         selectTile({
                           tileDb: tiles(),
                           powerupsDb: powerups(),
+                          run,
                           game: state,
                           tileId,
                         })
@@ -67,8 +75,20 @@ export default function RunGame() {
 }
 
 function Top() {
+  const run = useRunState()
+  const emperors = createMemo(() => getEmperors(run))
+
   return (
     <div class={containerClass}>
+      <div class={topContainerClass}>
+        <div class={roundClass}>
+          <div class={roundBoxClass({ hue: "bamboo" })}>Round {run.round}</div>
+          <div class={roundBoxClass({ hue: "gold" })}>Coins: {run.money}</div>
+        </div>
+        <For each={emperors()}>
+          {(emperor) => <Emperor name={emperor.name} />}
+        </For>
+      </div>
       <Powerups />
     </div>
   )

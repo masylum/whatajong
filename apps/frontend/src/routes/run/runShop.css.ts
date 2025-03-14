@@ -13,6 +13,7 @@ export const shopClass = style({
   gridTemplateAreas: `
     "title next"
     "items details"
+    "emperors details"
     "deck details"
   `,
   gap: 32,
@@ -27,7 +28,7 @@ export const titleClass = style({
   gridArea: "title",
   ...fontSize.hero3,
   fontFamily: primary,
-  color: materialColors.jade[10],
+  color: materialColors.jade[20],
 })
 
 export const deckClass = style({
@@ -36,8 +37,9 @@ export const deckClass = style({
   flexDirection: "column",
   justifyContent: "space-between",
   padding: 16,
-  border: `2px solid ${alpha(color.bamboo50, 0.1)}`,
+  gap: 16,
   borderRadius: 8,
+  border: `2px solid ${alpha(color.bamboo50, 0.1)}`,
   background: `linear-gradient(to bottom, ${alpha(color.bamboo70, 0.4)}, ${alpha(color.bamboo70, 0.5)})`,
 })
 
@@ -83,7 +85,7 @@ export const deckItemClass = recipe({
   },
 })
 
-export const statusClass = style({
+export const deckTitleClass = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
@@ -95,11 +97,11 @@ export const statusClass = style({
 export const moneyClass = style({
   ...fontSize.h3,
   fontFamily: primary,
-  background: `linear-gradient(to bottom, ${materialColors.gold[60]}, ${materialColors.gold[50]})`,
-  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[60]},
-    0px 0px 0px 1px ${materialColors.gold[30]},
-    0px 0px 3px -1px ${materialColors.gold[10]},
-    0px 0px 10px -5px ${materialColors.gold[10]}`,
+  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
+  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
+    0px 0px 0px 1px ${materialColors.gold[60]},
+    0px 0px 3px -1px ${materialColors.gold[30]},
+    0px 0px 10px -5px ${materialColors.gold[30]}`,
   color: color.tile10,
   paddingInline: 16,
   paddingBlock: 8,
@@ -189,11 +191,11 @@ export const itemTitleClass = style({
 export const itemCostClass = style({
   ...fontSize.m,
   fontFamily: primary,
-  background: `linear-gradient(to bottom, ${materialColors.gold[60]}, ${materialColors.gold[50]})`,
-  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[60]},
-    0px 0px 0px 1px ${materialColors.gold[30]},
-    0px 0px 3px -1px ${materialColors.gold[10]},
-    0px 0px 10px -5px ${materialColors.gold[10]}`,
+  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
+  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
+    0px 0px 0px 1px ${materialColors.gold[60]},
+    0px 0px 3px -1px ${materialColors.gold[30]},
+    0px 0px 10px -5px ${materialColors.gold[30]}`,
   color: color.tile10,
   paddingInline: 12,
   paddingBlock: 2,
@@ -342,19 +344,19 @@ export const materialUpgradeTitleClass = recipe({
   variants: {
     material: {
       glass: {
-        color: materialColors.glass[10],
+        color: materialColors.glass[20],
       },
       jade: {
-        color: materialColors.jade[10],
+        color: materialColors.jade[20],
       },
       bone: {
-        color: materialColors.bone[10],
+        color: materialColors.bone[20],
       },
       bronze: {
-        color: materialColors.bronze[10],
+        color: materialColors.bronze[20],
       },
       gold: {
-        color: materialColors.gold[10],
+        color: materialColors.gold[20],
       },
     },
   },
@@ -383,13 +385,13 @@ export const detailFreedomClass = style({
   gap: 4,
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[50], 0.2)}, ${alpha(materialColors.bronze[50], 0.4)})`,
+  background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[80], 0.2)}, ${alpha(materialColors.bronze[80], 0.4)})`,
 })
 
 export const detailFreedomTitleClass = style({
   ...fontSize.m,
   fontFamily: primary,
-  color: materialColors.bronze[10],
+  color: materialColors.bronze[20],
 })
 
 export const detailListClass = recipe({
@@ -404,20 +406,20 @@ export const detailListClass = recipe({
   },
   variants: {
     type: {
-      points: {
+      circle: {
         background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.1)}, ${alpha(color.circle50, 0.2)})`,
       },
-      multiplier: {
+      character: {
         background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
       },
-      total: {
+      bamboo: {
         background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.1)}, ${alpha(color.bamboo50, 0.2)})`,
       },
       bronze: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[40], 0.2)}, ${alpha(materialColors.bronze[40], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[70], 0.2)}, ${alpha(materialColors.bronze[70], 0.3)})`,
       },
       gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[40], 0.2)}, ${alpha(materialColors.gold[40], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[70], 0.2)}, ${alpha(materialColors.gold[70], 0.3)})`,
       },
     },
   },
@@ -428,20 +430,20 @@ export const detailTermClass = style({
   fontFamily: primary,
   justifySelf: "start",
   selectors: {
-    [`${detailListClass.classNames.variants.type.points} &`]: {
+    [`${detailListClass.classNames.variants.type.circle} &`]: {
       color: color.circle30,
     },
-    [`${detailListClass.classNames.variants.type.multiplier} &`]: {
+    [`${detailListClass.classNames.variants.type.character} &`]: {
       color: color.character30,
     },
-    [`${detailListClass.classNames.variants.type.total} &`]: {
+    [`${detailListClass.classNames.variants.type.bamboo} &`]: {
       color: color.bamboo30,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.tile30,
+      color: materialColors.bronze[20],
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.tile30,
+      color: materialColors.gold[20],
     },
   },
 })
@@ -452,14 +454,11 @@ export const detailDescriptionClass = style({
   justifySelf: "end",
   gridColumnStart: 2,
   selectors: {
-    [`${detailListClass.classNames.variants.type.points} &`]: {
+    [`${detailListClass.classNames.variants.type.circle} &`]: {
       color: color.circle10,
     },
-    [`${detailListClass.classNames.variants.type.multiplier} &`]: {
+    [`${detailListClass.classNames.variants.type.character} &`]: {
       color: color.character10,
-    },
-    [`${detailListClass.classNames.variants.type.total} &`]: {
-      color: color.bamboo10,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
       color: color.tile10,
@@ -469,3 +468,93 @@ export const detailDescriptionClass = style({
     },
   },
 })
+
+export const emperorClass = recipe({
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 16,
+    justifyContent: "center",
+    border: "none",
+    background: "none",
+    padding: 0,
+    color: color.character10,
+    position: "relative",
+    transition: "all 0.2s ease-in-out",
+    left: 0,
+    top: 0,
+  },
+  variants: {
+    disabled: {
+      true: {
+        filter: "brightness(0.8) saturate(0.8)",
+      },
+      false: {
+        cursor: "pointer",
+        ":hover": {
+          filter: "brightness(1.1)",
+        },
+      },
+    },
+    selected: {
+      true: {
+        filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.character10, 0.3)})`,
+        left: 4,
+        top: -4,
+        ":hover": {
+          filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.character10, 0.3)})`,
+        },
+      },
+    },
+  },
+})
+
+export const emperorDetailsClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+})
+
+export const emperorDetailsTitleClass = style({
+  ...fontSize.h2,
+  fontFamily: primary,
+  color: color.character10,
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+})
+
+export const emperorDetailsDescriptionClass = style({
+  padding: 8,
+  borderRadius: 4,
+  background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
+  color: color.character10,
+  ...fontSize.m,
+})
+
+export const ownedEmperorsClass = style({
+  gridArea: "emperors",
+  display: "flex",
+  flexDirection: "column",
+  padding: 16,
+  borderRadius: 8,
+  gap: 16,
+  border: `2px solid ${alpha(color.character50, 0.1)}`,
+  background: `linear-gradient(to bottom, ${alpha(color.character70, 0.4)}, ${alpha(color.character70, 0.5)})`,
+})
+
+export const ownedEmperorsTitleClass = style({
+  ...fontSize.h2,
+  fontFamily: primary,
+  color: color.character20,
+})
+
+export const ownedEmperorsListClass = style({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 12,
+  justifyContent: "center",
+})
+
+export const MINI_TILE_SIZE = 24

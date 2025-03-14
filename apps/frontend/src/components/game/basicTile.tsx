@@ -24,9 +24,9 @@ export function BasicTile(props: Props) {
 
   return (
     <svg
+      {...other}
       width={width()}
       height={height()}
-      {...other}
       class={[tileClass, other.class].filter(Boolean).join(" ")}
     >
       <TileSide d={dPath()} material={local.material} />

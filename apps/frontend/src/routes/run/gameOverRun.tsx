@@ -70,43 +70,45 @@ export function GameOverRun() {
   return (
     <GameOver win={win()}>
       <div class={pointsContainerClass}>
-        <dl class={detailListClass({ hue: "gold" })}>
-          <dt class={detailTermClass}>Round Reward</dt>
-          <dd class={detailDescriptionClass}>+{reward()}</dd>
-          <Show when={tileCoins()}>
-            {(coins) => (
-              <>
-                <dt class={detailTermClass}>Tile coins</dt>
-                <dd class={detailDescriptionClass}>+{coins()}</dd>
-              </>
-            )}
-          </Show>
-          <Show when={passiveIncome()}>
-            {(coins) => (
-              <>
-                <dt class={detailTermClass}>Passive income</dt>
-                <dd class={detailDescriptionClass}>+{coins()}</dd>
-              </>
-            )}
-          </Show>
-          <Show when={overAchievementCoins()}>
-            {(coins) => (
-              <>
-                <dt class={detailTermClass}>
-                  Over achiever ({Math.round(achievement() * 100)} %)
-                </dt>
-                <dd class={detailDescriptionClass}>+{coins()}</dd>
-              </>
-            )}
-          </Show>
-        </dl>
+        <Show when={win()}>
+          <dl class={detailListClass({ hue: "gold" })}>
+            <dt class={detailTermClass}>Round Reward</dt>
+            <dd class={detailDescriptionClass}>+{reward()}</dd>
+            <Show when={tileCoins()}>
+              {(coins) => (
+                <>
+                  <dt class={detailTermClass}>Tile coins</dt>
+                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                </>
+              )}
+            </Show>
+            <Show when={passiveIncome()}>
+              {(coins) => (
+                <>
+                  <dt class={detailTermClass}>Passive income</dt>
+                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                </>
+              )}
+            </Show>
+            <Show when={overAchievementCoins()}>
+              {(coins) => (
+                <>
+                  <dt class={detailTermClass}>
+                    Over achiever ({Math.round(achievement() * 100)} %)
+                  </dt>
+                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                </>
+              )}
+            </Show>
+          </dl>
+        </Show>
 
         <dl class={detailListClass({ hue: "bamb" })}>
           <dt class={detailTermClass}>Points</dt>
           <dd class={detailDescriptionClass}>{points()}</dd>
-          <Show when={round().emptyBoardBonus}>
+          <Show when={bonus()}>
             <dt class={detailTermClass}>Bonus</dt>
-            <dd class={detailDescriptionClass}>{round().emptyBoardBonus}</dd>
+            <dd class={detailDescriptionClass}>{bonus()}</dd>
           </Show>
         </dl>
 

@@ -8,7 +8,7 @@ import {
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-// TODO: move to board?
+// TODO: move to game state
 export const [muted, setMuted] = createSignal(false)
 
 type CreateGameStateParams = { id: () => string }

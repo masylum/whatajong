@@ -3,6 +3,9 @@ import { batch } from "solid-js"
 import { nanoid } from "nanoid"
 import { initDatabase, type Database } from "./in-memoriam"
 import { PROGRESSIVE_MAP } from "./maps/progressive"
+import type { RunState } from "@/state/runState"
+import { EMPERORS } from "@/state/emperors"
+import { sumBy } from "remeda"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
@@ -85,18 +88,22 @@ export function getMaterialMultiplier(material: Material) {
   }
 }
 
-export function getPoints(powerupsDb: PowerupDb, tiles: Tile[]) {
+export function getPoints({
+  powerupsDb,
+  run,
+  tiles,
+}: { powerupsDb: PowerupDb; run?: RunState; tiles: Tile[] }) {
   let points = 0
   let multiplier = 1
 
   for (const tile of tiles) {
-    points += getRawPoints(tile.card, tile.material)
-    console.log(
-      tile,
-      getRawPoints(tile.card, tile.material),
-      getRawMultiplier(powerupsDb, tile.card, tile.material),
-    )
-    multiplier += getRawMultiplier(powerupsDb, tile.card, tile.material)
+    points += getRawPoints({ card: tile.card, material: tile.material, run })
+    multiplier += getRawMultiplier({
+      powerupsDb,
+      card: tile.card,
+      material: tile.material,
+      run,
+    })
   }
 
   return points * multiplier
@@ -113,22 +120,49 @@ export function getCoins(material: Material): number {
   }
 }
 
-export function getRawPoints(card: Card, material: Material) {
+export function getRawPoints({
+  card,
+  run,
+  material,
+}: { card: Card; run?: RunState; material: Material }) {
   const cardPoints = getCardPoints(card)
   const materialPoints = getMaterialPoints(material)
+  const emperorPoints = sumBy(
+    getEmperors(run),
+    (emperor) => emperor.getRawPoints?.({ card, material }) ?? 0,
+  )
 
-  return cardPoints + materialPoints
+  return cardPoints + materialPoints + emperorPoints
 }
 
-export function getRawMultiplier(
-  powerupsDb: PowerupDb,
-  card: Card,
-  material: Material,
-) {
-  const materialMultiplier = getMaterialMultiplier(material)
-  const dragonRunMultiplier = getDragonMultiplier(powerupsDb, card)
+export function getRawMultiplier({
+  powerupsDb,
+  card,
+  material,
+  run,
+}: {
+  powerupsDb?: PowerupDb
+  card?: Card
+  material?: Material
+  run?: RunState
+}) {
+  let materialMultiplier = 0
+  let dragonRunMultiplier = 0
 
-  return materialMultiplier + dragonRunMultiplier
+  if (material) {
+    materialMultiplier = getMaterialMultiplier(material)
+  }
+
+  if (powerupsDb && card) {
+    dragonRunMultiplier = getDragonMultiplier(powerupsDb, card)
+  }
+
+  const emperorMultiplier = sumBy(
+    getEmperors(run),
+    (emperor) => emperor.getRawMultiplier?.({ card, material }) ?? 0,
+  )
+
+  return materialMultiplier + dragonRunMultiplier + emperorMultiplier
 }
 
 export function getFreeTiles(tileDb: TileDb, powerupsDb?: PowerupDb): Tile[] {
@@ -140,11 +174,13 @@ export function getFreeTiles(tileDb: TileDb, powerupsDb?: PowerupDb): Tile[] {
 export function selectTile({
   tileDb,
   powerupsDb,
+  run,
   game,
   tileId,
 }: {
   tileDb: TileDb
   powerupsDb: PowerupDb
+  run?: RunState
   game: Game
   tileId: string
 }) {
@@ -171,7 +207,11 @@ export function selectTile({
     tileDb.set(firstTile.id, { ...firstTile, selected: false })
 
     if (cardsMatch(firstTile.card, tile.card)) {
-      const newPoints = getPoints(powerupsDb, [tile, firstTile])
+      const newPoints = getPoints({
+        powerupsDb,
+        run,
+        tiles: [tile, firstTile],
+      })
       deleteTiles(tileDb, [tile, firstTile])
       resolveWinds(tileDb, powerupsDb, tile)
       getPowerups(powerupsDb, tile)
@@ -641,4 +681,17 @@ export function getMap(tiles: number) {
       ),
     ),
   )
+}
+
+export function getEmperors(run?: RunState) {
+  if (!run) return []
+
+  const names = new Set(
+    run.items
+      .filter((item) => item.type === "emperor")
+      .map((item) => item.name),
+  )
+  if (!names.size) return []
+
+  return EMPERORS.filter((emperor) => names.has(emperor.name))
 }

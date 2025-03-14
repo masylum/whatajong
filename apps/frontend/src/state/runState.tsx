@@ -5,8 +5,9 @@ import {
   useContext,
   type ParentProps,
 } from "solid-js"
-import type { Item } from "./shopState"
+import { generateEmperorItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
+import { shuffle } from "@/lib/rand"
 
 const RUN_STATE_NAMESPACE = "run-state"
 
@@ -56,6 +57,11 @@ export function useRound() {
 
 type CreateRunStateParams = { id: () => string }
 export function createRunState(params: CreateRunStateParams) {
+  const rng = new Rand(`run-${params.id()}`)
+  const initialEmperor = shuffle(generateEmperorItems(), rng).filter(
+    (emperor) => emperor.level === 1,
+  )[0]!
+
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
@@ -65,7 +71,7 @@ export function createRunState(params: CreateRunStateParams) {
       round: 1,
       stage: "select",
       shopLevel: 1,
-      items: [],
+      items: [initialEmperor],
     },
   })
 }
@@ -76,7 +82,7 @@ export function generateRound(id: number, runId: string): Round {
 
   const rand = rng.next()
   const timerPoints = Math.round((rand * id) / 5)
-  const pointObjective = 90 + (id - 1) ** 3
+  const pointObjective = 140 + (id - 1) ** 3
 
   const round: Round = {
     id,

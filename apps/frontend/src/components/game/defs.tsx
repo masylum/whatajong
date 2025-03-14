@@ -32,14 +32,14 @@ export function Defs() {
           {([material, ids]) => (
             <>
               <linearGradient id={ids.body} gradientTransform="rotate(-45)">
-                <stop offset="0%" stop-color={materialColors[material][60]} />
-                <stop offset="100%" stop-color={materialColors[material][50]} />
+                <stop offset="0%" stop-color={materialColors[material][90]} />
+                <stop offset="100%" stop-color={materialColors[material][70]} />
               </linearGradient>
               <linearGradient id={ids.side} gradientTransform="rotate(45)">
-                <stop offset="0%" stop-color={materialColors[material][40]} />
-                <stop offset="73%" stop-color={materialColors[material][30]} />
-                <stop offset="73%" stop-color={materialColors[material][20]} />
-                <stop offset="100%" stop-color={materialColors[material][10]} />
+                <stop offset="0%" stop-color={materialColors[material][60]} />
+                <stop offset="73%" stop-color={materialColors[material][50]} />
+                <stop offset="73%" stop-color={materialColors[material][40]} />
+                <stop offset="100%" stop-color={materialColors[material][30]} />
               </linearGradient>
             </>
           )}
