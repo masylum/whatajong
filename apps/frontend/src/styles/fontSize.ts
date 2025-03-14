@@ -55,6 +55,10 @@ export const fontSize = {
     fontSize: rem(14),
     lineHeight: rem(20),
   },
+  xs: {
+    fontSize: rem(12),
+    lineHeight: rem(16),
+  },
 } as const
 
 export type FontSize = keyof typeof fontSize

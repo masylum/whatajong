@@ -1,33 +1,41 @@
-import { createMemo, createSignal, Show } from "solid-js"
-import { db, game, muted, setMuted } from "@/state/db"
-import { nanoid } from "nanoid"
+import { createSignal, Show } from "solid-js"
+import { useGameState } from "@/state/gameState"
 import { makeTimer } from "@solid-primitives/timer"
 import {
-  statsContainer,
   statLabel,
   movesClass,
-  timerClass,
-  menuContainer,
+  pointsClass,
+  pointsContainerClass,
 } from "./stats.css"
-import { getAvailablePairs } from "@repo/game/game"
-import { useParams } from "@solidjs/router"
-import { ArrowLeft, Bell, BellOff, Rotate } from "../icon"
-import { LinkButton, Button } from "../button"
+import { getAvailablePairs } from "@/lib/game"
+import { useRound } from "@/state/runState"
+import { useTileState } from "@/state/tileState"
 
-export function Stats() {
-  const params = useParams()
+export function Points() {
+  const game = useGameState()
+  const round = useRound()
+
+  return (
+    <div class={pointsContainerClass}>
+      <div class={pointsClass}>
+        <span class={statLabel}>Points</span>
+        <div>{game.points}</div>
+      </div>
+      <Show when={round().timerPoints}>
+        {(timerPoints) => <Timer timerPoints={timerPoints()} />}
+      </Show>
+    </div>
+  )
+}
+
+function Timer(props: { timerPoints: number }) {
+  const game = useGameState()
   const [time, setTimer] = createSignal(0)
-  const players = createMemo(() => db.players.all)
-
-  const random = createMemo(() => {
-    params.id // force a random id re-generation
-    return nanoid()
-  })
 
   makeTimer(
     () => {
       const now = new Date()
-      const startedAt = game()?.startedAt
+      const startedAt = game.startedAt
       if (!startedAt) return
 
       const diff = Math.floor((now.getTime() - startedAt) / 1000)
@@ -39,37 +47,20 @@ export function Stats() {
   )
 
   return (
-    <div class={statsContainer}>
-      <div class={timerClass}>
-        <span class={statLabel}>Timer</span>
-        <div>{time()}</div>
-      </div>
-      <nav class={menuContainer}>
-        <LinkButton href="/" hue="bamboo">
-          <ArrowLeft />
-          back
-        </LinkButton>
-        <Show when={players().length === 1}>
-          <LinkButton href={`/play/${random()}`} hue="character">
-            <Rotate />
-            restart
-          </LinkButton>
-        </Show>
-        <Button
-          type="button"
-          hue="circle"
-          title="silence"
-          onClick={() => setMuted(!muted())}
-        >
-          <Show when={muted()} fallback={<Bell />}>
-            <BellOff />
-          </Show>
-        </Button>
-      </nav>
-      <div class={movesClass}>
-        <span class={statLabel}>Moves</span>
-        <div>{getAvailablePairs(db.tiles).length}</div>
-      </div>
+    <div class={pointsClass}>
+      <span class={statLabel}>Penalty</span>
+      <div>{time() * props.timerPoints}</div>
+    </div>
+  )
+}
+
+export function Moves() {
+  const tiles = useTileState()
+
+  return (
+    <div class={movesClass}>
+      <span class={statLabel}>Moves</span>
+      <div>{getAvailablePairs(tiles).length}</div>
     </div>
   )
 }

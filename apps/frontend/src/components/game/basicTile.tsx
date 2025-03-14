@@ -1,30 +1,45 @@
-import { SIDE_SIZES, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
+import { TILE_RATIO, TILE_WIDTH } from "@/state/constants"
 import { color, getHueColor, type AccentHue } from "@/styles/colors"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import type { Card } from "@repo/game/deck"
-import { Show, type JSX } from "solid-js"
+import type { Card, Suit, Material } from "@/lib/game"
+import { createMemo, Show, splitProps, type JSX } from "solid-js"
 import { TileImage } from "./tileImage"
 import { strokePath } from "./tileComponent"
+import { tileClass } from "./basicTile.css"
 
 type Props = {
-  card: Card
+  card?: Card | Suit
   highlighted?: AccentHue | "white"
+  material?: Material
+  width?: number
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
+  const [local, other] = splitProps(props, ["card", "highlighted", "material"])
+  const width = createMemo(() => props.width ?? TILE_WIDTH)
+  const height = createMemo(() => width() * TILE_RATIO)
+  const dPath = createMemo(() =>
+    strokePath({ width: width(), height: height() }),
+  )
+
   return (
     <svg
-      width={TILE_WIDTH + 4 * Math.abs(SIDE_SIZES.xSide)}
-      height={TILE_HEIGHT + 4 * Math.abs(SIDE_SIZES.ySide)}
-      {...props}
+      {...other}
+      width={width()}
+      height={height()}
+      class={[tileClass, other.class].filter(Boolean).join(" ")}
     >
-      <TileSide card={props.card} />
-      <TileBody card={props.card} />
-      <TileImage card={props.card} />
-      <Show when={props.highlighted}>
+      <TileSide d={dPath()} material={local.material} />
+      <TileBody material={local.material} width={width()} height={height()} />
+      <Show when={local.card}>
+        {(card) => (
+          <TileImage width={width()} height={height()} card={card()} />
+        )}
+      </Show>
+      <Show when={local.highlighted}>
         {(color) => (
           <path
-            d={strokePath}
+            d={dPath()}
             fill={
               color() === "white" ? "white" : getHueColor(color() as any)(30)
             }
@@ -33,7 +48,7 @@ export function BasicTile(props: Props) {
           />
         )}
       </Show>
-      <path d={strokePath} fill="none" stroke={color.tile30} stroke-width="1" />
+      <path d={dPath()} fill="none" stroke={color.tile30} stroke-width="1" />
     </svg>
   )
 }

@@ -28,6 +28,8 @@ You are a Senior Front-End Developer and an Expert in SolidJS, JavaScript, TypeS
 - CSS class names always end with Class. For example, "boxClass".
 - We use camelCase for functions and variables. We use CamelCase for components. We use UPPER_SNAKE_CASE for constants.
 - When we test, we don't say "should". Example: it('counts the number of free tiles', () => {...})
+- Never use tailwind or inline styles. Never. Only vanilla-extract.
+- Never use React. Never. Only Solid.
 
 ### Spec
 

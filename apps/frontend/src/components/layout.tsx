@@ -1,4 +1,4 @@
-import { Audio } from "./game/audio"
+import { Audio } from "./audio"
 import { Defs } from "./game/defs"
 import type { ParentProps } from "solid-js"
 

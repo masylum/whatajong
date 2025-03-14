@@ -1,4 +1,4 @@
-import { createMemo, For, type JSXElement, type ParentProps } from "solid-js"
+import { For, type JSXElement, type ParentProps } from "solid-js"
 import { BasicTile } from "@/components/game/basicTile"
 import {
   instructionsClass,
@@ -10,27 +10,24 @@ import {
   tileIconClass,
   tileTextClass,
   highlightClass,
-  miniTileClass,
   boxClass,
   iconTextClass,
   tileColumnClass,
 } from "./instructions.css"
-import { SIDE_SIZES, TILE_WIDTH } from "@/state/constants"
+import { getSideSize, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import {
   bamboo,
   character,
   circle,
   dragons,
   flowers,
-  isFlower,
-  isSeason,
   seasons,
   winds,
-  type Card,
-} from "@repo/game/deck"
+} from "@/lib/game"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
 import { ArrowLeft } from "@/components/icon"
+import { MiniTile } from "@/components/miniTile"
 
 export function Instructions() {
   return (
@@ -62,8 +59,8 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile card="b1" />
-            <BasicTile card="b1" />
+            <BasicTile card="b1" style={{ "z-index": 2 }} />
+            <BasicTile card="b1" style={{ "z-index": 1 }} />
           </IconText>
         </Box>
 
@@ -95,39 +92,23 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile
-              card="o1"
-              style={{
-                position: "relative",
-                "margin-left": `${SIDE_SIZES.xSide}px`,
-                "z-index": 3,
-              }}
-            />
+            <BasicTile card="o1" style={{ "z-index": 3 }} />
             <BasicTile
               card="dc"
               style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide - TILE_WIDTH / 2}px`,
-                top: `${-SIDE_SIZES.ySide}px`,
+                "margin-left": `${-TILE_WIDTH / 2 + getSideSize(TILE_WIDTH)}px`,
+                "margin-top": `${-getSideSize(TILE_HEIGHT)}px`,
                 "z-index": 4,
               }}
             />
             <BasicTile
               card="o1"
               style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide - TILE_WIDTH / 2}px`,
+                "margin-left": `${-TILE_WIDTH / 2}px`,
                 "z-index": 2,
               }}
             />
-            <BasicTile
-              card="dc"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 1,
-              }}
-            />
+            <BasicTile card="dc" style={{ "z-index": 1 }} />
           </IconText>
         </Box>
         <Box hue="tile">
@@ -144,30 +125,9 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile
-              card="c1"
-              style={{
-                position: "relative",
-                "margin-left": `${SIDE_SIZES.xSide}px`,
-                "z-index": 3,
-              }}
-            />
-            <BasicTile
-              card="b5"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 2,
-              }}
-            />
-            <BasicTile
-              card="c1"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 1,
-              }}
-            />
+            <BasicTile card="c1" style={{ "z-index": 3 }} />
+            <BasicTile card="b5" style={{ "z-index": 2 }} />
+            <BasicTile card="c1" style={{ "z-index": 1 }} />
           </IconText>
         </Box>
       </section>
@@ -196,11 +156,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": bamboo.length - i(),
-                  }}
+                  style={{ "z-index": bamboo.length - i() }}
                 />
               )}
             </For>
@@ -223,11 +179,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": character.length - i(),
-                  }}
+                  style={{ "z-index": character.length - i() }}
                 />
               )}
             </For>
@@ -246,11 +198,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": circle.length - i(),
-                  }}
+                  style={{ "z-index": circle.length - i() }}
                 />
               )}
             </For>
@@ -262,13 +210,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "firstPlayer" })}>
-                  Dragon
-                </span>{" "}
+                <span class={highlightClass({ hue: "bamboo" })}>Dragon</span>{" "}
                 tiles are worth{" "}
-                <span class={highlightClass({ hue: "firstPlayer" })}>
-                  4 points
-                </span>{" "}
+                <span class={highlightClass({ hue: "bamboo" })}>4 points</span>{" "}
                 each.
               </>
             }
@@ -277,11 +221,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": dragons.length - i(),
-                  }}
+                  style={{ "z-index": dragons.length - i() }}
                 />
               )}
             </For>
@@ -300,11 +240,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": flowers.length - i(),
-                  }}
+                  style={{ "z-index": flowers.length - i() }}
                 />
               )}
             </For>
@@ -325,11 +261,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": seasons.length - i(),
-                  }}
+                  style={{ "z-index": seasons.length - i() }}
                 />
               )}
             </For>
@@ -348,11 +280,7 @@ export function Instructions() {
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{
-                    position: "relative",
-                    "margin-left": `${(i() > 0 ? 4 : 1) * SIDE_SIZES.xSide}px`,
-                    "z-index": winds.length - i(),
-                  }}
+                  style={{ "z-index": winds.length - i() }}
                 />
               )}
             </For>
@@ -436,7 +364,7 @@ export function Instructions() {
       </section>
 
       <section class={sectionClass}>
-        <h2 class={sectionTitleClass}>Joker runs</h2>
+        <h2 class={sectionTitleClass}>Jokers</h2>
         <p class={paragraphClass}>
           <span class={highlightClass({ hue: "flower" })}>Flower</span> and{" "}
           <span class={highlightClass({ hue: "season" })}>Profession</span>{" "}
@@ -467,114 +395,50 @@ export function Instructions() {
             }
           >
             <div class={tileColumnClass}>
-              <div>
+              <div class={tileIconClass}>
                 <BasicTile
                   card="wn"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 3 }}
                 />
-                <BasicTile
-                  card="b1"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
-                />
+                <BasicTile card="b1" style={{ "z-index": 2 }} />
                 <BasicTile
                   card="wn"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 1,
-                  }}
+                  style={{ "z-index": 1 }}
                 />
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  "margin-top": `${5 * -SIDE_SIZES.ySide}px`,
-                }}
-              >
+              <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 6 }}
                 />
-                <BasicTile
-                  card="o1"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
-                />
+                <BasicTile card="o1" style={{ "z-index": 5 }} />
                 <BasicTile
                   card="o1"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 1,
-                  }}
+                  style={{ "z-index": 4 }}
                 />
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  "margin-top": `${5 * -SIDE_SIZES.ySide}px`,
-                }}
-              >
+              <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 9 }}
                 />
-                <BasicTile
-                  card="b1"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
-                />
+                <BasicTile card="b1" style={{ "z-index": 8 }} />
                 <BasicTile
                   card="f2"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 1,
-                  }}
+                  style={{ "z-index": 7 }}
                 />
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  "margin-top": `${5 * -SIDE_SIZES.ySide}px`,
-                }}
-              >
+              <div class={tileIconClass}>
                 <BasicTile
                   card="f1"
                   highlighted="tile"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 10 }}
                 />
               </div>
             </div>
@@ -596,91 +460,46 @@ export function Instructions() {
             }
           >
             <div class={tileColumnClass}>
-              <div>
+              <div class={tileIconClass}>
                 <BasicTile
                   card="wn"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 3 }}
                 />
                 <BasicTile
                   card="b1"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
+                  style={{ "z-index": 2 }}
                 />
                 <BasicTile
                   card="wn"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 1,
-                  }}
+                  style={{ "z-index": 1 }}
                 />
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  "margin-top": `${5 * -SIDE_SIZES.ySide}px`,
-                }}
-              >
+              <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 3 }}
                 />
-                <BasicTile
-                  card="o1"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
-                />
+                <BasicTile card="o1" style={{ "z-index": 2 }} />
                 <BasicTile
                   card="o1"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 1,
-                  }}
+                  style={{ "z-index": 1 }}
                 />
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  "margin-top": `${5 * -SIDE_SIZES.ySide}px`,
-                }}
-              >
+              <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${SIDE_SIZES.xSide}px`,
-                    "z-index": 3,
-                  }}
+                  style={{ "z-index": 3 }}
                 />
                 <BasicTile
                   card="b1"
                   highlighted="flower"
-                  style={{
-                    position: "relative",
-                    "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                    "z-index": 2,
-                  }}
+                  style={{ "z-index": 2 }}
                 />
               </div>
             </div>
@@ -701,38 +520,10 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile
-              card="we"
-              style={{
-                position: "relative",
-                "margin-left": `${SIDE_SIZES.xSide}px`,
-                "z-index": 4,
-              }}
-            />
-            <BasicTile
-              card="ww"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 3,
-              }}
-            />
-            <BasicTile
-              card="wn"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 2,
-              }}
-            />
-            <BasicTile
-              card="ws"
-              style={{
-                position: "relative",
-                "margin-left": `${4 * SIDE_SIZES.xSide}px`,
-                "z-index": 1,
-              }}
-            />
+            <BasicTile card="we" style={{ "z-index": 4 }} />
+            <BasicTile card="ww" style={{ "z-index": 3 }} />
+            <BasicTile card="wn" style={{ "z-index": 2 }} />
+            <BasicTile card="ws" style={{ "z-index": 1 }} />
           </IconText>
         </Box>
 
@@ -742,62 +533,10 @@ export function Instructions() {
         </p>
       </section>
 
-      <h1 class={headerClass}>Multiplayer</h1>
-      <p class={paragraphClass}>
-        When you play against another player, you both compete on the same
-        board. The game ends when you both complete the board or there are no
-        more tiles to remove.
-      </p>
-      <p class={paragraphClass}>
-        Once the game is finished, the player with the highest score wins.
-      </p>
-
-      <section class={sectionClass}>
-        <h2 class={sectionTitleClass}>Strategy Tips</h2>
-        <ul class={paragraphClass}>
-          <li>Clear outer tiles first to access inner tiles</li>
-          <li>
-            Look for opportunities to start dragon combos by matching dragons
-            early.
-          </li>
-          <li>
-            Save <span class={highlightClass({ hue: "flower" })}>Flowers</span>{" "}
-            and{" "}
-            <span class={highlightClass({ hue: "season" })}>Professions</span>{" "}
-            for when you need to access difficult-to-reach tiles.
-          </li>
-          <li>
-            Use <span class={highlightClass({ hue: "circle" })}>Winds</span>{" "}
-            strategically to disrupt your opponent's combo in multiplayer mode.
-          </li>
-          <li>
-            Plan when is the best time to use your{" "}
-            <span class={highlightClass({ hue: "bamboo" })}>Dragons</span> to
-            maximize the points. Use them when they are plenty of free tiles of
-            the matching color.
-          </li>
-          <li>Always think a few moves ahead - plan your sequence of moves.</li>
-        </ul>
-      </section>
-
       <LinkButton href="/" hue="bamboo">
         <ArrowLeft />
         Back
       </LinkButton>
-    </div>
-  )
-}
-
-function MiniTile(props: { card: Card }) {
-  const kind = createMemo(() => {
-    if (isFlower(props.card)) return "flower"
-    if (isSeason(props.card)) return "season"
-    return "tile"
-  })
-
-  return (
-    <div class={miniTileClass({ kind: kind() })}>
-      <img src={`/tiles/${props.card}.webp`} alt={props.card} height={24} />
     </div>
   )
 }

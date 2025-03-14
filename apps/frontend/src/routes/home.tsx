@@ -1,4 +1,3 @@
-import { DustParticles } from "@/components/game/dustParticles"
 import {
   buttonClass,
   cardClass,
@@ -12,16 +11,18 @@ import {
   titleClass,
 } from "./home.css"
 import { BasicTile } from "@/components/game/basicTile"
-import { getDeck } from "@repo/game/deck"
+import { getStandardPairs } from "@/lib/game"
+import { shuffle } from "@/lib/rand"
 import { For, createMemo } from "solid-js"
 import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
 import { nanoid } from "nanoid"
-import { SOUNDS } from "@/components/game/audio"
-import { play } from "@/components/game/audio"
 import { Mountains } from "@/components/mountains"
+import Rand from "rand-seed"
+import { play, SOUNDS } from "@/components/audio"
 
 function cards() {
-  return getDeck().flatMap(([c, _]) => c)
+  const rng = new Rand()
+  return shuffle(getStandardPairs(), rng).flatMap(([c, _]) => c)
 }
 
 export function Home() {
@@ -44,11 +45,11 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href={`/duel/${nanoid()}`}
+          href={`/run/${nanoid()}`}
           class={buttonClass({ hue: "character" })}
         >
           <img src="/tiles/c.webp" alt="duel" width={24} height={24} />
-          multiplayer
+          adventure game
         </a>
         <a
           onMouseEnter={onHover}
@@ -60,7 +61,6 @@ export function Home() {
         </a>
       </nav>
       <Mountains />
-      <DustParticles />
     </div>
   )
 }

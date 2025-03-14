@@ -3,7 +3,6 @@ import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
-import { SIDE_SIZES } from "@/state/constants"
 
 export const homeClass = style({
   display: "flex",
@@ -91,6 +90,4 @@ export const frameRightClass = style({
 
 export const cardClass = style({
   position: "relative",
-  marginInline: SIDE_SIZES.xSide * 2,
-  marginBlock: -SIDE_SIZES.ySide * 2,
 })

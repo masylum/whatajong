@@ -22,7 +22,8 @@
       "recommended": true,
       "a11y": {
         "useMediaCaption": "off",
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "useKeyWithClickEvents": "off"
       },
       "suspicious": {
         "noExplicitAny": "off",

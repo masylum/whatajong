@@ -59,6 +59,9 @@ export const tilePointsClass = style({
 
 export const boxClass = recipe({
   base: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "2rem",
     paddingInline: "2rem",
     paddingBlock: "1rem",
     borderRadius: "8px",
@@ -97,40 +100,6 @@ export const highlightClass = recipe({
     hue: hueVariants((kolor) => ({
       color: kolor(40),
     })),
-  },
-})
-
-export const miniTileClass = recipe({
-  base: {
-    border: `1px solid ${color.tile40}`,
-    borderRadius: "4px",
-    padding: 2,
-    background: `linear-gradient(45deg, ${color.tile80} 60%, ${color.tile70})`,
-    display: "inline-block",
-    verticalAlign: "middle",
-    boxShadow: `0 0 4px -1px ${alpha(color.tile40, 0.5)}`,
-    margin: 4,
-  },
-  variants: {
-    kind: {
-      tile: {
-        background: `linear-gradient(45deg, ${color.tile80} 60%, ${color.tile70})`,
-      },
-      flower: {
-        background: `linear-gradient(45deg, ${color.flower80} 60%, ${color.flower70})`,
-      },
-      season: {
-        background: `linear-gradient(45deg, ${color.season80} 60%, ${color.season70})`,
-      },
-    },
-    highlighted: {
-      true: {
-        ":before": {
-          content: "",
-          background: "rgba(255, 255, 255, 0.5)",
-        },
-      },
-    },
   },
 })
 
