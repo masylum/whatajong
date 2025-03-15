@@ -59,7 +59,6 @@ import {
   EMPEROR_COST,
   buyItem,
   type UpgradeItem,
-  sellDeckTile,
   getNextMaterial,
   getTransformation,
   type EmperorItem,
@@ -95,7 +94,7 @@ import { chunk, entries } from "remeda"
 import { MiniTile } from "@/components/miniTile"
 import { Emperor } from "@/components/emperor"
 
-const REROLL_COST = 1
+const REROLL_COST = 5
 const MIN_ROWS = 4
 const MIN_COLS = 9
 const MAX_COLS = 12
@@ -388,9 +387,6 @@ function TileDetails(props: {
   deckTile: DeckTile
 }) {
   const shop = useShopState()
-  const run = useRunState()
-  const deck = useDeckState()
-  const canSell = createMemo(() => deck.all.length > 34)
 
   return (
     <>
@@ -409,18 +405,6 @@ function TileDetails(props: {
           <X />
           close
         </button>
-        <Show when={canSell()}>
-          <button
-            type="button"
-            class={buttonClass({ suit: "circle", disabled: false })}
-            onClick={() => {
-              sellDeckTile(run, deck, shop, props.deckTile)
-            }}
-          >
-            <Buy />
-            sell
-          </button>
-        </Show>
       </div>
     </>
   )

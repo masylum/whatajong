@@ -78,18 +78,23 @@ export function createRunState(params: CreateRunStateParams) {
 
 export function generateRound(id: number, runId: string): Round {
   const rng = new Rand(`round-${runId}-${id}`)
-  const reward = 3 + id
 
-  const rand = rng.next()
-  const timerPoints = Math.round((rand * id) / 5)
-  const pointObjective = 140 + (id - 1) ** 3
+  function variation() {
+    const rand = rng.next()
+    return 1 + (rand * 2 - 1) * 0.2
+  }
+
+  const reward = 28 + id * 2
+  const timerPoints = (1.2 ** id / 40) * variation() // Grows 1.3^level
+  const pointObjective = Math.round(110 + (id - 1) ** 3 * variation()) // Grows level^3 and has a 15% random variation
+  const emptyBoardBonus = Math.round((id ** 3 / 3) * variation()) // Grows level^3 and has a 15% random variation
 
   const round: Round = {
     id,
     reward,
     timerPoints,
     pointObjective,
-    emptyBoardBonus: Math.round(30 * id * rand),
+    emptyBoardBonus,
   }
 
   return round
@@ -97,4 +102,13 @@ export function generateRound(id: number, runId: string): Round {
 
 export function shopUpgradeCost(run: RunState) {
   return 4 + run.shopLevel
+}
+
+export const PASSIVE_INCOME_MULTIPLIER = 0.05
+export function calculatePassiveIncome(run: RunState) {
+  return Math.floor(run.money * passiveIncome(run))
+}
+
+export function passiveIncome(run: RunState) {
+  return (run.shopLevel - 1) * PASSIVE_INCOME_MULTIPLIER
 }

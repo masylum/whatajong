@@ -11,7 +11,6 @@ import {
   seasons,
   winds,
   type Card,
-  type Deck,
   type DeckTile,
   type Material,
 } from "@/lib/game"
@@ -20,11 +19,9 @@ import { countBy, entries } from "remeda"
 import { EMPERORS } from "./emperors"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
-export const ITEM_COST = 3
-export const EMPEROR_COST = 5
-export const SELL_TILE_AMOUNT = 1
-export const SELL_MATERIAL_AMOUNT = 1
-export const SELL_EMPEROR_AMOUNT = 2
+export const ITEM_COST = 20
+export const EMPEROR_COST = 100
+export const SELL_EMPEROR_AMOUNT = 30
 
 const MINERAL_PATH = ["glass", "jade"] as const
 const METAL_PATH = ["bronze", "gold"] as const
@@ -164,27 +161,6 @@ export function buyItem(
     run.items.push(item)
     shop.currentItem = null
     fn()
-  })
-}
-
-export function sellDeckTile(
-  run: RunState,
-  deck: Deck,
-  shop: ShopState,
-  deckTile: DeckTile,
-) {
-  let cost = SELL_TILE_AMOUNT
-  const material = deckTile.material
-  const money = run.money
-
-  if (material === "bone") {
-    cost += SELL_MATERIAL_AMOUNT
-  }
-
-  batch(() => {
-    run.money = money + cost
-    shop.currentDeckTile = null
-    deck.del(deckTile.id)
   })
 }
 

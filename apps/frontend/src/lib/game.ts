@@ -52,10 +52,10 @@ export function getAvailablePairs(
 }
 
 export function getCardPoints(card: Card) {
-  if (isDragon(card)) return 2
-  if (isFlower(card)) return 4
-  if (isSeason(card)) return 4
-  if (isWind(card)) return 8
+  if (isDragon(card)) return 0
+  if (isFlower(card)) return 2
+  if (isSeason(card)) return 2
+  if (isWind(card)) return 4
 
   return 1
 }
@@ -63,13 +63,13 @@ export function getCardPoints(card: Card) {
 export function getMaterialPoints(material: Material) {
   switch (material) {
     case "glass":
-      return 1
-    case "jade":
-      return 3
-    case "bronze":
-      return 2
-    case "gold":
       return 8
+    case "jade":
+      return 16
+    case "bronze":
+      return 16
+    case "gold":
+      return 32
     default:
       return 0
   }
@@ -78,11 +78,10 @@ export function getMaterialPoints(material: Material) {
 export function getMaterialMultiplier(material: Material) {
   switch (material) {
     case "bronze":
-      return 1
     case "jade":
-      return 2
+      return 1
     case "gold":
-      return 3
+      return 2
     default:
       return 0
   }
@@ -112,9 +111,9 @@ export function getPoints({
 export function getCoins(material: Material): number {
   switch (material) {
     case "bronze":
-      return 1
-    case "gold":
       return 5
+    case "gold":
+      return 20
     default:
       return 0
   }

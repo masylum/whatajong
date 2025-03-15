@@ -4,7 +4,12 @@ import { batch, createMemo, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
-import { useRound, useRunState } from "@/state/runState"
+import {
+  calculatePassiveIncome,
+  passiveIncome,
+  useRound,
+  useRunState,
+} from "@/state/runState"
 import { getCoins } from "@/lib/game"
 import {
   pointsContainerClass,
@@ -22,7 +27,7 @@ export function GameOverRun() {
 
   const round = useRound()
   const time = createMemo(() => calculateSeconds(game))
-  const penalty = createMemo(() => time() * round().timerPoints)
+  const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const bonus = createMemo(() => {
     const isEmpty = game.endCondition === "empty-board"
     if (!isEmpty) return 0
@@ -49,10 +54,11 @@ export function GameOverRun() {
     const overAchievement = achievement() - 1
     if (overAchievement <= 0) return 0
 
-    return Math.floor((overAchievement * 10) / 3)
+    return Math.floor((overAchievement * 10) / 2)
   })
 
-  const passiveIncome = createMemo(() => run.shopLevel - 1)
+  const passiveIncomePercentage = createMemo(() => passiveIncome(run))
+  const passiveIncomeCoins = createMemo(() => calculatePassiveIncome(run))
   const reward = createMemo(() => round().reward)
 
   function onShop() {
@@ -62,7 +68,7 @@ export function GameOverRun() {
         run.money +
         reward() +
         tileCoins() +
-        passiveIncome() +
+        passiveIncomeCoins() +
         overAchievementCoins()
     })
   }
@@ -82,10 +88,12 @@ export function GameOverRun() {
                 </>
               )}
             </Show>
-            <Show when={passiveIncome()}>
+            <Show when={passiveIncomeCoins()}>
               {(coins) => (
                 <>
-                  <dt class={detailTermClass}>Passive income</dt>
+                  <dt class={detailTermClass}>
+                    Passive income ({passiveIncomePercentage() * 100}%)
+                  </dt>
                   <dd class={detailDescriptionClass}>+{coins()}</dd>
                 </>
               )}
@@ -114,8 +122,8 @@ export function GameOverRun() {
 
         <Show when={round().timerPoints}>
           <dl class={detailListClass({ hue: "crack" })}>
-            <dt class={detailTermClass}>Penalty</dt>
-            <dd class={detailDescriptionClass}>{time()}</dd>
+            <dt class={detailTermClass}>Penalty ({time()} s)</dt>
+            <dd class={detailDescriptionClass}>{penalty()}</dd>
           </dl>
         </Show>
 

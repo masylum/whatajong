@@ -54,7 +54,7 @@ export default function RunSelect() {
                 <Show when={round.timerPoints}>
                   <dd class={detailTermClass}>Time penalty</dd>
                   <dt class={detailDescriptionClass}>
-                    {round.timerPoints} points
+                    {round.timerPoints.toFixed(2)} points
                   </dt>
                 </Show>
                 <Show when={round.emptyBoardBonus}>
