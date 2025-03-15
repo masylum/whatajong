@@ -81,11 +81,11 @@ export function createShopState(params: CreateShopStateParams) {
   return createPersistantMutable<ShopState>({
     namespace: SHOP_STATE_NAMESPACE,
     id: params.id,
-    init: {
+    init: () => ({
       reroll: 0,
       currentItem: null,
       currentDeckTile: null,
-    },
+    }),
   })
 }
 

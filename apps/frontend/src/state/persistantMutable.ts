@@ -4,12 +4,12 @@ import { createMutable, modifyMutable, reconcile } from "solid-js/store"
 type CreatePersistantParams<T> = {
   namespace: string
   id: () => string
-  init: T
+  init: () => T
 }
 export function createPersistantMutable<T extends Record<string, any>>(
   params: CreatePersistantParams<T>,
 ) {
-  const shop = createMutable<T>(params.init)
+  const mutable = createMutable<T>(params.init())
 
   function key(id: string) {
     return `${params.namespace}-${id}`
@@ -18,16 +18,20 @@ export function createPersistantMutable<T extends Record<string, any>>(
   createEffect(
     on(params.id, (id) => {
       const persistedState = localStorage.getItem(key(id))
+      console.log("key", key(id), persistedState)
 
       if (persistedState) {
-        modifyMutable(shop, reconcile(JSON.parse(persistedState)))
+        modifyMutable(mutable, reconcile(JSON.parse(persistedState)))
+      } else {
+        modifyMutable(mutable, reconcile(params.init()))
       }
     }),
   )
 
   createEffect(() => {
-    localStorage.setItem(key(params.id()), JSON.stringify(shop))
+    console.log("setItem", key(params.id()), JSON.stringify(mutable))
+    localStorage.setItem(key(params.id()), JSON.stringify(mutable))
   })
 
-  return shop
+  return mutable
 }

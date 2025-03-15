@@ -65,14 +65,14 @@ export function createRunState(params: CreateRunStateParams) {
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
-    init: {
+    init: () => ({
       runId: params.id(),
       money: 0,
       round: 1,
       stage: "select",
       shopLevel: 1,
       items: [initialEmperor],
-    },
+    }),
   })
 }
 
