@@ -8,12 +8,10 @@ import {
   pointsContainerClass,
 } from "./stats.css"
 import { getAvailablePairs } from "@/lib/game"
-import { useRound } from "@/state/runState"
 import { useTileState } from "@/state/tileState"
 
-export function Points() {
+export function Points(props: { timerPoints: number }) {
   const game = useGameState()
-  const round = useRound()
 
   return (
     <div class={pointsContainerClass}>
@@ -21,7 +19,7 @@ export function Points() {
         <span class={statLabel}>Points</span>
         <div>{game.points}</div>
       </div>
-      <Show when={round().timerPoints}>
+      <Show when={props.timerPoints}>
         {(timerPoints) => <Timer timerPoints={timerPoints()} />}
       </Show>
     </div>
@@ -49,7 +47,7 @@ function Timer(props: { timerPoints: number }) {
   return (
     <div class={pointsClass}>
       <span class={statLabel}>Penalty</span>
-      <div>{time() * props.timerPoints}</div>
+      <div>{Math.floor(time() * props.timerPoints)}</div>
     </div>
   )
 }

@@ -75,7 +75,7 @@ export function Top() {
 export function Bottom() {
   return (
     <div class={container}>
-      <Points />
+      <Points timerPoints={0.25} />
       <nav class={menuContainer}>
         <LinkButton href="/" hue="bamboo">
           <ArrowLeft />

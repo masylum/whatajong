@@ -95,9 +95,11 @@ function Top() {
 }
 
 function Bottom() {
+  const round = useRound()
+
   return (
     <div class={containerClass}>
-      <Points />
+      <Points timerPoints={round().timerPoints} />
       <nav class={menuContainerClass}>
         <Button
           type="button"
