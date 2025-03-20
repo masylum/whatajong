@@ -10,7 +10,6 @@ import {
   useRound,
   useRunState,
 } from "@/state/runState"
-import { getCoins } from "@/lib/game"
 import {
   pointsContainerClass,
   detailListClass,
@@ -19,6 +18,7 @@ import {
 } from "./gameOverRun.css"
 import { nanoid } from "nanoid"
 import { useTileState } from "@/state/tileState"
+import { sumBy } from "remeda"
 
 export function GameOverRun() {
   const game = useGameState()
@@ -28,15 +28,10 @@ export function GameOverRun() {
   const round = useRound()
   const time = createMemo(() => calculateSeconds(game))
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
-  const bonus = createMemo(() => {
-    const isEmpty = game.endCondition === "empty-board"
-    if (!isEmpty) return 0
-
-    return round().emptyBoardBonus
-  })
   const points = createMemo(() => game.points)
-  const totalPoints = createMemo(() => points() - penalty() + bonus())
+  const totalPoints = createMemo(() => points() - penalty())
   const win = createMemo(() => {
+    if (game.endCondition !== "empty-board") return false
     const enoughPoints = totalPoints() >= round().pointObjective
     if (!enoughPoints) return false
 
@@ -44,17 +39,14 @@ export function GameOverRun() {
   })
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
 
-  const tileCoins = createMemo(() => {
-    return tiles
-      .filterBy({ deleted: true })
-      .map((tile) => getCoins(tile.material))
-      .reduce((a, b) => a + b, 0)
-  })
+  const tileCoins = createMemo(() =>
+    sumBy(tiles.filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
+  )
   const overAchievementCoins = createMemo(() => {
     const overAchievement = achievement() - 1
     if (overAchievement <= 0) return 0
 
-    return Math.floor((overAchievement * 10) / 2)
+    return Math.min(Math.floor((overAchievement * 10) / 2), 100)
   })
 
   const passiveIncomePercentage = createMemo(() => passiveIncome(run))
@@ -79,12 +71,12 @@ export function GameOverRun() {
         <Show when={win()}>
           <dl class={detailListClass({ hue: "gold" })}>
             <dt class={detailTermClass}>Round Reward</dt>
-            <dd class={detailDescriptionClass}>+{reward()}</dd>
+            <dd class={detailDescriptionClass}>+ ${reward()}</dd>
             <Show when={tileCoins()}>
               {(coins) => (
                 <>
                   <dt class={detailTermClass}>Tile coins</dt>
-                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
                 </>
               )}
             </Show>
@@ -94,7 +86,7 @@ export function GameOverRun() {
                   <dt class={detailTermClass}>
                     Passive income ({passiveIncomePercentage() * 100}%)
                   </dt>
-                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
                 </>
               )}
             </Show>
@@ -104,7 +96,7 @@ export function GameOverRun() {
                   <dt class={detailTermClass}>
                     Over achiever ({Math.round(achievement() * 100)} %)
                   </dt>
-                  <dd class={detailDescriptionClass}>+{coins()}</dd>
+                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
                 </>
               )}
             </Show>
@@ -114,15 +106,11 @@ export function GameOverRun() {
         <dl class={detailListClass({ hue: "bamb" })}>
           <dt class={detailTermClass}>Points</dt>
           <dd class={detailDescriptionClass}>{points()}</dd>
-          <Show when={bonus()}>
-            <dt class={detailTermClass}>Bonus</dt>
-            <dd class={detailDescriptionClass}>{bonus()}</dd>
-          </Show>
         </dl>
 
         <Show when={round().timerPoints}>
           <dl class={detailListClass({ hue: "crack" })}>
-            <dt class={detailTermClass}>Penalty ({time()} s)</dt>
+            <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
             <dd class={detailDescriptionClass}>{penalty()}</dd>
           </dl>
         </Show>

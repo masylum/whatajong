@@ -6,6 +6,28 @@ import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
 import { materialColors } from "@/styles/materialColors"
 
+export const FLIP_DURATION = 1000
+export const DELETED_DURATION = 300
+
+const deletedKeyframes = keyframes({
+  "0%": {
+    transform: "scale(1, 1)",
+    opacity: 1,
+  },
+  "20%": {
+    transform: "scale(1.05, 0.9)",
+    opacity: 0.9,
+  },
+  "50%": {
+    transform: "scale(0.9, 1.05)",
+    opacity: 0.5,
+  },
+  "100%": {
+    transform: "scale(0.3, 1) translate(0, 10px)",
+    opacity: 0,
+  },
+})
+
 export const contentShow = keyframes({
   from: {
     opacity: 0,
@@ -44,7 +66,8 @@ export const containerClass = style({
 
 export const topContainerClass = style({
   display: "flex",
-  flexDirection: "column",
+  justifyContent: "space-between",
+  flex: 1,
   gap: 32,
 })
 
@@ -53,25 +76,11 @@ export const roundClass = style({
   gap: 32,
 })
 
-export const roundBoxClass = recipe({
-  base: {
-    padding: 8,
-    borderRadius: 8,
-    color: color.character10,
-    ...fontSize.m,
-  },
-  variants: {
-    hue: {
-      gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[70], 0.2)}, ${alpha(materialColors.gold[70], 0.5)})`,
-        color: materialColors.gold[20],
-      },
-      bamboo: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo70, 0.2)}, ${alpha(color.bamboo70, 0.2)})`,
-        color: color.bamboo20,
-      },
-    },
-  },
+export const roundTitleClass = style({
+  padding: 8,
+  borderRadius: 8,
+  color: color.circle10,
+  ...fontSize.h1,
 })
 
 export const menuContainerClass = style({
@@ -79,4 +88,91 @@ export const menuContainerClass = style({
   justifyContent: "space-between",
   alignItems: "center",
   gap: 32,
+})
+
+export const emperorCardClass = recipe({
+  base: {
+    cursor: "pointer",
+    perspective: 1000,
+    width: 80,
+    height: 128,
+    ":hover": {
+      filter: "brightness(1.1)",
+    },
+  },
+  variants: {
+    deleted: {
+      true: {
+        animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
+        transformOrigin: "center",
+      },
+    },
+  },
+})
+
+export const cardClass = recipe({
+  base: {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+    transition: `transform ${FLIP_DURATION}ms`,
+    transformStyle: "preserve-3d",
+  },
+  variants: {
+    open: {
+      true: {
+        transform: "rotateY(180deg)",
+      },
+      false: {
+        transform: "rotateY(0deg)",
+      },
+    },
+  },
+})
+
+const bothCardsClass = style({
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  backfaceVisibility: "hidden",
+})
+
+export const cardFrontClass = style([bothCardsClass, {}])
+
+export const cardBackClass = style([
+  bothCardsClass,
+  {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transform: "rotateY(180deg)",
+    background: color.tile20,
+    borderRadius: 16,
+    padding: 12,
+    boxShadow: `
+      0px 0px 0px 4px inset ${materialColors.bone[10]},
+      0px 0px 0px 2px ${alpha(materialColors.bone[10], 0.5)}
+    `,
+  },
+])
+
+export const cardBackButtonClass = style({
+  color: materialColors.bone[90],
+  borderRadius: 8,
+  background: `linear-gradient(
+  to bottom,
+    ${materialColors.bone[30]},
+    ${materialColors.bone[20]}
+  )`,
+  boxShadow: `
+    1px 1px 1px 0px inset ${materialColors.bone[40]},
+    -1px -1px 1px 0px inset ${alpha(materialColors.bone[10], 0.7)},
+    0px 0px 0px 2px ${alpha(materialColors.bone[10], 0.5)}
+  `,
+  padding: 8,
+  border: "none",
+  cursor: "pointer",
+  ":hover": {
+    filter: "brightness(1.1)",
+  },
 })

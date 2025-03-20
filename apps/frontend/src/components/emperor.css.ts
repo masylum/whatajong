@@ -1,26 +1,40 @@
-import { color } from "@/styles/colors"
-import { primary } from "@/styles/fontFamily.css"
-import { fontSize } from "@/styles/fontSize"
-import { style } from "@vanilla-extract/css"
+import { materials } from "@/lib/game"
+import { alpha } from "@/styles/colors"
+import { materialColors } from "@/styles/materialColors"
+import { recipe } from "@vanilla-extract/recipes"
 
-export const emperorClass = style({
-  ...fontSize.xs,
-  fontFamily: primary,
-  textAlign: "center",
-  height: 100,
-  width: 70,
-  border: `1px solid ${color.tile30}`,
-  boxShadow: `
-    1px -1px 1px 0 inset ${color.tile50},
-    -1px 1px 1px 0 inset ${color.tile80},
-    0px 0px 5px -3px ${color.tile10},
-    0px 0px 10px -5px ${color.tile10}
-  `,
-  borderRadius: 8,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: `linear-gradient(to bottom, ${color.tile70}, ${color.tile60})`,
-  color: color.tile10,
-  padding: 4,
+export const EMPEROR_WIDTH = 80
+export const EMPEROR_HEIGHT = 128
+
+export const emperorClass = recipe({
+  base: {
+    flexShrink: 0,
+    width: EMPEROR_WIDTH,
+    height: EMPEROR_HEIGHT,
+    borderRadius: 16,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingInline: 4,
+    paddingBlock: 12,
+  },
+  variants: {
+    material: Object.fromEntries(
+      materials.map((material) => [
+        material,
+        {
+          border: `1px solid ${materialColors[material][20]}`,
+          boxShadow: `
+            0px 0px 0px 4px inset ${materialColors[material][70]},
+            0px 0px 0px 2px ${alpha(materialColors[material][30], 0.5)}
+          `,
+          background: `linear-gradient(
+            60deg,
+            ${materialColors[material][80]} 0%,
+            ${materialColors[material][90]} 50%
+          )`,
+        },
+      ]),
+    ),
+  },
 })

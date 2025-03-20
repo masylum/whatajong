@@ -16,9 +16,9 @@ import {
 } from "./instructions.css"
 import { getSideSize, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import {
-  bamboo,
-  character,
-  circle,
+  bams,
+  cracks,
+  dots,
   dragons,
   flowers,
   seasons,
@@ -152,11 +152,11 @@ export function Instructions() {
               </>
             }
           >
-            <For each={bamboo}>
+            <For each={bams}>
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{ "z-index": bamboo.length - i() }}
+                  style={{ "z-index": bams.length - i() }}
                 />
               )}
             </For>
@@ -175,11 +175,11 @@ export function Instructions() {
               </>
             }
           >
-            <For each={character}>
+            <For each={cracks}>
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{ "z-index": character.length - i() }}
+                  style={{ "z-index": cracks.length - i() }}
                 />
               )}
             </For>
@@ -194,11 +194,11 @@ export function Instructions() {
               </>
             }
           >
-            <For each={circle}>
+            <For each={dots}>
               {(card, i) => (
                 <BasicTile
                   card={card}
-                  style={{ "z-index": circle.length - i() }}
+                  style={{ "z-index": dots.length - i() }}
                 />
               )}
             </For>
@@ -306,7 +306,7 @@ export function Instructions() {
                   Green Dragon
                 </span>{" "}
                 leads bamboo tiles:
-                <For each={bamboo}>{(card) => <MiniTile card={card} />}</For>
+                <For each={bams}>{(card) => <MiniTile card={card} />}</For>
               </>
             }
           >
@@ -320,7 +320,7 @@ export function Instructions() {
                   Red Dragon
                 </span>{" "}
                 leads character tiles:
-                <For each={character}>{(card) => <MiniTile card={card} />}</For>
+                <For each={cracks}>{(card) => <MiniTile card={card} />}</For>
               </>
             }
           >
@@ -334,7 +334,7 @@ export function Instructions() {
                   Blue Dragon
                 </span>{" "}
                 leads circle tiles:
-                <For each={circle}>{(card) => <MiniTile card={card} />}</For>
+                <For each={dots}>{(card) => <MiniTile card={card} />}</For>
               </>
             }
           >

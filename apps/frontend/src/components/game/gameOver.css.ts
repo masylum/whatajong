@@ -52,11 +52,11 @@ export const screenClass = recipe({
   variants: {
     win: {
       true: {
-        background: color.bamboo10,
+        background: `linear-gradient(to bottom, ${color.bamboo10}, black)`,
         color: color.bamboo90,
       },
       false: {
-        background: color.character10,
+        background: `linear-gradient(to bottom, ${color.character10}, black)`,
       },
     },
   },

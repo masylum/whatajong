@@ -1,13 +1,6 @@
 import { useRunState } from "@/state/runState"
-import {
-  batch,
-  createMemo,
-  For,
-  Match,
-  Show,
-  Switch,
-  createSignal,
-} from "solid-js"
+import { Dialog } from "@kobalte/core/dialog"
+import { batch, createMemo, For, Match, Show, Switch } from "solid-js"
 import {
   continueClass,
   deckClass,
@@ -22,7 +15,6 @@ import {
   pairClass,
   shopExtraClass,
   shopClass,
-  detailsClass,
   titleClass,
   detailTitleClass,
   detailTermClass,
@@ -40,13 +32,21 @@ import {
   materialUpgradeClass,
   materialUpgradeTitleClass,
   emperorClass,
-  emperorDetailsClass,
+  modalDetailsClass,
   emperorDetailsTitleClass,
   emperorDetailsDescriptionClass,
   ownedEmperorsClass,
   ownedEmperorsTitleClass,
   ownedEmperorsListClass,
   MINI_TILE_SIZE,
+  itemPairClass,
+  shopHeaderClass,
+  emptyEmperorClass,
+  detailsOverlayClass,
+  detailsPositionerClass,
+  modalDetailsContentClass,
+  upgradeTitleClass,
+  upgradeDescriptionClass,
 } from "./runShop.css"
 import {
   generateItems,
@@ -70,7 +70,6 @@ import {
 import { BasicTile } from "@/components/game/basicTile"
 import { useDeckState } from "@/state/deckState"
 import {
-  getCoins,
   cardName,
   type Material,
   type Card,
@@ -82,8 +81,9 @@ import {
   getRawPoints,
   getMaterialMultiplier,
   getMaterialPoints,
-  bamboo,
+  bams,
   getRawMultiplier,
+  getMaterialCoins,
 } from "@/lib/game"
 import { Button } from "@/components/button"
 import { ArrowRight, Dices, Upgrade, X, Buy } from "@/components/icon"
@@ -93,6 +93,8 @@ import { splitIntoRows } from "@/lib/splitIntoRows"
 import { chunk, entries } from "remeda"
 import { MiniTile } from "@/components/miniTile"
 import { Emperor } from "@/components/emperor"
+import { TileHover } from "@/components/game/tileHover"
+import { useHover } from "@/components/game/useHover"
 
 const REROLL_COST = 5
 const MIN_ROWS = 4
@@ -143,14 +145,11 @@ function Shop() {
   )
 
   function selectItem(item: Item | null) {
-    batch(() => {
-      if (item?.id === shop.currentItem?.id) {
-        shop.currentItem = null
-      } else {
-        shop.currentItem = item
-      }
-      shop.currentDeckTile = null
-    })
+    if (item?.id === shop.currentItem?.id) {
+      shop.currentItem = null
+    } else {
+      shop.currentItem = item
+    }
   }
 
   function continueRun() {
@@ -162,12 +161,21 @@ function Shop() {
 
   return (
     <div class={shopClass}>
-      <h1 class={titleClass}>The parlor</h1>
-
+      <div class={shopHeaderClass}>
+        <h1 class={titleClass}>The parlor</h1>
+        <div class={continueClass}>
+          <Button hue="bamboo" onClick={continueRun}>
+            Next Game
+            <ArrowRight />
+          </Button>
+        </div>
+      </div>
       <div class={itemsContainerClass}>
         <div class={itemsTitleClass}>Shop (level {shopLevel()})</div>
         <div class={itemsClass}>
-          <UpgradeButton />
+          <Show when={shopLevel() < 5}>
+            <UpgradeButton />
+          </Show>
           <For each={items()}>
             {(item) => (
               <Switch>
@@ -196,7 +204,7 @@ function Shop() {
 
       <div class={deckClass}>
         <div class={deckTitleClass}>
-          <span>Your Deck ({totalPairs()} / 144 pairs)</span>
+          <span>Your Deck ({totalPairs()} / 77 pairs)</span>
           <span class={moneyClass}>${run.money} coins</span>
         </div>
         <div class={deckRowsClass}>
@@ -207,7 +215,7 @@ function Shop() {
                   {(deckTile, j) => (
                     <DeckTileComponent
                       deckTile={deckTile}
-                      zIndex={i() * MAX_COLS + deckTiles.length - j()}
+                      zIndex={i() * MAX_COLS + j()}
                     />
                   )}
                 </For>
@@ -217,33 +225,35 @@ function Shop() {
         </div>
       </div>
 
-      <div class={detailsClass}>
-        <Show when={shop.currentDeckTile}>
-          {(deckTile) => <TileDetails deckTile={deckTile()} />}
-        </Show>
-        <Show when={shop.currentItem}>
-          {(currentItem) => (
-            <Switch>
-              <Match when={currentItem()?.type === "tile"}>
-                <TileItemDetails />
-              </Match>
-              <Match when={currentItem()?.type === "upgrade"}>
-                <UpgradeItemDetails />
-              </Match>
-              <Match when={currentItem()?.type === "emperor"}>
-                <EmperorItemDetails />
-              </Match>
-            </Switch>
-          )}
-        </Show>
-      </div>
-
-      <div class={continueClass}>
-        <Button hue="bamboo" onClick={continueRun}>
-          Next Game
-          <ArrowRight />
-        </Button>
-      </div>
+      <Show when={shop.currentItem}>
+        {(currentItem) => (
+          <Dialog
+            defaultOpen
+            onOpenChange={() => {
+              shop.currentItem = null
+            }}
+          >
+            <Dialog.Portal>
+              <Dialog.Overlay class={detailsOverlayClass} />
+              <div class={detailsPositionerClass}>
+                <Dialog.Content class={detailsContentClass}>
+                  <Switch>
+                    <Match when={currentItem()?.type === "tile"}>
+                      <TileItemDetails />
+                    </Match>
+                    <Match when={currentItem()?.type === "upgrade"}>
+                      <UpgradeItemDetails />
+                    </Match>
+                    <Match when={currentItem()?.type === "emperor"}>
+                      <EmperorItemDetails />
+                    </Match>
+                  </Switch>
+                </Dialog.Content>
+              </div>
+            </Dialog.Portal>
+          </Dialog>
+        )}
+      </Show>
     </div>
   )
 }
@@ -252,36 +262,34 @@ function DeckTileComponent(props: {
   deckTile: DeckTile
   zIndex: number
 }) {
-  const shop = useShopState()
-
-  function onClickDeckTile(deckTile: DeckTile) {
-    batch(() => {
-      shop.currentItem = null
-
-      if (shop.currentDeckTile?.id === deckTile.id) {
-        shop.currentDeckTile = null
-      } else {
-        shop.currentDeckTile = deckTile
-      }
-    })
-  }
+  const { isHovering, hoverProps, mousePosition } = useHover({
+    delay: 500,
+  })
 
   return (
-    <div
-      class={deckItemClass({
-        selected: shop.currentDeckTile?.id === props.deckTile.id,
-      })}
-      style={{
-        "z-index": props.zIndex,
-      }}
-      onClick={() => onClickDeckTile(props.deckTile)}
-    >
-      <BasicTile
-        card={props.deckTile.card}
-        material={props.deckTile.material}
-      />
-      <BasicTile class={pairClass} material={props.deckTile.material} />
-    </div>
+    <>
+      <div
+        class={deckItemClass}
+        style={{
+          "z-index": props.zIndex,
+        }}
+        {...hoverProps}
+      >
+        <BasicTile
+          card={props.deckTile.card}
+          material={props.deckTile.material}
+        />
+        <BasicTile class={pairClass} material={props.deckTile.material} />
+      </div>
+
+      <Show when={isHovering()}>
+        <TileHover
+          mousePosition={mousePosition()}
+          card={props.deckTile.card}
+          material={props.deckTile.material}
+        />
+      </Show>
+    </>
   )
 }
 
@@ -292,20 +300,37 @@ function ItemTile(props: {
   const shop = useShopState()
   const run = useRunState()
   const disabled = createMemo(() => ITEM_COST > run.money)
+  const { isHovering, hoverProps, mousePosition } = useHover({
+    delay: 500,
+  })
 
   return (
-    <button
-      class={itemClass({
-        selected: shop.currentItem?.id === props.item.id,
-        disabled: disabled(),
-      })}
-      type="button"
-      disabled={disabled()}
-      onClick={() => props.onClick?.(props.item)}
-    >
-      <BasicTile card={props.item.card} />
-      <span class={itemCostClass}>${ITEM_COST}</span>
-    </button>
+    <>
+      <button
+        class={itemClass({
+          selected: shop.currentItem?.id === props.item.id,
+          disabled: disabled(),
+        })}
+        type="button"
+        disabled={disabled()}
+        onClick={() => props.onClick?.(props.item)}
+        {...hoverProps}
+      >
+        <div class={itemPairClass}>
+          <BasicTile card={props.item.card} />
+          <BasicTile class={pairClass} card={props.item.card} />
+        </div>
+        <span class={itemCostClass}>${ITEM_COST}</span>
+      </button>
+
+      <Show when={isHovering()}>
+        <TileHover
+          mousePosition={mousePosition()}
+          card={props.item.card}
+          material="bone"
+        />
+      </Show>
+    </>
   )
 }
 
@@ -321,18 +346,20 @@ function EmperorItemComponent(props: {
   )
 
   return (
-    <button
-      class={emperorClass({
-        selected: shop.currentItem?.id === props.item.id,
-        disabled: disabled(),
-      })}
-      type="button"
-      disabled={disabled()}
-      onClick={() => props.onClick?.(props.item)}
-    >
-      <Emperor name={props.item.name} />
-      <span class={itemCostClass}>${EMPEROR_COST}</span>
-    </button>
+    <>
+      <button
+        class={emperorClass({
+          selected: shop.currentItem?.id === props.item.id,
+          disabled: disabled(),
+        })}
+        type="button"
+        disabled={disabled()}
+        onClick={() => props.onClick?.(props.item)}
+      >
+        <Emperor name={props.item.name} />
+        <span class={itemCostClass}>${EMPEROR_COST}</span>
+      </button>
+    </>
   )
 }
 
@@ -343,70 +370,45 @@ function CardDetails(props: {
   const run = useRunState()
 
   return (
-    <div class={detailsContentClass}>
-      <div class={detailTitleClass}>
-        {cardName(props.card)} ({props.material})
-        <BasicTile card={props.card} material={props.material} />
+    <div class={modalDetailsClass}>
+      <BasicTile card={props.card} material={props.material} />
+      <div class={modalDetailsContentClass}>
+        <div class={detailTitleClass}>
+          {cardName(props.card)} ({props.material})
+        </div>
+        <Switch>
+          <Match when={isWind(props.card)}>
+            <div class={detailInfoClass}>
+              Wind tiles move the pieces in the direction of the wind.
+            </div>
+          </Match>
+          <Match when={isDragon(props.card)}>
+            <div class={detailInfoClass}>
+              Dragon tiles start a "dragon run". Chain pairs of the dragon suit
+              to increase the multiplier.
+            </div>
+          </Match>
+        </Switch>
+        <MaterialFreedom material={props.material} />
+        <MaterialCoins material={props.material} />
+
+        <dl class={detailListClass({ type: "bamboo" })}>
+          <dt class={detailTermClass}>Points:</dt>
+          <dd class={detailDescriptionClass}>
+            {getRawPoints({ card: props.card, material: props.material, run })}
+          </dd>
+        </dl>
+
+        <Show when={getRawMultiplier({ material: props.material, run })}>
+          {(multiplier) => (
+            <dl class={detailListClass({ type: "character" })}>
+              <dt class={detailTermClass}>Multiplier:</dt>{" "}
+              <dd class={detailDescriptionClass}>{multiplier() + 1}</dd>
+            </dl>
+          )}
+        </Show>
       </div>
-      <Switch>
-        <Match when={isWind(props.card)}>
-          <div class={detailInfoClass}>
-            Wind tiles move the pieces in the direction of the wind.
-          </div>
-        </Match>
-        <Match when={isDragon(props.card)}>
-          <div class={detailInfoClass}>
-            Dragon tiles start a "dragon run". Chain pairs of the dragon suit to
-            increase the multiplier.
-          </div>
-        </Match>
-      </Switch>
-      <MaterialFreedom material={props.material} />
-      <MaterialCoins material={props.material} />
-
-      <dl class={detailListClass({ type: "circle" })}>
-        <dt class={detailTermClass}>Points:</dt>
-        <dd class={detailDescriptionClass}>
-          {getRawPoints({ card: props.card, material: props.material, run })}
-        </dd>
-      </dl>
-
-      <Show when={getRawMultiplier({ material: props.material, run })}>
-        {(multiplier) => (
-          <dl class={detailListClass({ type: "character" })}>
-            <dt class={detailTermClass}>Multiplier:</dt>{" "}
-            <dd class={detailDescriptionClass}>{multiplier() + 1}</dd>
-          </dl>
-        )}
-      </Show>
     </div>
-  )
-}
-
-function TileDetails(props: {
-  deckTile: DeckTile
-}) {
-  const shop = useShopState()
-
-  return (
-    <>
-      <CardDetails
-        card={props.deckTile.card}
-        material={props.deckTile.material}
-      />
-      <div class={buttonsClass}>
-        <button
-          type="button"
-          class={buttonClass({ suit: "tile", disabled: false })}
-          onClick={() => {
-            shop.currentDeckTile = null
-          }}
-        >
-          <X />
-          close
-        </button>
-      </div>
-    </>
   )
 }
 
@@ -416,71 +418,54 @@ function TileItemDetails() {
   const deck = useDeckState()
 
   const item = createMemo(() => shop.currentItem as TileItem)
-  const [path, setPath] = createSignal<"mineral" | "metal" | null>(null)
   const tilesWithSameCard = createMemo(() =>
     deck.filterBy({ card: item().card }),
   )
-  const transformation = createMemo(() =>
-    getTransformation(tilesWithSameCard(), path()!),
-  )
-  const isUpgrading = createMemo(() => !transformation().adds)
   const mineralUpgrade = createMemo(() =>
     getNextMaterial(tilesWithSameCard(), "mineral"),
   )
   const metalUpgrade = createMemo(() =>
     getNextMaterial(tilesWithSameCard(), "metal"),
   )
+  const isUpgrading = createMemo(
+    () => mineralUpgrade() !== "bone" || metalUpgrade() !== "bone",
+  )
 
   function buyTile(item: TileItem) {
     buyItem(run, shop, item, () => {
-      const { updates, removes } = transformation()
-
-      if (!isUpgrading()) {
-        const id = nanoid()
-        deck.set(id, { id, material: "bone", card: item.card })
-        return
-      }
-
-      const p = path()
-      if (!p) throw Error("No path")
-
-      for (const [id, material] of entries(updates)) {
-        deck.set(id, { id, material, card: item.card })
-      }
-
-      for (const id of removes) {
-        deck.del(id)
-      }
+      const id = nanoid()
+      deck.set(id, { id, material: "bone", card: item.card })
     })
   }
 
   return (
     <>
-      <CardDetails card={item().card} material="bone" />
-
-      <Show when={isUpgrading()}>
-        <div class={detailsContentClass}>
-          <div class={detailTitleClass}>Upgrade Options</div>
-          <p>
+      <Show
+        when={isUpgrading()}
+        fallback={<CardDetails card={item().card} material="bone" />}
+      >
+        <div class={modalDetailsContentClass}>
+          <div class={upgradeDescriptionClass}>
+            <h2 class={upgradeTitleClass}>Upgrade available!</h2>
             Collecting 3 identical pairs lets you upgrade them into a stronger
             version.
-          </p>
+          </div>
           <div class={buttonsClass}>
             <Show when={mineralUpgrade()}>
               {(material) => (
                 <MaterialUpgradeButton
-                  card={item().card}
                   material={material()}
-                  onClick={() => setPath("mineral")}
+                  item={item()}
+                  path="mineral"
                 />
               )}
             </Show>
             <Show when={metalUpgrade()}>
               {(material) => (
                 <MaterialUpgradeButton
-                  card={item().card}
                   material={material()}
-                  onClick={() => setPath("metal")}
+                  item={item()}
+                  path="metal"
                 />
               )}
             </Show>
@@ -500,7 +485,7 @@ function TileItemDetails() {
           close
         </button>
 
-        <Show when={!isUpgrading() || path()}>
+        <Show when={!isUpgrading()}>
           <button
             type="button"
             class={buttonClass({ suit: "bamboo", disabled: false })}
@@ -509,9 +494,7 @@ function TileItemDetails() {
             }}
           >
             <Buy />
-            <Show when={path()} fallback="buy">
-              upgrade
-            </Show>
+            buy
           </button>
         </Show>
       </div>
@@ -543,25 +526,29 @@ function EmperorItemDetails() {
 
   return (
     <>
-      <div class={emperorDetailsClass}>
-        <div class={emperorDetailsTitleClass}>
-          {item().name.replaceAll("_", " ")}
-        </div>
+      <div class={modalDetailsClass}>
+        <div class={modalDetailsContentClass}>
+          <div class={emperorDetailsTitleClass}>
+            {item().name.replaceAll("_", " ")}
+          </div>
 
-        <div class={emperorDetailsDescriptionClass}>
-          <Switch>
-            <Match when={item().name === "the_bird_watcher"}>
-              <MiniTile card="b1" size={48} />
-              <br />
-            </Match>
-            <Match when={item().name === "the_gardener"}>
-              <For each={bamboo}>{(card) => <MiniTile card={card} />}</For>
-              <br />
-            </Match>
-          </Switch>
-          {item().description}
+          <div class={emperorDetailsDescriptionClass}>
+            <Switch>
+              <Match when={item().name === "the_bird_watcher"}>
+                <MiniTile card="b1" size={48} />
+                <br />
+              </Match>
+              <Match when={item().name === "the_gardener"}>
+                <For each={bams}>{(card) => <MiniTile card={card} />}</For>
+                <br />
+              </Match>
+            </Switch>
+            {item().description}
+          </div>
         </div>
+        <Emperor name={item().name} />
       </div>
+
       <div class={buttonsClass}>
         <button
           type="button"
@@ -629,7 +616,7 @@ function UpgradeItemDetails() {
 
   return (
     <>
-      <div class={detailsContentClass}>
+      <div class={modalDetailsContentClass}>
         <div class={detailTitleClass}>Shop level {item().level}</div>
         <dl class={detailListClass({ type: "gold" })}>
           <dt class={detailTermClass}>passive income:</dt>
@@ -647,10 +634,10 @@ function UpgradeItemDetails() {
                 <div class={deckRowClass}>
                   <For each={chunk}>
                     {(item, j) => (
-                      <BasicTile
+                      <UpgradeCardPreview
                         card={item.card}
-                        width={MINI_TILE_SIZE}
-                        style={{ "z-index": i() * MAX_COLS + 9 - j() }}
+                        material={item.material}
+                        zIndex={i() * MAX_COLS + 9 + j()}
                       />
                     )}
                   </For>
@@ -685,6 +672,34 @@ function UpgradeItemDetails() {
   )
 }
 
+function UpgradeCardPreview(props: {
+  card: Card
+  material: Material
+  zIndex: number
+}) {
+  const { isHovering, hoverProps, mousePosition } = useHover({
+    delay: 500,
+  })
+
+  return (
+    <>
+      <BasicTile
+        card={props.card}
+        width={MINI_TILE_SIZE}
+        style={{ "z-index": props.zIndex }}
+        {...hoverProps}
+      />
+      <Show when={isHovering()}>
+        <TileHover
+          mousePosition={mousePosition()}
+          card={props.card}
+          material={props.material}
+        />
+      </Show>
+    </>
+  )
+}
+
 function MaterialFreedom(props: { material: Material }) {
   return (
     <div class={detailFreedomClass}>
@@ -697,7 +712,7 @@ function MaterialFreedom(props: { material: Material }) {
           Jade tiles are always free.
         </Match>
         <Match when={props.material === "bone"}>
-          Bone tiles are free if left or right is open.
+          Bone tiles are free if the left or right side are open.
         </Match>
         <Match when={props.material === "bronze"}>
           Bronze tiles are free if at least 2 sides are open.
@@ -712,7 +727,7 @@ function MaterialFreedom(props: { material: Material }) {
 
 function MaterialCoins(props: { material: Material }) {
   return (
-    <Show when={getCoins(props.material)}>
+    <Show when={getMaterialCoins(props.material)}>
       {(coins) => (
         <dl class={detailListClass({ type: "gold" })}>
           <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
@@ -734,7 +749,7 @@ function RerollButton() {
     if (cost > money) throw Error("You don't have enough money")
 
     batch(() => {
-      run.money = money - cost
+      run.money = money + cost
       shop.reroll++
     })
   }
@@ -776,7 +791,6 @@ function UpgradeButton() {
       } else {
         shop.currentItem = item
       }
-      shop.currentDeckTile = null
     })
   }
 
@@ -799,19 +813,40 @@ function UpgradeButton() {
 
 function MaterialUpgradeButton(props: {
   material: Material
-  card: Card
-  onClick: (material: Material) => void
+  item: TileItem
+  path: "mineral" | "metal"
 }) {
+  const run = useRunState()
+  const shop = useShopState()
+  const deck = useDeckState()
+
+  const tilesWithSameCard = createMemo(() =>
+    deck.filterBy({ card: props.item.card }),
+  )
+  const transformation = createMemo(() =>
+    getTransformation(tilesWithSameCard(), props.path),
+  )
+
+  function upgradeTile(item: TileItem) {
+    buyItem(run, shop, item, () => {
+      const { updates, removes } = transformation()
+
+      for (const [id, material] of entries(updates)) {
+        deck.set(id, { id, material, card: item.card })
+      }
+
+      for (const id of removes) {
+        deck.del(id)
+      }
+    })
+  }
+
   return (
-    <button
-      type="button"
-      onClick={() => props.onClick(props.material)}
-      class={materialUpgradeClass}
-    >
+    <div class={materialUpgradeClass}>
       <span class={materialUpgradeTitleClass({ material: props.material })}>
         {props.material}
       </span>
-      <BasicTile card={props.card} material={props.material} />
+      <BasicTile card={props.item.card} material={props.material} />
       <dl class={detailListClass({ type: "circle" })}>
         <dt class={detailTermClass}>Points</dt>
         <dd class={detailDescriptionClass}>
@@ -826,16 +861,25 @@ function MaterialUpgradeButton(props: {
           )}
         </Show>
       </dl>
-      <Show when={getCoins(props.material)}>
-        {(coins) => (
-          <dl class={detailListClass({ type: "gold" })}>
-            <dt class={detailTermClass}>Coins</dt>
-            <dd class={detailDescriptionClass}>+{coins()}</dd>
-          </dl>
-        )}
-      </Show>
+
+      <dl class={detailListClass({ type: "gold" })}>
+        <dt class={detailTermClass}>Coins</dt>
+        <dd class={detailDescriptionClass}>
+          +{getMaterialCoins(props.material)}
+        </dd>
+      </dl>
       <MaterialFreedom material={props.material} />
-    </button>
+      <button
+        type="button"
+        class={buttonClass({ suit: "bamboo", disabled: false })}
+        onClick={() => {
+          upgradeTile(props.item)
+        }}
+      >
+        <Buy />
+        upgrade
+      </button>
+    </div>
   )
 }
 
@@ -848,10 +892,7 @@ function OwnedEmperors() {
   )
 
   function selectEmperor(emperor: EmperorItem) {
-    batch(() => {
-      shop.currentItem = emperor
-      shop.currentDeckTile = null
-    })
+    shop.currentItem = emperor
   }
 
   return (
@@ -873,6 +914,13 @@ function OwnedEmperors() {
                 <Emperor name={emperor.name} />
               </div>
             )}
+          </For>
+          <For
+            each={Array.from({
+              length: maxEmperors(run) - ownedEmperors().length,
+            })}
+          >
+            {() => <div class={emptyEmperorClass} />}
           </For>
         </div>
       </div>

@@ -12,8 +12,9 @@ export const SOUNDS = {
   GONG: "gong",
   WIND: "wind",
   SHAKE: "shake",
-  COMBO: "combo",
+  EARTHQUAKE: "earthquake",
   GREAT: "great",
+  GRUNT: "grunt",
   NICE: "nice",
   SUPER: "super",
   AWESOME: "awesome",
@@ -21,6 +22,9 @@ export const SOUNDS = {
   UNREAL: "unreal",
   FANTASTIC: "fantastic",
   LEGENDARY: "legendary",
+  ALARM1: "alarm1",
+  ALARM2: "alarm2",
+  ALARM3: "alarm3",
   "321": "321",
 } as const
 
@@ -50,8 +54,9 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS.GONG]: undefined,
   [SOUNDS.WIND]: undefined,
   [SOUNDS.SHAKE]: undefined,
-  [SOUNDS.COMBO]: undefined,
+  [SOUNDS.EARTHQUAKE]: undefined,
   [SOUNDS.GREAT]: undefined,
+  [SOUNDS.GRUNT]: undefined,
   [SOUNDS.NICE]: undefined,
   [SOUNDS.SUPER]: undefined,
   [SOUNDS.AWESOME]: undefined,
@@ -59,6 +64,9 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS.UNREAL]: undefined,
   [SOUNDS.FANTASTIC]: undefined,
   [SOUNDS.LEGENDARY]: undefined,
+  [SOUNDS.ALARM1]: undefined,
+  [SOUNDS.ALARM2]: undefined,
+  [SOUNDS.ALARM3]: undefined,
   [SOUNDS["321"]]: undefined,
 })
 

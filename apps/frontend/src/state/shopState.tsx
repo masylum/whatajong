@@ -3,12 +3,17 @@ import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
 import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
-  bamboo,
-  character,
-  circle,
+  animals,
+  bams,
+  cracks,
+  dots,
   dragons,
   flowers,
+  jokers,
+  phoenix,
+  rabbits,
   seasons,
+  transports,
   winds,
   type Card,
   type DeckTile,
@@ -106,20 +111,28 @@ export function generateEmperorItems() {
 }
 
 export const ITEMS: Item[] = [
-  ...generateTileItems(1, 5, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(2, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(2, 6, [...winds, ...dragons]),
-  ...generateTileItems(3, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(3, 1, [...winds, ...dragons]),
-  ...generateTileItems(3, 7, [...flowers, ...seasons]),
-  ...generateTileItems(4, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(4, 1, [...winds, ...dragons]),
-  ...generateTileItems(4, 1, [...flowers, ...seasons]),
-  ...generateTileItems(5, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(5, 1, [...winds, ...dragons]),
-  ...generateTileItems(5, 1, [...flowers, ...seasons]),
+  // 1
+  ...generateTileItems(1, 5, [...bams, ...cracks, ...dots]),
+  // 2
+  ...generateTileItems(2, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(2, 6, [...dragons, ...flowers, ...seasons]),
+  // 3
+  ...generateTileItems(3, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(3, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(3, 7, [...rabbits, ...phoenix]),
+  // 4
+  ...generateTileItems(4, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(4, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(4, 1, [...rabbits, ...phoenix]),
+  ...generateTileItems(4, 8, [...winds, ...animals]),
+  // 5
+  ...generateTileItems(5, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(5, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(5, 1, [...rabbits, ...phoenix]),
+  ...generateTileItems(5, 1, [...winds, ...animals]),
+  ...generateTileItems(5, 9, [...jokers, ...transports]),
+  // emperors
   ...generateEmperorItems(),
-  // TODO: tier 4 and 5 tiles
 ]
 
 export function generateItems(run: RunState, reroll: number) {

@@ -2,6 +2,9 @@ import { keyframes, style } from "@vanilla-extract/css"
 import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
+import { color } from "@/styles/colors"
+import { fontSize } from "@/styles/fontSize"
+import { materialColors } from "@/styles/materialColors"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -57,10 +60,11 @@ export const deletedAnimationClass = style({
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
 })
 
-export const floatingNumberAnimation = style({
+export const scoreClass = style({
   position: "absolute",
   zIndex: 9999,
   animation: `${floatingNumberKeyframes} ${FLOATING_NUMBER_DURATION}ms ease-out forwards`,
+  ...fontSize.m,
   fontSize: "24px",
   lineHeight: 1,
   fontWeight: "bold",
@@ -68,29 +72,40 @@ export const floatingNumberAnimation = style({
   fontFamily: primary,
   transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
   pointerEvents: "none",
-  color: "white",
-  padding: "4px 8px",
-  borderRadius: 4,
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 8,
 })
 
-export const tileRecipe = recipe({
-  base: {
-    pointerEvents: "none",
-    transitionProperty: "top, left",
-    transitionDuration: `${DELETED_DURATION}ms`,
-    transitionTimingFunction: "ease-in",
-  },
-  variants: {
-    highlight: {
-      flower: {
-        filter: "brightness(0.95) hue-rotate(5deg) saturate(1.5) sepia(0.1)",
-      },
-      season: {
-        filter: "brightness(0.95) hue-rotate(-16deg) saturate(1.2) sepia(0.1)",
-      },
-      null: {},
-    },
-  },
+export const scoreCoinsClass = style({
+  borderRadius: 24,
+  padding: "4px 8px",
+  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
+  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
+    0px 0px 0px 1px ${materialColors.gold[60]},
+    0px 0px 3px -1px ${materialColors.gold[30]},
+    0px 0px 10px -5px ${materialColors.gold[30]}`,
+  color: color.tile10,
+})
+
+export const scorePointsClass = style({
+  borderRadius: 8,
+  padding: "4px 8px",
+  background: `linear-gradient(to bottom, ${color.bamboo60}, ${color.bamboo50})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.bamboo60},
+    0px 0px 0px 1px ${color.bamboo40},
+    0px 0px 3px -1px ${color.bamboo10},
+    0px 0px 10px -5px ${color.bamboo10}`,
+  color: "white",
+})
+
+export const tileClass = style({
+  pointerEvents: "none",
+  transitionProperty: "top, left",
+  transitionDuration: `${DELETED_DURATION}ms`,
+  transitionTimingFunction: "ease-in",
+  outline: "none",
 })
 
 export const clickableClass = recipe({

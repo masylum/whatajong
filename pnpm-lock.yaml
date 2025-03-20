@@ -39,12 +39,18 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@floating-ui/dom':
+        specifier: ^1.6.13
+        version: 1.6.13
       '@kobalte/core':
         specifier: ^0.13.9
         version: 0.13.9(solid-js@1.9.4)
       '@solid-primitives/map':
         specifier: ^0.6.0
         version: 0.6.0(solid-js@1.9.4)
+      '@solid-primitives/mouse':
+        specifier: ^2.1.0
+        version: 2.1.0(solid-js@1.9.4)
       '@solid-primitives/set':
         specifier: ^0.6.0
         version: 0.6.0(solid-js@1.9.4)
@@ -1352,6 +1358,11 @@ packages:
 
   '@solid-primitives/media@2.3.0':
     resolution: {integrity: sha512-7+C3wfbWnGE/WPoNsqcp/EeOP2aNNB92RCpsWhBth8E5lZo/J+rK6jMb7umVsK0zguT8HBpeXp1pFyFbcsHStA==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
+  '@solid-primitives/mouse@2.1.0':
+    resolution: {integrity: sha512-ivQG2Lvffwzka+hqW0Z5ClJ61+KFlZ3tvsUGOKPyEshowHyA6zKh9D1WRKXyviFETgJescLw+zLM386/ZbA2Aw==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -3672,6 +3683,14 @@ snapshots:
       solid-js: 1.9.4
 
   '@solid-primitives/media@2.3.0(solid-js@1.9.4)':
+    dependencies:
+      '@solid-primitives/event-listener': 2.4.0(solid-js@1.9.4)
+      '@solid-primitives/rootless': 1.5.0(solid-js@1.9.4)
+      '@solid-primitives/static-store': 0.1.0(solid-js@1.9.4)
+      '@solid-primitives/utils': 6.3.0(solid-js@1.9.4)
+      solid-js: 1.9.4
+
+  '@solid-primitives/mouse@2.1.0(solid-js@1.9.4)':
     dependencies:
       '@solid-primitives/event-listener': 2.4.0(solid-js@1.9.4)
       '@solid-primitives/rootless': 1.5.0(solid-js@1.9.4)

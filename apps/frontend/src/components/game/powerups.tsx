@@ -1,42 +1,37 @@
-import { createMemo, For, Show } from "solid-js"
-import { usePowerupState } from "@/state/powerupState"
+import { createMemo, Show } from "solid-js"
 import { comboRecipe, playerPowerupsClass, powerupRecipe } from "./powerups.css"
-import { getRank, isDragon, type Powerup } from "@/lib/game"
+import { getRank, type Dragon } from "@/lib/game"
 import { MiniTile } from "../miniTile"
+import { useGameState } from "@/state/gameState"
 
 export function Powerups() {
-  const powerups = usePowerupState()
+  const game = useGameState()
 
   return (
     <div class={playerPowerupsClass}>
-      <For each={powerups.all}>
-        {(powerup) => <PowerupComponent powerup={powerup} />}
-      </For>
+      <Show when={game.dragonRun}>
+        {(dragonRun) => <DragonRun dragonRun={dragonRun()} />}
+      </Show>
     </div>
   )
 }
 
-function PowerupComponent(props: { powerup: Powerup }) {
-  const dragonVariant = createMemo(() => {
-    const dragon = isDragon(props.powerup.card)
-    if (!dragon) return undefined
-
-    return getRank(dragon)
-  })
+function DragonRun(props: { dragonRun: { card: Dragon; combo: number } }) {
+  const dragonVariant = createMemo(() => getRank(props.dragonRun.card))
+  const card = createMemo(() => props.dragonRun.card)
+  const combo = createMemo(() => props.dragonRun.combo)
 
   return (
     <div
       class={powerupRecipe({
         dragon: dragonVariant(),
-        size: props.powerup.combo as any,
+        size: combo() as any,
       })}
     >
-      <MiniTile card={props.powerup.card} size={48} />
-      <Show when={isDragon(props.powerup.card)}>
-        <span class={comboRecipe({ dragon: dragonVariant() })}>
-          dragon run +{props.powerup.combo} mult
-        </span>
-      </Show>
+      <MiniTile card={card()} size={48} />
+      <span class={comboRecipe({ dragon: dragonVariant() })}>
+        dragon run +{combo()} mult
+      </span>
     </div>
   )
 }

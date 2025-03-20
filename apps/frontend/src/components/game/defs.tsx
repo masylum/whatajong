@@ -4,7 +4,6 @@ import { For } from "solid-js"
 import { materialColors } from "@/styles/materialColors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
-export const VISIBILITY_GRADIENT_ID = "visibility-gradient"
 
 export const MATERIALS = fromEntries(
   map(
@@ -35,21 +34,18 @@ export function Defs() {
                 <stop offset="0%" stop-color={materialColors[material][90]} />
                 <stop offset="100%" stop-color={materialColors[material][70]} />
               </linearGradient>
-              <linearGradient id={ids.side} gradientTransform="rotate(45)">
+              <linearGradient
+                id={ids.side}
+                gradientTransform="rotate(-45, 0.5, 0.5)"
+              >
                 <stop offset="0%" stop-color={materialColors[material][60]} />
-                <stop offset="73%" stop-color={materialColors[material][50]} />
-                <stop offset="73%" stop-color={materialColors[material][40]} />
+                <stop offset="50%" stop-color={materialColors[material][50]} />
+                <stop offset="50%" stop-color={materialColors[material][40]} />
                 <stop offset="100%" stop-color={materialColors[material][30]} />
               </linearGradient>
             </>
           )}
         </For>
-
-        <linearGradient id={`${VISIBILITY_GRADIENT_ID}`}>
-          <stop offset="0%" stop-color="white" stop-opacity="1" />
-          <stop offset="30%" stop-color="white" stop-opacity="1" />
-          <stop offset="70%" stop-color="white" stop-opacity="0.2" />
-        </linearGradient>
       </defs>
     </svg>
   )

@@ -17,21 +17,21 @@ export function TileShades(iProps: Props) {
 
   const shadeVariants = createMemo(() => {
     const find = getFinder(tiles, props.tile)
-    const pos1 = !!find(-1, -2)
+    const pos1 = !!find(1, -2)
     const pos2 = !!find(0, -2)
-    const pos3 = !!find(1, -2)
-    const pos4 = !!find(2, -2)
-    const pos5 = !!find(2, -1)
-    const pos6 = !!find(2, 0)
-    const pos7 = !!find(2, 1)
+    const pos3 = !!find(-1, -2)
+    const pos4 = !!find(-2, -2)
+    const pos5 = !!find(-2, -1)
+    const pos6 = !!find(-2, 0)
+    const pos7 = !!find(-2, 1)
 
-    const topLeft = pos1 || pos2
+    const topRight = pos1 || pos2
     const top = pos2 || pos3
-    const topRight = pos3 || pos4 || pos5
-    const right = pos5 || pos6
-    const bottomRight = pos6 || pos7
+    const topLeft = pos3 || pos4 || pos5
+    const left = pos5 || pos6
+    const bottomLeft = pos6 || pos7
 
-    return { topLeft, top, topRight, right, bottomRight }
+    return { topLeft, top, topRight, left, bottomLeft }
   })
   return (
     <>
@@ -59,8 +59,8 @@ type SideShadeProps = {
     topLeft: boolean
     top: boolean
     topRight: boolean
-    right: boolean
-    bottomRight: boolean
+    left: boolean
+    bottomLeft: boolean
   }
 }
 
@@ -68,44 +68,44 @@ export function TopShade(props: SideShadeProps) {
   const topShadePath = createMemo(() => {
     const { topLeft, top, topRight } = props.shadeVariants
 
-    if (topLeft && !top) {
+    if (topRight && !top) {
       return `
         M ${props.width / 2} 0
-        l ${props.sideSize} ${-props.sideSize}
-        h ${props.width / 2 - props.sideSize}
-        l ${-props.sideSize} ${props.sideSize}
+        l ${-props.sideSize} ${-props.sideSize}
+        h ${-props.width / 2 + props.sideSize}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
 
-    if (!topLeft && top) {
+    if (!topRight && top) {
       return `
-        M 0 0
-        l ${props.sideSize} ${-props.sideSize}
-        h ${props.width / 2 - props.sideSize}
-        l ${props.sideSize} ${-props.sideSize}
+        M ${props.width} 0
+        l ${-props.sideSize} ${-props.sideSize}
+        h ${-props.width / 2 + props.sideSize}
+        l ${-props.sideSize} ${-props.sideSize}
         v ${props.sideSize * 2}
         Z
       `
     }
 
-    if (!topLeft && !top && topRight) {
+    if (!topRight && !top && topLeft) {
       return `
-        M 0 0
-        l ${props.sideSize} ${-props.sideSize}
-        h ${props.width - props.sideSize * 2}
-        l ${props.sideSize} ${-props.sideSize}
+        M ${props.width} 0
+        l ${-props.sideSize} ${-props.sideSize}
+        h ${-props.width + props.sideSize * 2}
+        l ${-props.sideSize} ${-props.sideSize}
         v ${props.sideSize * 2}
         Z
       `
     }
 
-    if (!topLeft && !top && !topRight) {
+    if (!topRight && !top && !topLeft) {
       return `
-        M 0 0
-        l ${props.sideSize} ${-props.sideSize}
-        h ${props.width}
-        l ${-props.sideSize} ${props.sideSize}
+        M ${props.width} 0
+        l ${-props.sideSize} ${-props.sideSize}
+        h ${-props.width}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
@@ -125,46 +125,46 @@ export function TopShade(props: SideShadeProps) {
 
 export function RightShade(props: SideShadeProps) {
   const rightShadePath = createMemo(() => {
-    const { topRight, right, bottomRight } = props.shadeVariants
+    const { topLeft, left, bottomLeft } = props.shadeVariants
 
-    if (bottomRight && !right) {
+    if (bottomLeft && !left) {
       return `
-        M ${props.width} 0
-        l ${props.sideSize} ${-props.sideSize}
+        M 0 0
+        l ${-props.sideSize} ${-props.sideSize}
         v ${TILE_HEIGHT / 2}
-        l ${-props.sideSize} ${props.sideSize}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
 
-    if (!bottomRight && right) {
+    if (!bottomLeft && left) {
       return `
-        M ${props.width} ${TILE_HEIGHT / 2}
-        h ${props.sideSize * 2}
-        l ${-props.sideSize} ${props.sideSize}
+        M 0 ${TILE_HEIGHT / 2}
+        h ${-props.sideSize * 2}
+        l ${props.sideSize} ${props.sideSize}
         v ${TILE_HEIGHT / 2 - 2 * props.sideSize}
-        l ${-props.sideSize} ${props.sideSize}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
 
-    if (!bottomRight && !right && topRight) {
+    if (!bottomLeft && !left && topLeft) {
       return `
-        M ${TILE_WIDTH} 0
-        h ${props.sideSize * 2}
-        l ${-props.sideSize} ${props.sideSize}
+        M 0 0
+        h ${-props.sideSize * 2}
+        l ${props.sideSize} ${props.sideSize}
         v ${TILE_HEIGHT - props.sideSize * 2}
-        l ${-props.sideSize} ${props.sideSize}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
 
-    if (!bottomRight && !right && !topRight) {
+    if (!bottomLeft && !left && !topLeft) {
       return `
-        M ${TILE_WIDTH} 0
-        l ${props.sideSize} ${-props.sideSize}
+        M 0 0
+        l ${-props.sideSize} ${-props.sideSize}
         v ${TILE_HEIGHT}
-        l ${-props.sideSize} ${props.sideSize}
+        l ${props.sideSize} ${props.sideSize}
         Z
       `
     }
@@ -178,6 +178,7 @@ export function RightShade(props: SideShadeProps) {
         class={shadeClass}
         fill="rgba(0,0,0,0.1)"
         filter={`url(#${SOFT_SHADE_FILTER_ID})`}
+        data-shade={JSON.stringify(props.shadeVariants)}
       />
     </Show>
   )

@@ -57,12 +57,6 @@ export default function RunSelect() {
                     {round.timerPoints.toFixed(2)} points
                   </dt>
                 </Show>
-                <Show when={round.emptyBoardBonus}>
-                  <dd class={detailTermClass}>Clear bonus</dd>
-                  <dt class={detailDescriptionClass}>
-                    {round.emptyBoardBonus} points
-                  </dt>
-                </Show>
                 <dd class={detailTermClass}>Reward</dd>
                 <dt class={detailDescriptionClass}>${round.reward}</dt>
               </dl>

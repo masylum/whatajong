@@ -20,8 +20,10 @@
     "vite": "5.4.10"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.6.13",
     "@kobalte/core": "^0.13.9",
     "@solid-primitives/map": "^0.6.0",
+    "@solid-primitives/mouse": "^2.1.0",
     "@solid-primitives/set": "^0.6.0",
     "@solid-primitives/timer": "^1.4.0",
     "@solidjs/router": "^0.15.1",

@@ -14,7 +14,7 @@ export const EXPRESSIONS = [
   SOUNDS.LEGENDARY,
 ]
 
-const FAST_SELECTION_THRESHOLD = 3000
+export const FAST_SELECTION_THRESHOLD = 3000
 
 export function createVoicesEffect() {
   const tiles = useTileState()

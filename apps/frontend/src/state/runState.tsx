@@ -26,7 +26,6 @@ export type Round = {
   reward: number
   pointObjective: number
   timerPoints: number
-  emptyBoardBonus: number
 }
 
 const RunStateContext = createContext<RunState | undefined>()
@@ -84,24 +83,22 @@ export function generateRound(id: number, runId: string): Round {
     return 1 + (rand * 2 - 1) * 0.2
   }
 
-  const reward = 28 + id * 2
-  const timerPoints = (1.2 ** id / 40) * variation() // Grows 1.3^level
-  const pointObjective = Math.round(110 + (id - 1) ** 3 * variation()) // Grows level^3 and has a 15% random variation
-  const emptyBoardBonus = Math.round((id ** 3 / 3) * variation()) // Grows level^3 and has a 15% random variation
+  const reward = 30 + id * 20
+  const timerPoints = (1.25 ** id / 20) * variation() // Grows 1.25^level
+  const pointObjective = Math.round(110 + (id - 1) ** 2.7 * variation()) // Grows level^2.7
 
   const round: Round = {
     id,
     reward,
     timerPoints,
     pointObjective,
-    emptyBoardBonus,
   }
 
   return round
 }
 
 export function shopUpgradeCost(run: RunState) {
-  return 4 + run.shopLevel
+  return 50 + run.shopLevel * 50
 }
 
 export const PASSIVE_INCOME_MULTIPLIER = 0.05

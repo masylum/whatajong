@@ -1,6 +1,7 @@
 import { createVar, fallbackVar, style } from "@vanilla-extract/css"
 import { alpha, color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
+import { fontSize } from "@/styles/fontSize"
 
 const opacity = createVar()
 const backgroundColor = createVar()
@@ -38,7 +39,7 @@ export const powerupRecipe = recipe({
   },
   variants: {
     size: {
-      0: { vars: { [opacity]: "0" } },
+      0: { vars: { [opacity]: "0.1" } },
       1: { vars: { [opacity]: "0.2" } },
       2: { vars: { [opacity]: "0.4" } },
       3: { vars: { [opacity]: "0.6" } },
@@ -54,8 +55,15 @@ export const powerupRecipe = recipe({
   },
 })
 
+export const lastCardClass = style({
+  ...fontSize.h2,
+})
+
 export const comboRecipe = recipe({
   base: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
     fontSize: "14px",
     fontWeight: "500",
     color: "white",
