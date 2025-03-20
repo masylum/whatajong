@@ -8,7 +8,7 @@ import {
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-// TODO: move to game state
+// TODO: move elsewhere, this is global state
 export const [muted, setMuted] = createSignal(false)
 
 type CreateGameStateParams = { id: () => string }
@@ -16,10 +16,10 @@ export function createGameState(params: CreateGameStateParams) {
   return createPersistantMutable<Game>({
     namespace: "game-state",
     id: params.id,
-    init: {
+    init: () => ({
       startedAt: new Date().getTime(),
       points: 0,
-    },
+    }),
   })
 }
 

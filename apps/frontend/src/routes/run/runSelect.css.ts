@@ -12,7 +12,7 @@ export const containerClass = style({
   padding: 32,
   height: "100vh",
   width: "100vw",
-  background: color.circle10,
+  background: `linear-gradient(to bottom, ${color.circle10}, black)`,
 })
 
 export const gamesClass = style({
@@ -36,13 +36,13 @@ export const gameClass = recipe({
       true: {
         background: `linear-gradient(to bottom, ${alpha(color.bamboo40, 0.6)}, ${alpha(color.bamboo40, 0.2)})`,
         boxShadow: `
-          1px 1px 0px 0px inset ${alpha(color.bamboo60, 0.5)},
-          -1px -1px 0px 0px inset ${alpha(color.bamboo40, 1)}
+          1px 1px 1px 0px inset ${color.bamboo40},
+          -1px -1px 1px 0px inset ${color.bamboo10}
         `,
         color: color.bamboo80,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle30, 0.6)}, ${alpha(color.circle30, 0)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.circle20, 0.6)}, ${alpha(color.circle20, 0)})`,
         color: color.circle80,
       },
     },
@@ -72,6 +72,7 @@ export const titleClass = style({
   ...fontSize.hero3,
   fontFamily: primary,
   color: color.circle90,
+  fontVariantLigatures: "none",
   textAlign: "center",
 })
 

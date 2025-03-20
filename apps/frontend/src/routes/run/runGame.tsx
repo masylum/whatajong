@@ -1,4 +1,4 @@
-import { createMemo, For, Show } from "solid-js"
+import { createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import {
   GameStateProvider,
   createGameState,
@@ -11,22 +11,34 @@ import { GameOverRun } from "./gameOverRun"
 import { useRound, useRunState } from "@/state/runState"
 import { Frame } from "@/components/game/frame"
 import {
+  cardBackButtonClass,
+  cardBackClass,
+  cardClass,
+  cardFrontClass,
   containerClass,
+  emperorCardClass,
+  FLIP_DURATION,
   menuContainerClass,
-  roundBoxClass,
+  roundTitleClass,
   roundClass,
   topContainerClass,
 } from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
-import { Bell } from "@/components/icon"
+import { Bell, Skull } from "@/components/icon"
 import { Button } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
-import { getEmperors, selectTile } from "@/lib/game"
-import { createTileState, TileStateProvider } from "@/state/tileState"
-import { createPowerupState, PowerupStateProvider } from "@/state/powerupState"
+import { selectTile } from "@/lib/game"
+import {
+  createTileState,
+  TileStateProvider,
+  useTileState,
+} from "@/state/tileState"
 import { Emperor } from "@/components/emperor"
+import { shuffleTiles } from "@/lib/shuffleTiles"
+import Rand from "rand-seed"
+import type { EmperorItem } from "@/state/shopState"
 
 export default function RunGame() {
   const run = useRunState()
@@ -35,40 +47,36 @@ export default function RunGame() {
   const id = createMemo(() => `${run.runId}-${round().id}`)
 
   const tiles = createTileState({ id, deck: deck.all })
-  const powerups = createPowerupState({ id })
   const state = createGameState({ id })
 
   return (
     <GameStateProvider game={state}>
       <TileStateProvider tileDb={tiles()}>
-        <PowerupStateProvider powerupDb={powerups()}>
-          <Show when={started(state)}>
-            <Show
-              when={state.endedAt}
-              fallback={
-                <Frame
-                  board={
-                    <Board
-                      onSelectTile={(tileId) =>
-                        selectTile({
-                          tileDb: tiles(),
-                          powerupsDb: powerups(),
-                          run,
-                          game: state,
-                          tileId,
-                        })
-                      }
-                    />
-                  }
-                  bottom={<Bottom />}
-                  top={<Top />}
-                />
-              }
-            >
-              <GameOverRun />
-            </Show>
+        <Show when={started(state)}>
+          <Show
+            when={state.endedAt}
+            fallback={
+              <Frame
+                board={
+                  <Board
+                    onSelectTile={(tileId) =>
+                      selectTile({
+                        tileDb: tiles(),
+                        run,
+                        game: state,
+                        tileId,
+                      })
+                    }
+                  />
+                }
+                bottom={<Bottom />}
+                top={<Top />}
+              />
+            }
+          >
+            <GameOverRun />
           </Show>
-        </PowerupStateProvider>
+        </Show>
       </TileStateProvider>
     </GameStateProvider>
   )
@@ -76,28 +84,73 @@ export default function RunGame() {
 
 function Top() {
   const run = useRunState()
-  const emperors = createMemo(() => getEmperors(run))
+  const items = createMemo(() =>
+    run.items.filter((item) => item.type === "emperor"),
+  )
 
   return (
     <div class={containerClass}>
       <div class={topContainerClass}>
         <div class={roundClass}>
-          <div class={roundBoxClass({ hue: "bamboo" })}>Round {run.round}</div>
-          <div class={roundBoxClass({ hue: "gold" })}>Coins: {run.money}</div>
+          <div class={roundTitleClass}>Round {run.round}</div>
         </div>
-        <For each={emperors()}>
-          {(emperor) => <Emperor name={emperor.name} />}
-        </For>
+        <div class={roundClass}>
+          <For each={items()}>{(item) => <EmperorCard item={item} />}</For>
+        </div>
       </div>
       <Powerups />
     </div>
   )
 }
 
+function EmperorCard(props: { item: EmperorItem }) {
+  const [open, setOpen] = createSignal(false)
+  const [deleted, setDeleted] = createSignal(false)
+  const tiles = useTileState()
+  const run = useRunState()
+
+  function onDiscard() {
+    const rng = new Rand()
+    shuffleTiles({ rng, tileDb: tiles })
+
+    const deltedTimeout = setTimeout(() => {
+      setDeleted(true)
+
+      const sideEffectTimeout = setTimeout(() => {
+        run.items = run.items.filter((item) => item.id !== props.item.id)
+      }, FLIP_DURATION)
+
+      onCleanup(() => clearTimeout(sideEffectTimeout))
+    }, FLIP_DURATION)
+
+    onCleanup(() => clearTimeout(deltedTimeout))
+  }
+
+  return (
+    <div
+      class={emperorCardClass({ deleted: deleted() })}
+      onClick={() => setOpen(!open())}
+    >
+      <div class={cardClass({ open: open() })}>
+        <div class={cardFrontClass}>
+          <Emperor name={props.item.name} />
+        </div>
+        <div class={cardBackClass}>
+          <button class={cardBackButtonClass} type="button" onClick={onDiscard}>
+            <Skull />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Bottom() {
+  const round = useRound()
+
   return (
     <div class={containerClass}>
-      <Points />
+      <Points timerPoints={round().timerPoints} />
       <nav class={menuContainerClass}>
         <Button
           type="button"

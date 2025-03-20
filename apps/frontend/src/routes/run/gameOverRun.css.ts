@@ -38,22 +38,38 @@ export const detailListClass = recipe({
     justifyContent: "space-between",
     gridTemplateColumns: "max-content",
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     width: "100%",
   },
   variants: {
     hue: {
       bamb: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.2)}, ${alpha(color.bamboo50, 0.1)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.3)}, ${alpha(color.bamboo50, 0.2)})`,
+        boxShadow: `
+          1px 1px 1px 0px inset ${alpha(color.bamboo60, 0.4)},
+          -1px -1px 1px 0px inset ${alpha(color.bamboo30, 0.4)}
+        `,
       },
       crack: {
-        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.2)}, ${alpha(color.character50, 0.1)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.3)}, ${alpha(color.character50, 0.2)})`,
+        boxShadow: `
+          1px 1px 1px 0px inset ${alpha(color.character60, 0.4)},
+          -1px -1px 1px 0px inset ${alpha(color.character30, 0.4)}
+        `,
       },
       dot: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.4)}, ${alpha(color.circle50, 0.1)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.3)}, ${alpha(color.circle50, 0.2)})`,
+        boxShadow: `
+          1px 1px 1px 0px inset ${alpha(color.circle60, 0.4)},
+          -1px -1px 1px 0px inset ${alpha(color.circle30, 0.4)}
+        `,
       },
       gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[50], 0.2)}, ${alpha(materialColors.gold[50], 0.1)})`,
+        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[50], 0.3)}, ${alpha(materialColors.gold[50], 0.2)})`,
+        boxShadow: `
+          1px 1px 1px 0px inset ${alpha(materialColors.gold[60], 0.4)},
+          -1px -1px 1px 0px inset ${alpha(materialColors.gold[30], 0.4)}
+        `,
       },
     },
   },
@@ -69,11 +85,11 @@ export const detailTermClass = style({
       color: color.character60,
     },
     [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.circle70,
+      color: color.circle60,
       ...fontSize.hero4,
     },
     [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: materialColors.gold[50],
+      color: materialColors.gold[60],
     },
   },
 })
@@ -88,14 +104,14 @@ export const detailDescriptionClass = style({
       color: color.bamboo80,
     },
     [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.character70,
+      color: color.character80,
     },
     [`${detailListClass.classNames.variants.hue.dot} &`]: {
       color: color.circle80,
       ...fontSize.hero4,
     },
     [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: materialColors.gold[60],
+      color: materialColors.gold[80],
     },
   },
 })

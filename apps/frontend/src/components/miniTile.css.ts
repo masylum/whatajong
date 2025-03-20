@@ -29,6 +29,7 @@ export const miniTileClass = recipe({
       gold: {
         background: `linear-gradient(45deg, ${materialColors.gold[90]} 60%, ${materialColors.gold[80]})`,
       },
+      bamboo: {},
     },
     highlighted: {
       true: {

@@ -26,7 +26,6 @@ export type Round = {
   reward: number
   pointObjective: number
   timerPoints: number
-  emptyBoardBonus: number
 }
 
 const RunStateContext = createContext<RunState | undefined>()
@@ -65,36 +64,48 @@ export function createRunState(params: CreateRunStateParams) {
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
-    init: {
+    init: () => ({
       runId: params.id(),
       money: 0,
       round: 1,
       stage: "select",
       shopLevel: 1,
       items: [initialEmperor],
-    },
+    }),
   })
 }
 
 export function generateRound(id: number, runId: string): Round {
   const rng = new Rand(`round-${runId}-${id}`)
-  const reward = 3 + id
 
-  const rand = rng.next()
-  const timerPoints = Math.round((rand * id) / 5)
-  const pointObjective = 140 + (id - 1) ** 3
+  function variation() {
+    const rand = rng.next()
+    return 1 + (rand * 2 - 1) * 0.2
+  }
+
+  const reward = 30 + id * 20
+  const timerPoints = (1.25 ** id / 20) * variation() // Grows 1.25^level
+  const pointObjective = Math.round(110 + (id - 1) ** 2.7 * variation()) // Grows level^2.7
 
   const round: Round = {
     id,
     reward,
     timerPoints,
     pointObjective,
-    emptyBoardBonus: Math.round(30 * id * rand),
   }
 
   return round
 }
 
 export function shopUpgradeCost(run: RunState) {
-  return 4 + run.shopLevel
+  return 50 + run.shopLevel * 50
+}
+
+export const PASSIVE_INCOME_MULTIPLIER = 0.05
+export function calculatePassiveIncome(run: RunState) {
+  return Math.floor(run.money * passiveIncome(run))
+}
+
+export function passiveIncome(run: RunState) {
+  return (run.shopLevel - 1) * PASSIVE_INCOME_MULTIPLIER
 }

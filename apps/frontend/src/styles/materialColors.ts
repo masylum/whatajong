@@ -35,6 +35,18 @@ export const materialColors = {
     10: "#4D2D0F",
   },
 
+  bamboo: {
+    90: "#F6F3E5",
+    80: "#E9E3C0",
+    70: "#DBD49D",
+    60: "#CCC67A",
+    50: "#BCB959",
+    40: "#A6A04C",
+    30: "#908740",
+    20: "#796E34",
+    10: "#625629",
+  },
+
   bronze: {
     90: "#FEE9DE",
     80: "#FCD3BE",

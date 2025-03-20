@@ -3,15 +3,19 @@ import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
 import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
-  bamboo,
-  character,
-  circle,
+  animals,
+  bams,
+  cracks,
+  dots,
   dragons,
   flowers,
+  jokers,
+  phoenix,
+  rabbits,
   seasons,
+  transports,
   winds,
   type Card,
-  type Deck,
   type DeckTile,
   type Material,
 } from "@/lib/game"
@@ -20,11 +24,9 @@ import { countBy, entries } from "remeda"
 import { EMPERORS } from "./emperors"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
-export const ITEM_COST = 3
-export const EMPEROR_COST = 5
-export const SELL_TILE_AMOUNT = 1
-export const SELL_MATERIAL_AMOUNT = 1
-export const SELL_EMPEROR_AMOUNT = 2
+export const ITEM_COST = 20
+export const EMPEROR_COST = 100
+export const SELL_EMPEROR_AMOUNT = 30
 
 const MINERAL_PATH = ["glass", "jade"] as const
 const METAL_PATH = ["bronze", "gold"] as const
@@ -81,11 +83,11 @@ export function createShopState(params: CreateShopStateParams) {
   return createPersistantMutable<ShopState>({
     namespace: SHOP_STATE_NAMESPACE,
     id: params.id,
-    init: {
+    init: () => ({
       reroll: 0,
       currentItem: null,
       currentDeckTile: null,
-    },
+    }),
   })
 }
 
@@ -109,20 +111,28 @@ export function generateEmperorItems() {
 }
 
 export const ITEMS: Item[] = [
-  ...generateTileItems(1, 5, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(2, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(2, 6, [...winds, ...dragons]),
-  ...generateTileItems(3, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(3, 1, [...winds, ...dragons]),
-  ...generateTileItems(3, 7, [...flowers, ...seasons]),
-  ...generateTileItems(4, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(4, 1, [...winds, ...dragons]),
-  ...generateTileItems(4, 1, [...flowers, ...seasons]),
-  ...generateTileItems(5, 1, [...bamboo, ...character, ...circle]),
-  ...generateTileItems(5, 1, [...winds, ...dragons]),
-  ...generateTileItems(5, 1, [...flowers, ...seasons]),
+  // 1
+  ...generateTileItems(1, 5, [...bams, ...cracks, ...dots]),
+  // 2
+  ...generateTileItems(2, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(2, 6, [...dragons, ...flowers, ...seasons]),
+  // 3
+  ...generateTileItems(3, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(3, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(3, 7, [...rabbits, ...phoenix]),
+  // 4
+  ...generateTileItems(4, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(4, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(4, 1, [...rabbits, ...phoenix]),
+  ...generateTileItems(4, 8, [...winds, ...animals]),
+  // 5
+  ...generateTileItems(5, 1, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(5, 1, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(5, 1, [...rabbits, ...phoenix]),
+  ...generateTileItems(5, 1, [...winds, ...animals]),
+  ...generateTileItems(5, 9, [...jokers, ...transports]),
+  // emperors
   ...generateEmperorItems(),
-  // TODO: tier 4 and 5 tiles
 ]
 
 export function generateItems(run: RunState, reroll: number) {
@@ -164,27 +174,6 @@ export function buyItem(
     run.items.push(item)
     shop.currentItem = null
     fn()
-  })
-}
-
-export function sellDeckTile(
-  run: RunState,
-  deck: Deck,
-  shop: ShopState,
-  deckTile: DeckTile,
-) {
-  let cost = SELL_TILE_AMOUNT
-  const material = deckTile.material
-  const money = run.money
-
-  if (material === "bone") {
-    cost += SELL_MATERIAL_AMOUNT
-  }
-
-  batch(() => {
-    run.money = money + cost
-    shop.currentDeckTile = null
-    deck.del(deckTile.id)
   })
 }
 

@@ -93,7 +93,7 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
-                "z-index": horizontalTiles() - j(),
+                "z-index": horizontalTiles() + j(),
               }}
               card={card}
             />
@@ -135,7 +135,7 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
-                "z-index": horizontalTiles() * 10 - j(),
+                "z-index": horizontalTiles() * 10 + j(),
               }}
               card={card}
             />
@@ -154,7 +154,7 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
-                "z-index": horizontalTiles() + j(),
+                "z-index": horizontalTiles() * 10 + j(),
                 visibility:
                   j() === 0 || j() === verticalTiles() - 1
                     ? "hidden"

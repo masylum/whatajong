@@ -20,7 +20,7 @@ import Rand from "rand-seed"
 import { formatDuration, intervalToDuration } from "date-fns"
 
 // biome-ignore format:
-const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "You Did It!", "Mission Accomplished!", "Winner!", "Glorious!", "Well Played!" ]
+const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "Awesome!", "Winner!", "Glorious!", "Well Played!" ]
 // biome-ignore format:
 const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Oooops...", "You Failed", "You Fell Short", "Crushed!", "Wasted!" ]
 

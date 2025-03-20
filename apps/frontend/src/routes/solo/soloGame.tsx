@@ -19,20 +19,20 @@ import { ArrowLeft, Bell, BellOff, Rotate } from "@/components/icon"
 import { nanoid } from "nanoid"
 import { menuContainer, container } from "./soloGame.css"
 import { createTileState, TileStateProvider } from "@/state/tileState"
-import { createPowerupState, PowerupStateProvider } from "@/state/powerupState"
+import { createRunState, RunStateProvider } from "@/state/runState"
 
 export function Solo() {
   const params = useParams()
   const id = createMemo(() => `solo-${params.id}`)
 
+  const run = createRunState({ id })
   const tiles = createTileState({ id, deck: getStandardDeck() })
-  const powerups = createPowerupState({ id })
   const state = createGameState({ id })
 
   return (
-    <GameStateProvider game={state}>
-      <TileStateProvider tileDb={tiles()}>
-        <PowerupStateProvider powerupDb={powerups()}>
+    <RunStateProvider run={run}>
+      <GameStateProvider game={state}>
+        <TileStateProvider tileDb={tiles()}>
           <Show when={started(state)}>
             <Show
               when={state.endedAt}
@@ -43,7 +43,6 @@ export function Solo() {
                       onSelectTile={(tileId) =>
                         selectTile({
                           tileDb: tiles(),
-                          powerupsDb: powerups(),
                           game: state,
                           tileId,
                         })
@@ -58,9 +57,9 @@ export function Solo() {
               <GameOverSolo />
             </Show>
           </Show>
-        </PowerupStateProvider>
-      </TileStateProvider>
-    </GameStateProvider>
+        </TileStateProvider>
+      </GameStateProvider>
+    </RunStateProvider>
   )
 }
 
@@ -75,7 +74,7 @@ export function Top() {
 export function Bottom() {
   return (
     <div class={container}>
-      <Points />
+      <Points timerPoints={0.25} />
       <nav class={menuContainer}>
         <LinkButton href="/" hue="bamboo">
           <ArrowLeft />
