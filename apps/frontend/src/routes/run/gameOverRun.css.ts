@@ -1,10 +1,8 @@
 import { style } from "@vanilla-extract/css"
 import { alpha, color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
-import { screenClass } from "@/components/game/gameOver.css"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
-import { materialColors } from "@/styles/materialColors"
 
 export const pointsContainerClass = style({
   display: "flex",
@@ -18,18 +16,6 @@ export const pointsContainerClass = style({
   gap: 16,
 })
 
-export const titleClass = style({
-  ...fontSize.hero3,
-  selectors: {
-    [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bamboo90,
-    },
-    [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.character90,
-    },
-  },
-})
-
 export const detailListClass = recipe({
   base: {
     display: "grid",
@@ -38,38 +24,22 @@ export const detailListClass = recipe({
     justifyContent: "space-between",
     gridTemplateColumns: "max-content",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     width: "100%",
   },
   variants: {
     hue: {
       bamb: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.3)}, ${alpha(color.bamboo50, 0.2)})`,
-        boxShadow: `
-          1px 1px 1px 0px inset ${alpha(color.bamboo60, 0.4)},
-          -1px -1px 1px 0px inset ${alpha(color.bamboo30, 0.4)}
-        `,
+        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.4)}, ${alpha(color.bam50, 0.2)})`,
       },
       crack: {
-        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.3)}, ${alpha(color.character50, 0.2)})`,
-        boxShadow: `
-          1px 1px 1px 0px inset ${alpha(color.character60, 0.4)},
-          -1px -1px 1px 0px inset ${alpha(color.character30, 0.4)}
-        `,
+        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.4)}, ${alpha(color.crack50, 0.2)})`,
       },
       dot: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.3)}, ${alpha(color.circle50, 0.2)})`,
-        boxShadow: `
-          1px 1px 1px 0px inset ${alpha(color.circle60, 0.4)},
-          -1px -1px 1px 0px inset ${alpha(color.circle30, 0.4)}
-        `,
+        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.4)}, ${alpha(color.dot50, 0.2)})`,
       },
       gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[50], 0.3)}, ${alpha(materialColors.gold[50], 0.2)})`,
-        boxShadow: `
-          1px 1px 1px 0px inset ${alpha(materialColors.gold[60], 0.4)},
-          -1px -1px 1px 0px inset ${alpha(materialColors.gold[30], 0.4)}
-        `,
+        background: `linear-gradient(to bottom, ${alpha(color.gold50, 0.4)}, ${alpha(color.gold50, 0.2)})`,
       },
     },
   },
@@ -79,17 +49,17 @@ export const detailTermClass = style({
   fontFamily: primary,
   selectors: {
     [`${detailListClass.classNames.variants.hue.bamb} &`]: {
-      color: color.bamboo60,
+      color: color.bam60,
     },
     [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.character60,
+      color: color.crack60,
     },
     [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.circle60,
+      color: color.dot60,
       ...fontSize.hero4,
     },
     [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: materialColors.gold[60],
+      color: color.gold60,
     },
   },
 })
@@ -101,17 +71,17 @@ export const detailDescriptionClass = style({
   gridColumnStart: 2,
   selectors: {
     [`${detailListClass.classNames.variants.hue.bamb} &`]: {
-      color: color.bamboo80,
+      color: color.bam80,
     },
     [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.character80,
+      color: color.crack80,
     },
     [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.circle80,
+      color: color.dot80,
       ...fontSize.hero4,
     },
     [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: materialColors.gold[80],
+      color: color.gold80,
     },
   },
 })

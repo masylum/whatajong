@@ -77,7 +77,7 @@ export function getCardPoints(card: Card) {
 
 export function getMaterialPoints(material: Material) {
   switch (material) {
-    case "bamboo":
+    case "bam":
       return 4
     case "glass":
       return 8
@@ -586,7 +586,7 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   const material = getMaterial(tile, game)
 
   if (material === "jade") return !isCovered
-  if (material === "glass" || material === "bamboo") {
+  if (material === "glass" || material === "bam") {
     return countFreedoms >= 1 && !isCovered
   }
 
@@ -603,7 +603,7 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
 }
 
 export function getMaterial(tile: Tile, game?: Game) {
-  if (game?.flowerOrSeason) return "bamboo"
+  if (game?.flowerOrSeason) return "bam"
 
   return tile.material
 }
@@ -646,7 +646,7 @@ export const materials = [
   "bone",
   "bronze",
   "gold",
-  "bamboo",
+  "bam",
 ] as const
 export type Material = (typeof materials)[number]
 

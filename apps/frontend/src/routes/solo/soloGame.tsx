@@ -76,17 +76,17 @@ export function Bottom() {
     <div class={container}>
       <Points timerPoints={0.25} />
       <nav class={menuContainer}>
-        <LinkButton href="/" hue="bamboo">
+        <LinkButton href="/" hue="bam">
           <ArrowLeft />
           back
         </LinkButton>
-        <LinkButton href={`/play/${nanoid()}`} hue="character">
+        <LinkButton href={`/play/${nanoid()}`} hue="crack">
           <Rotate />
           restart
         </LinkButton>
         <Button
           type="button"
-          hue="circle"
+          hue="dot"
           title="silence"
           onClick={() => setMuted(!muted())}
         >

@@ -12,14 +12,14 @@ export const instructionsClass = style({
   maxWidth: "1200px",
   margin: "0 auto",
   gap: "2rem",
-  color: color.tile10,
+  color: color.bone10,
   fontFamily: primary,
 })
 
 export const headerClass = style({
   textAlign: "center",
   ...fontSize.hero3,
-  color: color.character50,
+  color: color.crack50,
   marginBottom: "1rem",
 })
 
@@ -34,26 +34,26 @@ export const sectionClass = style({
 
 export const sectionTitleClass = style({
   ...fontSize.hero4,
-  color: color.bamboo50,
+  color: color.bam50,
   marginBottom: "1rem",
 })
 
 export const sectionSubtitleClass = style({
   ...fontSize.h2,
-  color: color.tile20,
+  color: color.bam20,
   marginBottom: "0.5rem",
 })
 
 export const paragraphClass = style({
   ...fontSize.readable,
   fontFamily: "system-ui",
-  color: color.tile10,
+  color: color.bone10,
   marginBottom: "1rem",
 })
 
 export const tilePointsClass = style({
   ...fontSize.s,
-  color: color.bamboo50,
+  color: color.bam50,
   fontWeight: "bold",
 })
 
@@ -88,7 +88,7 @@ export const tileIconClass = style({
 
 export const tileTextClass = style({
   ...fontSize.readable,
-  color: color.tile10,
+  color: color.bone10,
   fontFamily: "system-ui",
 })
 

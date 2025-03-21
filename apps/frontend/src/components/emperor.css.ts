@@ -1,6 +1,4 @@
-import { materials } from "@/lib/game"
-import { alpha } from "@/styles/colors"
-import { materialColors } from "@/styles/materialColors"
+import { alpha, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const EMPEROR_WIDTH = 80
@@ -19,22 +17,17 @@ export const emperorClass = recipe({
     paddingBlock: 12,
   },
   variants: {
-    material: Object.fromEntries(
-      materials.map((material) => [
-        material,
-        {
-          border: `1px solid ${materialColors[material][20]}`,
-          boxShadow: `
-            0px 0px 0px 4px inset ${materialColors[material][70]},
-            0px 0px 0px 2px ${alpha(materialColors[material][30], 0.5)}
-          `,
-          background: `linear-gradient(
-            60deg,
-            ${materialColors[material][80]} 0%,
-            ${materialColors[material][90]} 50%
-          )`,
-        },
-      ]),
-    ),
+    material: hueVariants((kolor) => ({
+      border: `1px solid ${kolor(20)}`,
+      boxShadow: `
+        0px 0px 0px 4px inset ${kolor(70)},
+        0px 0px 0px 2px ${alpha(kolor(30), 0.5)}
+      `,
+      background: `linear-gradient(
+        60deg,
+        ${kolor(80)} 0%,
+        ${kolor(90)} 50%
+      )`,
+    })),
   },
 })

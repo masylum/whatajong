@@ -12,7 +12,7 @@ export const containerClass = style({
   padding: 32,
   height: "100vh",
   width: "100vw",
-  background: `linear-gradient(to bottom, ${color.circle10}, black)`,
+  background: `linear-gradient(to bottom, ${color.dot10}, black)`,
 })
 
 export const gamesClass = style({
@@ -34,16 +34,16 @@ export const gameClass = recipe({
   variants: {
     current: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo40, 0.6)}, ${alpha(color.bamboo40, 0.2)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bam40, 0.6)}, ${alpha(color.bam40, 0.2)})`,
         boxShadow: `
-          1px 1px 1px 0px inset ${color.bamboo40},
-          -1px -1px 1px 0px inset ${color.bamboo10}
+          1px 1px 1px 0px inset ${color.bam40},
+          -1px -1px 1px 0px inset ${color.bam10}
         `,
-        color: color.bamboo80,
+        color: color.bam80,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle20, 0.6)}, ${alpha(color.circle20, 0)})`,
-        color: color.circle80,
+        background: `linear-gradient(to bottom, ${alpha(color.dot20, 0.6)}, ${alpha(color.dot20, 0)})`,
+        color: color.dot80,
       },
     },
   },
@@ -54,10 +54,10 @@ export const gameTitleClass = style({
   fontFamily: primary,
   selectors: {
     [`${gameClass.classNames.variants.current.true} &`]: {
-      color: color.bamboo60,
+      color: color.bam60,
     },
     [`${gameClass.classNames.variants.current.false} &`]: {
-      color: color.circle50,
+      color: color.dot40,
     },
   },
 })
@@ -71,7 +71,7 @@ export const titleContainerClass = style({
 export const titleClass = style({
   ...fontSize.hero3,
   fontFamily: primary,
-  color: color.circle90,
+  color: color.dot90,
   fontVariantLigatures: "none",
   textAlign: "center",
 })
@@ -79,7 +79,7 @@ export const titleClass = style({
 export const subtitleClass = style({
   ...fontSize.h1,
   fontFamily: primary,
-  color: color.circle70,
+  color: color.dot60,
   textAlign: "center",
 })
 
@@ -96,10 +96,10 @@ export const detailTermClass = style({
   justifySelf: "end",
   selectors: {
     [`${gameClass.classNames.variants.current.true} &`]: {
-      color: color.bamboo60,
+      color: color.bam60,
     },
     [`${gameClass.classNames.variants.current.false} &`]: {
-      color: color.circle50,
+      color: color.dot40,
     },
   },
 })
@@ -111,10 +111,10 @@ export const detailDescriptionClass = style({
   gridColumnStart: 2,
   selectors: {
     [`${gameClass.classNames.variants.current.true} &`]: {
-      color: color.bamboo80,
+      color: color.bam80,
     },
     [`${gameClass.classNames.variants.current.false} &`]: {
-      color: color.circle70,
+      color: color.dot50,
     },
   },
 })

@@ -48,9 +48,9 @@ export const powerupRecipe = recipe({
       6: { vars: { [opacity]: "0.9" } },
     },
     dragon: {
-      c: { vars: { [backgroundColor]: color.character50 } },
-      f: { vars: { [backgroundColor]: color.bamboo50 } },
-      p: { vars: { [backgroundColor]: color.circle60 } },
+      c: { vars: { [backgroundColor]: color.crack50 } },
+      f: { vars: { [backgroundColor]: color.bam50 } },
+      p: { vars: { [backgroundColor]: color.dot60 } },
     },
   },
 })
@@ -74,19 +74,19 @@ export const comboRecipe = recipe({
   variants: {
     dragon: {
       c: {
-        background: alpha(color.character40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.character70, 0.5)}`,
+        background: alpha(color.crack40, 0.8),
+        textShadow: `2px 2px 0px ${alpha(color.crack70, 0.5)}`,
       },
       f: {
-        background: alpha(color.bamboo40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.bamboo70, 0.5)}`,
+        background: alpha(color.bam40, 0.8),
+        textShadow: `2px 2px 0px ${alpha(color.bam70, 0.5)}`,
         ":after": {
-          background: alpha(color.bamboo70, 0.5),
+          background: alpha(color.bam70, 0.5),
         },
       },
       p: {
-        background: alpha(color.circle40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.circle70, 0.5)}`,
+        background: alpha(color.dot40, 0.8),
+        textShadow: `2px 2px 0px ${alpha(color.dot70, 0.5)}`,
       },
     },
   },

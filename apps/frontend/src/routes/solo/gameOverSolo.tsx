@@ -17,7 +17,7 @@ export function GameOverSolo() {
         <GameOver.Time />
       </div>
       <LinkButton
-        hue={win() ? "bamboo" : "character"}
+        hue={win() ? "bam" : "crack"}
         kind="dark"
         href={`/play/${nanoid()}`}
       >

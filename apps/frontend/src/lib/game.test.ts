@@ -539,7 +539,7 @@ describe("isTransparent", () => {
     expect(isTransparent("bone")).toBe(false)
     expect(isTransparent("bronze")).toBe(false)
     expect(isTransparent("gold")).toBe(false)
-    expect(isTransparent("bamboo")).toBe(false)
+    expect(isTransparent("bam")).toBe(false)
   })
 })
 
@@ -568,7 +568,7 @@ describe("card points calculations", () => {
   describe("getMaterialPoints", () => {
     it("should return correct point values for different materials", () => {
       expect(getMaterialPoints("bone")).toBe(0)
-      expect(getMaterialPoints("bamboo")).toBe(4)
+      expect(getMaterialPoints("bam")).toBe(4)
       expect(getMaterialPoints("glass")).toBe(8)
       expect(getMaterialPoints("jade")).toBe(16)
       expect(getMaterialPoints("bronze")).toBe(16)
@@ -579,7 +579,7 @@ describe("card points calculations", () => {
   describe("getMaterialMultiplier", () => {
     it("should return correct multiplier values for different materials", () => {
       expect(getMaterialMultiplier("bone")).toBe(0)
-      expect(getMaterialMultiplier("bamboo")).toBe(0)
+      expect(getMaterialMultiplier("bam")).toBe(0)
       expect(getMaterialMultiplier("glass")).toBe(0)
       expect(getMaterialMultiplier("jade")).toBe(1)
       expect(getMaterialMultiplier("bronze")).toBe(1)
@@ -591,7 +591,7 @@ describe("card points calculations", () => {
 describe("getCoins and getMaterialCoins", () => {
   it("getMaterialCoins should return correct coin values for different materials", () => {
     expect(getMaterialCoins("bone")).toBe(0)
-    expect(getMaterialCoins("bamboo")).toBe(0)
+    expect(getMaterialCoins("bam")).toBe(0)
     expect(getMaterialCoins("glass")).toBe(0)
     expect(getMaterialCoins("jade")).toBe(0)
     expect(getMaterialCoins("bronze")).toBe(5)

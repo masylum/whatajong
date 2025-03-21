@@ -2,6 +2,7 @@ import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
 import { isTransparent, type Material } from "@/lib/game"
+import { getHueColor } from "@/styles/colors"
 
 type Props = {
   material?: Material
@@ -29,7 +30,8 @@ export function TileBody(iProps: Props) {
           v ${-props.height + 2 * CORNER_RADIUS}
           a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} -${CORNER_RADIUS}
           Z`}
-        fill-opacity={isTransparent(props.material) ? 0.5 : 1}
+        fill-opacity={isTransparent(props.material) ? 0.6 : 1}
+        stroke={getHueColor(props.material)(90)}
         fill={`url(#${fill()})`}
       />
     </>

@@ -62,7 +62,7 @@ export default function RunSelect() {
               </dl>
               <Show when={isCurrentRound(round.id)}>
                 <Button
-                  hue="bamboo"
+                  hue="bam"
                   kind="dark"
                   onClick={() => selectRound(round)}
                 >

@@ -154,7 +154,7 @@ function Bottom() {
       <nav class={menuContainerClass}>
         <Button
           type="button"
-          hue="circle"
+          hue="dot"
           title="silence"
           onClick={() => setMuted(!muted())}
         >

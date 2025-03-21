@@ -4,68 +4,113 @@ export const huesAndShades = {
     "1000": "oklch(12% 0.003 85)",
   },
 
-  tile: {
-    90: "#FFF5D2",
-    80: "#FFF3D6",
-    70: "#FEE9C6",
-    60: "#F9D9B6",
-    50: "#E3C19F",
-    40: "#B8987D",
-    30: "#8C705B",
-    20: "#5F493C",
-    10: "#30231D",
-  },
-
-  bamboo: {
-    90: "#CCE2CC",
-    80: "#99C499",
-    70: "#66A466",
-    60: "#338333",
-    50: "#006000",
+  bam: {
+    90: "#e7f7e7",
+    80: "#c7f4c7",
+    70: "#a4e5a3",
+    60: "#7ac077",
+    50: "#3b9a36",
     40: "#005700",
-    30: "#004D00",
-    20: "#004300",
-    10: "#003700",
+    30: "#043a03",
+    20: "#082107",
+    10: "#001300",
   },
 
-  character: {
-    90: "#F8D2CC",
-    80: "#F0ADA3",
-    70: "#E5887D",
-    60: "#D96259",
-    50: "#CB3D38",
-    40: "#BA1918",
-    30: "#900A10",
-    20: "#61010B",
-    10: "#2C0006",
+  crack: {
+    90: "#fcf0ee",
+    80: "#fdddd8",
+    70: "#fdc1b9",
+    60: "#f08d83",
+    50: "#d94b44",
+    40: "#84090b",
+    30: "#58110f",
+    20: "#3b0306",
+    10: "#240105",
   },
 
-  circle: {
-    90: "#CCD7E8",
-    80: "#99AFCF",
-    70: "#6687B5",
-    60: "#335F98",
-    50: "#00377A",
-    40: "#00306F",
-    30: "#002962",
-    20: "#002255",
-    10: "#001B46",
+  dot: {
+    90: "#ecf3fd",
+    80: "#d9e7fc",
+    70: "#b7d4fc",
+    60: "#7faeed",
+    50: "#2c80ef",
+    40: "#004192",
+    30: "#052c63",
+    20: "#011a41",
+    10: "#010d26",
+  },
+
+  glass: {
+    90: "#e9f3f9",
+    80: "#d1e8f5",
+    70: "#aecde0",
+    60: "#95bbd4",
+    50: "#74aacf",
+    40: "#5384a3",
+    30: "#385669",
+    20: "#20333e",
+    10: "#061015",
+  },
+
+  jade: {
+    90: "#e5f9ed",
+    80: "#c5f0d8",
+    70: "#96ddb6",
+    60: "#73ca9d",
+    50: "#5eb489",
+    40: "#4e8f6f",
+    30: "#305a4b",
+    20: "#1a342d",
+    10: "#051110",
+  },
+
+  bone: {
+    90: "#fef1d4",
+    80: "#fee1b7",
+    70: "#f8bb73",
+    60: "#f3a04e",
+    50: "#e4843f",
+    40: "#b86544",
+    30: "#7a3b2e",
+    20: "#49211b",
+    10: "#1a0805",
+  },
+
+  bronze: {
+    90: "#fdebe3",
+    80: "#ffd4c2",
+    70: "#feb195",
+    60: "#fe956f",
+    50: "#f96e3c",
+    40: "#d5491c",
+    30: "#90250f",
+    20: "#580e0a",
+    10: "#1d0606",
+  },
+
+  gold: {
+    90: "#fff1c8",
+    80: "#ffe086",
+    70: "#efc41f",
+    60: "#d8b01c",
+    50: "#ba9e2f",
+    40: "#947d12",
+    30: "#5f5008",
+    20: "#392d05",
+    10: "#130e01",
   },
 } as const
 
 export const accentHues = [
-  // suits
-  "bamboo",
-  "character",
-  "circle",
-  // TODO: deprecate
-  "tile",
+  "bam",
+  "crack",
+  "dot",
+  "glass",
+  "jade",
+  "bone",
+  "bronze",
+  "gold",
 ] as const
-
-export const noHue = "no-color"
-export type NoHue = typeof noHue
-export const accentHuesWithNoHue = [...accentHues, noHue] as const
-export type AccentHuesWithNoHue = (typeof accentHuesWithNoHue)[number]
 
 export type Hue = keyof typeof huesAndShades
 export type AccentHue = (typeof accentHues)[number]
@@ -126,22 +171,8 @@ export function alpha(colorName: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-export type HueShadeGetter = (
-  shade: ShadeTypes<AccentHue>,
-  fallback?: string,
-) => string
-export type ColorGetter = (hue: AccentHuesWithNoHue) => HueShadeGetter
+export type HueShadeGetter = (shade: ShadeTypes<AccentHue>) => string
 
-export function getHueColor(hue: AccentHuesWithNoHue): HueShadeGetter {
-  if (hue === noHue) {
-    return (_shade: ShadeTypes<AccentHue>, fallback?: string) => {
-      if (!fallback) {
-        throw new Error("Fallback is required for noHue")
-      }
-
-      return fallback
-    }
-  }
-
+export function getHueColor(hue: AccentHue): HueShadeGetter {
   return (shade: ShadeTypes<AccentHue>) => color[colorize(hue, shade)]
 }

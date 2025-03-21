@@ -3,14 +3,13 @@ import { alpha, color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
-import { materialColors } from "@/styles/materialColors"
 
 export const tooltipClass = style({
   position: "absolute",
-  background: color.tile90,
-  color: color.tile10,
+  background: color.bone90,
+  color: color.bone10,
   borderRadius: 8,
-  border: `1px solid ${color.tile40}`,
+  border: `1px solid ${color.bone40}`,
   padding: 12,
   ...fontSize.l,
   maxWidth: "250px",
@@ -48,20 +47,20 @@ export const detailListClass = recipe({
   },
   variants: {
     type: {
-      circle: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.1)}, ${alpha(color.circle50, 0.2)})`,
+      dot: {
+        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.1)}, ${alpha(color.dot50, 0.2)})`,
       },
-      character: {
-        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
+      crack: {
+        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
       },
-      bamboo: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.1)}, ${alpha(color.bamboo50, 0.2)})`,
+      bam: {
+        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.1)}, ${alpha(color.bam50, 0.2)})`,
       },
       bronze: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[70], 0.2)}, ${alpha(materialColors.bronze[70], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bronze70, 0.2)}, ${alpha(color.bronze70, 0.3)})`,
       },
       gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[70], 0.2)}, ${alpha(materialColors.gold[70], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.gold70, 0.2)}, ${alpha(color.gold70, 0.3)})`,
       },
     },
   },
@@ -72,20 +71,20 @@ export const detailTermClass = style({
   fontFamily: primary,
   justifySelf: "start",
   selectors: {
-    [`${detailListClass.classNames.variants.type.circle} &`]: {
-      color: color.circle30,
+    [`${detailListClass.classNames.variants.type.dot} &`]: {
+      color: color.dot30,
     },
-    [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character30,
+    [`${detailListClass.classNames.variants.type.crack} &`]: {
+      color: color.crack30,
     },
-    [`${detailListClass.classNames.variants.type.bamboo} &`]: {
-      color: color.bamboo30,
+    [`${detailListClass.classNames.variants.type.bam} &`]: {
+      color: color.bam30,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: materialColors.bronze[20],
+      color: color.bronze20,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: materialColors.gold[20],
+      color: color.gold20,
     },
   },
 })
@@ -96,17 +95,17 @@ export const detailDescriptionClass = style({
   justifySelf: "end",
   gridColumnStart: 2,
   selectors: {
-    [`${detailListClass.classNames.variants.type.circle} &`]: {
-      color: color.circle10,
+    [`${detailListClass.classNames.variants.type.dot} &`]: {
+      color: color.dot10,
     },
-    [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character10,
+    [`${detailListClass.classNames.variants.type.crack} &`]: {
+      color: color.crack10,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.tile10,
+      color: color.bone10,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.tile10,
+      color: color.bone10,
     },
   },
 })
@@ -117,7 +116,7 @@ export const detailFreedomClass = style({
   gap: 4,
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[80], 0.2)}, ${alpha(materialColors.bronze[80], 0.4)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bronze80, 0.2)}, ${alpha(color.bronze80, 0.4)})`,
   fontFamily: "system-ui",
   ...fontSize.m,
 })
@@ -125,13 +124,13 @@ export const detailFreedomClass = style({
 export const detailFreedomTitleClass = style({
   ...fontSize.m,
   fontFamily: primary,
-  color: materialColors.bronze[20],
+  color: color.bronze20,
 })
 
 export const detailInfoClass = style({
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(materialColors.bone[50], 0.2)}, ${alpha(materialColors.bone[50], 0.4)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bone50, 0.2)}, ${alpha(color.bone50, 0.4)})`,
   fontFamily: "system-ui",
   ...fontSize.m,
 })

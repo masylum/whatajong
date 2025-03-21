@@ -19,7 +19,7 @@ export const homeClass = style({
 
 export const titleClass = style({
   ...fontSize.hero2,
-  color: color.character40,
+  color: color.crack50,
   textAlign: "center",
 })
 
@@ -42,12 +42,12 @@ export const buttonClass = recipe({
     textAlign: "center",
     paddingInline: 24,
     paddingBlock: 16,
-    borderRadius: 12,
+    borderRadius: 16,
   },
   variants: {
     hue: hueVariants((hue) => ({
-      background: `linear-gradient(to bottom, ${alpha(hue(60), 0.2)}, ${alpha(hue(60), 0.1)})`,
-      color: hue(30),
+      background: `linear-gradient(to bottom, ${alpha(hue(60), 0.1)}, ${alpha(hue(60), 0.2)})`,
+      color: hue(40),
       ":hover": {
         background: `linear-gradient(to bottom, ${alpha(hue(60), 0.3)}, ${alpha(hue(60), 0.2)})`,
         color: hue(20),

@@ -13,7 +13,7 @@ export function TileSide(iProps: Props) {
   return (
     <path
       d={props.d}
-      fill-opacity={isTransparent(props.material) ? 0.5 : 1}
+      fill-opacity={isTransparent(props.material) ? 0.6 : 1}
       fill={`url(#${sideGradientId()})`}
     />
   )

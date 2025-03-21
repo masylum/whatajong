@@ -38,7 +38,7 @@ export function Home() {
         <a
           onMouseEnter={onHover}
           href={`/play/${nanoid()}`}
-          class={buttonClass({ hue: "bamboo" })}
+          class={buttonClass({ hue: "bam" })}
         >
           <img src="/tiles/b.webp" alt="classic" width={24} height={24} />
           classic game
@@ -46,7 +46,7 @@ export function Home() {
         <a
           onMouseEnter={onHover}
           href={`/run/${nanoid()}`}
-          class={buttonClass({ hue: "character" })}
+          class={buttonClass({ hue: "crack" })}
         >
           <img src="/tiles/c.webp" alt="duel" width={24} height={24} />
           adventure game
@@ -54,7 +54,7 @@ export function Home() {
         <a
           onMouseEnter={onHover}
           href="/instructions"
-          class={buttonClass({ hue: "circle" })}
+          class={buttonClass({ hue: "dot" })}
         >
           <img src="/tiles/o.webp" alt="instructions" width={24} height={24} />
           instructions

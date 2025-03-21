@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css"
-import { color, hueVariants } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 
@@ -21,10 +21,12 @@ export const pillClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(60)}, ${kolor(50)})`,
-      boxShadow: `1px -1px 0px 0 inset ${kolor(60)},
-        0px 0px 0px 1px ${kolor(40)},
-        0px 0px 3px -1px ${kolor(10)},
+      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
+      boxShadow: `1px 1px 2px 0 inset ${kolor(60)},
+        -1px -1px 2px 0px inset ${kolor(30)},
+        0px 0px 0px 1px ${kolor(30)},
+        0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
+        0px 0px 5px -3px ${kolor(10)},
         0px 0px 10px -5px ${kolor(10)}`,
     })),
   },
@@ -38,21 +40,21 @@ export const pointsContainerClass = style({
 export const pointsClass = style([
   statItem,
   {
-    color: color.bamboo20,
+    color: color.bam30,
   },
 ])
 
 export const penaltyClass = style([
   statItem,
   {
-    color: color.character20,
+    color: color.crack30,
   },
 ])
 
 export const movesClass = style([
   statItem,
   {
-    color: color.circle20,
+    color: color.dot30,
   },
 ])
 

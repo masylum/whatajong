@@ -78,6 +78,7 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 3 * 9 = 27 points
+  // DONE
   {
     level: 1,
     name: "gardener",
@@ -88,9 +89,10 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 2 * 9 = 18 points
+  // DONE
   {
     level: 1,
-    name: "flutist",
+    name: "landscaper",
     material: "jade",
     description: "Wood tiles get +1 mult.",
     getRawMultiplier({ card }) {

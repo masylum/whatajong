@@ -4,7 +4,6 @@ import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 import { color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
-import { materialColors } from "@/styles/materialColors"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -81,22 +80,22 @@ export const scoreClass = style({
 export const scoreCoinsClass = style({
   borderRadius: 24,
   padding: "4px 8px",
-  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
-  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
-    0px 0px 0px 1px ${materialColors.gold[60]},
-    0px 0px 3px -1px ${materialColors.gold[30]},
-    0px 0px 10px -5px ${materialColors.gold[30]}`,
-  color: color.tile10,
+  background: `linear-gradient(to bottom, ${color.gold90}, ${color.gold80})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
+    0px 0px 0px 1px ${color.gold60},
+    0px 0px 3px -1px ${color.gold30},
+    0px 0px 10px -5px ${color.gold30}`,
+  color: color.bone10,
 })
 
 export const scorePointsClass = style({
   borderRadius: 8,
   padding: "4px 8px",
-  background: `linear-gradient(to bottom, ${color.bamboo60}, ${color.bamboo50})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.bamboo60},
-    0px 0px 0px 1px ${color.bamboo40},
-    0px 0px 3px -1px ${color.bamboo10},
-    0px 0px 10px -5px ${color.bamboo10}`,
+  background: `linear-gradient(to bottom, ${color.bam60}, ${color.bam50})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.bam60},
+    0px 0px 0px 1px ${color.bam40},
+    0px 0px 3px -1px ${color.bam10},
+    0px 0px 10px -5px ${color.bam10}`,
   color: "white",
 })
 

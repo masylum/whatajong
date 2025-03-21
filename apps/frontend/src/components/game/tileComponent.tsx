@@ -39,8 +39,8 @@ import { TileImage } from "./tileImage"
 import { useTileState } from "@/state/tileState"
 import { useHover } from "./useHover"
 import { TileHover } from "./tileHover"
-import { materialColors } from "@/styles/materialColors"
 import { useGameState } from "@/state/gameState"
+import { getHueColor } from "@/styles/colors"
 
 type Props = {
   tile: Tile
@@ -218,6 +218,7 @@ export function TileComponent(iProps: Props) {
             top: `${coords().y}px`,
             overflow: "visible",
             "z-index": zIndex(),
+            "backdrop-filter": "blur(0.5px)",
           }}
           width={props.width}
           height={props.height}
@@ -236,7 +237,7 @@ export function TileComponent(iProps: Props) {
             <path
               d={dPath()}
               fill="none"
-              stroke={materialColors[material()][20]}
+              stroke={getHueColor(material())(40)}
               stroke-width={selected() ? 2 : 1}
             />
 

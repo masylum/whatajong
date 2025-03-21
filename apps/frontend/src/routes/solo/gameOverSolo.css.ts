@@ -16,10 +16,10 @@ export const pointsContainerClass = recipe({
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo30, 0.6)}, ${alpha(color.bamboo30, 0)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bam30, 0.6)}, ${alpha(color.bam30, 0)})`,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.character30, 0.6)}, ${alpha(color.character30, 0)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.crack30, 0.6)}, ${alpha(color.crack30, 0)})`,
       },
     },
   },

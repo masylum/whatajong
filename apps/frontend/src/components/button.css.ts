@@ -30,10 +30,10 @@ export const buttonClass = recipe({
         hue,
       },
       style: {
-        backgroundColor: alpha(kolor(60), 0.1),
+        backgroundColor: alpha(kolor(50), 0.2),
         color: kolor(40),
         ":hover": {
-          backgroundColor: alpha(kolor(60), 0.2),
+          backgroundColor: alpha(kolor(50), 0.3),
           color: kolor(30),
         },
       },

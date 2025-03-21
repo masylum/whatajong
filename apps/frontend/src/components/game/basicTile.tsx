@@ -1,5 +1,5 @@
 import { TILE_RATIO, TILE_WIDTH } from "@/state/constants"
-import { color, getHueColor, type AccentHue } from "@/styles/colors"
+import { getHueColor, type AccentHue } from "@/styles/colors"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
 import type { Card, Suit, Material } from "@/lib/game"
@@ -48,7 +48,12 @@ export function BasicTile(props: Props) {
           />
         )}
       </Show>
-      <path d={dPath()} fill="none" stroke={color.tile30} stroke-width="1" />
+      <path
+        d={dPath()}
+        fill="none"
+        stroke={getHueColor(local.material ?? "bone")(40)}
+        stroke-width="1"
+      />
     </svg>
   )
 }

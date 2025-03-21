@@ -125,13 +125,13 @@ export function GameOverRun() {
         <Show
           when={win()}
           fallback={
-            <LinkButton hue="character" kind="dark" href={`/run/${nanoid()}`}>
+            <LinkButton hue="crack" kind="dark" href={`/run/${nanoid()}`}>
               <Rotate />
               Try again
             </LinkButton>
           }
         >
-          <Button hue="bamboo" kind="dark" onClick={() => onShop()}>
+          <Button hue="bam" kind="dark" onClick={() => onShop()}>
             <Shop />
             Go to shop
           </Button>

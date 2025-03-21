@@ -1,6 +1,5 @@
 import { style, styleVariants, createVar } from "@vanilla-extract/css"
 import { color } from "@/styles/colors"
-import { materialColors } from "@/styles/materialColors"
 
 const tooltipBgColor = createVar()
 const tooltipTextColor = createVar()
@@ -18,8 +17,8 @@ export const tooltipClass = style({
   pointerEvents: "none",
   transition: "transform 0.05s ease-out",
   vars: {
-    [tooltipBgColor]: color.tile10,
-    [tooltipTextColor]: color.tile90,
+    [tooltipBgColor]: color.bone10,
+    [tooltipTextColor]: color.bone90,
   },
 })
 
@@ -40,7 +39,7 @@ export const valueClass = style({
 
 export const dividerClass = style({
   height: "1px",
-  background: color.tile30,
+  background: color.bone30,
   margin: "4px 0",
 })
 
@@ -54,11 +53,11 @@ export const totalRowClass = style({
 })
 
 export const materialClass = styleVariants({
-  glass: { color: materialColors.glass[50] },
-  jade: { color: materialColors.jade[50] },
-  bone: { color: materialColors.bone[50] },
-  bronze: { color: materialColors.bronze[50] },
-  gold: { color: materialColors.gold[50] },
+  glass: { color: color.glass50 },
+  jade: { color: color.jade50 },
+  bone: { color: color.bone50 },
+  bronze: { color: color.bronze50 },
+  gold: { color: color.gold50 },
 })
 
 export const titleClass = style({

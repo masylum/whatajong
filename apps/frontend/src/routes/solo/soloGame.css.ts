@@ -14,7 +14,7 @@ export const container = style({
   position: "relative",
   zIndex: 3,
   userSelect: "none",
-  color: color.tile10,
+  color: color.base0,
 })
 
 export const menuContainer = style({

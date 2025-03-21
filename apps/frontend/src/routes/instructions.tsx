@@ -34,7 +34,7 @@ export function Instructions() {
     <div class={instructionsClass}>
       <h1 class={headerClass}>Whatajong Game Instructions</h1>
 
-      <LinkButton href="/" hue="bamboo">
+      <LinkButton href="/" hue="bam">
         <ArrowLeft />
         Back
       </LinkButton>
@@ -48,14 +48,14 @@ export function Instructions() {
         </p>
 
         <h3 class={sectionSubtitleClass}>How to Remove Tiles</h3>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
                 Click on two identical tiles to remove them from the board.
                 Tiles must be{" "}
-                <span class={highlightClass({ hue: "bamboo" })}>"free"</span> to
-                be removed.
+                <span class={highlightClass({ hue: "bam" })}>"free"</span> to be
+                removed.
               </>
             }
           >
@@ -66,8 +66,8 @@ export function Instructions() {
 
         <p class={paragraphClass}>
           A tile is considered{" "}
-          <span class={highlightClass({ hue: "bamboo" })}>free</span> when it
-          meets these conditions:
+          <span class={highlightClass({ hue: "bam" })}>free</span> when it meets
+          these conditions:
         </p>
         <ul class={paragraphClass}>
           <li>
@@ -79,7 +79,7 @@ export function Instructions() {
         </ul>
 
         <h3 class={sectionSubtitleClass}>Examples</h3>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
@@ -111,7 +111,7 @@ export function Instructions() {
             <BasicTile card="dc" style={{ "z-index": 1 }} />
           </IconText>
         </Box>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
@@ -141,13 +141,13 @@ export function Instructions() {
         </p>
 
         <h3 class={sectionSubtitleClass}>Colors</h3>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "bamboo" })}>Bamboo</span>{" "}
-                tiles are worth{" "}
-                <span class={highlightClass({ hue: "bamboo" })}>1 point</span>{" "}
+                <span class={highlightClass({ hue: "bam" })}>bam</span> tiles
+                are worth{" "}
+                <span class={highlightClass({ hue: "bam" })}>1 point</span>{" "}
                 each.
               </>
             }
@@ -164,13 +164,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "character" })}>
-                  Character
-                </span>{" "}
+                <span class={highlightClass({ hue: "crack" })}>Character</span>{" "}
                 tiles are worth{" "}
-                <span class={highlightClass({ hue: "character" })}>
-                  2 points
-                </span>{" "}
+                <span class={highlightClass({ hue: "crack" })}>2 points</span>{" "}
                 each.
               </>
             }
@@ -187,9 +183,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "circle" })}>Circle</span>{" "}
-                tiles are worth{" "}
-                <span class={highlightClass({ hue: "circle" })}>3 points</span>{" "}
+                <span class={highlightClass({ hue: "dot" })}>Circle</span> tiles
+                are worth{" "}
+                <span class={highlightClass({ hue: "dot" })}>3 points</span>{" "}
                 each.
               </>
             }
@@ -206,13 +202,13 @@ export function Instructions() {
         </Box>
 
         <h3 class={sectionSubtitleClass}>Special Tiles</h3>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "bamboo" })}>Dragon</span>{" "}
-                tiles are worth{" "}
-                <span class={highlightClass({ hue: "bamboo" })}>4 points</span>{" "}
+                <span class={highlightClass({ hue: "bam" })}>Dragon</span> tiles
+                are worth{" "}
+                <span class={highlightClass({ hue: "bam" })}>4 points</span>{" "}
                 each.
               </>
             }
@@ -229,9 +225,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "flower" })}>Flower</span>{" "}
+                <span class={highlightClass({ hue: "glass" })}>Flower</span>{" "}
                 tiles are worth{" "}
-                <span class={highlightClass({ hue: "flower" })}>8 points</span>{" "}
+                <span class={highlightClass({ hue: "glass" })}>8 points</span>{" "}
                 each.
               </>
             }
@@ -248,11 +244,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "season" })}>
-                  Profession
-                </span>{" "}
+                <span class={highlightClass({ hue: "jade" })}>Profession</span>{" "}
                 tiles are worth{" "}
-                <span class={highlightClass({ hue: "season" })}>8 points</span>{" "}
+                <span class={highlightClass({ hue: "jade" })}>8 points</span>{" "}
                 each.
               </>
             }
@@ -269,9 +263,9 @@ export function Instructions() {
           <IconText
             text={
               <>
-                <span class={highlightClass({ hue: "circle" })}>Wind</span>{" "}
-                tiles are worth{" "}
-                <span class={highlightClass({ hue: "circle" })}>16 points</span>{" "}
+                <span class={highlightClass({ hue: "dot" })}>Wind</span> tiles
+                are worth{" "}
+                <span class={highlightClass({ hue: "dot" })}>16 points</span>{" "}
                 each.
               </>
             }
@@ -292,20 +286,17 @@ export function Instructions() {
         <h2 class={sectionTitleClass}>Dragon runs</h2>
         <p class={paragraphClass}>
           When you remove a pair of dragons, you start a{" "}
-          <span class={highlightClass({ hue: "bamboo" })}>dragon run</span>,
-          which allows you to earn extra points by removing tiles of the same
-          color.
+          <span class={highlightClass({ hue: "bam" })}>dragon run</span>, which
+          allows you to earn extra points by removing tiles of the same color.
         </p>
 
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
                 The{" "}
-                <span class={highlightClass({ hue: "bamboo" })}>
-                  Green Dragon
-                </span>{" "}
-                leads bamboo tiles:
+                <span class={highlightClass({ hue: "bam" })}>Green Dragon</span>{" "}
+                leads bam tiles:
                 <For each={bams}>{(card) => <MiniTile card={card} />}</For>
               </>
             }
@@ -316,9 +307,7 @@ export function Instructions() {
             text={
               <>
                 The{" "}
-                <span class={highlightClass({ hue: "character" })}>
-                  Red Dragon
-                </span>{" "}
+                <span class={highlightClass({ hue: "crack" })}>Red Dragon</span>{" "}
                 leads character tiles:
                 <For each={cracks}>{(card) => <MiniTile card={card} />}</For>
               </>
@@ -330,9 +319,7 @@ export function Instructions() {
             text={
               <>
                 The{" "}
-                <span class={highlightClass({ hue: "circle" })}>
-                  Blue Dragon
-                </span>{" "}
+                <span class={highlightClass({ hue: "dot" })}>Blue Dragon</span>{" "}
                 leads circle tiles:
                 <For each={dots}>{(card) => <MiniTile card={card} />}</For>
               </>
@@ -350,9 +337,9 @@ export function Instructions() {
         </p>
 
         <p class={paragraphClass}>
-          <span class={highlightClass({ hue: "flower" })}>Flower</span> (
+          <span class={highlightClass({ hue: "glass" })}>Flower</span> (
           <For each={flowers}>{(card) => <MiniTile card={card} />}</For>) and{" "}
-          <span class={highlightClass({ hue: "season" })}>Profession</span> (
+          <span class={highlightClass({ hue: "jade" })}>Profession</span> (
           <For each={seasons}>{(card) => <MiniTile card={card} />}</For>) tiles
           act as jokers, so they can be used within any dragon run.
         </p>
@@ -366,22 +353,21 @@ export function Instructions() {
       <section class={sectionClass}>
         <h2 class={sectionTitleClass}>Jokers</h2>
         <p class={paragraphClass}>
-          <span class={highlightClass({ hue: "flower" })}>Flower</span> and{" "}
-          <span class={highlightClass({ hue: "season" })}>Profession</span>{" "}
-          tiles (the Jokers) are unique and do not have a pair. However, any
-          tile of the same color can act as their pair.
+          <span class={highlightClass({ hue: "glass" })}>Flower</span> and{" "}
+          <span class={highlightClass({ hue: "jade" })}>Profession</span> tiles
+          (the Jokers) are unique and do not have a pair. However, any tile of
+          the same color can act as their pair.
         </p>
 
         <p class={paragraphClass}>
           When you remove a pair of{" "}
-          <span class={highlightClass({ hue: "flower" })}>Flower</span> or{" "}
-          <span class={highlightClass({ hue: "season" })}>Profession</span>{" "}
-          tiles, in your next move you can remove tiles that are exposed from
-          the top or bottom, even though they may be locked on the sides. This
-          allows you to remove pieces that would otherwise be difficult to
-          remove.
+          <span class={highlightClass({ hue: "glass" })}>Flower</span> or{" "}
+          <span class={highlightClass({ hue: "jade" })}>Profession</span> tiles,
+          in your next move you can remove tiles that are exposed from the top
+          or bottom, even though they may be locked on the sides. This allows
+          you to remove pieces that would otherwise be difficult to remove.
         </p>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
@@ -398,46 +384,46 @@ export function Instructions() {
               <div class={tileIconClass}>
                 <BasicTile
                   card="wn"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 3 }}
                 />
                 <BasicTile card="b1" style={{ "z-index": 2 }} />
                 <BasicTile
                   card="wn"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 1 }}
                 />
               </div>
               <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 6 }}
                 />
                 <BasicTile card="o1" style={{ "z-index": 5 }} />
                 <BasicTile
                   card="o1"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 4 }}
                 />
               </div>
               <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 9 }}
                 />
                 <BasicTile card="b1" style={{ "z-index": 8 }} />
                 <BasicTile
                   card="f2"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 7 }}
                 />
               </div>
               <div class={tileIconClass}>
                 <BasicTile
                   card="f1"
-                  highlighted="tile"
+                  highlighted="glass"
                   style={{ "z-index": 10 }}
                 />
               </div>
@@ -448,7 +434,7 @@ export function Instructions() {
               <>
                 If you remove <MiniTile card="f1" /> and <MiniTile card="f2" />{" "}
                 you will start a{" "}
-                <span class={highlightClass({ hue: "flower" })}>Joker Run</span>
+                <span class={highlightClass({ hue: "glass" })}>Joker Run</span>
                 .
                 <br />
                 Now you can remove <MiniTile card="b1" /> since it's exposed
@@ -463,42 +449,42 @@ export function Instructions() {
               <div class={tileIconClass}>
                 <BasicTile
                   card="wn"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 3 }}
                 />
                 <BasicTile
                   card="b1"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 2 }}
                 />
                 <BasicTile
                   card="wn"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 1 }}
                 />
               </div>
               <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 3 }}
                 />
                 <BasicTile card="o1" style={{ "z-index": 2 }} />
                 <BasicTile
                   card="o1"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 1 }}
                 />
               </div>
               <div class={tileIconClass}>
                 <BasicTile
                   card="c1"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 3 }}
                 />
                 <BasicTile
                   card="b1"
-                  highlighted="flower"
+                  highlighted="glass"
                   style={{ "z-index": 2 }}
                 />
               </div>
@@ -509,7 +495,7 @@ export function Instructions() {
 
       <section class={sectionClass}>
         <h2 class={sectionTitleClass}>Wind Tiles</h2>
-        <Box hue="tile">
+        <Box hue="bone">
           <IconText
             text={
               <>
@@ -533,7 +519,7 @@ export function Instructions() {
         </p>
       </section>
 
-      <LinkButton href="/" hue="bamboo">
+      <LinkButton href="/" hue="bam">
         <ArrowLeft />
         Back
       </LinkButton>

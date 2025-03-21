@@ -6,10 +6,10 @@ import { recipe } from "@vanilla-extract/recipes"
 
 export const tooltipClass = style({
   position: "absolute",
-  background: color.tile90,
-  color: color.tile10,
+  background: color.bone90,
+  color: color.bone10,
   borderRadius: 8,
-  border: `1px solid ${color.tile40}`,
+  border: `1px solid ${color.bone40}`,
   padding: 8,
   ...fontSize.l,
   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
@@ -43,7 +43,7 @@ export const detailListClass = recipe({
   variants: {
     type: {
       character: {
-        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
       },
     },
   },
@@ -55,7 +55,7 @@ export const detailTermClass = style({
   justifySelf: "start",
   selectors: {
     [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character30,
+      color: color.crack30,
     },
   },
 })
@@ -67,7 +67,7 @@ export const detailDescriptionClass = style({
   gridColumnStart: 2,
   selectors: {
     [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character10,
+      color: color.crack10,
     },
   },
 })
@@ -75,8 +75,8 @@ export const detailDescriptionClass = style({
 export const detailInfoClass = style({
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
-  color: color.character10,
+  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
+  color: color.crack10,
   fontFamily: "system-ui",
   ...fontSize.m,
 })

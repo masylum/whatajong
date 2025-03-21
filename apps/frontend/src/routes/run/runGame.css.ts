@@ -4,7 +4,6 @@ import { alpha, color } from "@/styles/colors"
 import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
-import { materialColors } from "@/styles/materialColors"
 
 export const FLIP_DURATION = 1000
 export const DELETED_DURATION = 300
@@ -60,7 +59,7 @@ export const containerClass = style({
   position: "relative",
   zIndex: 3,
   userSelect: "none",
-  color: color.tile10,
+  color: color.bone10,
   height: 150,
 })
 
@@ -79,7 +78,7 @@ export const roundClass = style({
 export const roundTitleClass = style({
   padding: 8,
   borderRadius: 8,
-  color: color.circle10,
+  color: color.dot10,
   ...fontSize.h1,
 })
 
@@ -146,28 +145,28 @@ export const cardBackClass = style([
     alignItems: "center",
     justifyContent: "center",
     transform: "rotateY(180deg)",
-    background: color.tile20,
+    background: color.bone20,
     borderRadius: 16,
     padding: 12,
     boxShadow: `
-      0px 0px 0px 4px inset ${materialColors.bone[10]},
-      0px 0px 0px 2px ${alpha(materialColors.bone[10], 0.5)}
+      0px 0px 0px 4px inset ${color.bone10},
+      0px 0px 0px 2px ${alpha(color.bone10, 0.5)}
     `,
   },
 ])
 
 export const cardBackButtonClass = style({
-  color: materialColors.bone[90],
+  color: color.bone90,
   borderRadius: 8,
   background: `linear-gradient(
   to bottom,
-    ${materialColors.bone[30]},
-    ${materialColors.bone[20]}
+    ${color.bone30},
+    ${color.bone20}
   )`,
   boxShadow: `
-    1px 1px 1px 0px inset ${materialColors.bone[40]},
-    -1px -1px 1px 0px inset ${alpha(materialColors.bone[10], 0.7)},
-    0px 0px 0px 2px ${alpha(materialColors.bone[10], 0.5)}
+    1px 1px 1px 0px inset ${color.bone40},
+    -1px -1px 1px 0px inset ${alpha(color.bone10, 0.7)},
+    0px 0px 0px 2px ${alpha(color.bone10, 0.5)}
   `,
   padding: 8,
   border: "none",

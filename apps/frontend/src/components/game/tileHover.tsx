@@ -79,7 +79,7 @@ export function TileHover(props: TileHoverProps) {
           <span>{cardName(props.card)}</span>
         </div>
 
-        <dl class={detailListClass({ type: "bamboo" })}>
+        <dl class={detailListClass({ type: "bam" })}>
           <dt class={detailTermClass}>Points:</dt>
           <dd class={detailDescriptionClass}>
             {getRawPoints({ card: props.card, material: props.material, run })}
@@ -93,7 +93,7 @@ export function TileHover(props: TileHoverProps) {
           })}
         >
           {(mult) => (
-            <dl class={detailListClass({ type: "character" })}>
+            <dl class={detailListClass({ type: "crack" })}>
               <dt class={detailTermClass}>Mult:</dt>
               <dd class={detailDescriptionClass}>{mult()}</dd>
             </dl>

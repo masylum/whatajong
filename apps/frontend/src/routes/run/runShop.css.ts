@@ -1,9 +1,8 @@
 import { keyframes, style } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { alpha, color } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
-import { materialColors } from "@/styles/materialColors"
 import { getSideSize, TILE_HEIGHT } from "@/state/constants"
 import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 
@@ -33,7 +32,7 @@ export const shopClass = style({
   gap: 32,
   minHeight: "100vh",
   fontFamily: "system-ui",
-  background: `url(/halftone.png) ${color.tile10}`,
+  background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
   margin: "0 auto",
   padding: 32,
@@ -51,7 +50,7 @@ export const titleClass = style({
   gridArea: "title",
   ...fontSize.hero3,
   fontFamily: primary,
-  color: materialColors.jade[20],
+  color: color.jade20,
 })
 
 export const deckClass = style({
@@ -63,7 +62,7 @@ export const deckClass = style({
   padding: 16,
   gap: 16,
   borderRadius: 12,
-  background: `linear-gradient(to bottom, ${alpha(color.bamboo70, 0.2)}, ${alpha(color.bamboo70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
 })
 
 export const deckRowsClass = style({
@@ -99,22 +98,22 @@ export const deckTitleClass = style({
   justifyContent: "space-between",
   ...fontSize.h2,
   fontFamily: primary,
-  color: color.bamboo20,
+  color: color.bam20,
 })
 
 export const moneyClass = style({
   ...fontSize.h3,
   fontFamily: primary,
-  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
-  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
-    0px 0px 0px 1px ${materialColors.gold[60]},
-    0px 0px 3px -1px ${materialColors.gold[30]},
-    0px 0px 10px -5px ${materialColors.gold[30]}`,
-  color: color.tile10,
+  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
+    0px 0px 0px 1px ${color.gold50},
+    0px 0px 3px -1px ${color.gold30},
+    0px 0px 10px -5px ${color.gold30}`,
+  color: color.bone10,
   paddingInline: 16,
   paddingBlock: 8,
   fontVariantLigatures: "none",
-  borderRadius: 8,
+  borderRadius: 24,
 })
 
 export const pairClass = style({
@@ -138,13 +137,13 @@ export const itemsContainerClass = style({
   gap: 16,
   padding: 16,
   borderRadius: 12,
-  background: `linear-gradient(to bottom, ${alpha(color.circle70, 0.2)}, ${alpha(color.circle70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
 })
 
 export const itemsTitleClass = style({
   ...fontSize.h2,
   fontFamily: primary,
-  color: color.circle30,
+  color: color.dot30,
 })
 
 export const itemsClass = style({
@@ -164,7 +163,7 @@ export const itemClass = recipe({
     border: "none",
     background: "none",
     padding: 0,
-    color: color.circle10,
+    color: color.dot10,
     position: "relative",
     transition: "all 0.2s ease-in-out",
     left: 0,
@@ -184,11 +183,11 @@ export const itemClass = recipe({
     },
     selected: {
       true: {
-        filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.circle10, 0.3)})`,
+        filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
         left: -4,
         top: -4,
         ":hover": {
-          filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.circle10, 0.3)})`,
+          filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
         },
       },
     },
@@ -197,19 +196,19 @@ export const itemClass = recipe({
 
 export const itemTitleClass = style({
   ...fontSize.m,
-  color: color.circle30,
+  color: color.dot30,
   fontFamily: primary,
 })
 
 export const itemCostClass = style({
   ...fontSize.m,
   fontFamily: primary,
-  background: `linear-gradient(to bottom, ${materialColors.gold[90]}, ${materialColors.gold[80]})`,
-  boxShadow: `1px -1px 0px 0 inset ${materialColors.gold[90]},
-    0px 0px 0px 1px ${materialColors.gold[60]},
-    0px 0px 3px -1px ${materialColors.gold[30]},
-    0px 0px 10px -5px ${materialColors.gold[30]}`,
-  color: color.tile10,
+  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
+    0px 0px 0px 1px ${color.gold50},
+    0px 0px 3px -1px ${color.gold30},
+    0px 0px 10px -5px ${color.gold30}`,
+  color: color.bone10,
   paddingInline: 12,
   paddingBlock: 2,
   borderRadius: 16,
@@ -256,64 +255,20 @@ export const buttonClass = recipe({
         },
       },
     },
-    suit: {
-      tile: {
-        background: `linear-gradient(to bottom, ${color.tile40}, ${color.tile30})`,
-        border: `1px solid ${color.tile20}`,
-        color: color.tile90,
-        ":focus": {
-          outline: `2px solid ${color.tile90}`,
-        },
-        boxShadow: `
-          1px -1px 1px 0 inset ${color.tile20},
-          -1px 1px 1px 0 inset ${color.tile50},
-          0px 0px 5px -3px ${color.tile10},
-          0px 0px 10px -5px ${color.tile10}
-        `,
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
+      border: `1px solid ${kolor(30)}`,
+      color: kolor(90),
+      ":focus": {
+        outline: `2px solid ${kolor(90)}`,
       },
-      bamboo: {
-        background: `linear-gradient(to bottom, ${color.bamboo60}, ${color.bamboo50})`,
-        border: `1px solid ${color.bamboo40}`,
-        color: color.bamboo90,
-        ":focus": {
-          outline: `2px solid ${color.bamboo90}`,
-        },
-        boxShadow: `
-          1px -1px 1px 0 inset ${color.bamboo40},
-          -1px 1px 1px 0 inset ${color.bamboo70},
-          0px 0px 5px -3px ${color.bamboo10},
-          0px 0px 10px -5px ${color.bamboo10}
+      boxShadow: `
+          -1px -1px 1px 0 inset ${kolor(20)},
+          1px 1px 1px 0 inset ${kolor(60)},
+          0px 0px 5px -3px ${kolor(10)},
+          0px 0px 10px -5px ${kolor(10)}
         `,
-      },
-      circle: {
-        background: `linear-gradient(to bottom, ${color.circle60}, ${color.circle50})`,
-        border: `1px solid ${color.circle40}`,
-        color: color.circle90,
-        ":focus": {
-          outline: `2px solid ${color.circle90}`,
-        },
-        boxShadow: `
-          1px -1px 1px 0 inset ${color.circle40},
-          -1px 1px 1px 0 inset ${color.circle70},
-          0px 0px 5px -3px ${color.circle10},
-          0px 0px 10px -5px ${color.circle10}
-        `,
-      },
-      character: {
-        background: `linear-gradient(to bottom, ${color.character60}, ${color.character50})`,
-        border: `1px solid ${color.character40}`,
-        color: color.character90,
-        ":focus": {
-          outline: `2px solid ${color.character90}`,
-        },
-        boxShadow: `
-          1px -1px 1px 0 inset ${color.character40},
-          -1px 1px 1px 0 inset ${color.character70},
-          0px 0px 5px -3px ${color.character10},
-          0px 0px 10px -5px ${color.character10}
-        `,
-      },
-    },
+    })),
   },
 })
 
@@ -328,7 +283,7 @@ export const detailsOverlayClass = style({
   inset: 0,
   zIndex: 50,
   background: `radial-gradient(
-    circle,
+    dot,
     ${alpha("#000000", 0.7)},
     ${alpha("#000000", 1)}
   )`,
@@ -351,12 +306,12 @@ export const detailsPositionerClass = style({
 export const detailsContentClass = style({
   zIndex: 50,
   width: 500,
-  border: `1px solid ${materialColors.bone[10]}`,
+  border: `1px solid ${color.bone10}`,
   borderRadius: 24,
   padding: 24,
-  backgroundColor: materialColors.bone[90],
+  backgroundColor: color.bone90,
   fontFamily: primary,
-  boxShadow: `0 0 0 4px inset ${materialColors.bone[70]}`,
+  boxShadow: `0 0 0 4px inset ${color.bone70}`,
   display: "flex",
   flexDirection: "column",
   gap: 24,
@@ -392,21 +347,21 @@ export const materialUpgradeTitleClass = recipe({
   variants: {
     material: {
       glass: {
-        color: materialColors.glass[20],
+        color: color.glass20,
       },
       jade: {
-        color: materialColors.jade[20],
+        color: color.jade20,
       },
       bone: {
-        color: materialColors.bone[20],
+        color: color.bone20,
       },
       bronze: {
-        color: materialColors.bronze[20],
+        color: color.bronze20,
       },
       gold: {
-        color: materialColors.gold[20],
+        color: color.gold20,
       },
-      bamboo: {},
+      bam: {},
     },
   },
 })
@@ -419,13 +374,13 @@ export const detailTitleClass = style({
   gap: 24,
   ...fontSize.h2,
   fontFamily: primary,
-  color: color.tile10,
+  color: color.bone10,
 })
 
 export const detailInfoClass = style({
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.tile90, 0.2)}, ${alpha(color.tile90, 0.4)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bone90, 0.2)}, ${alpha(color.bone90, 0.4)})`,
 })
 
 export const detailFreedomClass = style({
@@ -434,15 +389,15 @@ export const detailFreedomClass = style({
   gap: 4,
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[80], 0.2)}, ${alpha(materialColors.bronze[80], 0.4)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bronze80, 0.2)}, ${alpha(color.bronze80, 0.4)})`,
   fontFamily: "system-ui",
-  color: materialColors.bronze[10],
+  color: color.bronze10,
 })
 
 export const detailFreedomTitleClass = style({
   ...fontSize.m,
   fontFamily: primary,
-  color: materialColors.bronze[30],
+  color: color.bronze30,
 })
 
 export const detailListClass = recipe({
@@ -457,20 +412,20 @@ export const detailListClass = recipe({
   },
   variants: {
     type: {
-      circle: {
-        background: `linear-gradient(to bottom, ${alpha(color.circle50, 0.1)}, ${alpha(color.circle50, 0.2)})`,
+      dot: {
+        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.1)}, ${alpha(color.dot50, 0.2)})`,
       },
-      character: {
-        background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
+      crack: {
+        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
       },
-      bamboo: {
-        background: `linear-gradient(to bottom, ${alpha(color.bamboo50, 0.1)}, ${alpha(color.bamboo50, 0.2)})`,
+      bam: {
+        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.1)}, ${alpha(color.bam50, 0.2)})`,
       },
       bronze: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.bronze[70], 0.2)}, ${alpha(materialColors.bronze[70], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bronze70, 0.2)}, ${alpha(color.bronze70, 0.3)})`,
       },
       gold: {
-        background: `linear-gradient(to bottom, ${alpha(materialColors.gold[70], 0.2)}, ${alpha(materialColors.gold[70], 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.gold70, 0.2)}, ${alpha(color.gold70, 0.3)})`,
       },
     },
   },
@@ -481,20 +436,20 @@ export const detailTermClass = style({
   fontFamily: primary,
   justifySelf: "start",
   selectors: {
-    [`${detailListClass.classNames.variants.type.circle} &`]: {
-      color: color.circle30,
+    [`${detailListClass.classNames.variants.type.dot} &`]: {
+      color: color.dot30,
     },
-    [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character30,
+    [`${detailListClass.classNames.variants.type.crack} &`]: {
+      color: color.crack30,
     },
-    [`${detailListClass.classNames.variants.type.bamboo} &`]: {
-      color: color.bamboo30,
+    [`${detailListClass.classNames.variants.type.bam} &`]: {
+      color: color.bam30,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: materialColors.bronze[20],
+      color: color.bronze20,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: materialColors.gold[20],
+      color: color.gold20,
     },
   },
 })
@@ -505,17 +460,17 @@ export const detailDescriptionClass = style({
   justifySelf: "end",
   gridColumnStart: 2,
   selectors: {
-    [`${detailListClass.classNames.variants.type.circle} &`]: {
-      color: color.circle10,
+    [`${detailListClass.classNames.variants.type.dot} &`]: {
+      color: color.dot10,
     },
-    [`${detailListClass.classNames.variants.type.character} &`]: {
-      color: color.character10,
+    [`${detailListClass.classNames.variants.type.crack} &`]: {
+      color: color.crack10,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.tile10,
+      color: color.bronze10,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.tile10,
+      color: color.gold10,
     },
   },
 })
@@ -523,14 +478,14 @@ export const detailDescriptionClass = style({
 export const upgradeTitleClass = style({
   ...fontSize.l,
   fontFamily: primary,
-  color: color.bamboo20,
+  color: color.bam20,
 })
 
 export const upgradeDescriptionClass = style({
   ...fontSize.m,
   fontFamily: "system-ui",
-  color: color.bamboo10,
-  background: `linear-gradient(to bottom, ${alpha(color.bamboo10, 0.1)}, ${alpha(color.bamboo10, 0.2)})`,
+  color: color.bam10,
+  background: `linear-gradient(to bottom, ${alpha(color.bam10, 0.1)}, ${alpha(color.bam10, 0.2)})`,
   padding: 8,
   borderRadius: 4,
 })
@@ -545,7 +500,7 @@ export const emperorClass = recipe({
     border: "none",
     background: "none",
     padding: 0,
-    color: color.character10,
+    color: color.crack10,
     position: "relative",
     transition: "all 0.2s ease-in-out",
     left: 0,
@@ -565,11 +520,11 @@ export const emperorClass = recipe({
     },
     selected: {
       true: {
-        filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.character10, 0.3)})`,
+        filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
         left: -4,
         top: -4,
         ":hover": {
-          filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.character10, 0.3)})`,
+          filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
         },
       },
     },
@@ -580,8 +535,8 @@ export const emptyEmperorClass = style({
   width: EMPEROR_WIDTH,
   height: EMPEROR_HEIGHT,
   borderRadius: 16,
-  background: alpha(color.character10, 0.1),
-  boxShadow: `1px 1px 2px 0 inset ${alpha(color.character10, 0.1)}`,
+  background: alpha(color.crack10, 0.1),
+  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
 })
 
 export const modalDetailsClass = style({
@@ -598,14 +553,14 @@ export const modalDetailsContentClass = style({
 export const emperorDetailsTitleClass = style({
   ...fontSize.h2,
   fontFamily: primary,
-  color: color.character10,
+  color: color.crack10,
 })
 
 export const emperorDetailsDescriptionClass = style({
   padding: 8,
   borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.character50, 0.1)}, ${alpha(color.character50, 0.2)})`,
-  color: color.character20,
+  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
+  color: color.crack20,
   ...fontSize.m,
 })
 
@@ -617,13 +572,13 @@ export const ownedEmperorsClass = style({
   padding: 16,
   borderRadius: 12,
   gap: 16,
-  background: `linear-gradient(to bottom, ${alpha(color.character70, 0.2)}, ${alpha(color.character70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
 })
 
 export const ownedEmperorsTitleClass = style({
   ...fontSize.h2,
   fontFamily: primary,
-  color: color.character20,
+  color: color.crack20,
 })
 
 export const ownedEmperorsListClass = style({

@@ -20,7 +20,7 @@ export function Points(props: { timerPoints: number }) {
     <div class={pointsContainerClass}>
       <div class={pointsClass}>
         <span class={statLabel}>Points</span>
-        <div class={pillClass({ hue: "bamboo" })}>{game.points}</div>
+        <div class={pillClass({ hue: "bam" })}>{game.points}</div>
       </div>
       <Show when={props.timerPoints}>
         {(timerPoints) => <Timer timerPoints={timerPoints()} />}
@@ -50,7 +50,7 @@ function Timer(props: { timerPoints: number }) {
   return (
     <div class={penaltyClass}>
       <span class={statLabel}>Penalty</span>
-      <div class={pillClass({ hue: "character" })}>
+      <div class={pillClass({ hue: "crack" })}>
         {Math.floor(time() * props.timerPoints)}
       </div>
     </div>
@@ -84,7 +84,7 @@ export function Moves() {
   return (
     <div class={movesClass}>
       <span class={statLabel}>Moves</span>
-      <div class={pillClass({ hue: "circle" })}>{pairs()}</div>
+      <div class={pillClass({ hue: "dot" })}>{pairs()}</div>
     </div>
   )
 }

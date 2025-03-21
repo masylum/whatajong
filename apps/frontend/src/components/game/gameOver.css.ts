@@ -52,11 +52,12 @@ export const screenClass = recipe({
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${color.bamboo10}, black)`,
-        color: color.bamboo90,
+        background: `linear-gradient(to bottom, ${color.bam20}, ${color.bam10})`,
+        color: color.bam90,
       },
       false: {
-        background: `linear-gradient(to bottom, ${color.character10}, black)`,
+        background: `linear-gradient(to bottom, ${color.crack20}, ${color.crack10})`,
+        color: color.crack90,
       },
     },
   },
@@ -67,10 +68,10 @@ export const titleClass = style({
   textAlign: "center",
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bamboo90,
+      color: color.bam70,
     },
     [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.character90,
+      color: color.crack70,
     },
   },
 })
@@ -84,10 +85,10 @@ export const timeClass = style([
   {
     selectors: {
       [`${screenClass.classNames.variants.win.true} &`]: {
-        color: color.bamboo70,
+        color: color.bam70,
       },
       [`${screenClass.classNames.variants.win.false} &`]: {
-        color: color.character70,
+        color: color.crack70,
       },
     },
   },
@@ -98,10 +99,10 @@ export const pointsClass = style([
   {
     selectors: {
       [`${screenClass.classNames.variants.win.true} &`]: {
-        color: color.bamboo80,
+        color: color.bam80,
       },
       [`${screenClass.classNames.variants.win.false} &`]: {
-        color: color.character80,
+        color: color.crack80,
       },
     },
   },

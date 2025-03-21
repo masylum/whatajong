@@ -164,7 +164,7 @@ function Shop() {
       <div class={shopHeaderClass}>
         <h1 class={titleClass}>The parlor</h1>
         <div class={continueClass}>
-          <Button hue="bamboo" onClick={continueRun}>
+          <Button hue="bam" onClick={continueRun}>
             Next Game
             <ArrowRight />
           </Button>
@@ -392,7 +392,7 @@ function CardDetails(props: {
         <MaterialFreedom material={props.material} />
         <MaterialCoins material={props.material} />
 
-        <dl class={detailListClass({ type: "bamboo" })}>
+        <dl class={detailListClass({ type: "bam" })}>
           <dt class={detailTermClass}>Points:</dt>
           <dd class={detailDescriptionClass}>
             {getRawPoints({ card: props.card, material: props.material, run })}
@@ -401,7 +401,7 @@ function CardDetails(props: {
 
         <Show when={getRawMultiplier({ material: props.material, run })}>
           {(multiplier) => (
-            <dl class={detailListClass({ type: "character" })}>
+            <dl class={detailListClass({ type: "crack" })}>
               <dt class={detailTermClass}>Multiplier:</dt>{" "}
               <dd class={detailDescriptionClass}>{multiplier() + 1}</dd>
             </dl>
@@ -476,7 +476,7 @@ function TileItemDetails() {
       <div class={buttonsClass}>
         <button
           type="button"
-          class={buttonClass({ suit: "tile", disabled: false })}
+          class={buttonClass({ hue: "bone", disabled: false })}
           onClick={() => {
             shop.currentItem = null
           }}
@@ -488,7 +488,7 @@ function TileItemDetails() {
         <Show when={!isUpgrading()}>
           <button
             type="button"
-            class={buttonClass({ suit: "bamboo", disabled: false })}
+            class={buttonClass({ hue: "bam", disabled: false })}
             onClick={() => {
               buyTile(item())
             }}
@@ -552,7 +552,7 @@ function EmperorItemDetails() {
       <div class={buttonsClass}>
         <button
           type="button"
-          class={buttonClass({ suit: "tile", disabled: false })}
+          class={buttonClass({ hue: "bone", disabled: false })}
           onClick={() => {
             shop.currentItem = null
           }}
@@ -566,7 +566,7 @@ function EmperorItemDetails() {
           fallback={
             <button
               type="button"
-              class={buttonClass({ suit: "bamboo", disabled: disabled() })}
+              class={buttonClass({ hue: "bam", disabled: disabled() })}
               disabled={disabled()}
               onClick={buyEmperor}
             >
@@ -577,7 +577,7 @@ function EmperorItemDetails() {
         >
           <button
             type="button"
-            class={buttonClass({ suit: "circle", disabled: false })}
+            class={buttonClass({ hue: "dot", disabled: false })}
             onClick={sellCurrentEmperor}
           >
             <Buy />
@@ -622,11 +622,11 @@ function UpgradeItemDetails() {
           <dt class={detailTermClass}>passive income:</dt>
           <dd class={detailDescriptionClass}>{item().level - 1} coins</dd>
         </dl>
-        <dl class={detailListClass({ type: "character" })}>
+        <dl class={detailListClass({ type: "crack" })}>
           <dt class={detailTermClass}>emperors:</dt>
           <dd class={detailDescriptionClass}>+{item().level - 1}</dd>
         </dl>
-        <div class={detailListClass({ type: "bamboo" })}>
+        <div class={detailListClass({ type: "bam" })}>
           <span class={detailTermClass}>new tiles:</span>
           <div class={deckRowsClass}>
             <For each={chunk(tileItems(), 9)}>
@@ -650,7 +650,7 @@ function UpgradeItemDetails() {
       <div class={buttonsClass}>
         <button
           type="button"
-          class={buttonClass({ suit: "tile", disabled: false })}
+          class={buttonClass({ hue: "bone", disabled: false })}
           onClick={() => {
             shop.currentItem = null
           }}
@@ -660,7 +660,7 @@ function UpgradeItemDetails() {
         </button>
         <button
           type="button"
-          class={buttonClass({ suit: "bamboo", disabled: disabled() })}
+          class={buttonClass({ hue: "bam", disabled: disabled() })}
           disabled={disabled()}
           onClick={buyUpgrade}
         >
@@ -758,7 +758,7 @@ function RerollButton() {
     <div class={shopExtraClass({ disabled: disabled() })}>
       <h3 class={itemTitleClass}>refresh</h3>
       <button
-        class={buttonClass({ suit: "circle", disabled: disabled() })}
+        class={buttonClass({ hue: "dot", disabled: disabled() })}
         type="button"
         title="refresh items"
         onClick={reroll}
@@ -798,7 +798,7 @@ function UpgradeButton() {
     <div class={shopExtraClass({ disabled: disabled() })}>
       <h3 class={itemTitleClass}>upgrade</h3>
       <button
-        class={buttonClass({ suit: "circle", disabled: disabled() })}
+        class={buttonClass({ hue: "dot", disabled: disabled() })}
         type="button"
         title="upgrade shop"
         disabled={disabled()}
@@ -847,7 +847,7 @@ function MaterialUpgradeButton(props: {
         {props.material}
       </span>
       <BasicTile card={props.item.card} material={props.material} />
-      <dl class={detailListClass({ type: "circle" })}>
+      <dl class={detailListClass({ type: "crack" })}>
         <dt class={detailTermClass}>Points</dt>
         <dd class={detailDescriptionClass}>
           +{getMaterialPoints(props.material)}
@@ -871,7 +871,7 @@ function MaterialUpgradeButton(props: {
       <MaterialFreedom material={props.material} />
       <button
         type="button"
-        class={buttonClass({ suit: "bamboo", disabled: false })}
+        class={buttonClass({ hue: "bam", disabled: false })}
         onClick={() => {
           upgradeTile(props.item)
         }}
