@@ -126,6 +126,7 @@ export const pairClass = style({
 export const itemPairClass = style({
   position: "relative",
   zIndex: 1,
+  left: -sideSize,
 })
 
 export const itemsContainerClass = style({
@@ -150,6 +151,7 @@ export const itemsClass = style({
   display: "flex",
   alignItems: "flex-end",
   justifyContent: "center",
+  height: 172,
   gap: 32,
 })
 
@@ -159,6 +161,7 @@ export const itemClass = recipe({
     flexDirection: "column",
     alignItems: "center",
     gap: 16,
+    width: 80,
     justifyContent: "center",
     border: "none",
     background: "none",
@@ -283,7 +286,7 @@ export const detailsOverlayClass = style({
   inset: 0,
   zIndex: 50,
   background: `radial-gradient(
-    dot,
+    circle,
     ${alpha("#000000", 0.7)},
     ${alpha("#000000", 1)}
   )`,

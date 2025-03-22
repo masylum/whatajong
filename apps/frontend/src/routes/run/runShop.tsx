@@ -749,7 +749,7 @@ function RerollButton() {
     if (cost > money) throw Error("You don't have enough money")
 
     batch(() => {
-      run.money = money + cost
+      run.money = money - cost
       shop.reroll++
     })
   }

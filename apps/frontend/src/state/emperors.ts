@@ -12,7 +12,6 @@ export type Emperor = {
   level: number
   name: string
   description: string
-  material: Material
   getRawPoints?: ({
     card,
     material,
@@ -26,12 +25,11 @@ export type Emperor = {
 // TODO: index them by name
 export const EMPERORS: Emperor[] = [
   // Starting value: 2 * 5 * 3 = 30 points
-  // DONE
+  // 1-DONE
   {
     level: 1,
     name: "wizard",
     description: "Odd numbers get +2 points.",
-    material: "gold",
     getRawPoints({ card }) {
       if (!card) return 0
       const rank = Number.parseInt(getRank(card))
@@ -41,11 +39,10 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 3 * 4 * 3 = 36 points
-  // DONE
+  // 2-DONE
   {
     level: 1,
     name: "sorcerer",
-    material: "gold",
     description: "Even numbers get +3 points.",
     getRawPoints({ card }) {
       if (!card) return 0
@@ -56,11 +53,10 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 3 * 9 = 27 points
-  // DONE
+  // 3-DONE
   {
     level: 1,
     name: "astronomer",
-    material: "bronze",
     description: "Crack tiles get +3 points.",
     getRawPoints({ card }) {
       return card && isCrack(card) ? 3 / 2 : 0
@@ -71,147 +67,149 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "mathematician",
-    material: "bronze",
     description: "Crack tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isCrack(card) ? 1 / 2 : 0
     },
   },
   // Starting value: 3 * 9 = 27 points
-  // DONE
+  // 4-DONE
   {
     level: 1,
     name: "gardener",
-    material: "jade",
     description: "Bamb tiles get +3 points.",
     getRawPoints({ card }) {
       return card && isBam(card) ? 3 / 2 : 0
     },
   },
   // Starting value: 2 * 9 = 18 points
-  // DONE
+  // 5-DONE
   {
     level: 1,
     name: "landscaper",
-    material: "jade",
     description: "Wood tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isBam(card) ? 1 / 2 : 0
     },
   },
   // Starting value: 3 * 9 = 27 points
-  // DONE
+  // 6-DONE
   {
     level: 1,
     name: "accountant",
-    material: "glass",
     description: "Dot tiles get +3 points.",
     getRawPoints({ card }) {
       return card && isDot(card) ? 3 / 2 : 0
     },
   },
   // Starting value: 2 * 9 = 18 points
+  // 7-DONE
   {
     level: 1,
-    name: "the_banker",
-    material: "glass",
+    name: "advisor",
     description: "Dot tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isDot(card) ? 1 / 2 : 0
     },
   },
-  // {
-  //   level: 1,
-  //   name: "the_librarian",
-  //   description: "Crack tiles are 10 coin cheaper.",
-  // },
-  // {
-  //   level: 1,
-  //   name: "the_cleric",
-  //   description: "Bamb tiles are 10 coin cheaper.",
-  // },
-  // {
-  //   level: 1,
-  //   name: "the_merchant",
-  //   description: "Dot tiles are 10 coin cheaper.",
-  // },
   // Starting value: 1 * 34 = 34 points
-  // DONE
+  // 8-DONE
   {
     level: 1,
-    name: "muse",
+    name: "shaman",
     description: "All tiles get +1 point.",
-    material: "gold",
     getRawPoints() {
       return 1
     },
   },
   // Starting value: 0.5 * 34 = 17 points
+  // 9-DONE
   {
     level: 1,
-    name: "the_buffet",
+    name: "herbolist",
     description: "All tiles get +0.5 mult.",
-    material: "gold",
     getRawMultiplier() {
       return 1 / 2
     },
   },
+  // 10-NOT-IMPLEMENTED
   //{
   //  level: 1,
-  //  name: "the_buffet",
+  //  name: "investor",
   //  description: "Yor game score has a 1.2x mult.",
   //},
+  // 11-NOT-IMPLEMENTED
   //{
   //  level: 1,
-  //  name: "the_investor",
-  //  description: "Get an additional 10% interest on your coins.",
+  //  name: "lender",
+  //  description: "Get an additional 20% interest on your coins.",
   //  getRawPoints() {
   //    return 1
   //  },
-
   //},
   // Starting value: 20 = 20 points
+  // 12-DONE
   {
     level: 1,
-    name: "the_bird_watcher",
+    name: "birdwatcher",
     description: "'Bamb 1' tile get +20 points.",
-    material: "jade",
     getRawPoints({ card }) {
       return card === "b1" ? 10 : 0
     },
   },
+  // 13-DONE
   {
     level: 1,
-    name: "the_number_one",
+    name: "muse",
     description: "'Crack 1' tile get +20 points.",
-    material: "bronze",
     getRawPoints({ card }) {
       return card === "c1" ? 10 : 0
     },
   },
+  // 14-DONE
   {
     level: 1,
-    name: "the_wheel_wright",
+    name: "drummer",
     description: "'Dot 1' tile get +20 points.",
-    material: "glass",
     getRawPoints({ card }) {
       return card === "b1" ? 10 : 0
     },
   },
+  // 15-NOT-IMPLEMENTED
   // {
   //   level: 1,
-  //   name: "the_sprinter",
-  //   description: "Matching within 3 seconds has +2 points.",
+  //   name: "barterer",
+  //   description: "When discarded, get 100 coins.",
   // },
+  // 16-NOT-IMPLEMENTED
   // {
   //   level: 1,
-  //   name: "the_clockmaker",
-  //   description: "The timer stops every 10 matches.",
+  //   name: "dealer",
+  //   description: "When discarded change 3 random bam tiles to dot tiles.",
   // },
+  // 17-NOT-IMPLEMENTED
   // {
   //   level: 1,
-  //   name: "the_mystic",
-  //   description: "Tiles that match the available movements get +5 points.",
+  //   name: "trader",
+  //   description: "When discarded, change 3 random dot tiles to bam tiles.",
+  // },
+  // 18-NOT-IMPLEMENTED
+  // {
+  //   level: 1,
+  //   name: "merchant",
+  //   description: "When discarded change 3 random crack tiles to dot tiles.",
+  // },
+  // 19-NOT-IMPLEMENTED
+  // {
+  //   level: 1,
+  //   name: "broker",
+  //   description: "When discarded, change 3 random dot tiles to crack tiles.",
+  // },
+  // 20-NOT-IMPLEMENTED
+  // {
+  //   level: 1,
+  //   name: "sacrificer",
+  //   description: "When discarded, get 200 points.",
   // },
   // {
   //   level: 2,
@@ -238,7 +236,6 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "the_glass_blower",
     description: "+3 points for glass tiles.",
-    material: "glass",
     getRawPoints({ material }) {
       return material === "glass" ? 3 / 2 : 0
     },
@@ -247,7 +244,6 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "the_jadeist",
     description: "+2 mult for jade tiles.",
-    material: "jade",
     getRawMultiplier({ material }) {
       return material === "jade" ? 1 : 0
     },
@@ -256,7 +252,6 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "the_smith",
     description: "Bronze tiles get +1 mult.",
-    material: "bronze",
     getRawMultiplier({ material }) {
       return material === "bronze" ? 1 / 2 : 0
     },
@@ -270,7 +265,6 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "the_sailor",
     description: "+2 mult for winds tiles.",
-    material: "glass",
     getRawMultiplier({ card }) {
       return card && isWind(card) ? 2 : 0
     },

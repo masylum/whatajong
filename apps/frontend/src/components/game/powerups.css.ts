@@ -9,9 +9,9 @@ const backgroundColor = createVar()
 export const playerPowerupsClass = style({
   position: "absolute",
   top: 0,
+  bottom: 0,
   right: 0,
-  display: "flex",
-  flexDirection: "column",
+  left: 0,
 })
 
 export const powerupRecipe = recipe({
@@ -19,19 +19,21 @@ export const powerupRecipe = recipe({
     display: "flex",
     padding: 12,
     alignItems: "center",
+    justifyContent: "flex-start",
     gap: 8,
+    height: "100%",
     position: "relative",
     ":before": {
       content: '""',
       background: `linear-gradient(
-        -135deg,
+        90deg,
         rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
         rgba(from ${backgroundColor} r g b / 0%) 50%
       )`,
       mixBlendMode: "color",
       position: "absolute",
       top: 0,
-      right: 0,
+      left: 0,
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
@@ -39,9 +41,9 @@ export const powerupRecipe = recipe({
   },
   variants: {
     size: {
-      0: { vars: { [opacity]: "0.1" } },
-      1: { vars: { [opacity]: "0.2" } },
-      2: { vars: { [opacity]: "0.4" } },
+      0: { vars: { [opacity]: "0.3" } },
+      1: { vars: { [opacity]: "0.4" } },
+      2: { vars: { [opacity]: "0.5" } },
       3: { vars: { [opacity]: "0.6" } },
       4: { vars: { [opacity]: "0.7" } },
       5: { vars: { [opacity]: "0.8" } },

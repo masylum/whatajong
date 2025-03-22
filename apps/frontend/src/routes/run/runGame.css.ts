@@ -52,11 +52,10 @@ export const contentHide = keyframes({
 export const containerClass = style({
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "flex-start",
+  alignItems: "center",
   fontFamily: primary,
   gap: "1.5rem",
   padding: 12,
-  position: "relative",
   zIndex: 3,
   userSelect: "none",
   color: color.bone10,
