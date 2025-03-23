@@ -172,7 +172,7 @@ export const EMPERORS: Emperor[] = [
     name: "numismatic",
     description: "'Dot 1' tile get +20 points.",
     getRawPoints({ card }) {
-      return card === "b1" ? 10 : 0
+      return card === "o1" ? 10 : 0
     },
   },
   // 15-NOT-IMPLEMENTED
