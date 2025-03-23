@@ -117,7 +117,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "warrior",
-    description: "All tiles get +1 point.",
+    description: "All tiles get +2 point.",
     getRawPoints() {
       return 1
     },
@@ -129,7 +129,7 @@ export const EMPERORS: Emperor[] = [
     name: "combatant",
     description: "All tiles get +0.5 mult.",
     getRawMultiplier() {
-      return 1 / 2
+      return 1 / 4
     },
   },
   // 10-NOT-IMPLEMENTED

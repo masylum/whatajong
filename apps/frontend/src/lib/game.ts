@@ -78,13 +78,13 @@ export function getCardPoints(card: Card) {
 export function getMaterialPoints(material: Material) {
   switch (material) {
     case "bam":
-      return 4
+      return 2
     case "glass":
-      return 8
+      return 4
     case "jade":
       return 16
     case "bronze":
-      return 16
+      return 8
     case "gold":
       return 32
     default:
@@ -96,7 +96,7 @@ export function getMaterialMultiplier(material: Material) {
   switch (material) {
     case "bronze":
     case "glass":
-      return 1
+      return 0.5
     case "gold":
     case "jade":
       return 2
@@ -590,13 +590,9 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
     return countFreedoms >= 1 && !isCovered
   }
 
-  if (material === "bone") {
+  if (material === "bone" || material === "bronze") {
     const isFreeH = freedoms.left || freedoms.right
     return isFreeH && !isCovered
-  }
-
-  if (material === "bronze") {
-    return countFreedoms >= 2 && !isCovered
   }
 
   return countFreedoms >= 3 && !isCovered

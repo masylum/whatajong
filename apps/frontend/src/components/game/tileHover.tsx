@@ -123,19 +123,19 @@ function MaterialFreedom(props: { material: Material }) {
       <span class={detailFreedomTitleClass}>Freedom</span>
       <Switch>
         <Match when={props.material === "glass"}>
-          Glass tiles are free if at least 1 side is open.
+          Glass tiles can be selected if at least 1 side is open.
         </Match>
         <Match when={props.material === "jade"}>
-          Jade tiles are always free.
+          Jade tiles can always be selected.
         </Match>
         <Match when={props.material === "bone"}>
-          Bone tiles are free if left or right is open.
+          Bone tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "bronze"}>
-          Bronze tiles are free if at least 2 sides are open.
+          Bronze tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "gold"}>
-          Gold tiles are free if at least 3 sides are open.
+          Gold tiles can be selected if at least 3 sides are open.
         </Match>
       </Switch>
     </div>
