@@ -77,7 +77,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "gardener",
-    description: "Bamb tiles get +3 points.",
+    description: "Bam tiles get +3 points.",
     getRawPoints({ card }) {
       return card && isBam(card) ? 3 / 2 : 0
     },
@@ -87,7 +87,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "herbolist",
-    description: "Wood tiles get +1 mult.",
+    description: "Bam tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isBam(card) ? 1 / 2 : 0
     },
@@ -116,7 +116,7 @@ export const EMPERORS: Emperor[] = [
   // 8-DONE
   {
     level: 1,
-    name: "soldier",
+    name: "warrior",
     description: "All tiles get +1 point.",
     getRawPoints() {
       return 1
@@ -152,7 +152,7 @@ export const EMPERORS: Emperor[] = [
   {
     level: 1,
     name: "birdwatcher",
-    description: "'Bamb 1' tile get +20 points.",
+    description: "'Bam 1' tile get +20 points.",
     getRawPoints({ card }) {
       return card === "b1" ? 10 : 0
     },

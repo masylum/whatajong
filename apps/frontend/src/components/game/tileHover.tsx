@@ -82,15 +82,18 @@ export function TileHover(props: TileHoverProps) {
         <dl class={detailListClass({ type: "bam" })}>
           <dt class={detailTermClass}>Points:</dt>
           <dd class={detailDescriptionClass}>
-            {getRawPoints({ card: props.card, material: props.material, run })}
+            {getRawPoints({ card: props.card, material: props.material, run }) *
+              2}
           </dd>
         </dl>
         <Show
-          when={getRawMultiplier({
-            card: props.card,
-            material: props.material,
-            run,
-          })}
+          when={
+            getRawMultiplier({
+              card: props.card,
+              material: props.material,
+              run,
+            }) * 2
+          }
         >
           {(mult) => (
             <dl class={detailListClass({ type: "crack" })}>
@@ -100,7 +103,7 @@ export function TileHover(props: TileHoverProps) {
           )}
         </Show>
         <MaterialFreedom material={props.material} />
-        <Show when={getMaterialCoins(props.material)}>
+        <Show when={getMaterialCoins(props.material) * 2}>
           {(coins) => (
             <dl class={detailListClass({ type: "gold" })}>
               <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
