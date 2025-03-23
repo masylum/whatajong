@@ -599,7 +599,6 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
 }
 
 export function getMaterial(tile: Tile, game?: Game): Material {
-  if (Math.random() < 0.5) return "wood"
   if (game?.flowerOrSeason) return "wood"
 
   return tile.material
