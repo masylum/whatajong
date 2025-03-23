@@ -598,8 +598,9 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   return countFreedoms >= 3 && !isCovered
 }
 
-export function getMaterial(tile: Tile, game?: Game) {
-  if (game?.flowerOrSeason) return "bam"
+export function getMaterial(tile: Tile, game?: Game): Material {
+  if (Math.random() < 0.5) return "wood"
+  if (game?.flowerOrSeason) return "wood"
 
   return tile.material
 }
@@ -607,7 +608,7 @@ export function getMaterial(tile: Tile, game?: Game) {
 export function suitName(card: Card | Suit) {
   if (isFlower(card)) return "flower"
   if (isSeason(card)) return "season"
-  if (isBam(card)) return "bamb"
+  if (isBam(card)) return "bam"
   if (isCrack(card)) return "crack"
   if (isDot(card)) return "dot"
   if (isDragon(card)) return "dragon"
@@ -625,7 +626,7 @@ export function cardName(card: Card) {
   if (isDragon(card)) {
     switch (getRank(card)) {
       case "f":
-        return "bamb dragon"
+        return "bam dragon"
       case "c":
         return "crack dragon"
       case "p":
@@ -643,6 +644,7 @@ export const materials = [
   "bronze",
   "gold",
   "bam",
+  "wood",
 ] as const
 export type Material = (typeof materials)[number]
 

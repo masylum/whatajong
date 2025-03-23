@@ -1,5 +1,5 @@
 import { recipe } from "@vanilla-extract/recipes"
-import { color, alpha } from "@/styles/colors"
+import { color, alpha, hueVariants } from "@/styles/colors"
 
 export const miniTileClass = recipe({
   base: {
@@ -12,24 +12,10 @@ export const miniTileClass = recipe({
     margin: 4,
   },
   variants: {
-    material: {
-      glass: {
-        background: `linear-gradient(45deg, ${color.glass90} 60%, ${color.glass80})`,
-      },
-      jade: {
-        background: `linear-gradient(45deg, ${color.jade90} 60%, ${color.jade80})`,
-      },
-      bone: {
-        background: `linear-gradient(45deg, ${color.bone90} 60%, ${color.bone80})`,
-      },
-      bronze: {
-        background: `linear-gradient(45deg, ${color.bronze90} 60%, ${color.bronze80})`,
-      },
-      gold: {
-        background: `linear-gradient(45deg, ${color.gold90} 60%, ${color.gold80})`,
-      },
-      bam: {},
-    },
+    material: hueVariants((kolor) => ({
+      background: `linear-gradient(45deg, ${kolor(90)} 60%, ${kolor(80)})`,
+    })),
+
     highlighted: {
       true: {
         ":before": {

@@ -349,24 +349,9 @@ export const materialUpgradeTitleClass = recipe({
     fontFamily: primary,
   },
   variants: {
-    material: {
-      glass: {
-        color: color.glass20,
-      },
-      jade: {
-        color: color.jade20,
-      },
-      bone: {
-        color: color.bone20,
-      },
-      bronze: {
-        color: color.bronze20,
-      },
-      gold: {
-        color: color.gold20,
-      },
-      bam: {},
-    },
+    material: hueVariants((kolor) => ({
+      color: kolor(20),
+    })),
   },
 })
 

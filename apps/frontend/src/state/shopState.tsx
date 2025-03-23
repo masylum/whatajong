@@ -25,7 +25,7 @@ import { EMPERORS } from "./emperors"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 export const ITEM_COST = 20
-export const EMPEROR_COST = 100
+export const EMPEROR_COST = 60
 export const SELL_EMPEROR_AMOUNT = 30
 
 const MINERAL_PATH = ["glass", "jade"] as const

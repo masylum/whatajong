@@ -99,6 +99,18 @@ export const huesAndShades = {
     20: "#392d05",
     10: "#130e01",
   },
+
+  wood: {
+    90: "#f2e6ca",
+    80: "#dfcd9c",
+    70: "#c9b174",
+    60: "#c0a25f",
+    50: "#ad873c",
+    40: "#8b6a29",
+    30: "#5a4017",
+    20: "#361d0d",
+    10: "#100604",
+  },
 } as const
 
 export const accentHues = [
@@ -110,6 +122,7 @@ export const accentHues = [
   "bone",
   "bronze",
   "gold",
+  "wood",
 ] as const
 
 export type Hue = keyof typeof huesAndShades
