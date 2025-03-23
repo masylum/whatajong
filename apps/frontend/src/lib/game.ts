@@ -678,9 +678,9 @@ export function getAnimalMultiplier(game: Game) {
 export function resolveDragons(game: Game, tile: Tile) {
   const dragonRun = game.dragonRun
   const newCard = tile.card
+  const dragonCard = isDragon(newCard)
 
   if (!dragonRun) {
-    const dragonCard = isDragon(newCard)
     if (dragonCard) {
       game.dragonRun = { card: dragonCard, combo: 0 }
     }
@@ -689,7 +689,7 @@ export function resolveDragons(game: Game, tile: Tile) {
   }
 
   if (!cardMatchesDragon(dragonRun.card, newCard)) {
-    game.dragonRun = undefined
+    game.dragonRun = dragonCard ? { card: dragonCard, combo: 0 } : undefined
     return
   }
 
