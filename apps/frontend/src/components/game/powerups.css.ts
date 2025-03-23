@@ -12,6 +12,7 @@ export const playerPowerupsClass = style({
   bottom: 0,
   right: 0,
   left: 0,
+  pointerEvents: "none",
 })
 
 export const powerupRecipe = recipe({

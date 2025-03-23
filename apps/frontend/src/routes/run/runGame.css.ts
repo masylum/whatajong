@@ -4,6 +4,7 @@ import { alpha, color } from "@/styles/colors"
 import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
+import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 
 export const FLIP_DURATION = 1000
 export const DELETED_DURATION = 300
@@ -59,7 +60,6 @@ export const containerClass = style({
   zIndex: 3,
   userSelect: "none",
   color: color.bone10,
-  height: 150,
 })
 
 export const topContainerClass = style({
@@ -71,6 +71,7 @@ export const topContainerClass = style({
 
 export const roundClass = style({
   display: "flex",
+  padding: 12,
   gap: 32,
 })
 
@@ -92,8 +93,8 @@ export const emperorCardClass = recipe({
   base: {
     cursor: "pointer",
     perspective: 1000,
-    width: 80,
-    height: 128,
+    width: EMPEROR_WIDTH,
+    height: EMPEROR_HEIGHT,
     ":hover": {
       filter: "brightness(1.1)",
     },
