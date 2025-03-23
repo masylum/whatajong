@@ -96,7 +96,7 @@ import { Emperor } from "@/components/emperor"
 import { TileHover } from "@/components/game/tileHover"
 import { useHover } from "@/components/game/useHover"
 
-const REROLL_COST = 5
+const REROLL_COST = 10
 const MIN_ROWS = 4
 const MIN_COLS = 9
 const MAX_COLS = 12

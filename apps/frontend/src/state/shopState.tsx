@@ -111,25 +111,10 @@ export function generateEmperorItems() {
 }
 
 export const ITEMS: Item[] = [
-  // 1
-  ...generateTileItems(1, 5, [...bams, ...cracks, ...dots]),
-  // 2
-  ...generateTileItems(2, 1, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(2, 6, [...dragons, ...flowers, ...seasons]),
-  // 3
-  ...generateTileItems(3, 1, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(3, 1, [...dragons, ...flowers, ...seasons]),
-  ...generateTileItems(3, 7, [...rabbits, ...phoenix]),
-  // 4
-  ...generateTileItems(4, 1, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(4, 1, [...dragons, ...flowers, ...seasons]),
-  ...generateTileItems(4, 1, [...rabbits, ...phoenix]),
-  ...generateTileItems(4, 8, [...winds, ...animals]),
-  // 5
-  ...generateTileItems(5, 1, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(5, 1, [...dragons, ...flowers, ...seasons]),
-  ...generateTileItems(5, 1, [...rabbits, ...phoenix]),
-  ...generateTileItems(5, 1, [...winds, ...animals]),
+  ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
+  ...generateTileItems(2, 9, [...dragons, ...flowers, ...seasons]),
+  ...generateTileItems(3, 9, [...rabbits, ...phoenix]),
+  ...generateTileItems(4, 9, [...winds, ...animals]),
   ...generateTileItems(5, 9, [...jokers, ...transports]),
   // emperors
   ...generateEmperorItems(),

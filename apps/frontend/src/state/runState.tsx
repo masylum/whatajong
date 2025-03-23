@@ -84,7 +84,7 @@ export function generateRound(id: number, runId: string): Round {
   }
 
   const reward = 30 + id * 20
-  const timerPoints = (1.25 ** id / 20) * variation() // Grows 1.25^level
+  const timerPoints = id + (1.25 ** id / 20) * variation() // Grows 1.25^level
   const pointObjective = Math.round(
     (70 + (id - 1) ** 2.75 + id * 40) * variation(),
   ) // Grows level^2.7
