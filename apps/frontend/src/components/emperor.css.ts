@@ -1,8 +1,8 @@
 import { alpha, color } from "@/styles/colors"
 import { style } from "@vanilla-extract/css"
 
-export const EMPEROR_WIDTH = 80
-export const EMPEROR_HEIGHT = 128
+export const EMPEROR_WIDTH = 100
+export const EMPEROR_HEIGHT = 150
 
 export const emperorClass = style({
   flexShrink: 0,
@@ -12,8 +12,6 @@ export const emperorClass = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  paddingInline: 4,
-  paddingBlock: 12,
   border: `1px solid ${color.bone20}`,
   boxShadow: `
         0px 0px 0px 4px inset ${color.bone70},

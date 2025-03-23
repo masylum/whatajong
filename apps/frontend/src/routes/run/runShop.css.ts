@@ -150,8 +150,8 @@ export const itemsTitleClass = style({
 export const itemsClass = style({
   display: "flex",
   alignItems: "flex-end",
+  height: EMPEROR_HEIGHT + 28 + 16, // 28 is the coins height, 16 is the gap
   justifyContent: "center",
-  height: 172,
   gap: 32,
 })
 
@@ -161,7 +161,8 @@ export const itemClass = recipe({
     flexDirection: "column",
     alignItems: "center",
     gap: 16,
-    width: 80,
+    width: EMPEROR_WIDTH,
+    height: EMPEROR_HEIGHT,
     justifyContent: "center",
     border: "none",
     background: "none",

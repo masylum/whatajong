@@ -63,7 +63,7 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 2 * 9 = 18 points
-  // DONE
+  // 4-DONE
   {
     level: 1,
     name: "mathematician",
@@ -73,7 +73,7 @@ export const EMPERORS: Emperor[] = [
     },
   },
   // Starting value: 3 * 9 = 27 points
-  // 4-DONE
+  // 5-DONE
   {
     level: 1,
     name: "gardener",
@@ -86,7 +86,7 @@ export const EMPERORS: Emperor[] = [
   // 5-DONE
   {
     level: 1,
-    name: "landscaper",
+    name: "herbolist",
     description: "Wood tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isBam(card) ? 1 / 2 : 0
@@ -96,7 +96,7 @@ export const EMPERORS: Emperor[] = [
   // 6-DONE
   {
     level: 1,
-    name: "accountant",
+    name: "wheelwright",
     description: "Dot tiles get +3 points.",
     getRawPoints({ card }) {
       return card && isDot(card) ? 3 / 2 : 0
@@ -106,7 +106,7 @@ export const EMPERORS: Emperor[] = [
   // 7-DONE
   {
     level: 1,
-    name: "advisor",
+    name: "treasurer",
     description: "Dot tiles get +1 mult.",
     getRawMultiplier({ card }) {
       return card && isDot(card) ? 1 / 2 : 0
@@ -116,7 +116,7 @@ export const EMPERORS: Emperor[] = [
   // 8-DONE
   {
     level: 1,
-    name: "shaman",
+    name: "soldier",
     description: "All tiles get +1 point.",
     getRawPoints() {
       return 1
@@ -126,7 +126,7 @@ export const EMPERORS: Emperor[] = [
   // 9-DONE
   {
     level: 1,
-    name: "herbolist",
+    name: "combatant",
     description: "All tiles get +0.5 mult.",
     getRawMultiplier() {
       return 1 / 2
@@ -160,7 +160,7 @@ export const EMPERORS: Emperor[] = [
   // 13-DONE
   {
     level: 1,
-    name: "muse",
+    name: "caligrapher",
     description: "'Crack 1' tile get +20 points.",
     getRawPoints({ card }) {
       return card === "c1" ? 10 : 0
@@ -169,7 +169,7 @@ export const EMPERORS: Emperor[] = [
   // 14-DONE
   {
     level: 1,
-    name: "drummer",
+    name: "numismatic",
     description: "'Dot 1' tile get +20 points.",
     getRawPoints({ card }) {
       return card === "b1" ? 10 : 0
