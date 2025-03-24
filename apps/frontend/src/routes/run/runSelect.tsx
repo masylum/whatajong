@@ -57,8 +57,6 @@ export default function RunSelect() {
                     {round.timerPoints.toFixed(2)} points
                   </dt>
                 </Show>
-                <dd class={detailTermClass}>Reward</dd>
-                <dt class={detailDescriptionClass}>${round.reward}</dt>
               </dl>
               <Show when={isCurrentRound(round.id)}>
                 <Button

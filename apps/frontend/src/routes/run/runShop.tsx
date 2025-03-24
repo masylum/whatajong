@@ -1,4 +1,8 @@
-import { useRunState } from "@/state/runState"
+import {
+  generateRound,
+  useRunState,
+  DECK_CAPACITY_PER_LEVEL,
+} from "@/state/runState"
 import { Dialog } from "@kobalte/core/dialog"
 import { batch, createMemo, For, Match, Show, Switch } from "solid-js"
 import {
@@ -47,6 +51,14 @@ import {
   modalDetailsContentClass,
   upgradeTitleClass,
   upgradeDescriptionClass,
+  nextRoundClass,
+  nextRoundTitleClass,
+  nextRoundDetailListClass,
+  nextRoundDetailDescriptionClass,
+  nextRoundDetailTermClass,
+  shopGridClass,
+  deckContainerClass,
+  deckDescriptionClass,
 } from "./runShop.css"
 import {
   generateItems,
@@ -86,9 +98,17 @@ import {
   getMaterialCoins,
 } from "@/lib/game"
 import { Button } from "@/components/button"
-import { ArrowRight, Dices, Upgrade, X, Buy } from "@/components/icon"
+import {
+  ArrowRight,
+  Dices,
+  Upgrade,
+  X,
+  Buy,
+  Goal,
+  Hourglass,
+} from "@/components/icon"
 import { nanoid } from "nanoid"
-import { shopUpgradeCost } from "@/state/runState"
+import { shopUpgradeCost, getIncome } from "@/state/runState"
 import { splitIntoRows } from "@/lib/splitIntoRows"
 import { chunk, entries } from "remeda"
 import { MiniTile } from "@/components/miniTile"
@@ -158,102 +178,148 @@ function Shop() {
       run.stage = "select"
     })
   }
+  const nextRound = createMemo(() => generateRound(run.round + 1, run.runId))
 
   return (
     <div class={shopClass}>
-      <div class={shopHeaderClass}>
-        <h1 class={titleClass}>The parlor</h1>
-        <div class={continueClass}>
-          <Button hue="bam" onClick={continueRun}>
-            Next Game
-            <ArrowRight />
-          </Button>
-        </div>
-      </div>
-      <div class={itemsContainerClass}>
-        <div class={itemsTitleClass}>Shop (level {shopLevel()})</div>
-        <div class={itemsClass}>
-          <Show when={shopLevel() < 5}>
-            <UpgradeButton />
-          </Show>
-          <For each={items()}>
-            {(item) => (
-              <Switch>
-                <Match when={item.type === "tile" && item}>
-                  {(tileItem) => (
-                    <ItemTile item={tileItem()} onClick={selectItem} />
+      <div class={shopGridClass}>
+        <div class={shopHeaderClass}>
+          <h1 class={titleClass}>The parlor</h1>
+          <div class={continueClass}>
+            <div class={nextRoundClass}>
+              <h2 class={nextRoundTitleClass}>Round {nextRound().id}</h2>
+              <dl class={nextRoundDetailListClass}>
+                <dt class={nextRoundDetailTermClass}>
+                  <Goal />
+                </dt>
+                <dd class={nextRoundDetailDescriptionClass}>
+                  {nextRound().pointObjective} points
+                </dd>
+                <Show when={nextRound().timerPoints}>
+                  {(timerPoints) => (
+                    <>
+                      <dt class={nextRoundDetailTermClass}>
+                        <Hourglass />
+                      </dt>
+                      <dd class={nextRoundDetailDescriptionClass}>
+                        {timerPoints().toFixed(2)} points
+                      </dd>
+                    </>
                   )}
-                </Match>
-                <Match when={item.type === "emperor" && item}>
-                  {(emperorItem) => (
-                    <EmperorItemComponent
-                      item={emperorItem()}
-                      onClick={selectItem}
-                      emperorCount={emperorCount()}
-                    />
-                  )}
-                </Match>
-              </Switch>
-            )}
-          </For>
-          <RerollButton />
+                </Show>
+              </dl>
+              <Button hue="bone" onClick={continueRun}>
+                Play
+                <ArrowRight />
+              </Button>
+            </div>
+          </div>
         </div>
+        <div class={itemsContainerClass}>
+          <div class={itemsTitleClass}>
+            <span>Shop (level {shopLevel()})</span>
+            <span>
+              you have <span class={moneyClass}>${run.money} coins</span>
+            </span>
+          </div>
+          <div class={itemsClass}>
+            <Show when={shopLevel() < 5}>
+              <UpgradeButton />
+            </Show>
+            <For each={items()}>
+              {(item) => (
+                <Switch>
+                  <Match when={item.type === "tile" && item}>
+                    {(tileItem) => (
+                      <ItemTile item={tileItem()} onClick={selectItem} />
+                    )}
+                  </Match>
+                  <Match when={item.type === "emperor" && item}>
+                    {(emperorItem) => (
+                      <EmperorItemComponent
+                        item={emperorItem()}
+                        onClick={selectItem}
+                        emperorCount={emperorCount()}
+                      />
+                    )}
+                  </Match>
+                </Switch>
+              )}
+            </For>
+            <RerollButton />
+          </div>
+        </div>
+
+        <OwnedEmperors />
+
+        <div class={deckClass}>
+          <div class={deckTitleClass}>
+            Your Deck ({totalPairs()} /{" "}
+            {
+              DECK_CAPACITY_PER_LEVEL[
+                shopLevel() as keyof typeof DECK_CAPACITY_PER_LEVEL
+              ]
+            }
+            )
+          </div>
+          <div class={deckContainerClass}>
+            <div class={deckRowsClass}>
+              <For each={deckByRows()}>
+                {(deckTiles, i) => (
+                  <div class={deckRowClass}>
+                    <For each={deckTiles}>
+                      {(deckTile, j) => (
+                        <DeckTileComponent
+                          deckTile={deckTile}
+                          zIndex={i() * MAX_COLS + j()}
+                        />
+                      )}
+                    </For>
+                  </div>
+                )}
+              </For>
+            </div>
+            <p class={deckDescriptionClass}>
+              Your deck yields you{" "}
+              <span class={itemCostClass}>${getIncome(deck, run)}</span> coins
+              each game.
+              <br />
+              <br />
+              Upgrade the shop to increase the yield and capacity of your deck.
+            </p>
+          </div>
+        </div>
+
+        <Show when={shop.currentItem}>
+          {(currentItem) => (
+            <Dialog
+              defaultOpen
+              onOpenChange={() => {
+                shop.currentItem = null
+              }}
+            >
+              <Dialog.Portal>
+                <Dialog.Overlay class={detailsOverlayClass} />
+                <div class={detailsPositionerClass}>
+                  <Dialog.Content class={detailsContentClass}>
+                    <Switch>
+                      <Match when={currentItem()?.type === "tile"}>
+                        <TileItemDetails />
+                      </Match>
+                      <Match when={currentItem()?.type === "upgrade"}>
+                        <UpgradeItemDetails />
+                      </Match>
+                      <Match when={currentItem()?.type === "emperor"}>
+                        <EmperorItemDetails />
+                      </Match>
+                    </Switch>
+                  </Dialog.Content>
+                </div>
+              </Dialog.Portal>
+            </Dialog>
+          )}
+        </Show>
       </div>
-
-      <OwnedEmperors />
-
-      <div class={deckClass}>
-        <div class={deckTitleClass}>
-          <span>Your Deck ({totalPairs()} / 77 pairs)</span>
-          <span class={moneyClass}>${run.money} coins</span>
-        </div>
-        <div class={deckRowsClass}>
-          <For each={deckByRows()}>
-            {(deckTiles, i) => (
-              <div class={deckRowClass}>
-                <For each={deckTiles}>
-                  {(deckTile, j) => (
-                    <DeckTileComponent
-                      deckTile={deckTile}
-                      zIndex={i() * MAX_COLS + j()}
-                    />
-                  )}
-                </For>
-              </div>
-            )}
-          </For>
-        </div>
-      </div>
-
-      <Show when={shop.currentItem}>
-        {(currentItem) => (
-          <Dialog
-            defaultOpen
-            onOpenChange={() => {
-              shop.currentItem = null
-            }}
-          >
-            <Dialog.Portal>
-              <Dialog.Overlay class={detailsOverlayClass} />
-              <div class={detailsPositionerClass}>
-                <Dialog.Content class={detailsContentClass}>
-                  <Switch>
-                    <Match when={currentItem()?.type === "tile"}>
-                      <TileItemDetails />
-                    </Match>
-                    <Match when={currentItem()?.type === "upgrade"}>
-                      <UpgradeItemDetails />
-                    </Match>
-                    <Match when={currentItem()?.type === "emperor"}>
-                      <EmperorItemDetails />
-                    </Match>
-                  </Switch>
-                </Dialog.Content>
-              </div>
-            </Dialog.Portal>
-          </Dialog>
-        )}
-      </Show>
     </div>
   )
 }
@@ -299,7 +365,16 @@ function ItemTile(props: {
 }) {
   const shop = useShopState()
   const run = useRunState()
-  const disabled = createMemo(() => ITEM_COST > run.money)
+  const deck = useDeckState()
+
+  const disabled = createMemo(
+    () =>
+      ITEM_COST > run.money ||
+      deck.size >=
+        DECK_CAPACITY_PER_LEVEL[
+          run.shopLevel as keyof typeof DECK_CAPACITY_PER_LEVEL
+        ],
+  )
   const { isHovering, hoverProps, mousePosition } = useHover({
     delay: 500,
   })
@@ -356,7 +431,7 @@ function EmperorItemComponent(props: {
         disabled={disabled()}
         onClick={() => props.onClick?.(props.item)}
       >
-        <Emperor name={props.item.name} />
+        <Emperor name={props.item.name} width={80} />
         <span class={itemCostClass}>${EMPEROR_COST}</span>
       </button>
     </>
@@ -546,7 +621,7 @@ function EmperorItemDetails() {
             {item().description}
           </div>
         </div>
-        <Emperor name={item().name} />
+        <Emperor name={item().name} width={80} />
       </div>
 
       <div class={buttonsClass}>
@@ -619,12 +694,23 @@ function UpgradeItemDetails() {
       <div class={modalDetailsContentClass}>
         <div class={detailTitleClass}>Shop level {item().level}</div>
         <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>passive income:</dt>
-          <dd class={detailDescriptionClass}>{item().level - 1} coins</dd>
+          <dt class={detailTermClass}>yield per pair of tiles:</dt>
+          <dd class={detailDescriptionClass}>${item().level} coins</dd>
+        </dl>
+        <dl class={detailListClass({ type: "dot" })}>
+          <dt class={detailTermClass}>deck capacity:</dt>
+          <dd class={detailDescriptionClass}>
+            {
+              DECK_CAPACITY_PER_LEVEL[
+                item().level as keyof typeof DECK_CAPACITY_PER_LEVEL
+              ]
+            }{" "}
+            pairs
+          </dd>
         </dl>
         <dl class={detailListClass({ type: "crack" })}>
-          <dt class={detailTermClass}>emperors:</dt>
-          <dd class={detailDescriptionClass}>+{item().level - 1}</dd>
+          <dt class={detailTermClass}>crew capacity:</dt>
+          <dd class={detailDescriptionClass}>{3 + item().level - 1}</dd>
         </dl>
         <div class={detailListClass({ type: "bam" })}>
           <span class={detailTermClass}>new tiles:</span>
@@ -749,7 +835,7 @@ function RerollButton() {
     if (cost > money) throw Error("You don't have enough money")
 
     batch(() => {
-      run.money = money - cost
+      run.money = money + cost
       shop.reroll++
     })
   }
@@ -899,7 +985,7 @@ function OwnedEmperors() {
     <Show when={ownedEmperors().length > 0}>
       <div class={ownedEmperorsClass}>
         <div class={ownedEmperorsTitleClass}>
-          Your Emperors ({ownedEmperors().length} / {maxEmperors(run)})
+          Your Crew ({ownedEmperors().length} / {maxEmperors(run)})
         </div>
         <div class={ownedEmperorsListClass}>
           <For each={ownedEmperors()}>
@@ -911,7 +997,7 @@ function OwnedEmperors() {
                 })}
                 onClick={() => selectEmperor(emperor)}
               >
-                <Emperor name={emperor.name} />
+                <Emperor name={emperor.name} width={80} />
               </div>
             )}
           </For>

@@ -4,7 +4,6 @@ import { fontSize } from "@/styles/fontSize"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { getSideSize, TILE_HEIGHT } from "@/state/constants"
-import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 
 const sideSize = getSideSize(TILE_HEIGHT)
 const MAX_WIDTH = 1000
@@ -26,20 +25,22 @@ const contentShow = keyframes({
 })
 
 export const shopClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 32,
   minHeight: "100vh",
   fontFamily: "system-ui",
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
-  margin: "0 auto",
   padding: 32,
 })
 
-export const shopHeaderClass = style({
+export const shopGridClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 32,
   maxWidth: MAX_WIDTH,
+  margin: "0 auto",
+})
+
+export const shopHeaderClass = style({
   width: "100%",
   display: "flex",
   justifyContent: "space-between",
@@ -47,7 +48,6 @@ export const shopHeaderClass = style({
 })
 
 export const titleClass = style({
-  gridArea: "title",
   ...fontSize.hero3,
   fontFamily: primary,
   color: color.jade20,
@@ -55,8 +55,6 @@ export const titleClass = style({
 
 export const deckClass = style({
   display: "flex",
-  maxWidth: MAX_WIDTH,
-  width: "100%",
   flexDirection: "column",
   justifyContent: "space-between",
   padding: 16,
@@ -65,12 +63,28 @@ export const deckClass = style({
   background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
 })
 
+export const deckContainerClass = style({
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 16,
+})
+
+export const deckDescriptionClass = style({
+  ...fontSize.m,
+  color: color.bam10,
+  maxWidth: 300,
+})
+
 export const deckRowsClass = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "flex-start",
   justifyContent: "center",
   padding: sideSize * 2,
+  paddingRight: sideSize * 4,
+  paddingBottom: sideSize * 4,
+  position: "relative",
+  zIndex: 0,
 })
 
 export const deckRowClass = style({
@@ -93,9 +107,6 @@ export const deckItemClass = style({
 })
 
 export const deckTitleClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
   ...fontSize.h2,
   fontFamily: primary,
   color: color.bam20,
@@ -111,7 +122,6 @@ export const moneyClass = style({
     0px 0px 10px -5px ${color.gold30}`,
   color: color.bone10,
   paddingInline: 16,
-  paddingBlock: 8,
   fontVariantLigatures: "none",
   borderRadius: 24,
 })
@@ -130,7 +140,6 @@ export const itemPairClass = style({
 })
 
 export const itemsContainerClass = style({
-  maxWidth: MAX_WIDTH,
   width: "100%",
   display: "flex",
   flexDirection: "column",
@@ -142,6 +151,9 @@ export const itemsContainerClass = style({
 })
 
 export const itemsTitleClass = style({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
   ...fontSize.h2,
   fontFamily: primary,
   color: color.dot30,
@@ -150,7 +162,7 @@ export const itemsTitleClass = style({
 export const itemsClass = style({
   display: "flex",
   alignItems: "flex-end",
-  height: EMPEROR_HEIGHT + 28 + 16, // 28 is the coins height, 16 is the gap
+  height: 120 + 28 + 16, // 28 is the coins height, 16 is the gap
   justifyContent: "center",
   gap: 32,
 })
@@ -161,9 +173,8 @@ export const itemClass = recipe({
     flexDirection: "column",
     alignItems: "center",
     gap: 16,
-    width: EMPEROR_WIDTH,
-    height: EMPEROR_HEIGHT,
-    justifyContent: "center",
+    width: 80,
+    justifyContent: "flex-end",
     border: "none",
     background: "none",
     padding: 0,
@@ -400,23 +411,9 @@ export const detailListClass = recipe({
     fontVariantLigatures: "none",
   },
   variants: {
-    type: {
-      dot: {
-        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.1)}, ${alpha(color.dot50, 0.2)})`,
-      },
-      crack: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
-      },
-      bam: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.1)}, ${alpha(color.bam50, 0.2)})`,
-      },
-      bronze: {
-        background: `linear-gradient(to bottom, ${alpha(color.bronze70, 0.2)}, ${alpha(color.bronze70, 0.3)})`,
-      },
-      gold: {
-        background: `linear-gradient(to bottom, ${alpha(color.gold70, 0.2)}, ${alpha(color.gold70, 0.3)})`,
-      },
-    },
+    type: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
+    })),
   },
 })
 
@@ -521,8 +518,8 @@ export const emperorClass = recipe({
 })
 
 export const emptyEmperorClass = style({
-  width: EMPEROR_WIDTH,
-  height: EMPEROR_HEIGHT,
+  width: 80,
+  height: 120,
   borderRadius: 16,
   background: alpha(color.crack10, 0.1),
   boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
@@ -530,12 +527,14 @@ export const emptyEmperorClass = style({
 
 export const modalDetailsClass = style({
   display: "flex",
+  justifyContent: "space-between",
   gap: 24,
 })
 
 export const modalDetailsContentClass = style({
   display: "flex",
   flexDirection: "column",
+  flex: 1,
   gap: 24,
 })
 
@@ -554,7 +553,6 @@ export const emperorDetailsDescriptionClass = style({
 })
 
 export const ownedEmperorsClass = style({
-  maxWidth: MAX_WIDTH,
   width: "100%",
   display: "flex",
   flexDirection: "column",
@@ -578,3 +576,41 @@ export const ownedEmperorsListClass = style({
 })
 
 export const MINI_TILE_SIZE = 24
+
+export const nextRoundClass = style({
+  display: "flex",
+  alignItems: "center",
+  borderRadius: 12,
+  padding: 12,
+  background: `linear-gradient(to bottom, ${alpha(color.bone70, 0.2)}, ${alpha(color.bone70, 0.3)})`,
+  gap: 24,
+})
+
+export const nextRoundTitleClass = style({
+  ...fontSize.h2,
+  fontFamily: primary,
+  color: color.bone30,
+  whiteSpace: "nowrap",
+})
+
+export const nextRoundDetailListClass = style({
+  display: "grid",
+  columnGap: 8,
+  rowGap: 4,
+  width: "100%",
+  gridTemplateColumns: "max-content",
+  alignItems: "center",
+})
+
+export const nextRoundDetailTermClass = style({
+  color: color.bone40,
+  display: "flex",
+  alignItems: "center",
+})
+
+export const nextRoundDetailDescriptionClass = style({
+  color: color.bone30,
+  ...fontSize.s,
+  fontFamily: primary,
+  gridColumnStart: 2,
+})

@@ -85,7 +85,7 @@ function EmperorDetails(props: EmperorDetailsProps) {
       <div ref={setTooltipEl} class={tooltipClass} style={initialStyle}>
         <div class={emperorContainerClass}>
           <span>{name().replaceAll("_", " ")}</span>
-          <EmperorIcon name={name()} />
+          <EmperorIcon name={name()} width={80} />
         </div>
 
         <div class={detailInfoClass}>{description()}</div>

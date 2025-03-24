@@ -4,6 +4,7 @@ import { muted } from "@/state/gameState"
 
 export const SOUNDS = {
   CLICK: "click",
+  CLICK2: "click2",
   CLACK: "clack",
   RATTLE: "rattle",
   DING: "ding",
@@ -46,6 +47,7 @@ type AudioStore = Record<Track, HTMLAudioElement | undefined>
 
 const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS.CLICK]: undefined,
+  [SOUNDS.CLICK2]: undefined,
   [SOUNDS.CLACK]: undefined,
   [SOUNDS.RATTLE]: undefined,
   [SOUNDS.DING]: undefined,

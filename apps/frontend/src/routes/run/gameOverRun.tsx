@@ -4,12 +4,7 @@ import { batch, createMemo, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
-import {
-  calculatePassiveIncome,
-  passiveIncome,
-  useRound,
-  useRunState,
-} from "@/state/runState"
+import { getIncome, useRound, useRunState } from "@/state/runState"
 import {
   pointsContainerClass,
   detailListClass,
@@ -19,6 +14,7 @@ import {
 import { nanoid } from "nanoid"
 import { useTileState } from "@/state/tileState"
 import { sumBy } from "remeda"
+import { useDeckState } from "@/state/deckState"
 
 export function GameOverRun() {
   const game = useGameState()
@@ -49,19 +45,13 @@ export function GameOverRun() {
     return Math.min(Math.floor((overAchievement * 10) / 2), 100)
   })
 
-  const passiveIncomePercentage = createMemo(() => passiveIncome(run))
-  const passiveIncomeCoins = createMemo(() => calculatePassiveIncome(run))
-  const reward = createMemo(() => round().reward)
+  const deck = useDeckState()
+  const income = createMemo(() => getIncome(deck, run))
 
   function onShop() {
     batch(() => {
       run.stage = "shop"
-      run.money =
-        run.money +
-        reward() +
-        tileCoins() +
-        passiveIncomeCoins() +
-        overAchievementCoins()
+      run.money = run.money + income() + tileCoins() + overAchievementCoins()
     })
   }
 
@@ -70,22 +60,12 @@ export function GameOverRun() {
       <div class={pointsContainerClass}>
         <Show when={win()}>
           <dl class={detailListClass({ hue: "gold" })}>
-            <dt class={detailTermClass}>Round Reward</dt>
-            <dd class={detailDescriptionClass}>+ ${reward()}</dd>
+            <dt class={detailTermClass}>Deck income</dt>
+            <dd class={detailDescriptionClass}>+ ${income()}</dd>
             <Show when={tileCoins()}>
               {(coins) => (
                 <>
                   <dt class={detailTermClass}>Tile coins</dt>
-                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                </>
-              )}
-            </Show>
-            <Show when={passiveIncomeCoins()}>
-              {(coins) => (
-                <>
-                  <dt class={detailTermClass}>
-                    Passive income ({passiveIncomePercentage() * 100}%)
-                  </dt>
                   <dd class={detailDescriptionClass}>+ ${coins()}</dd>
                 </>
               )}

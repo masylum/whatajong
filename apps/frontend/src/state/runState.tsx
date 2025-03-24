@@ -8,6 +8,7 @@ import {
 import { generateEmperorItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
 import { shuffle } from "@/lib/rand"
+import type { Deck } from "@/lib/game"
 
 const RUN_STATE_NAMESPACE = "run-state"
 
@@ -23,7 +24,6 @@ export type RunState = {
 export type RoundStage = "select" | "game" | "shop"
 export type Round = {
   id: number
-  reward: number
   pointObjective: number
   timerPoints: number
 }
@@ -83,15 +83,13 @@ export function generateRound(id: number, runId: string): Round {
     return 1 + (rand * 2 - 1) * 0.2
   }
 
-  const reward = 30 + id * 20
-  const timerPoints = id + (1.25 ** id / 20) * variation() // Grows 1.25^level
+  const timerPoints = ((id + 1.25 ** id) / 20) * variation() // Grows 1.25^level
   const pointObjective = Math.round(
-    (70 + (id - 1) ** 2.75 + id * 40) * variation(),
+    (90 + (id - 1) ** 2.75 + id * 20) * variation(),
   ) // Grows level^2.7
 
   const round: Round = {
     id,
-    reward,
     timerPoints,
     pointObjective,
   }
@@ -103,11 +101,14 @@ export function shopUpgradeCost(run: RunState) {
   return 50 + run.shopLevel * 50
 }
 
-export const PASSIVE_INCOME_MULTIPLIER = 0.05
-export function calculatePassiveIncome(run: RunState) {
-  return Math.floor(run.money * passiveIncome(run))
-}
+export const DECK_CAPACITY_PER_LEVEL = {
+  1: 36,
+  2: 42,
+  3: 52,
+  4: 64,
+  5: 77,
+} as const
 
-export function passiveIncome(run: RunState) {
-  return (run.shopLevel - 1) * PASSIVE_INCOME_MULTIPLIER
+export function getIncome(deck: Deck, run: RunState) {
+  return deck.size * run.shopLevel
 }

@@ -1,10 +1,11 @@
 import { type JSX, Show, splitProps } from "solid-js"
-import { emperorClass } from "./emperor.css"
+import { EMPEROR_HEIGHT, EMPEROR_WIDTH, emperorClass } from "./emperor.css"
 import { EmperorHover } from "./game/emperorHover"
 import { useHover } from "./game/useHover"
 
 type Props = {
   name: string
+  width?: number
   onClick?: () => void
 }
 export function Emperor(props: Props) {
@@ -14,7 +15,12 @@ export function Emperor(props: Props) {
 
   return (
     <>
-      <EmperorIcon {...hoverProps} onClick={props.onClick} name={props.name} />
+      <EmperorIcon
+        {...hoverProps}
+        onClick={props.onClick}
+        name={props.name}
+        width={props.width}
+      />
 
       <Show when={isHovering()}>
         <EmperorHover mousePosition={mousePosition()} name={props.name} />
@@ -24,9 +30,9 @@ export function Emperor(props: Props) {
 }
 
 export function EmperorIcon(
-  iProps: { name: string } & JSX.IntrinsicElements["img"],
+  iProps: { name: string; width?: number } & JSX.IntrinsicElements["img"],
 ) {
-  const [props, imgProps] = splitProps(iProps, ["name"])
+  const [props, imgProps] = splitProps(iProps, ["name", "width"])
 
   return (
     <img
@@ -34,6 +40,12 @@ export function EmperorIcon(
       {...imgProps}
       alt={props.name}
       class={emperorClass}
+      width={props.width ?? EMPEROR_WIDTH}
+      height={
+        props.width
+          ? (props.width * EMPEROR_HEIGHT) / EMPEROR_WIDTH
+          : EMPEROR_HEIGHT
+      }
     />
   )
 }

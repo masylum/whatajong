@@ -43,7 +43,7 @@ import {
   getCoins,
   getMaterialCoins,
   getDragonMultiplier,
-  getAnimalMultiplier,
+  getRabbitMultiplier,
   resolveDragons,
   resolveFlowersAndSeasons,
   resolveAnimals,
@@ -657,12 +657,12 @@ describe("card powerup modifiers", () => {
   describe("getAnimalMultiplier", () => {
     it("should return 0 when no animal powerup is active", () => {
       const game: Game = { points: 0 }
-      expect(getAnimalMultiplier(game)).toBe(0)
+      expect(getRabbitMultiplier(game)).toBe(0)
     })
 
     it("should return 1 when animal powerup is active", () => {
       const game: Game = { points: 0, animal: "a1" }
-      expect(getAnimalMultiplier(game)).toBe(1)
+      expect(getRabbitMultiplier(game)).toBe(1)
     })
   })
 })

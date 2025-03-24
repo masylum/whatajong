@@ -1,5 +1,5 @@
 import { createVar, fallbackVar, style } from "@vanilla-extract/css"
-import { alpha, color } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 
@@ -8,10 +8,7 @@ const backgroundColor = createVar()
 
 export const playerPowerupsClass = style({
   position: "absolute",
-  top: 0,
-  bottom: 0,
-  right: 0,
-  left: 0,
+  inset: 0,
   pointerEvents: "none",
 })
 
@@ -20,24 +17,18 @@ export const powerupRecipe = recipe({
     display: "flex",
     padding: 12,
     alignItems: "center",
-    justifyContent: "flex-start",
     gap: 8,
     height: "100%",
-    position: "relative",
+    width: "100%",
+    position: "absolute",
     ":before": {
       content: '""',
-      background: `linear-gradient(
-        90deg,
-        rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
-        rgba(from ${backgroundColor} r g b / 0%) 50%
-      )`,
       mixBlendMode: "color",
       position: "absolute",
-      top: 0,
-      left: 0,
       width: "100vw",
       height: "100vh",
       pointerEvents: "none",
+      zIndex: -1,
     },
   },
   variants: {
@@ -50,10 +41,44 @@ export const powerupRecipe = recipe({
       5: { vars: { [opacity]: "0.8" } },
       6: { vars: { [opacity]: "0.9" } },
     },
-    dragon: {
-      c: { vars: { [backgroundColor]: color.crack50 } },
-      f: { vars: { [backgroundColor]: color.bam50 } },
-      p: { vars: { [backgroundColor]: color.dot60 } },
+    hue: hueVariants((kolor) => ({
+      vars: { [backgroundColor]: kolor(50) },
+    })),
+    side: {
+      left: {
+        justifyContent: "flex-start",
+        ":before": {
+          top: 0,
+          left: 0,
+          background: `linear-gradient(
+            90deg,
+            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
+            rgba(from ${backgroundColor} r g b / 0%) 50%
+          )`,
+        },
+      },
+      right: {
+        justifyContent: "flex-end",
+        ":before": {
+          top: 0,
+          right: 0,
+          background: `linear-gradient(
+            -90deg,
+            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
+            rgba(from ${backgroundColor} r g b / 0%) 50%
+          )`,
+        },
+      },
+      top: {
+        flexDirection: "column",
+        ":before": {
+          top: 0,
+          background: `linear-gradient(
+            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
+            rgba(from ${backgroundColor} r g b / 0%) 50%
+          )`,
+        },
+      },
     },
   },
 })
@@ -75,22 +100,22 @@ export const comboRecipe = recipe({
     borderRadius: 8,
   },
   variants: {
-    dragon: {
-      c: {
-        background: alpha(color.crack40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.crack70, 0.5)}`,
+    hue: hueVariants((kolor) => ({
+      background: alpha(kolor(40), 0.8),
+      textShadow: `2px 2px 0px ${alpha(kolor(70), 0.5)}`,
+      ":after": {
+        background: alpha(kolor(70), 0.5),
       },
-      f: {
-        background: alpha(color.bam40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.bam70, 0.5)}`,
-        ":after": {
-          background: alpha(color.bam70, 0.5),
-        },
-      },
-      p: {
-        background: alpha(color.dot40, 0.8),
-        textShadow: `2px 2px 0px ${alpha(color.dot70, 0.5)}`,
-      },
-    },
+    })),
   },
+})
+
+export const phoenixComboClass = style({
+  ...fontSize.hero1,
+  position: "absolute",
+  top: "50%",
+  right: 100,
+  transform: "translateY(-120%)",
+  zIndex: -1,
+  color: alpha(color.bronze40, 0.3),
 })

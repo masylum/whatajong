@@ -6,29 +6,39 @@ import { PROGRESSIVE_MAP } from "./maps/progressive"
 import type { RunState } from "@/state/runState"
 import { EMPERORS } from "@/state/emperors"
 import { sumBy } from "remeda"
-import { FAST_SELECTION_THRESHOLD } from "@/components/game/createVoicesEffect"
 import { shuffleTiles } from "./shuffleTiles"
 import Rand from "rand-seed"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
 
+export type PhoenixRun = {
+  card: Phoenix
+  number: number
+  combo: number
+}
+
+export type DragonRun = {
+  card: Dragon
+  combo: number
+}
+
+export type RabbitRun = {
+  card: Rabbit
+  score: boolean
+  combo: number
+}
+
 export type Game = {
   startedAt?: number
   endedAt?: number
   points: number
   endCondition?: WinCondition
-  rabbit?: {
-    timestamp: number
-    combo: number
-  }
   transport?: Transport
   flowerOrSeason?: Flower | Season
-  dragonRun?: {
-    card: Dragon
-    combo: number
-  }
-  animal?: Animal
+  dragonRun?: DragonRun
+  phoenixRun?: PhoenixRun
+  rabbitRun?: RabbitRun
 }
 
 export function gameOverCondition(tileDb: TileDb, game?: Game) {
@@ -65,9 +75,9 @@ export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
 export function getCardPoints(card: Card) {
   if (isDragon(card)) return 0
   if (isFlower(card)) return 2
+  if (isPhoenix(card)) return 2
   if (isRabbit(card)) return 2
   if (isSeason(card)) return 2
-  if (isAnimal(card)) return 4
   if (isJoker(card)) return 8
   if (isTransport(card)) return 8
   if (isWind(card)) return 4
@@ -77,7 +87,7 @@ export function getCardPoints(card: Card) {
 
 export function getMaterialPoints(material: Material) {
   switch (material) {
-    case "bam":
+    case "wood":
       return 2
     case "glass":
       return 4
@@ -149,9 +159,10 @@ export function getCoins({
   newPoints,
 }: { tiles: Tile[]; game: Game; newPoints: number }): number {
   const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
-  const animalMultiplier = getAnimalMultiplier(game)
+  const rabbitMultiplier = getRabbitMultiplier(game)
+  console.log(newPoints, rabbitMultiplier, materialCoins)
 
-  return newPoints * animalMultiplier + materialCoins
+  return newPoints * rabbitMultiplier + materialCoins
 }
 
 export function getJokerPoints(card: Card, tileDb: TileDb) {
@@ -194,15 +205,17 @@ export function getRawMultiplier({
 }) {
   let materialMultiplier = 0
   let dragonRunMultiplier = 0
-  let animalMultiplier = 0
+  let phoenixRunMultiplier = 0
+  let rabbitMultiplier = 0
 
   if (material) {
     materialMultiplier = getMaterialMultiplier(material)
   }
 
   if (game && card) {
-    dragonRunMultiplier = getDragonMultiplier(game, card)
-    animalMultiplier = getAnimalMultiplier(game)
+    dragonRunMultiplier = getDragonMultiplier(game)
+    rabbitMultiplier = getRabbitMultiplier(game)
+    phoenixRunMultiplier = getPhoenixRunMultiplier(game)
   }
 
   const emperorMultiplier = sumBy(
@@ -213,8 +226,9 @@ export function getRawMultiplier({
   return (
     materialMultiplier +
     dragonRunMultiplier +
-    emperorMultiplier +
-    animalMultiplier
+    phoenixRunMultiplier +
+    rabbitMultiplier +
+    emperorMultiplier
   )
 }
 
@@ -265,15 +279,15 @@ export function selectTile({
       // Special cards
       resolveWinds(tileDb, tile)
       resolveDragons(game, tile)
+      resolvePhoenixRun(game, tile)
       resolveFlowersAndSeasons(game, tile)
       resolveRabbits(game, tile)
-      resolveAnimals(game, tile)
-      resolvePhoenix(tileDb, tile)
+      resolveMutations(tileDb, tile)
       resolveJokers(tileDb, tile)
 
       const { points, multiplier } = getPoints({ game, run, tiles, tileDb })
-      const newCoins = getCoins({ tiles, game, newPoints: points })
       const newPoints = points * multiplier
+      const newCoins = getCoins({ tiles, game, newPoints })
 
       game.points = game.points + newPoints
       tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
@@ -295,17 +309,18 @@ export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
   }
 }
 
-const suits = [
+export const suits = [
   "b",
   "c",
   "o",
   "d",
-  "w",
   "f",
   "s",
   "p",
   "r",
   "a",
+  "m",
+  "w",
   "j",
   "t",
 ] as const
@@ -323,7 +338,7 @@ export const seasons = ["s1", "s2", "s3", "s4"] as const
 export const dragons = ["dc", "df", "dp"] as const
 export const rabbits = ["r1", "r2", "r3", "r4"] as const
 export const phoenix = ["p1", "p2", "p3"] as const
-export const animals = ["a1", "a2", "a3", "a4"] as const
+export const mutations = ["m1", "m2", "m3", "m4", "m5", "m6"] as const
 export const jokers = ["j1"] as const
 export const transports = ["tn", "tw", "ts", "te"] as const
 const dummy = ["x1"] as const
@@ -337,10 +352,10 @@ export type Season = (typeof seasons)[number]
 export type Dragon = (typeof dragons)[number]
 export type Rabbit = (typeof rabbits)[number]
 export type Phoenix = (typeof phoenix)[number]
-export type Animal = (typeof animals)[number]
 export type Joker = (typeof jokers)[number]
 export type Transport = (typeof transports)[number]
 export type Dummy = (typeof dummy)[number]
+export type Mutation = (typeof mutations)[number]
 export type Card =
   | Bam
   | Crack
@@ -352,7 +367,7 @@ export type Card =
   | Dummy
   | Phoenix
   | Rabbit
-  | Animal
+  | Mutation
   | Joker
   | Transport
 export type WindDirection = "n" | "s" | "e" | "w"
@@ -425,6 +440,10 @@ export function isDragon(card: Card | Suit) {
   return matchesSuit(card, "d") ? (card as Dragon) : null
 }
 
+export function isMutation(card: Card | Suit) {
+  return matchesSuit(card, "m") ? (card as Mutation) : null
+}
+
 export function isFlower(card: Card | Suit) {
   return matchesSuit(card, "f") ? (card as Flower) : null
 }
@@ -451,10 +470,6 @@ export function isDot(card: Card | Suit) {
 
 export function isRabbit(card: Card | Suit) {
   return matchesSuit(card, "r") ? (card as Rabbit) : null
-}
-
-export function isAnimal(card: Card | Suit) {
-  return matchesSuit(card, "a") ? (card as Animal) : null
 }
 
 export function isJoker(card: Card | Suit) {
@@ -586,7 +601,7 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   const material = getMaterial(tile, game)
 
   if (material === "jade") return !isCovered
-  if (material === "glass" || material === "bam") {
+  if (material === "glass" || material === "wood") {
     return countFreedoms >= 1 && !isCovered
   }
 
@@ -614,8 +629,8 @@ export function suitName(card: Card | Suit) {
   if (isWind(card)) return "wind"
   if (isRabbit(card)) return "rabbit"
   if (isPhoenix(card)) return "phoenix"
-  if (isAnimal(card)) return "animal"
   if (isJoker(card)) return "joker"
+  if (isMutation(card)) return "mutation"
   if (isTransport(card)) return "transport"
 
   return "unknown"
@@ -633,6 +648,13 @@ export function cardName(card: Card) {
     }
   }
 
+  const mutationCard = isMutation(card)
+  if (mutationCard) {
+    const rank = getRank(mutationCard)
+    const mutation = MUTATION_RANKS[rank]
+    return `${suitName(mutation[0])} to ${suitName(mutation[1])}`
+  }
+
   return `${suitName(card)} ${getRank(card)}`
 }
 
@@ -642,38 +664,55 @@ export const materials = [
   "bone",
   "bronze",
   "gold",
-  "bam",
   "wood",
 ] as const
 export type Material = (typeof materials)[number]
 
-const DRAGON_SUIT = { c: "c", f: "b", p: "o" } as const
+export const DRAGON_SUIT = { c: "c", f: "b", p: "o" } as const
 
 function cardMatchesDragon(runCard: Card, card: Card) {
   const dragon = getRank(runCard) as keyof typeof DRAGON_SUIT
   const targetSuit = DRAGON_SUIT[dragon]
 
-  if (isFlower(card) || isSeason(card)) return true
-  if (targetSuit === getSuit(card)) return true
+  if (
+    isFlower(card) ||
+    isSeason(card) ||
+    isJoker(card) ||
+    isMutation(card) ||
+    isRabbit(card) ||
+    isPhoenix(card)
+  )
+    return true
   if (dragon === getRank(card)) return true
-  if (isAnimal(card) || isPhoenix(card)) return true
+  if (targetSuit === getSuit(card)) return true
 
   return false
 }
 
-export function getDragonMultiplier(game: Game, card: Card) {
-  const dragonRun = game.dragonRun
-  if (!dragonRun) return 0
-
-  if (cardMatchesDragon(dragonRun.card, card)) {
-    return dragonRun.combo
-  }
-
-  return 0
+export function getDragonMultiplier(game: Game) {
+  return game.dragonRun?.combo ?? 0
 }
 
-export function getAnimalMultiplier(game: Game) {
-  return game.animal ? 1 : 0
+function cardMatchesPhoenix(number: number, card: Card) {
+  if (isJoker(card) || isMutation(card) || isRabbit(card) || isDragon(card))
+    return true
+
+  const rank = Number.parseInt(getRank(card))
+  if (Number.isNaN(rank)) return true
+
+  return rank === number + 1
+}
+
+export function getPhoenixRunMultiplier(game: Game) {
+  return game.phoenixRun?.combo ?? 0
+}
+
+export function getRabbitMultiplier(game: Game) {
+  const rabbitRun = game.rabbitRun
+  if (!rabbitRun) return 0
+  if (!rabbitRun.score) return 0
+
+  return rabbitRun.combo
 }
 
 export function resolveDragons(game: Game, tile: Tile) {
@@ -697,60 +736,100 @@ export function resolveDragons(game: Game, tile: Tile) {
   dragonRun.combo += 1
 }
 
-export function resolveFlowersAndSeasons(game: Game, tile: Tile) {
-  const flowerOrSeason = isFlower(tile.card) || isSeason(tile.card)
-  game.flowerOrSeason = flowerOrSeason ?? undefined
-}
+export function resolvePhoenixRun(game: Game, tile: Tile) {
+  const phoenixRun = game.phoenixRun
+  const newCard = tile.card
+  const phoenixCard = isPhoenix(newCard)
 
-export function resolveAnimals(game: Game, tile: Tile) {
-  game.animal = isAnimal(tile.card) ?? undefined
-}
-
-export function resolveRabbits(game: Game, tile: Tile) {
-  const now = Date.now()
-  const lastRabbit = game.rabbit
-
-  if (!lastRabbit) {
-    if (isRabbit(tile.card)) {
-      game.rabbit = { timestamp: now, combo: 0 }
+  if (!phoenixRun) {
+    if (phoenixCard) {
+      game.phoenixRun = { card: phoenixCard, number: 0, combo: 0 }
     }
 
     return
   }
 
-  if (now - lastRabbit.timestamp > FAST_SELECTION_THRESHOLD) {
-    game.rabbit = undefined
+  if (!cardMatchesPhoenix(phoenixRun.number, newCard)) {
+    game.phoenixRun = phoenixCard
+      ? { card: phoenixCard, number: 0, combo: 0 }
+      : undefined
     return
   }
 
-  lastRabbit.timestamp = now
-  lastRabbit.combo += 1
+  if (phoenixRun.number === 8) {
+    game.phoenixRun = undefined
+    return
+  }
+
+  if (phoenixRun.number === 7) {
+    phoenixRun.combo += 1
+  } else {
+    phoenixRun.combo += 3
+  }
+
+  if (isRabbit(newCard)) {
+    phoenixRun.number += 1
+    return
+  }
+
+  if (isDot(newCard) || isBam(newCard) || isCrack(newCard)) {
+    phoenixRun.number = Number.parseInt(getRank(newCard))
+  }
 }
 
-const PHOENIX_RANKS = {
-  1: ["b", "c"],
-  2: ["o", "b"],
-  3: ["c", "o"],
+export function resolveFlowersAndSeasons(game: Game, tile: Tile) {
+  const flowerOrSeason = isFlower(tile.card) || isSeason(tile.card)
+  game.flowerOrSeason = flowerOrSeason ?? undefined
+}
+
+export function resolveRabbits(game: Game, tile: Tile) {
+  const rabbitRun = game.rabbitRun
+  const newCard = tile.card
+  const rabbitCard = isRabbit(newCard)
+
+  if (!rabbitRun) {
+    if (rabbitCard) {
+      game.rabbitRun = { card: rabbitCard, score: false, combo: 1 }
+    }
+
+    return
+  }
+
+  if (rabbitRun.score) {
+    game.rabbitRun = undefined
+    return
+  }
+
+  if (rabbitCard) {
+    rabbitRun.card = rabbitCard
+    rabbitRun.combo += 2
+    return
+  }
+
+  rabbitRun.score = true
+}
+
+const MUTATION_RANKS = {
+  1: ["d", "c"],
+  2: ["d", "b"],
+  3: ["b", "c"],
+  4: ["b", "d"],
+  5: ["c", "b"],
+  6: ["c", "d"],
 } as const
 
 // TODO: move away
-export function resolvePhoenix(tileDb: TileDb, tile: Tile) {
-  const phoenixCard = isPhoenix(tile.card)
-  if (!phoenixCard) return
+export function resolveMutations(tileDb: TileDb, tile: Tile) {
+  const mutationCard = isMutation(tile.card)
+  if (!mutationCard) return
 
-  const rank = getRank(phoenixCard)
-  const [aSuit, bSuit] = PHOENIX_RANKS[rank]
+  const rank = getRank(mutationCard)
+  const [aSuit, bSuit] = MUTATION_RANKS[rank]
   const aTiles = tileDb.all.filter((tile) => getSuit(tile.card) === aSuit)
-  const bTiles = tileDb.all.filter((tile) => getSuit(tile.card) === bSuit)
 
   for (const aTile of aTiles) {
     const newCard = aTile.card.replace(aSuit, bSuit) as Card
     tileDb.set(aTile.id, { ...aTile, card: newCard })
-  }
-
-  for (const bTile of bTiles) {
-    const newCard = bTile.card.replace(bSuit, aSuit) as Card
-    tileDb.set(bTile.id, { ...bTile, card: newCard })
   }
 }
 

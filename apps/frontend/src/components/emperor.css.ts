@@ -6,8 +6,6 @@ export const EMPEROR_HEIGHT = 150
 
 export const emperorClass = style({
   flexShrink: 0,
-  width: EMPEROR_WIDTH,
-  height: EMPEROR_HEIGHT,
   borderRadius: 16,
   display: "flex",
   alignItems: "center",

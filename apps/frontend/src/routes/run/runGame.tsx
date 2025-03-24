@@ -1,4 +1,4 @@
-import { createMemo, createSignal, For, onCleanup, Show } from "solid-js"
+import { batch, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import {
   GameStateProvider,
   createGameState,
@@ -38,7 +38,7 @@ import {
 import { Emperor } from "@/components/emperor"
 import { shuffleTiles } from "@/lib/shuffleTiles"
 import Rand from "rand-seed"
-import type { EmperorItem } from "@/state/shopState"
+import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
 
 export default function RunGame() {
   const run = useRunState()
@@ -111,13 +111,17 @@ function EmperorCard(props: { item: EmperorItem }) {
 
   function onDiscard() {
     const rng = new Rand()
+
     shuffleTiles({ rng, tileDb: tiles })
 
     const deltedTimeout = setTimeout(() => {
       setDeleted(true)
 
       const sideEffectTimeout = setTimeout(() => {
-        run.items = run.items.filter((item) => item.id !== props.item.id)
+        batch(() => {
+          run.items = run.items.filter((item) => item.id !== props.item.id)
+          run.money = run.money + SELL_EMPEROR_AMOUNT
+        })
       }, FLIP_DURATION)
 
       onCleanup(() => clearTimeout(sideEffectTimeout))

@@ -3,13 +3,13 @@ import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
 import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
-  animals,
   bams,
   cracks,
   dots,
   dragons,
   flowers,
   jokers,
+  mutations,
   phoenix,
   rabbits,
   seasons,
@@ -112,10 +112,10 @@ export function generateEmperorItems() {
 
 export const ITEMS: Item[] = [
   ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(2, 9, [...dragons, ...flowers, ...seasons]),
-  ...generateTileItems(3, 9, [...rabbits, ...phoenix]),
-  ...generateTileItems(4, 9, [...winds, ...animals]),
-  ...generateTileItems(5, 9, [...jokers, ...transports]),
+  ...generateTileItems(2, 9, [...rabbits, ...flowers, ...seasons]),
+  ...generateTileItems(3, 9, [...dragons, ...phoenix]),
+  ...generateTileItems(4, 9, [...winds, ...mutations]),
+  ...generateTileItems(5, 9, [...jokers, ...jokers, ...transports]),
   // emperors
   ...generateEmperorItems(),
 ]

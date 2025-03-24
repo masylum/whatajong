@@ -1,4 +1,4 @@
-import { createEffect, createSignal, Match, Show, Switch } from "solid-js"
+import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js"
 import { Portal } from "solid-js/web"
 import {
   tooltipClass,
@@ -13,16 +13,23 @@ import {
 } from "./tileHover.css"
 import type { Card, Material } from "@/lib/game"
 import {
+  bams,
   cardName,
+  cracks,
+  dots,
+  DRAGON_SUIT,
   getMaterialCoins,
+  getRank,
   getRawMultiplier,
   getRawPoints,
   isDragon,
   isWind,
+  suitName,
 } from "@/lib/game"
 import type { JSX } from "solid-js"
 import { useRunState } from "@/state/runState"
 import { BasicTile } from "./basicTile"
+import { MiniTile } from "../miniTile"
 
 type TileHoverProps = {
   mousePosition: { x: number; y: number }
@@ -123,25 +130,35 @@ function MaterialFreedom(props: { material: Material }) {
       <span class={detailFreedomTitleClass}>Freedom</span>
       <Switch>
         <Match when={props.material === "glass"}>
-          Glass tiles can be selected if at least 1 side is open.
+          This tiles can be selected if at least 1 side is open.
         </Match>
         <Match when={props.material === "jade"}>
-          Jade tiles can always be selected.
+          This tiles can always be selected.
         </Match>
         <Match when={props.material === "bone"}>
-          Bone tiles can be selected if the left or right side is open.
+          This tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "bronze"}>
-          Bronze tiles can be selected if the left or right side is open.
+          This tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "gold"}>
-          Gold tiles can be selected if at least 3 sides are open.
+          This tiles can be selected if at least 3 sides are open.
         </Match>
       </Switch>
     </div>
   )
 }
 
+function getDragonTiles(card: Card) {
+  switch (getRank(card)) {
+    case "c":
+      return cracks
+    case "f":
+      return bams
+    case "p":
+      return dots
+  }
+}
 function Explanation(props: { card: Card }) {
   return (
     <Switch>
@@ -151,10 +168,19 @@ function Explanation(props: { card: Card }) {
         </div>
       </Match>
       <Match when={isDragon(props.card)}>
-        <div class={detailInfoClass}>
-          Dragon tiles start a "dragon run". Chain pairs of the dragon suit to
-          increase the multiplier.
-        </div>
+        {(dragonCard) => (
+          <div class={detailInfoClass}>
+            Dragon tiles start a "dragon run".
+            <br />
+            <br />
+            Chain consecutive pairs of "
+            {suitName(DRAGON_SUIT[getRank(dragonCard())])}" tiles (
+            <For each={getDragonTiles(dragonCard())}>
+              {(card) => <MiniTile card={card} />}
+            </For>
+            ) to increase the multiplier.
+          </div>
+        )}
       </Match>
     </Switch>
   )

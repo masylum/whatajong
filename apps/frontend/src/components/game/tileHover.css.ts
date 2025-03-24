@@ -19,7 +19,7 @@ export const tooltipClass = style({
   transformOrigin: "center bottom",
   display: "flex",
   flexDirection: "column",
-  width: 200,
+  width: 300,
   gap: 12,
 })
 

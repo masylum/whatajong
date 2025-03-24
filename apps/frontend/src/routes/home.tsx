@@ -27,7 +27,7 @@ function cards() {
 
 export function Home() {
   function onHover() {
-    play(SOUNDS.CLICK)
+    play(SOUNDS.CLICK2)
   }
 
   return (
