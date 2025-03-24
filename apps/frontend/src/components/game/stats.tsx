@@ -61,6 +61,42 @@ export function Moves() {
   const tiles = useTileState()
   const pairs = createMemo(() => getAvailablePairs(tiles).length)
 
+  const urgencyLevel = createMemo(() => {
+    const pairsCount = pairs()
+    const tilesAlive = tiles.filterBy({ deleted: false })
+
+    if (tilesAlive.length <= 6) {
+      return "normal"
+    }
+
+    if (pairsCount <= 1) {
+      return "urgent"
+    }
+
+    if (pairsCount <= 2) {
+      return "moderate"
+    }
+
+    if (pairsCount <= 3) {
+      return "mild"
+    }
+
+    return "normal"
+  })
+
+  const hueForUrgency = createMemo(() => {
+    switch (urgencyLevel()) {
+      case "mild":
+        return "gold"
+      case "moderate":
+        return "bone"
+      case "urgent":
+        return "crack"
+      default:
+        return "dot"
+    }
+  })
+
   createEffect((prevPairs: number) => {
     const newPairs = pairs()
     const tilesAlive = tiles.filterBy({ deleted: false })
@@ -82,9 +118,9 @@ export function Moves() {
   }, pairs())
 
   return (
-    <div class={movesClass}>
+    <div class={movesClass({ urgency: urgencyLevel() })}>
       <span class={statLabel}>Moves</span>
-      <div class={pillClass({ hue: "dot" })}>{pairs()}</div>
+      <div class={pillClass({ hue: hueForUrgency() })}>{pairs()}</div>
     </div>
   )
 }
