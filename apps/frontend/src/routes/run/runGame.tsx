@@ -29,7 +29,7 @@ import { Button } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
-import { selectTile } from "@/lib/game"
+import { getOwnedEmperors, selectTile } from "@/lib/game"
 import {
   createTileState,
   TileStateProvider,
@@ -112,7 +112,13 @@ function EmperorCard(props: { item: EmperorItem }) {
   function onDiscard() {
     const rng = new Rand()
 
-    shuffleTiles({ rng, tileDb: tiles })
+    batch(() => {
+      shuffleTiles({ rng, tileDb: tiles })
+
+      for (const emperor of getOwnedEmperors(run)) {
+        emperor.whenDiscarded?.()
+      }
+    })
 
     const deltedTimeout = setTimeout(() => {
       setDeleted(true)

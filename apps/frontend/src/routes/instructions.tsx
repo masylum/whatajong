@@ -301,7 +301,7 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile card="df" />
+            <BasicTile card="dc" />
           </IconText>
           <IconText
             text={
@@ -325,7 +325,7 @@ export function Instructions() {
               </>
             }
           >
-            <BasicTile card="dp" />
+            <BasicTile card="dc" />
           </IconText>
         </Box>
 

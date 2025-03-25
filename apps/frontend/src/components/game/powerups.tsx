@@ -42,9 +42,9 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
     switch (rank) {
       case "c":
         return "crack"
-      case "f":
+      case "b":
         return "bam"
-      case "p":
+      case "o":
         return "dot"
       default:
         return undefined

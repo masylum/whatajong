@@ -7,14 +7,10 @@ export function MiniTile(props: {
   material?: Material
   size?: 24 | 48
 }) {
-  const mProps = mergeProps({ size: 24 } as const, props)
+  const mProps = mergeProps({ size: 24, material: "bone" } as const, props)
 
   return (
-    <div
-      class={miniTileClass({
-        material: mProps.material ?? "bone",
-      })}
-    >
+    <div class={miniTileClass({ material: mProps.material })}>
       <Show when={props.card}>
         {(card) => (
           <img

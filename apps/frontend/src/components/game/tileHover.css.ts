@@ -81,10 +81,10 @@ export const detailTermClass = style({
       color: color.bam30,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bronze20,
+      color: color.bronze30,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.gold20,
+      color: color.gold30,
     },
   },
 })
@@ -96,16 +96,16 @@ export const detailDescriptionClass = style({
   gridColumnStart: 2,
   selectors: {
     [`${detailListClass.classNames.variants.type.dot} &`]: {
-      color: color.dot10,
+      color: color.dot20,
     },
     [`${detailListClass.classNames.variants.type.crack} &`]: {
-      color: color.crack10,
+      color: color.crack20,
     },
     [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bone10,
+      color: color.bronze20,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.bone10,
+      color: color.gold20,
     },
   },
 })

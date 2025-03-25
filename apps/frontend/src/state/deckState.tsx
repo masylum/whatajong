@@ -13,6 +13,7 @@ import { persistentDatabase } from "./persistentDatabase"
 
 type CreateDeckStateParams = { id: () => string }
 export function createDeckState(params: CreateDeckStateParams) {
+  console.log("createDeckState", params.id())
   return persistentDatabase({
     namespace: "deck-state",
     id: params.id,

@@ -24,6 +24,7 @@ export function persistentDatabase<T extends Database<any, any>>(
       if (persistedState) {
         db().update(JSON.parse(persistedState))
       } else {
+        db().update({})
         params.init(db(), id)
       }
     }),

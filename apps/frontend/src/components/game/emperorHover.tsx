@@ -9,7 +9,7 @@ import {
   detailInfoClass,
 } from "./emperorHover.css"
 import type { JSX } from "solid-js"
-import { EMPERORS, type Emperor } from "@/state/emperors"
+import { getEmperors, type Emperor } from "@/state/emperors"
 import { EmperorIcon } from "../emperor"
 
 type MousePosition = { x: number; y: number }
@@ -20,7 +20,7 @@ type EmperorHoverProps = {
 
 export function EmperorHover(props: EmperorHoverProps) {
   const emperor = createMemo(() =>
-    EMPERORS.find((emperor) => emperor.name === props.name),
+    getEmperors().find((emperor) => emperor.name === props.name),
   )
 
   return (

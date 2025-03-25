@@ -1,13 +1,17 @@
-import { resolveWinds } from "./winds"
+import { resolveWinds } from "./resolveWinds"
 import { batch } from "solid-js"
 import { nanoid } from "nanoid"
 import { initDatabase, type Database } from "./in-memoriam"
 import { PROGRESSIVE_MAP } from "./maps/progressive"
 import type { RunState } from "@/state/runState"
-import { EMPERORS } from "@/state/emperors"
+import { getEmperors } from "@/state/emperors"
 import { sumBy } from "remeda"
 import { shuffleTiles } from "./shuffleTiles"
 import Rand from "rand-seed"
+import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
+import { resolvePhoenixRun } from "./resolvePhoenixes"
+import { resolveRabbits } from "./resolveRabbits"
+import { resolveMutations } from "./resolveMutations"
 
 export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
 export type WinCondition = (typeof WIN_CONDITIONS)[number]
@@ -106,10 +110,11 @@ export function getMaterialMultiplier(material: Material) {
   switch (material) {
     case "bronze":
     case "glass":
-      return 0.5
+    case "wood":
+      return 1
     case "gold":
     case "jade":
-      return 2
+      return 4
     default:
       return 0
   }
@@ -139,7 +144,7 @@ export function getPoints({
     })
   }
 
-  return { points, multiplier }
+  return points * multiplier
 }
 
 export function getMaterialCoins(material: Material): number {
@@ -155,14 +160,17 @@ export function getMaterialCoins(material: Material): number {
 
 export function getCoins({
   tiles,
+  run,
   game,
   newPoints,
-}: { tiles: Tile[]; game: Game; newPoints: number }): number {
+}: { tiles: Tile[]; run?: RunState; game: Game; newPoints: number }): number {
   const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
   const rabbitMultiplier = getRabbitMultiplier(game)
-  console.log(newPoints, rabbitMultiplier, materialCoins)
+  const emperorCoins = sumBy(getOwnedEmperors(run), (emperor) =>
+    sumBy(tiles, (tile) => emperor.getCoins?.({ tile }) ?? 0),
+  )
 
-  return newPoints * rabbitMultiplier + materialCoins
+  return newPoints * rabbitMultiplier + materialCoins + emperorCoins
 }
 
 export function getJokerPoints(card: Card, tileDb: TileDb) {
@@ -180,7 +188,7 @@ export function getRawPoints({
   const cardPoints = getCardPoints(card)
   const materialPoints = getMaterialPoints(material)
   const emperorPoints = sumBy(
-    getEmperors(run),
+    getOwnedEmperors(run),
     (emperor) => emperor.getRawPoints?.({ card, material }) ?? 0,
   )
   let jokerPoints = 0
@@ -213,13 +221,13 @@ export function getRawMultiplier({
   }
 
   if (game && card) {
-    dragonRunMultiplier = getDragonMultiplier(game)
+    dragonRunMultiplier = getDragonMultiplier(game, card)
     rabbitMultiplier = getRabbitMultiplier(game)
     phoenixRunMultiplier = getPhoenixRunMultiplier(game)
   }
 
   const emperorMultiplier = sumBy(
-    getEmperors(run),
+    getOwnedEmperors(run),
     (emperor) => emperor.getRawMultiplier?.({ card, material }) ?? 0,
   )
 
@@ -253,6 +261,7 @@ export function selectTile({
     const tile = tileDb.get(tileId)
     if (!tile) throw new Error("Tile not found")
 
+    console.log(tile.card, isFree(tileDb, tile, game))
     if (!isFree(tileDb, tile, game)) {
       tileDb.set(tileId, { ...tile, selected: false })
       return
@@ -285,9 +294,8 @@ export function selectTile({
       resolveMutations(tileDb, tile)
       resolveJokers(tileDb, tile)
 
-      const { points, multiplier } = getPoints({ game, run, tiles, tileDb })
-      const newPoints = points * multiplier
-      const newCoins = getCoins({ tiles, game, newPoints })
+      const newPoints = getPoints({ game, run, tiles, tileDb })
+      const newCoins = getCoins({ tiles, run, game, newPoints })
 
       game.points = game.points + newPoints
       tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
@@ -335,10 +343,10 @@ export const dots = [ "o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9" ] as 
 export const winds = ["wn", "ww", "ws", "we"] as const
 export const flowers = ["f1", "f2", "f3", "f4"] as const
 export const seasons = ["s1", "s2", "s3", "s4"] as const
-export const dragons = ["dc", "df", "dp"] as const
+export const dragons = ["dc", "db", "do"] as const
 export const rabbits = ["r1", "r2", "r3", "r4"] as const
-export const phoenix = ["p1", "p2", "p3"] as const
-export const mutations = ["m1", "m2", "m3", "m4", "m5", "m6"] as const
+export const phoenix = ["pb", "pc", "po"] as const
+export const mutations = ["m1", "m2", "m3", "m4", "m5"] as const
 export const jokers = ["j1"] as const
 export const transports = ["tn", "tw", "ts", "te"] as const
 const dummy = ["x1"] as const
@@ -454,6 +462,10 @@ export function isSeason(card: Card | Suit) {
 
 export function isWind(card: Card | Suit) {
   return matchesSuit(card, "w") ? (card as Wind) : null
+}
+
+export function isSuit(card: Card | Suit) {
+  return isBam(card) || isCrack(card) || isDot(card)
 }
 
 export function isBam(card: Card | Suit) {
@@ -636,23 +648,42 @@ export function suitName(card: Card | Suit) {
   return "unknown"
 }
 
+export const MUTATION_RANKS = {
+  1: ["d", "c"],
+  2: ["d", "b"],
+  3: ["b", "c"],
+} as const
+
 export function cardName(card: Card) {
-  if (isDragon(card)) {
-    switch (getRank(card)) {
-      case "f":
-        return "bam dragon"
-      case "c":
-        return "crack dragon"
-      case "p":
-        return "dot dragon"
-    }
+  const dragonCard = isDragon(card)
+  if (dragonCard) {
+    console.log(
+      "dragonCard",
+      dragonCard,
+      getRank(dragonCard),
+      suitName(getRank(dragonCard)),
+    )
+    return `${suitName(getRank(dragonCard))} dragon`
+  }
+
+  const phoenixCard = isPhoenix(card)
+  if (phoenixCard) {
+    return `${suitName(getRank(phoenixCard))} phoenix`
   }
 
   const mutationCard = isMutation(card)
   if (mutationCard) {
     const rank = getRank(mutationCard)
+    if (rank === "4") {
+      return "mutation +1"
+    }
+
+    if (rank === "5") {
+      return "mutation -1"
+    }
+
     const mutation = MUTATION_RANKS[rank]
-    return `${suitName(mutation[0])} to ${suitName(mutation[1])}`
+    return `${suitName(mutation[0])} / ${suitName(mutation[1])} mutation`
   }
 
   return `${suitName(card)} ${getRank(card)}`
@@ -668,39 +699,15 @@ export const materials = [
 ] as const
 export type Material = (typeof materials)[number]
 
-export const DRAGON_SUIT = { c: "c", f: "b", p: "o" } as const
+export function getDragonMultiplier(game: Game, card: Card) {
+  const dragonRun = game.dragonRun
+  if (!dragonRun) return 0
 
-function cardMatchesDragon(runCard: Card, card: Card) {
-  const dragon = getRank(runCard) as keyof typeof DRAGON_SUIT
-  const targetSuit = DRAGON_SUIT[dragon]
+  if (!cardMatchesDragon(dragonRun.card, card)) {
+    return 0
+  }
 
-  if (
-    isFlower(card) ||
-    isSeason(card) ||
-    isJoker(card) ||
-    isMutation(card) ||
-    isRabbit(card) ||
-    isPhoenix(card)
-  )
-    return true
-  if (dragon === getRank(card)) return true
-  if (targetSuit === getSuit(card)) return true
-
-  return false
-}
-
-export function getDragonMultiplier(game: Game) {
-  return game.dragonRun?.combo ?? 0
-}
-
-function cardMatchesPhoenix(number: number, card: Card) {
-  if (isJoker(card) || isMutation(card) || isRabbit(card) || isDragon(card))
-    return true
-
-  const rank = Number.parseInt(getRank(card))
-  if (Number.isNaN(rank)) return true
-
-  return rank === number + 1
+  return dragonRun.combo
 }
 
 export function getPhoenixRunMultiplier(game: Game) {
@@ -715,122 +722,9 @@ export function getRabbitMultiplier(game: Game) {
   return rabbitRun.combo
 }
 
-export function resolveDragons(game: Game, tile: Tile) {
-  const dragonRun = game.dragonRun
-  const newCard = tile.card
-  const dragonCard = isDragon(newCard)
-
-  if (!dragonRun) {
-    if (dragonCard) {
-      game.dragonRun = { card: dragonCard, combo: 0 }
-    }
-
-    return
-  }
-
-  if (!cardMatchesDragon(dragonRun.card, newCard)) {
-    game.dragonRun = dragonCard ? { card: dragonCard, combo: 0 } : undefined
-    return
-  }
-
-  dragonRun.combo += 1
-}
-
-export function resolvePhoenixRun(game: Game, tile: Tile) {
-  const phoenixRun = game.phoenixRun
-  const newCard = tile.card
-  const phoenixCard = isPhoenix(newCard)
-
-  if (!phoenixRun) {
-    if (phoenixCard) {
-      game.phoenixRun = { card: phoenixCard, number: 0, combo: 0 }
-    }
-
-    return
-  }
-
-  if (!cardMatchesPhoenix(phoenixRun.number, newCard)) {
-    game.phoenixRun = phoenixCard
-      ? { card: phoenixCard, number: 0, combo: 0 }
-      : undefined
-    return
-  }
-
-  if (phoenixRun.number === 8) {
-    game.phoenixRun = undefined
-    return
-  }
-
-  if (phoenixRun.number === 7) {
-    phoenixRun.combo += 1
-  } else {
-    phoenixRun.combo += 3
-  }
-
-  if (isRabbit(newCard)) {
-    phoenixRun.number += 1
-    return
-  }
-
-  if (isDot(newCard) || isBam(newCard) || isCrack(newCard)) {
-    phoenixRun.number = Number.parseInt(getRank(newCard))
-  }
-}
-
 export function resolveFlowersAndSeasons(game: Game, tile: Tile) {
   const flowerOrSeason = isFlower(tile.card) || isSeason(tile.card)
   game.flowerOrSeason = flowerOrSeason ?? undefined
-}
-
-export function resolveRabbits(game: Game, tile: Tile) {
-  const rabbitRun = game.rabbitRun
-  const newCard = tile.card
-  const rabbitCard = isRabbit(newCard)
-
-  if (!rabbitRun) {
-    if (rabbitCard) {
-      game.rabbitRun = { card: rabbitCard, score: false, combo: 1 }
-    }
-
-    return
-  }
-
-  if (rabbitRun.score) {
-    game.rabbitRun = undefined
-    return
-  }
-
-  if (rabbitCard) {
-    rabbitRun.card = rabbitCard
-    rabbitRun.combo += 2
-    return
-  }
-
-  rabbitRun.score = true
-}
-
-const MUTATION_RANKS = {
-  1: ["d", "c"],
-  2: ["d", "b"],
-  3: ["b", "c"],
-  4: ["b", "d"],
-  5: ["c", "b"],
-  6: ["c", "d"],
-} as const
-
-// TODO: move away
-export function resolveMutations(tileDb: TileDb, tile: Tile) {
-  const mutationCard = isMutation(tile.card)
-  if (!mutationCard) return
-
-  const rank = getRank(mutationCard)
-  const [aSuit, bSuit] = MUTATION_RANKS[rank]
-  const aTiles = tileDb.all.filter((tile) => getSuit(tile.card) === aSuit)
-
-  for (const aTile of aTiles) {
-    const newCard = aTile.card.replace(aSuit, bSuit) as Card
-    tileDb.set(aTile.id, { ...aTile, card: newCard })
-  }
 }
 
 export function resolveJokers(tileDb: TileDb, tile: Tile) {
@@ -877,7 +771,7 @@ export function getMap(tiles: number) {
   )
 }
 
-export function getEmperors(run?: RunState) {
+export function getOwnedEmperors(run?: RunState) {
   if (!run) return []
 
   const names = new Set(
@@ -887,5 +781,5 @@ export function getEmperors(run?: RunState) {
   )
   if (!names.size) return []
 
-  return EMPERORS.filter((emperor) => names.has(emperor.name))
+  return getEmperors().filter((emperor) => names.has(emperor.name))
 }

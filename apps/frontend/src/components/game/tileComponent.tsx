@@ -261,7 +261,7 @@ export function TileComponent(iProps: Props) {
           </g>
         </svg>
       </Show>
-      <Show when={isHovering()}>
+      <Show when={isHovering() && !props.tile.deleted}>
         <TileHover
           card={props.tile.card}
           material={props.tile.material}

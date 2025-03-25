@@ -24,15 +24,12 @@ import {
   detailTermClass,
   detailDescriptionClass,
   detailListClass,
-  detailInfoClass,
   deckTitleClass,
   moneyClass,
   buttonsClass,
   buttonClass,
   detailsContentClass,
   itemsTitleClass,
-  detailFreedomClass,
-  detailFreedomTitleClass,
   materialUpgradeClass,
   materialUpgradeTitleClass,
   emperorClass,
@@ -67,8 +64,7 @@ import {
   ShopStateProvider,
   createShopState,
   useShopState,
-  ITEM_COST,
-  EMPEROR_COST,
+  itemCost,
   buyItem,
   type UpgradeItem,
   getNextMaterial,
@@ -76,8 +72,9 @@ import {
   type EmperorItem,
   sellEmperor,
   SELL_EMPEROR_AMOUNT,
-  ITEMS,
+  getItems,
   maxEmperors,
+  emperorCost,
 } from "@/state/shopState"
 import { BasicTile } from "@/components/game/basicTile"
 import { useDeckState } from "@/state/deckState"
@@ -86,15 +83,11 @@ import {
   type Material,
   type Card,
   type DeckTile,
-  isDragon,
-  isWind,
   getSuit,
   getRank,
-  getRawPoints,
   getMaterialMultiplier,
   getMaterialPoints,
   bams,
-  getRawMultiplier,
   getMaterialCoins,
 } from "@/lib/game"
 import { Button } from "@/components/button"
@@ -113,7 +106,14 @@ import { splitIntoRows } from "@/lib/splitIntoRows"
 import { chunk, entries } from "remeda"
 import { MiniTile } from "@/components/miniTile"
 import { Emperor } from "@/components/emperor"
-import { TileHover } from "@/components/game/tileHover"
+import {
+  CardMultiplier,
+  CardPoints,
+  Explanation,
+  MaterialCoins,
+  MaterialFreedom,
+  TileHover,
+} from "@/components/game/tileHover"
 import { useHover } from "@/components/game/useHover"
 
 const REROLL_COST = 10
@@ -369,7 +369,7 @@ function ItemTile(props: {
 
   const disabled = createMemo(
     () =>
-      ITEM_COST > run.money ||
+      itemCost(props.item.level) > run.money ||
       deck.size >=
         DECK_CAPACITY_PER_LEVEL[
           run.shopLevel as keyof typeof DECK_CAPACITY_PER_LEVEL
@@ -395,7 +395,7 @@ function ItemTile(props: {
           <BasicTile card={props.item.card} />
           <BasicTile class={pairClass} card={props.item.card} />
         </div>
-        <span class={itemCostClass}>${ITEM_COST}</span>
+        <span class={itemCostClass}>${itemCost(props.item.level)}</span>
       </button>
 
       <Show when={isHovering()}>
@@ -417,7 +417,9 @@ function EmperorItemComponent(props: {
   const shop = useShopState()
   const run = useRunState()
   const disabled = createMemo(
-    () => EMPEROR_COST > run.money || props.emperorCount >= maxEmperors(run),
+    () =>
+      emperorCost(props.item.level) > run.money ||
+      props.emperorCount >= maxEmperors(run),
   )
 
   return (
@@ -432,7 +434,7 @@ function EmperorItemComponent(props: {
         onClick={() => props.onClick?.(props.item)}
       >
         <Emperor name={props.item.name} width={80} />
-        <span class={itemCostClass}>${EMPEROR_COST}</span>
+        <span class={itemCostClass}>${emperorCost(props.item.level)}</span>
       </button>
     </>
   )
@@ -442,8 +444,6 @@ function CardDetails(props: {
   card: Card
   material: Material
 }) {
-  const run = useRunState()
-
   return (
     <div class={modalDetailsClass}>
       <BasicTile card={props.card} material={props.material} />
@@ -451,37 +451,11 @@ function CardDetails(props: {
         <div class={detailTitleClass}>
           {cardName(props.card)} ({props.material})
         </div>
-        <Switch>
-          <Match when={isWind(props.card)}>
-            <div class={detailInfoClass}>
-              Wind tiles move the pieces in the direction of the wind.
-            </div>
-          </Match>
-          <Match when={isDragon(props.card)}>
-            <div class={detailInfoClass}>
-              Dragon tiles start a "dragon run". Chain pairs of the dragon suit
-              to increase the multiplier.
-            </div>
-          </Match>
-        </Switch>
+        <CardPoints card={props.card} material={props.material} />
+        <CardMultiplier card={props.card} material={props.material} />
         <MaterialFreedom material={props.material} />
         <MaterialCoins material={props.material} />
-
-        <dl class={detailListClass({ type: "bam" })}>
-          <dt class={detailTermClass}>Points:</dt>
-          <dd class={detailDescriptionClass}>
-            {getRawPoints({ card: props.card, material: props.material, run })}
-          </dd>
-        </dl>
-
-        <Show when={getRawMultiplier({ material: props.material, run })}>
-          {(multiplier) => (
-            <dl class={detailListClass({ type: "crack" })}>
-              <dt class={detailTermClass}>Multiplier:</dt>{" "}
-              <dd class={detailDescriptionClass}>{multiplier() + 1}</dd>
-            </dl>
-          )}
-        </Show>
+        <Explanation card={props.card} />
       </div>
     </div>
   )
@@ -585,7 +559,9 @@ function EmperorItemDetails() {
     () => run.items.filter((item) => item.type === "emperor").length,
   )
   const disabled = createMemo(
-    () => EMPEROR_COST > run.money || emperorCount() >= maxEmperors(run),
+    () =>
+      emperorCost(item().level) > run.money ||
+      emperorCount() >= maxEmperors(run),
   )
   const isOwned = createMemo(() =>
     run.items.some((i) => i.id === item().id && i.type === "emperor"),
@@ -683,7 +659,7 @@ function UpgradeItemDetails() {
   }
   const tileItems = createMemo(() =>
     (
-      ITEMS.filter(
+      getItems().filter(
         (i) => i.level === item().level && i.type === "tile",
       ) as TileItem[]
     ).sort((a, b) => a.card.localeCompare(b.card)),
@@ -783,44 +759,6 @@ function UpgradeCardPreview(props: {
         />
       </Show>
     </>
-  )
-}
-
-function MaterialFreedom(props: { material: Material }) {
-  return (
-    <div class={detailFreedomClass}>
-      <span class={detailFreedomTitleClass}>Freedom</span>
-      <Switch>
-        <Match when={props.material === "glass"}>
-          Glass tiles are free if at least 1 side is open.
-        </Match>
-        <Match when={props.material === "jade"}>
-          Jade tiles are always free.
-        </Match>
-        <Match when={props.material === "bone"}>
-          Bone tiles are free if the left or right side are open.
-        </Match>
-        <Match when={props.material === "bronze"}>
-          Bronze tiles are free if at least 2 sides are open.
-        </Match>
-        <Match when={props.material === "gold"}>
-          Gold tiles are free if at least 3 sides are open.
-        </Match>
-      </Switch>
-    </div>
-  )
-}
-
-function MaterialCoins(props: { material: Material }) {
-  return (
-    <Show when={getMaterialCoins(props.material)}>
-      {(coins) => (
-        <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
-          <dd class={detailDescriptionClass}>{coins()}</dd>
-        </dl>
-      )}
-    </Show>
   )
 }
 
@@ -982,34 +920,32 @@ function OwnedEmperors() {
   }
 
   return (
-    <Show when={ownedEmperors().length > 0}>
-      <div class={ownedEmperorsClass}>
-        <div class={ownedEmperorsTitleClass}>
-          Your Crew ({ownedEmperors().length} / {maxEmperors(run)})
-        </div>
-        <div class={ownedEmperorsListClass}>
-          <For each={ownedEmperors()}>
-            {(emperor) => (
-              <div
-                class={emperorClass({
-                  disabled: false,
-                  selected: emperor.id === shop.currentItem?.id,
-                })}
-                onClick={() => selectEmperor(emperor)}
-              >
-                <Emperor name={emperor.name} width={80} />
-              </div>
-            )}
-          </For>
-          <For
-            each={Array.from({
-              length: maxEmperors(run) - ownedEmperors().length,
-            })}
-          >
-            {() => <div class={emptyEmperorClass} />}
-          </For>
-        </div>
+    <div class={ownedEmperorsClass}>
+      <div class={ownedEmperorsTitleClass}>
+        Your Crew ({ownedEmperors().length} / {maxEmperors(run)})
       </div>
-    </Show>
+      <div class={ownedEmperorsListClass}>
+        <For each={ownedEmperors()}>
+          {(emperor) => (
+            <div
+              class={emperorClass({
+                disabled: false,
+                selected: emperor.id === shop.currentItem?.id,
+              })}
+              onClick={() => selectEmperor(emperor)}
+            >
+              <Emperor name={emperor.name} width={80} />
+            </div>
+          )}
+        </For>
+        <For
+          each={Array.from({
+            length: maxEmperors(run) - ownedEmperors().length,
+          })}
+        >
+          {() => <div class={emptyEmperorClass} />}
+        </For>
+      </div>
+    </div>
   )
 }

@@ -30,7 +30,6 @@ import {
   isCrack,
   isDot,
   isRabbit,
-  isAnimal,
   isJoker,
   isTransport,
   isPhoenix,
@@ -38,35 +37,17 @@ import {
   cardName,
   getMaterial,
   getCardPoints,
-  getMaterialPoints,
-  getMaterialMultiplier,
-  getCoins,
   getMaterialCoins,
-  getDragonMultiplier,
-  getRabbitMultiplier,
-  resolveDragons,
   resolveFlowersAndSeasons,
-  resolveAnimals,
-  resolveRabbits,
   isTransparent,
   getRunPairs,
   fullyOverlaps,
   getMap,
+  selectTile,
+  getCoins,
 } from "./game"
+import { createTile } from "./test/utils"
 import { PROGRESSIVE_MAP } from "./maps/progressive"
-
-function createTile({
-  card,
-  id = "1",
-  material = "bone",
-  x = 0,
-  y = 0,
-  z = 0,
-  deleted = false,
-  selected = false,
-}: Partial<Tile> & { card: Card }): Tile {
-  return { id, card, material, x, y, z, deleted, selected }
-}
 
 describe("map", () => {
   describe("mapGet", () => {
@@ -87,8 +68,8 @@ describe("map", () => {
     })
 
     it("should return tile id as string for valid positions", () => {
-      expect(mapGet(PROGRESSIVE_MAP, 2, 0, 0)).toBe("134")
-      expect(mapGet(PROGRESSIVE_MAP, 3, 0, 0)).toBe("134")
+      expect(mapGet(PROGRESSIVE_MAP, 4, 2, 0)).toBe("134")
+      expect(mapGet(PROGRESSIVE_MAP, 5, 2, 0)).toBe("134")
     })
   })
 })
@@ -149,7 +130,7 @@ describe("deck", () => {
       expect(cardsMatch("b1", "b2")).toBe(false)
       expect(cardsMatch("c5", "c6")).toBe(false)
       expect(cardsMatch("wn", "ws")).toBe(false)
-      expect(cardsMatch("dc", "df")).toBe(false)
+      expect(cardsMatch("dc", "db")).toBe(false)
     })
 
     it("should not match cards of different types", () => {
@@ -266,9 +247,9 @@ describe("getPoints", () => {
     const goldTile = createTile({ card: "c1", material: "gold" })
     const goldWindTile = createTile({ card: "wn", material: "gold" })
 
-    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(36)
-    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(330)
-    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(360)
+    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(90)
+    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(594)
+    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(648)
   })
 
   it("adds correct point values for different materials", () => {
@@ -277,10 +258,10 @@ describe("getPoints", () => {
     const bronzeTile = createTile({ card: "c1", material: "bronze" })
     const goldTile = createTile({ card: "c1", material: "gold" })
 
-    expect(getPoints({ game, tiles: [glassTile] })).toBe(9)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(34)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(34)
-    expect(getPoints({ game, tiles: [goldTile] })).toBe(99)
+    expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(18)
+    expect(getPoints({ game, tiles: [goldTile] })).toBe(165)
   })
 
   it("applies multipliers correctly for special materials", () => {
@@ -288,9 +269,9 @@ describe("getPoints", () => {
     const bronzeTile = createTile({ card: "c1", material: "bronze" })
     const jadeTile = createTile({ card: "c1", material: "jade" })
 
-    expect(getPoints({ game, tiles: [glassTile] })).toBe(9)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(34)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(34)
+    expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(18)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(85)
   })
 
   it("multiplies correctly for high-value cards", () => {
@@ -298,9 +279,9 @@ describe("getPoints", () => {
     const bronzeWindTile = createTile({ card: "wn", material: "bronze" })
     const jadeWindTile = createTile({ card: "wn", material: "jade" })
 
-    expect(getPoints({ game, tiles: [glassWindTile] })).toBe(12)
-    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(40)
-    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(40)
+    expect(getPoints({ game, tiles: [glassWindTile] })).toBe(16)
+    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(24)
+    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(100)
   })
 
   it("applies dragon multipliers to matching suits", () => {
@@ -315,7 +296,7 @@ describe("getPoints", () => {
 
   it("applies different dragons to their matching suits", () => {
     const bambooTile = createTile({ card: "b1", material: "bone" })
-    createDragonPowerup("df", 2)
+    createDragonPowerup("db", 2)
 
     expect(getPoints({ game, tiles: [bambooTile] })).toBe(3)
   })
@@ -324,7 +305,7 @@ describe("getPoints", () => {
     createDragonPowerup("dc", 2)
     const jadeCircleTile = createTile({ card: "c1", material: "jade" })
 
-    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(68)
+    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(119)
   })
 })
 
@@ -462,16 +443,13 @@ describe("card type checkers", () => {
     expect(isRabbit("r1")).toBe("r1")
     expect(isRabbit("b1")).toBeNull()
 
-    expect(isAnimal("a1")).toBe("a1")
-    expect(isAnimal("b1")).toBeNull()
-
     expect(isJoker("j1")).toBe("j1")
     expect(isJoker("b1")).toBeNull()
 
     expect(isTransport("tn")).toBe("tn")
     expect(isTransport("b1")).toBeNull()
 
-    expect(isPhoenix("p1")).toBe("p1")
+    expect(isPhoenix("pb")).toBe("pb")
     expect(isPhoenix("b1")).toBeNull()
   })
 })
@@ -481,14 +459,13 @@ describe("card naming", () => {
     it("should return correct suit names", () => {
       expect(suitName("f1")).toBe("flower")
       expect(suitName("s1")).toBe("season")
-      expect(suitName("b1")).toBe("bamb")
+      expect(suitName("b1")).toBe("bam")
       expect(suitName("c1")).toBe("crack")
       expect(suitName("o1")).toBe("dot")
       expect(suitName("dc")).toBe("dragon")
       expect(suitName("wn")).toBe("wind")
       expect(suitName("r1")).toBe("rabbit")
-      expect(suitName("p1")).toBe("phoenix")
-      expect(suitName("a1")).toBe("animal")
+      expect(suitName("pb")).toBe("phoenix")
       expect(suitName("j1")).toBe("joker")
       expect(suitName("tn")).toBe("transport")
       expect(suitName("x1")).toBe("unknown") // Uses the dummy suit as an example of "unknown" return
@@ -499,16 +476,17 @@ describe("card naming", () => {
     it("should return correct card names", () => {
       expect(cardName("f1")).toBe("flower 1")
       expect(cardName("s2")).toBe("season 2")
-      expect(cardName("b3")).toBe("bamb 3")
+      expect(cardName("b3")).toBe("bam 3")
       expect(cardName("c4")).toBe("crack 4")
       expect(cardName("o5")).toBe("dot 5")
       expect(cardName("wn")).toBe("wind n")
+      expect(cardName("pb")).toBe("bam phoenix")
     })
 
     it("should handle dragon cards specially", () => {
       expect(cardName("dc")).toBe("crack dragon")
-      expect(cardName("df")).toBe("bamb dragon")
-      expect(cardName("dp")).toBe("dot dragon")
+      expect(cardName("db")).toBe("bam dragon")
+      expect(cardName("do")).toBe("dot dragon")
     })
   })
 })
@@ -527,8 +505,8 @@ describe("getMaterial", () => {
     const jadeTile = createTile({ card: "b1", material: "jade" })
     const game: Game = { points: 0, flowerOrSeason: "f1" }
 
-    expect(getMaterial(boneTile, game)).toBe("bamboo")
-    expect(getMaterial(jadeTile, game)).toBe("bamboo")
+    expect(getMaterial(boneTile, game)).toBe("wood")
+    expect(getMaterial(jadeTile, game)).toBe("wood")
   })
 })
 
@@ -539,7 +517,7 @@ describe("isTransparent", () => {
     expect(isTransparent("bone")).toBe(false)
     expect(isTransparent("bronze")).toBe(false)
     expect(isTransparent("gold")).toBe(false)
-    expect(isTransparent("bam")).toBe(false)
+    expect(isTransparent("wood")).toBe(false)
   })
 })
 
@@ -551,39 +529,17 @@ describe("card points calculations", () => {
       expect(getCardPoints("o9")).toBe(1)
 
       expect(getCardPoints("dc")).toBe(0) // Dragon
-      expect(getCardPoints("df")).toBe(0)
+      expect(getCardPoints("db")).toBe(0)
+      expect(getCardPoints("do")).toBe(0)
 
       expect(getCardPoints("f1")).toBe(2) // Flower
       expect(getCardPoints("s2")).toBe(2) // Season
       expect(getCardPoints("r3")).toBe(2) // Rabbit
 
       expect(getCardPoints("wn")).toBe(4) // Wind
-      expect(getCardPoints("a1")).toBe(4) // Animal
 
       expect(getCardPoints("j1")).toBe(8) // Joker
       expect(getCardPoints("tn")).toBe(8) // Transport
-    })
-  })
-
-  describe("getMaterialPoints", () => {
-    it("should return correct point values for different materials", () => {
-      expect(getMaterialPoints("bone")).toBe(0)
-      expect(getMaterialPoints("bam")).toBe(4)
-      expect(getMaterialPoints("glass")).toBe(8)
-      expect(getMaterialPoints("jade")).toBe(16)
-      expect(getMaterialPoints("bronze")).toBe(16)
-      expect(getMaterialPoints("gold")).toBe(32)
-    })
-  })
-
-  describe("getMaterialMultiplier", () => {
-    it("should return correct multiplier values for different materials", () => {
-      expect(getMaterialMultiplier("bone")).toBe(0)
-      expect(getMaterialMultiplier("bam")).toBe(0)
-      expect(getMaterialMultiplier("glass")).toBe(0)
-      expect(getMaterialMultiplier("jade")).toBe(1)
-      expect(getMaterialMultiplier("bronze")).toBe(1)
-      expect(getMaterialMultiplier("gold")).toBe(2)
     })
   })
 })
@@ -591,118 +547,15 @@ describe("card points calculations", () => {
 describe("getCoins and getMaterialCoins", () => {
   it("getMaterialCoins should return correct coin values for different materials", () => {
     expect(getMaterialCoins("bone")).toBe(0)
-    expect(getMaterialCoins("bam")).toBe(0)
+    expect(getMaterialCoins("wood")).toBe(0)
     expect(getMaterialCoins("glass")).toBe(0)
     expect(getMaterialCoins("jade")).toBe(0)
     expect(getMaterialCoins("bronze")).toBe(5)
     expect(getMaterialCoins("gold")).toBe(20)
   })
-
-  it("getCoins should calculate coins correctly based on points and materials", () => {
-    const boneTile = createTile({ card: "b1", material: "bone" })
-    const bronzeTile = createTile({ card: "b1", material: "bronze" })
-    const goldTile = createTile({ card: "b1", material: "gold" })
-    const game: Game = { points: 0 }
-
-    // Without animal multiplier
-    expect(getCoins({ tiles: [boneTile], game, newPoints: 10 })).toBe(0)
-    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(5)
-    expect(getCoins({ tiles: [goldTile], game, newPoints: 10 })).toBe(20)
-    expect(
-      getCoins({ tiles: [bronzeTile, goldTile], game, newPoints: 10 }),
-    ).toBe(25)
-
-    // With animal multiplier
-    game.animal = "a1"
-    expect(getCoins({ tiles: [boneTile], game, newPoints: 10 })).toBe(10)
-    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(15)
-    expect(getCoins({ tiles: [goldTile], game, newPoints: 10 })).toBe(30)
-  })
-})
-
-describe("card powerup modifiers", () => {
-  describe("getDragonMultiplier", () => {
-    it("should return 0 when no dragon run is active", () => {
-      const game: Game = { points: 0 }
-      expect(getDragonMultiplier(game, "c1")).toBe(0)
-    })
-
-    it("should return combo value when matching card is played during a dragon run", () => {
-      const game: Game = { points: 0, dragonRun: { card: "dc", combo: 3 } }
-
-      // Dragon "dc" matches crack suit "c"
-      expect(getDragonMultiplier(game, "c1")).toBe(3)
-      expect(getDragonMultiplier(game, "c5")).toBe(3)
-
-      // Other suits don't match
-      expect(getDragonMultiplier(game, "b1")).toBe(0)
-      expect(getDragonMultiplier(game, "o1")).toBe(0)
-    })
-
-    it("should handle different dragon types correctly", () => {
-      const game: Game = { points: 0, dragonRun: { card: "df", combo: 2 } }
-
-      // Dragon "df" matches bamboo suit "b"
-      expect(getDragonMultiplier(game, "b1")).toBe(2)
-      expect(getDragonMultiplier(game, "c1")).toBe(0)
-
-      game.dragonRun = { card: "dp", combo: 1 }
-
-      // Dragon "dp" matches dot suit "o"
-      expect(getDragonMultiplier(game, "o1")).toBe(1)
-      expect(getDragonMultiplier(game, "b1")).toBe(0)
-    })
-  })
-
-  describe("getAnimalMultiplier", () => {
-    it("should return 0 when no animal powerup is active", () => {
-      const game: Game = { points: 0 }
-      expect(getRabbitMultiplier(game)).toBe(0)
-    })
-
-    it("should return 1 when animal powerup is active", () => {
-      const game: Game = { points: 0, animal: "a1" }
-      expect(getRabbitMultiplier(game)).toBe(1)
-    })
-  })
 })
 
 describe("special card resolution functions", () => {
-  describe("resolveDragons", () => {
-    let game: Game
-
-    beforeEach(() => {
-      game = { points: 0 }
-    })
-
-    it("should start a new dragon run when a dragon is played", () => {
-      const dragonTile = createTile({ card: "dc" })
-      resolveDragons(game, dragonTile)
-
-      expect(game.dragonRun).toBeDefined()
-      expect(game.dragonRun?.card).toBe("dc")
-      expect(game.dragonRun?.combo).toBe(0)
-    })
-
-    it("should increment combo when matching card is played during a run", () => {
-      game.dragonRun = { card: "dc", combo: 1 }
-      const crackTile = createTile({ card: "c5" })
-
-      resolveDragons(game, crackTile)
-
-      expect(game.dragonRun?.combo).toBe(2)
-    })
-
-    it("should end the run when non-matching card is played", () => {
-      game.dragonRun = { card: "dc", combo: 1 }
-      const bambooTile = createTile({ card: "b5" })
-
-      resolveDragons(game, bambooTile)
-
-      expect(game.dragonRun).toBeUndefined()
-    })
-  })
-
   describe("resolveFlowersAndSeasons", () => {
     it("should toggle flowerOrSeason flag when a flower is played", () => {
       const game: Game = { points: 0 }
@@ -732,51 +585,17 @@ describe("special card resolution functions", () => {
       expect(game.flowerOrSeason).toBeUndefined()
     })
   })
-
-  describe("resolveAnimals", () => {
-    it("should set animal flag when an animal card is played", () => {
-      const game: Game = { points: 0 }
-
-      const animalTile = createTile({ card: "a1" })
-      resolveAnimals(game, animalTile)
-      expect(game.animal).toBe("a1")
-    })
-
-    it("should not change the flag for other card types", () => {
-      const game: Game = { points: 0 }
-
-      const bambooTile = createTile({ card: "b1" })
-      resolveAnimals(game, bambooTile)
-      expect(game.animal).toBeUndefined()
-    })
-  })
-
-  describe("resolveRabbits", () => {
-    it("should start a rabbit combo when a rabbit is played", () => {
-      const game: Game = { points: 0 }
-
-      const rabbitTile = createTile({ card: "r1" })
-      resolveRabbits(game, rabbitTile)
-
-      expect(game.rabbit).toBeDefined()
-      expect(game.rabbit?.combo).toBe(0)
-      expect(typeof game.rabbit?.timestamp).toBe("number")
-    })
-  })
 })
 
 describe("getRunPairs", () => {
   it("should return correct number of pairs", () => {
     const pairs = getRunPairs()
-    // Regular tiles: 9 bams + 9 cracks + 9 dots + 4 winds + 3 dragons = 34 types
-    // One pair each = 34 pairs
     expect(pairs.length).toBe(34)
   })
 
   it("should include regular tiles as pairs", () => {
     const pairs = getRunPairs()
 
-    // Check for some sample cards
     expect(pairs.some(([a, b]) => a === "b1" && b === "b1")).toBe(true)
     expect(pairs.some(([a, b]) => a === "c5" && b === "c5")).toBe(true)
     expect(pairs.some(([a, b]) => a === "o9" && b === "o9")).toBe(true)
@@ -797,12 +616,10 @@ describe("fullyOverlaps", () => {
   })
 
   it("should detect when a position is fully overlapped", () => {
-    // Tile fully covered by other tiles
     expect(fullyOverlaps(db, { x: 2, y: 2, z: 0 }, 0)).toBe(true)
   })
 
   it("should detect when a position is not fully overlapped", () => {
-    // Tile with only partial overlap
     expect(fullyOverlaps(db, { x: 4, y: 2, z: 0 }, 0)).toBe(false)
     expect(fullyOverlaps(db, { x: 0, y: 0, z: 0 }, 0)).toBe(false)
   })
@@ -810,11 +627,9 @@ describe("fullyOverlaps", () => {
 
 describe("getMap", () => {
   it("should limit tiles based on the count parameter", () => {
-    // This test is a simplified version as we don't know the full structure of PROGRESSIVE_MAP
     const map50 = getMap(50)
     const map100 = getMap(100)
 
-    // Map with higher tile count should have more non-null values
     const countNonNull = (map: any) => {
       let count = 0
       for (const level of map) {
@@ -828,5 +643,163 @@ describe("getMap", () => {
     }
 
     expect(countNonNull(map50)).toBeLessThanOrEqual(countNonNull(map100))
+  })
+})
+
+describe("selectTile", () => {
+  let tileDb: TileDb
+  let game: Game
+
+  beforeEach(() => {
+    game = { points: 0 }
+    tileDb = initTileDb({
+      "1": createTile({ id: "1", card: "b1", x: 0, y: 0, z: 0 }),
+      "2": createTile({ id: "2", card: "b1", x: 2, y: 0, z: 0 }),
+      "3": createTile({ id: "3", card: "b2", x: 6, y: 0, z: 0 }),
+      "4": createTile({ id: "4", card: "c1", x: 0, y: 2, z: 0 }),
+      "5": createTile({ id: "5", card: "f1", x: 2, y: 2, z: 0 }),
+      "6": createTile({ id: "6", card: "f2", x: 6, y: 2, z: 0 }),
+    })
+  })
+
+  it("selects a single tile when clicked", () => {
+    selectTile({ tileDb, game, tileId: "1" })
+    expect(tileDb.get("1")!.selected).toBe(true)
+    expect(tileDb.filterBy({ selected: true }).length).toBe(1)
+  })
+
+  it("deselects a tile when clicked again", () => {
+    selectTile({ tileDb, game, tileId: "1" })
+    expect(tileDb.get("1")!.selected).toBe(true)
+
+    selectTile({ tileDb, game, tileId: "1" })
+    expect(tileDb.get("1")!.selected).toBe(false)
+  })
+
+  it("matches and removes matching tiles", () => {
+    selectTile({ tileDb, game, tileId: "1" })
+    selectTile({ tileDb, game, tileId: "2" })
+
+    // Both tiles should be deleted
+    expect(tileDb.get("1")!.deleted).toBe(true)
+    expect(tileDb.get("2")!.deleted).toBe(true)
+
+    // Both tiles should not be selected
+    expect(tileDb.get("1")!.selected).toBe(false)
+    expect(tileDb.get("2")!.selected).toBe(false)
+
+    // Points should be awarded
+    expect(game.points).toBeGreaterThan(0)
+  })
+
+  it("matches flower tiles", () => {
+    selectTile({ tileDb, game, tileId: "5" })
+    selectTile({ tileDb, game, tileId: "6" })
+
+    // Both tiles should be deleted
+    expect(tileDb.get("5")!.deleted).toBe(true)
+    expect(tileDb.get("6")!.deleted).toBe(true)
+
+    // Flower power should be activated
+    expect(game.flowerOrSeason).toBeDefined()
+  })
+
+  it("does not match different tiles", () => {
+    selectTile({ tileDb, game, tileId: "1" })
+    selectTile({ tileDb, game, tileId: "3" })
+
+    // No tiles should be deleted
+    expect(tileDb.get("1")!.deleted).toBe(false)
+    expect(tileDb.get("3")!.deleted).toBe(false)
+
+    // No tile should be selected
+    expect(tileDb.filterBy({ selected: true }).length).toBe(0)
+
+    // No points should be awarded
+    expect(game.points).toBe(0)
+  })
+
+  it("ends the game when no pairs left", () => {
+    // Create a DB with only non-matching tiles
+    tileDb = initTileDb({
+      "1": createTile({ id: "1", card: "b1", x: 0, y: 0, z: 0 }),
+      "2": createTile({ id: "2", card: "b1", x: 2, y: 0, z: 0 }),
+    })
+
+    selectTile({ tileDb, game, tileId: "1" })
+    selectTile({ tileDb, game, tileId: "2" })
+
+    // Game should not have ended
+    expect(game.endCondition).toBe("empty-board")
+
+    // Delete all but one tile to force no-pairs condition
+    tileDb = initTileDb({
+      "1": createTile({ id: "1", card: "b1", x: 0, y: 0, z: 0 }),
+      "2": createTile({ id: "2", card: "b2", x: 2, y: 0, z: 0 }),
+      "3": createTile({ id: "3", card: "b1", x: 4, y: 0, z: 0 }),
+    })
+
+    selectTile({ tileDb, game, tileId: "1" })
+    selectTile({ tileDb, game, tileId: "3" })
+
+    // Game should have ended with no-pairs
+    expect(game.endCondition).toBe("no-pairs")
+  })
+
+  it("ends the game when board is empty", () => {
+    // Create a DB with only one matching pair
+    tileDb = initTileDb({
+      "1": createTile({ id: "1", card: "b1", x: 0, y: 0, z: 0 }),
+      "2": createTile({ id: "2", card: "b1", x: 2, y: 0, z: 0 }),
+    })
+
+    selectTile({ tileDb, game, tileId: "1" })
+    selectTile({ tileDb, game, tileId: "2" })
+
+    // Game should have ended with empty-board
+    expect(game.endCondition).toBe("empty-board")
+    expect(game.endedAt).toBeDefined()
+  })
+})
+
+describe("getCoins", () => {
+  it("adds no coins when there is no rabbit run", () => {
+    const game: Game = { points: 0 }
+    const boneTile = createTile({ card: "b1", material: "bone" })
+
+    expect(getCoins({ tiles: [boneTile], game, newPoints: 10 })).toBe(0)
+  })
+
+  it("adds material coins", () => {
+    const game: Game = { points: 0 }
+    const bronzeTile = createTile({ card: "b1", material: "bronze" })
+    const goldTile = createTile({ card: "b1", material: "gold" })
+
+    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(5)
+    expect(getCoins({ tiles: [goldTile], game, newPoints: 10 })).toBe(20)
+    expect(
+      getCoins({ tiles: [bronzeTile, goldTile], game, newPoints: 10 }),
+    ).toBe(25)
+  })
+
+  it("applies rabbit multiplier to points but not material coins", () => {
+    const game: Game = {
+      points: 0,
+      rabbitRun: { card: "r1", score: true, combo: 3 },
+    }
+    const bronzeTile = createTile({ card: "b1", material: "bronze" })
+
+    // 10 points * 3 (rabbit multiplier) + 5 bronze coins = 35
+    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(35)
+  })
+
+  it("handles rabbit run without score", () => {
+    const game: Game = {
+      points: 0,
+      rabbitRun: { card: "r1", score: false, combo: 3 },
+    }
+    const bronzeTile = createTile({ card: "b1", material: "bronze" })
+
+    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(5)
   })
 })

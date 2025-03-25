@@ -64,8 +64,10 @@ export function useHover(options?: UseHoverOptions): UseHoverResult {
     handleMouseLeave()
   }
 
-  // Create an accessor function that returns the current mouse position
-  const mousePosition = () => ({ x: pos.x, y: pos.y })
+  const mousePosition = () => ({
+    x: pos.x - window.scrollX,
+    y: pos.y - window.scrollY,
+  })
 
   return {
     isHovering,

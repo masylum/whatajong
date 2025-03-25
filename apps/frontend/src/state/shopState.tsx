@@ -1,7 +1,13 @@
 import type { RunState } from "@/state/runState"
 import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
-import { batch, createContext, useContext, type ParentProps } from "solid-js"
+import {
+  batch,
+  createContext,
+  useContext,
+  type JSXElement,
+  type ParentProps,
+} from "solid-js"
 import {
   bams,
   cracks,
@@ -21,12 +27,22 @@ import {
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
 import { countBy, entries } from "remeda"
-import { EMPERORS } from "./emperors"
+import { getEmperors } from "./emperors"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
-export const ITEM_COST = 20
-export const EMPEROR_COST = 60
+
+const ITEM_COST = 20
+const EMPEROR_COST = 60
+
 export const SELL_EMPEROR_AMOUNT = 30
+
+export function emperorCost(level: number) {
+  return EMPEROR_COST + 10 * level
+}
+
+export function itemCost(level: number) {
+  return ITEM_COST + 10 * level
+}
 
 const MINERAL_PATH = ["glass", "jade"] as const
 const METAL_PATH = ["bronze", "gold"] as const
@@ -39,7 +55,7 @@ type BaseItem = {
 export type EmperorItem = BaseItem & {
   type: "emperor"
   name: string
-  description: string
+  description: JSXElement
 }
 
 export type TileItem = BaseItem & {
@@ -101,7 +117,7 @@ function generateTileItems(level: number, num: number, cards: Card[]) {
 }
 
 export function generateEmperorItems() {
-  return EMPERORS.flatMap((emperor, i) => ({
+  return getEmperors().flatMap((emperor, i) => ({
     id: `emperor-${i}`,
     name: emperor.name,
     type: "emperor" as const,
@@ -110,15 +126,17 @@ export function generateEmperorItems() {
   }))
 }
 
-export const ITEMS: Item[] = [
-  ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
-  ...generateTileItems(2, 9, [...rabbits, ...flowers, ...seasons]),
-  ...generateTileItems(3, 9, [...dragons, ...phoenix]),
-  ...generateTileItems(4, 9, [...winds, ...mutations]),
-  ...generateTileItems(5, 9, [...jokers, ...jokers, ...transports]),
-  // emperors
-  ...generateEmperorItems(),
-]
+export function getItems(): Item[] {
+  return [
+    ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
+    ...generateTileItems(2, 9, [...rabbits, ...flowers, ...seasons]),
+    ...generateTileItems(3, 9, [...dragons, ...phoenix]),
+    ...generateTileItems(4, 9, [...winds, ...mutations]),
+    ...generateTileItems(5, 9, [...jokers, ...jokers, ...transports]),
+    // emperors
+    ...generateEmperorItems(),
+  ]
+}
 
 export function generateItems(run: RunState, reroll: number) {
   const runId = run.runId
@@ -126,7 +144,7 @@ export function generateItems(run: RunState, reroll: number) {
   const rng = new Rand(`items-${runId}-${run.round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
-  const initialPool = ITEMS.filter((item) => item.level <= shopLevel)
+  const initialPool = getItems().filter((item) => item.level <= shopLevel)
   const poolSize = initialPool.length
 
   const start = (5 * reroll) % poolSize
@@ -150,7 +168,8 @@ export function buyItem(
   item: Item,
   fn: () => void,
 ) {
-  const cost = item.type === "emperor" ? EMPEROR_COST : ITEM_COST
+  const cost =
+    item.type === "emperor" ? emperorCost(item.level) : itemCost(item.level)
   const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 

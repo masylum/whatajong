@@ -56,22 +56,24 @@ export function useRound() {
 
 type CreateRunStateParams = { id: () => string }
 export function createRunState(params: CreateRunStateParams) {
-  const rng = new Rand(`run-${params.id()}`)
-  const initialEmperor = shuffle(generateEmperorItems(), rng).filter(
-    (emperor) => emperor.level === 1,
-  )[0]!
-
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
-    init: () => ({
-      runId: params.id(),
-      money: 0,
-      round: 1,
-      stage: "select",
-      shopLevel: 1,
-      items: [initialEmperor],
-    }),
+    init: () => {
+      const rng = new Rand(`run-${params.id()}`)
+      const initialEmperor = shuffle(generateEmperorItems(), rng).filter(
+        (emperor) => emperor.level === 1,
+      )[0]!
+
+      return {
+        runId: params.id(),
+        money: 0,
+        round: 1,
+        stage: "select",
+        shopLevel: 1,
+        items: [initialEmperor],
+      }
+    },
   })
 }
 

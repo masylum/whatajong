@@ -377,29 +377,6 @@ export const detailTitleClass = style({
   color: color.bone10,
 })
 
-export const detailInfoClass = style({
-  padding: 8,
-  borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.bone90, 0.2)}, ${alpha(color.bone90, 0.4)})`,
-})
-
-export const detailFreedomClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  padding: 8,
-  borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.bronze80, 0.2)}, ${alpha(color.bronze80, 0.4)})`,
-  fontFamily: "system-ui",
-  color: color.bronze10,
-})
-
-export const detailFreedomTitleClass = style({
-  ...fontSize.m,
-  fontFamily: primary,
-  color: color.bronze30,
-})
-
 export const detailListClass = recipe({
   base: {
     display: "grid",

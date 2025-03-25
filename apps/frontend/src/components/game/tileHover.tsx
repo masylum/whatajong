@@ -17,12 +17,15 @@ import {
   cardName,
   cracks,
   dots,
-  DRAGON_SUIT,
   getMaterialCoins,
   getRank,
   getRawMultiplier,
   getRawPoints,
   isDragon,
+  isFlower,
+  isPhoenix,
+  isRabbit,
+  isSeason,
   isWind,
   suitName,
 } from "@/lib/game"
@@ -59,6 +62,7 @@ export function TileHover(props: TileHoverProps) {
     let newX = x - rect.width / 2
     let newY = y - rect.height - VERTICAL_OFFSET
 
+    const viewportHeight = window.innerHeight
     const viewportWidth = window.innerWidth
 
     if (newX < 0) {
@@ -69,12 +73,12 @@ export function TileHover(props: TileHoverProps) {
 
     if (newY < 0) {
       newY = y + VERTICAL_OFFSET
+    } else if (newY + rect.height > viewportHeight) {
+      newY = viewportHeight - rect.height
     }
 
     tooltip.style.transform = `translate3d(${newX}px, ${newY}px, 1px)`
   })
-
-  const run = useRunState()
 
   return (
     <Portal>
@@ -86,63 +90,35 @@ export function TileHover(props: TileHoverProps) {
           <span>{cardName(props.card)}</span>
         </div>
 
-        <dl class={detailListClass({ type: "bam" })}>
-          <dt class={detailTermClass}>Points:</dt>
-          <dd class={detailDescriptionClass}>
-            {getRawPoints({ card: props.card, material: props.material, run }) *
-              2}
-          </dd>
-        </dl>
-        <Show
-          when={
-            getRawMultiplier({
-              card: props.card,
-              material: props.material,
-              run,
-            }) * 2
-          }
-        >
-          {(mult) => (
-            <dl class={detailListClass({ type: "crack" })}>
-              <dt class={detailTermClass}>Mult:</dt>
-              <dd class={detailDescriptionClass}>{mult()}</dd>
-            </dl>
-          )}
-        </Show>
+        <CardPoints card={props.card} material={props.material} />
+        <CardMultiplier card={props.card} material={props.material} />
         <MaterialFreedom material={props.material} />
-        <Show when={getMaterialCoins(props.material) * 2}>
-          {(coins) => (
-            <dl class={detailListClass({ type: "gold" })}>
-              <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
-              <dd class={detailDescriptionClass}>{coins()}</dd>
-            </dl>
-          )}
-        </Show>
+        <MaterialCoins material={props.material} />
         <Explanation card={props.card} />
       </div>
     </Portal>
   )
 }
 
-function MaterialFreedom(props: { material: Material }) {
+export function MaterialFreedom(props: { material: Material }) {
   return (
     <div class={detailFreedomClass}>
       <span class={detailFreedomTitleClass}>Freedom</span>
       <Switch>
         <Match when={props.material === "glass"}>
-          This tiles can be selected if at least 1 side is open.
+          These tiles can be selected if at least 1 side is open.
         </Match>
         <Match when={props.material === "jade"}>
-          This tiles can always be selected.
+          These tiles can always be selected.
         </Match>
         <Match when={props.material === "bone"}>
-          This tiles can be selected if the left or right side is open.
+          These tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "bronze"}>
-          This tiles can be selected if the left or right side is open.
+          These tiles can be selected if the left or right side is open.
         </Match>
         <Match when={props.material === "gold"}>
-          This tiles can be selected if at least 3 sides are open.
+          These tiles can be selected if at least 3 sides are open.
         </Match>
       </Switch>
     </div>
@@ -153,13 +129,14 @@ function getDragonTiles(card: Card) {
   switch (getRank(card)) {
     case "c":
       return cracks
-    case "f":
+    case "b":
       return bams
-    case "p":
+    case "o":
       return dots
   }
 }
-function Explanation(props: { card: Card }) {
+
+export function Explanation(props: { card: Card }) {
   return (
     <Switch>
       <Match when={isWind(props.card)}>
@@ -167,14 +144,44 @@ function Explanation(props: { card: Card }) {
           Wind tiles move the pieces in the direction of the wind.
         </div>
       </Match>
+      <Match when={isRabbit(props.card)}>
+        <div class={detailInfoClass}>
+          Rabbit tiles start a <strong>rabbit run</strong>: Chain consecutive
+          pairs of rabbits to increase the multiplier.
+          <br />
+          <br />
+          When the rabbit run ends, you will earn one coin per point scored.
+        </div>
+      </Match>
+      <Match when={isFlower(props.card)}>
+        <div class={detailInfoClass}>
+          Flower tiles can be matched with other flower tiles even if their
+          numbers don't match.
+          <br />
+          <br />
+          When matching flower tiles, it converts all tiles to{" "}
+          <strong>wood</strong>. Wood tiles can be matched if at least 1 side is
+          open.
+        </div>
+      </Match>
+      <Match when={isSeason(props.card)}>
+        <div class={detailInfoClass}>
+          Season tiles can be matched with other season tiles even if their
+          numbers don't match.
+          <br />
+          <br />
+          When matching season tiles, it converts all tiles to{" "}
+          <strong>wood</strong>. Wood tiles can be matched if at least 1 side is
+          open.
+        </div>
+      </Match>
       <Match when={isDragon(props.card)}>
         {(dragonCard) => (
           <div class={detailInfoClass}>
-            Dragon tiles start a "dragon run".
+            Dragon tiles start a <strong>dragon run</strong>.
             <br />
             <br />
-            Chain consecutive pairs of "
-            {suitName(DRAGON_SUIT[getRank(dragonCard())])}" tiles (
+            Chain pairs of "{suitName(getRank(dragonCard()))}" tiles (
             <For each={getDragonTiles(dragonCard())}>
               {(card) => <MiniTile card={card} />}
             </For>
@@ -182,6 +189,64 @@ function Explanation(props: { card: Card }) {
           </div>
         )}
       </Match>
+      <Match when={isPhoenix(props.card)}>
+        <div class={detailInfoClass}>
+          Phoenix tiles start a <strong>phoenix run</strong>
+          <br />
+          <br />
+          Chain consecutive pairs of numbers, starting from the "1" to increase
+          the multiplier.
+        </div>
+      </Match>
     </Switch>
+  )
+}
+
+export function MaterialCoins(props: { material: Material }) {
+  return (
+    <Show when={getMaterialCoins(props.material)}>
+      {(coins) => (
+        <dl class={detailListClass({ type: "gold" })}>
+          <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
+          <dd class={detailDescriptionClass}>{coins()}</dd>
+        </dl>
+      )}
+    </Show>
+  )
+}
+
+export function CardMultiplier(props: { material: Material; card: Card }) {
+  const run = useRunState()
+
+  return (
+    <Show
+      when={
+        getRawMultiplier({
+          card: props.card,
+          material: props.material,
+          run,
+        }) * 2
+      }
+    >
+      {(mult) => (
+        <dl class={detailListClass({ type: "crack" })}>
+          <dt class={detailTermClass}>Mult:</dt>
+          <dd class={detailDescriptionClass}>{mult()}</dd>
+        </dl>
+      )}
+    </Show>
+  )
+}
+
+export function CardPoints(props: { card: Card; material: Material }) {
+  const run = useRunState()
+
+  return (
+    <dl class={detailListClass({ type: "bam" })}>
+      <dt class={detailTermClass}>Points:</dt>
+      <dd class={detailDescriptionClass}>
+        {getRawPoints({ card: props.card, material: props.material, run }) * 2}
+      </dd>
+    </dl>
   )
 }
