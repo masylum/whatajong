@@ -23,6 +23,7 @@ import {
   winds,
   type Card,
   type DeckTile,
+  type Level,
   type Material,
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
@@ -37,19 +38,23 @@ const EMPEROR_COST = 60
 export const SELL_EMPEROR_AMOUNT = 30
 
 export function emperorCost(level: number) {
-  return EMPEROR_COST + 10 * level
+  return EMPEROR_COST + 10 * (level - 1)
 }
 
 export function itemCost(level: number) {
-  return ITEM_COST + 10 * level
+  return ITEM_COST + 10 * (level - 1)
 }
 
-const MINERAL_PATH = ["glass", "jade"] as const
-const METAL_PATH = ["bronze", "gold"] as const
+const PATHS = {
+  freedom: ["glass", "diamond"],
+  points: ["ivory", "jade"],
+  coins: ["bronze", "gold"],
+} as const
+export type Path = keyof typeof PATHS
 
 type BaseItem = {
   id: string
-  level: number
+  level: Level
 }
 
 export type EmperorItem = BaseItem & {
@@ -64,14 +69,12 @@ export type TileItem = BaseItem & {
 }
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
-  level: number
+  level: Level
 }
 export type Item = TileItem | UpgradeItem | EmperorItem
 export type ShopState = {
   reroll: number
   currentItem: Item | null
-  // TODO: Perhaps bundle with currentItem?
-  currentDeckTile: DeckTile | null
 }
 
 const ShopStateContext = createContext<ShopState | undefined>()
@@ -102,12 +105,11 @@ export function createShopState(params: CreateShopStateParams) {
     init: () => ({
       reroll: 0,
       currentItem: null,
-      currentDeckTile: null,
     }),
   })
 }
 
-function generateTileItems(level: number, num: number, cards: Card[]) {
+function generateTileItems(level: Level, num: number, cards: Card[]) {
   return Array.from({ length: num }, (_, i) =>
     cards.flatMap(
       (card, j) =>
@@ -138,14 +140,16 @@ export function getItems(): Item[] {
   ]
 }
 
-export function generateItems(run: RunState, reroll: number) {
+export function generateItems(run: RunState, shop: ShopState) {
   const runId = run.runId
   const shopLevel = run.shopLevel
-  const rng = new Rand(`items-${runId}-${run.round}`)
+  const round = run.freeze?.round || run.round
+  const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
   const initialPool = getItems().filter((item) => item.level <= shopLevel)
   const poolSize = initialPool.length
+  const reroll = run.freeze?.reroll || shop.reroll
 
   const start = (5 * reroll) % poolSize
 
@@ -183,12 +187,9 @@ export function buyItem(
 
 function mergeCounts(
   count: Partial<Record<Material, number | undefined>>,
-  path: "mineral" | "metal",
+  path: Path,
 ) {
-  const order = [
-    "bone",
-    ...(path === "mineral" ? MINERAL_PATH : METAL_PATH),
-  ] as const
+  const order = ["bone", ...PATHS[path]] as const
   const newCount = { ...count }
 
   for (const [i, material] of order.entries()) {
@@ -209,7 +210,7 @@ function mergeCounts(
   return newCount
 }
 
-export function getNextMaterials(tiles: DeckTile[], path: "mineral" | "metal") {
+export function getNextMaterials(tiles: DeckTile[], path: Path) {
   const count = countBy(tiles, (tile) => tile.material)
   count.bone = (count.bone || 0) + 1
   const newCount = mergeCounts(count, path)
@@ -223,7 +224,7 @@ export function getNextMaterials(tiles: DeckTile[], path: "mineral" | "metal") {
   return result
 }
 
-export function getNextMaterial(tiles: DeckTile[], path: "mineral" | "metal") {
+export function getNextMaterial(tiles: DeckTile[], path: Path) {
   const materials = getNextMaterials(tiles, path)
   return materials[materials.length - 1]
 }
@@ -235,7 +236,7 @@ export type MaterialTransformation = {
 }
 export function getTransformation(
   tiles: DeckTile[],
-  path: "mineral" | "metal",
+  path: Path,
 ): MaterialTransformation {
   const nextMaterials = getNextMaterials(tiles, path)
   const currentMaterials = tiles.map((tile) => tile.material)

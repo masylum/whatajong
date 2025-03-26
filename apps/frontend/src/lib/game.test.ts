@@ -247,41 +247,58 @@ describe("getPoints", () => {
     const goldTile = createTile({ card: "c1", material: "gold" })
     const goldWindTile = createTile({ card: "wn", material: "gold" })
 
-    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(90)
-    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(594)
-    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(648)
+    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(170)
+    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(306)
+    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(360)
+    expect(getPoints({ game, tiles: [jadeTile, jadeTile] })).toBe(594)
   })
 
   it("adds correct point values for different materials", () => {
     const glassTile = createTile({ card: "c1", material: "glass" })
+    const diamondTile = createTile({ card: "c1", material: "diamond" })
+    const ivoryTile = createTile({ card: "c1", material: "ivory" })
     const jadeTile = createTile({ card: "c1", material: "jade" })
     const bronzeTile = createTile({ card: "c1", material: "bronze" })
     const goldTile = createTile({ card: "c1", material: "gold" })
 
     expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(85)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(18)
-    expect(getPoints({ game, tiles: [goldTile] })).toBe(165)
+    expect(getPoints({ game, tiles: [diamondTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(18)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(165)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(10)
+    expect(getPoints({ game, tiles: [goldTile] })).toBe(85)
   })
 
   it("applies multipliers correctly for special materials", () => {
     const glassTile = createTile({ card: "c1", material: "glass" })
-    const bronzeTile = createTile({ card: "c1", material: "bronze" })
+    const diamondTile = createTile({ card: "c1", material: "diamond" })
+    const ivoryTile = createTile({ card: "c1", material: "ivory" })
     const jadeTile = createTile({ card: "c1", material: "jade" })
+    const bronzeTile = createTile({ card: "c1", material: "bronze" })
+    const goldTile = createTile({ card: "c1", material: "gold" })
 
     expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(18)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [diamondTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(18)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(165)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(10)
+    expect(getPoints({ game, tiles: [goldTile] })).toBe(85)
   })
 
   it("multiplies correctly for high-value cards", () => {
     const glassWindTile = createTile({ card: "wn", material: "glass" })
+    const diamondWindTile = createTile({ card: "wn", material: "diamond" })
     const bronzeWindTile = createTile({ card: "wn", material: "bronze" })
+    const goldWindTile = createTile({ card: "wn", material: "gold" })
+    const ivoryWindTile = createTile({ card: "wn", material: "ivory" })
     const jadeWindTile = createTile({ card: "wn", material: "jade" })
 
     expect(getPoints({ game, tiles: [glassWindTile] })).toBe(16)
-    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(24)
-    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(100)
+    expect(getPoints({ game, tiles: [diamondWindTile] })).toBe(100)
+    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(16)
+    expect(getPoints({ game, tiles: [goldWindTile] })).toBe(100)
+    expect(getPoints({ game, tiles: [ivoryWindTile] })).toBe(24)
+    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(180)
   })
 
   it("applies dragon multipliers to matching suits", () => {
@@ -305,7 +322,7 @@ describe("getPoints", () => {
     createDragonPowerup("dc", 2)
     const jadeCircleTile = createTile({ card: "c1", material: "jade" })
 
-    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(119)
+    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(231)
   })
 })
 
@@ -493,31 +510,35 @@ describe("card naming", () => {
 
 describe("getMaterial", () => {
   it("should return the tile's material when no game is provided", () => {
-    const boneTile = createTile({ card: "b1", material: "bone" })
-    const jadeTile = createTile({ card: "b1", material: "jade" })
+    const boneTile = createTile({ id: "1", card: "b1", material: "bone" })
+    const jadeTile = createTile({ id: "2", card: "b1", material: "jade" })
+    const tileDb = initTileDb({ "1": boneTile, "2": jadeTile })
 
-    expect(getMaterial(boneTile)).toBe("bone")
-    expect(getMaterial(jadeTile)).toBe("jade")
+    expect(getMaterial(tileDb, boneTile)).toBe("bone")
+    expect(getMaterial(tileDb, jadeTile)).toBe("jade")
   })
 
-  it("should return bamboo when flower or season powerup is active", () => {
-    const boneTile = createTile({ card: "b1", material: "bone" })
-    const jadeTile = createTile({ card: "b1", material: "jade" })
+  it("should return wood when flower or season powerup is active and the tile is free", () => {
+    const boneTile = createTile({ id: "1", card: "b1", material: "bone", x: 0 })
+    const jadeTile = createTile({ id: "2", card: "b1", material: "jade", x: 2 })
     const game: Game = { points: 0, flowerOrSeason: "f1" }
+    const tileDb = initTileDb({ "1": boneTile, "2": jadeTile })
 
-    expect(getMaterial(boneTile, game)).toBe("wood")
-    expect(getMaterial(jadeTile, game)).toBe("wood")
+    expect(getMaterial(tileDb, boneTile, game)).toBe("wood")
+    expect(getMaterial(tileDb, jadeTile, game)).toBe("wood")
   })
 })
 
 describe("isTransparent", () => {
   it("should identify transparent materials", () => {
     expect(isTransparent("glass")).toBe(true)
-    expect(isTransparent("jade")).toBe(true)
+    expect(isTransparent("jade")).toBe(false)
     expect(isTransparent("bone")).toBe(false)
     expect(isTransparent("bronze")).toBe(false)
     expect(isTransparent("gold")).toBe(false)
     expect(isTransparent("wood")).toBe(false)
+    expect(isTransparent("ivory")).toBe(false)
+    expect(isTransparent("diamond")).toBe(true)
   })
 })
 
@@ -549,7 +570,7 @@ describe("getCoins and getMaterialCoins", () => {
     expect(getMaterialCoins("bone")).toBe(0)
     expect(getMaterialCoins("wood")).toBe(0)
     expect(getMaterialCoins("glass")).toBe(0)
-    expect(getMaterialCoins("jade")).toBe(0)
+    expect(getMaterialCoins("jade")).toBe(5)
     expect(getMaterialCoins("bronze")).toBe(5)
     expect(getMaterialCoins("gold")).toBe(20)
   })

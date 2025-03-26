@@ -30,6 +30,8 @@ import {
   type Tile,
   isSeason,
   isFlower,
+  isPhoenix,
+  isRabbit,
 } from "@/lib/game"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
@@ -82,7 +84,7 @@ export function TileComponent(iProps: Props) {
     strokePath({ width: props.width, height: props.height }),
   )
 
-  const material = createMemo(() => getMaterial(props.tile, game))
+  const material = createMemo(() => getMaterial(tiles, props.tile, game))
   const canBeSelected = createMemo(() => isFree(tiles, props.tile, game))
   const mapWidth = createMemo(() => mapGetWidth())
   const mapHeight = createMemo(() => mapGetHeight())
@@ -153,6 +155,29 @@ export function TileComponent(iProps: Props) {
         play(SOUNDS.GONG, volume)
       } else if (isWind(props.tile.card)) {
         play(SOUNDS.WIND, volume)
+      } else if (isPhoenix(props.tile.card)) {
+        play(SOUNDS.PHOENIX, volume)
+      } else if (isRabbit(props.tile.card)) {
+        play(SOUNDS.RABBIT, volume)
+      } else if (isFlower(props.tile.card)) {
+        play(SOUNDS.FLOWER, volume)
+      } else if (isSeason(props.tile.card)) {
+        play(SOUNDS.SEASON, volume)
+      } else if (
+        props.tile.material === "bronze" ||
+        props.tile.material === "gold"
+      ) {
+        play(SOUNDS.METAL_DING, volume)
+      } else if (
+        props.tile.material === "glass" ||
+        props.tile.material === "diamond"
+      ) {
+        play(SOUNDS.GLASS_DING, volume)
+      } else if (
+        props.tile.material === "ivory" ||
+        props.tile.material === "jade"
+      ) {
+        play(SOUNDS.STONE_DING, volume)
       } else {
         play(SOUNDS.DING, volume)
       }
@@ -233,20 +258,13 @@ export function TileComponent(iProps: Props) {
             <TileBody material={material()} />
             <TileImage card={props.tile.card} />
 
-            {/* Stroke overlay */}
-            <path
-              d={dPath()}
-              fill="none"
-              stroke={getHueColor(material())(40)}
-              stroke-width={selected() ? 2 : 1}
-            />
-
             {/* Clickable overlay with hover effect */}
             <path
               d={dPath()}
               fill={fillColor()}
               fill-opacity={fillOpacity()}
-              stroke="none"
+              stroke={getHueColor(material())(40)}
+              stroke-width={selected() ? 2 : 1}
               class={clickableClass({ canBeSelected: canBeSelected() })}
               onMouseDown={() => {
                 if (!canBeSelected()) return

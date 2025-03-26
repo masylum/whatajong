@@ -27,6 +27,14 @@ export const SOUNDS = {
   ALARM2: "alarm2",
   ALARM3: "alarm3",
   "321": "321",
+  PHOENIX: "phoenix",
+  FLOWER: "flower",
+  SEASON: "season",
+  RABBIT: "rabbit",
+  MUTATION: "mutation",
+  METAL_DING: "metal_ding",
+  GLASS_DING: "glass_ding",
+  STONE_DING: "stone_ding",
 } as const
 
 // sorted by intensity
@@ -70,6 +78,14 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS.ALARM2]: undefined,
   [SOUNDS.ALARM3]: undefined,
   [SOUNDS["321"]]: undefined,
+  [SOUNDS.PHOENIX]: undefined,
+  [SOUNDS.FLOWER]: undefined,
+  [SOUNDS.SEASON]: undefined,
+  [SOUNDS.MUTATION]: undefined,
+  [SOUNDS.RABBIT]: undefined,
+  [SOUNDS.METAL_DING]: undefined,
+  [SOUNDS.GLASS_DING]: undefined,
+  [SOUNDS.STONE_DING]: undefined,
 })
 
 function play(track: Track, volume = 1) {

@@ -6,6 +6,7 @@ import { useHover } from "./game/useHover"
 type Props = {
   name: string
   width?: number
+  frozen?: boolean
   onClick?: () => void
 }
 export function Emperor(props: Props) {
@@ -20,6 +21,7 @@ export function Emperor(props: Props) {
         onClick={props.onClick}
         name={props.name}
         width={props.width}
+        frozen={props.frozen}
       />
 
       <Show when={isHovering()}>
@@ -30,16 +32,20 @@ export function Emperor(props: Props) {
 }
 
 export function EmperorIcon(
-  iProps: { name: string; width?: number } & JSX.IntrinsicElements["img"],
+  iProps: {
+    name: string
+    width?: number
+    frozen?: boolean
+  } & JSX.IntrinsicElements["img"],
 ) {
-  const [props, imgProps] = splitProps(iProps, ["name", "width"])
+  const [props, imgProps] = splitProps(iProps, ["name", "width", "frozen"])
 
   return (
     <img
       src={`/occupations/${props.name}.webp`}
       {...imgProps}
       alt={props.name}
-      class={emperorClass}
+      class={emperorClass({ frozen: props.frozen ?? false })}
       width={props.width ?? EMPEROR_WIDTH}
       height={
         props.width

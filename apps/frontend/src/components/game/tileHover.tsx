@@ -1,4 +1,12 @@
-import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js"
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  Match,
+  mergeProps,
+  Show,
+  Switch,
+} from "solid-js"
 import { Portal } from "solid-js/web"
 import {
   tooltipClass,
@@ -6,23 +14,22 @@ import {
   detailTermClass,
   detailDescriptionClass,
   detailListClass,
-  miniTileClass,
   detailFreedomClass,
   detailFreedomTitleClass,
   detailInfoClass,
 } from "./tileHover.css"
-import type { Card, Material } from "@/lib/game"
+import type { Card, Material, Mutation } from "@/lib/game"
 import {
-  bams,
   cardName,
-  cracks,
-  dots,
   getMaterialCoins,
+  getMutationRanks,
   getRank,
   getRawMultiplier,
   getRawPoints,
   isDragon,
   isFlower,
+  isJoker,
+  isMutation,
   isPhoenix,
   isRabbit,
   isSeason,
@@ -32,7 +39,8 @@ import {
 import type { JSX } from "solid-js"
 import { useRunState } from "@/state/runState"
 import { BasicTile } from "./basicTile"
-import { MiniTile } from "../miniTile"
+import { MiniTiles } from "../miniTiles"
+import type { AccentHue } from "@/styles/colors"
 
 type TileHoverProps = {
   mousePosition: { x: number; y: number }
@@ -83,57 +91,55 @@ export function TileHover(props: TileHoverProps) {
   return (
     <Portal>
       <div ref={setTooltipEl} class={tooltipClass} style={initialStyle}>
+        <BasicTile card={props.card} material={props.material} />
         <div class={tileClass}>
-          <div class={miniTileClass}>
-            <BasicTile card={props.card} material={props.material} />
-          </div>
-          <span>{cardName(props.card)}</span>
-        </div>
+          <span>
+            {cardName(props.card)}
+            <Show when={props.material !== "bone"}>({props.material})</Show>
+          </span>
 
-        <CardPoints card={props.card} material={props.material} />
-        <CardMultiplier card={props.card} material={props.material} />
-        <MaterialFreedom material={props.material} />
-        <MaterialCoins material={props.material} />
-        <Explanation card={props.card} />
+          <CardPoints card={props.card} material={props.material} />
+          <CardMultiplier card={props.card} material={props.material} />
+          <MaterialFreedom material={props.material} />
+          <MaterialCoins material={props.material} />
+          <Explanation card={props.card} />
+        </div>
       </div>
     </Portal>
   )
 }
 
-export function MaterialFreedom(props: { material: Material }) {
+export function MaterialFreedom(iProps: {
+  material: Material
+  hue?: AccentHue
+}) {
+  const props = mergeProps({ hue: "bronze" as const }, iProps)
+
   return (
-    <div class={detailFreedomClass}>
-      <span class={detailFreedomTitleClass}>Freedom</span>
+    <div class={detailFreedomClass({ hue: props.hue })}>
+      <span class={detailFreedomTitleClass({ hue: props.hue })}>Freedom</span>
       <Switch>
-        <Match when={props.material === "glass"}>
+        <Match when={props.material === "glass" || props.material === "wood"}>
           These tiles can be selected if at least 1 side is open.
         </Match>
-        <Match when={props.material === "jade"}>
+        <Match when={props.material === "diamond"}>
           These tiles can always be selected.
         </Match>
-        <Match when={props.material === "bone"}>
+        <Match
+          when={
+            props.material === "bone" ||
+            props.material === "ivory" ||
+            props.material === "bronze"
+          }
+        >
           These tiles can be selected if the left or right side is open.
         </Match>
-        <Match when={props.material === "bronze"}>
-          These tiles can be selected if the left or right side is open.
-        </Match>
-        <Match when={props.material === "gold"}>
+        <Match when={props.material === "gold" || props.material === "jade"}>
           These tiles can be selected if at least 3 sides are open.
         </Match>
       </Switch>
     </div>
   )
-}
-
-function getDragonTiles(card: Card) {
-  switch (getRank(card)) {
-    case "c":
-      return cracks
-    case "b":
-      return bams
-    case "o":
-      return dots
-  }
 }
 
 export function Explanation(props: { card: Card }) {
@@ -146,56 +152,68 @@ export function Explanation(props: { card: Card }) {
       </Match>
       <Match when={isRabbit(props.card)}>
         <div class={detailInfoClass}>
-          Rabbit tiles start a <strong>rabbit run</strong>: Chain consecutive
-          pairs of rabbits to increase the multiplier.
+          Matching Rabbit Tiles starts a <strong>Rabbit Run</strong>.
           <br />
           <br />
-          When the rabbit run ends, you will earn one coin per point scored.
+          Each pair of Rabbit Tiles you match in a row increases your
+          multiplier, and when the run ends, you earn one coin for every point
+          scored.
         </div>
       </Match>
       <Match when={isFlower(props.card)}>
         <div class={detailInfoClass}>
-          Flower tiles can be matched with other flower tiles even if their
-          numbers don't match.
+          Flower Tiles match with any other Flower Tile, no matter the numbers.
           <br />
           <br />
-          When matching flower tiles, it converts all tiles to{" "}
-          <strong>wood</strong>. Wood tiles can be matched if at least 1 side is
-          open.
+          When you match them, all tiles become wooden, which only needs one
+          open side to match.
         </div>
       </Match>
       <Match when={isSeason(props.card)}>
         <div class={detailInfoClass}>
-          Season tiles can be matched with other season tiles even if their
-          numbers don't match.
+          Season Tiles match with any other Season Tile, no matter the numbers.
           <br />
           <br />
-          When matching season tiles, it converts all tiles to{" "}
-          <strong>wood</strong>. Wood tiles can be matched if at least 1 side is
-          open.
+          When you match them, all tiles become wooden, which only needs one
+          open side to match.
         </div>
       </Match>
       <Match when={isDragon(props.card)}>
         {(dragonCard) => (
           <div class={detailInfoClass}>
-            Dragon tiles start a <strong>dragon run</strong>.
-            <br />
-            <br />
-            Chain pairs of "{suitName(getRank(dragonCard()))}" tiles (
-            <For each={getDragonTiles(dragonCard())}>
-              {(card) => <MiniTile card={card} />}
-            </For>
-            ) to increase the multiplier.
+            Matching Dragon Tiles starts a <strong>Dragon Run</strong>, where
+            you chain {suitName(getRank(dragonCard()))} (
+            <MiniTiles suit={getRank(dragonCard())} />) tile pairs in a row to
+            build your multiplier.
           </div>
         )}
       </Match>
       <Match when={isPhoenix(props.card)}>
         <div class={detailInfoClass}>
-          Phoenix tiles start a <strong>phoenix run</strong>
-          <br />
-          <br />
-          Chain consecutive pairs of numbers, starting from the "1" to increase
-          the multiplier.
+          Phoenix Tiles begin a <strong>Phoenix Run</strong>, where you match
+          number pairs in a row starting with “1” to increase your multiplier.
+        </div>
+      </Match>
+      <Match when={isMutation(props.card)}>
+        {(mutationCard) => (
+          <div class={detailInfoClass}>
+            <Switch fallback={<MutationExplanation card={mutationCard()} />}>
+              <Match when={getRank(props.card) === "4"}>
+                Increase the number of all the bam/crack/dot cards on your
+                board.
+              </Match>
+              <Match when={getRank(props.card) === "5"}>
+                Decrease the number of all the bam/crack/dot cards on your
+                board.
+              </Match>
+            </Switch>
+          </div>
+        )}
+      </Match>
+      <Match when={isJoker(props.card)}>
+        <div class={detailInfoClass}>
+          Matching Joker Tiles shuffles your board. They score 1 point per
+          shuffled tile.
         </div>
       </Match>
     </Switch>
@@ -248,5 +266,19 @@ export function CardPoints(props: { card: Card; material: Material }) {
         {getRawPoints({ card: props.card, material: props.material, run }) * 2}
       </dd>
     </dl>
+  )
+}
+
+function MutationExplanation(props: { card: Mutation }) {
+  const ranks = createMemo(() => getMutationRanks(props.card)!)
+  const from = createMemo(() => ranks()[0]!)
+  const to = createMemo(() => ranks()[1]!)
+
+  return (
+    <p>
+      Swap all the {suitName(from())} (<MiniTiles suit={from()} />) and{" "}
+      {suitName(to())} (
+      <MiniTiles suit={to()} />) cards on your board.
+    </p>
   )
 }

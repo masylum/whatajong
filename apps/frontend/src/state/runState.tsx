@@ -8,7 +8,7 @@ import {
 import { generateEmperorItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
 import { shuffle } from "@/lib/rand"
-import type { Deck } from "@/lib/game"
+import type { Deck, Level } from "@/lib/game"
 
 const RUN_STATE_NAMESPACE = "run-state"
 
@@ -17,8 +17,13 @@ export type RunState = {
   money: number
   round: number
   stage: RoundStage
-  shopLevel: number
+  shopLevel: Level
   items: Item[]
+  freeze?: {
+    round: number
+    reroll: number
+    active: boolean
+  }
 }
 
 export type RoundStage = "select" | "game" | "shop"
@@ -85,10 +90,10 @@ export function generateRound(id: number, runId: string): Round {
     return 1 + (rand * 2 - 1) * 0.2
   }
 
-  const timerPoints = ((id + 1.25 ** id) / 20) * variation() // Grows 1.25^level
+  const timerPoints = ((id + 1.3 ** id) / 20) * variation() // Grows level + 1.3^level
   const pointObjective = Math.round(
-    (90 + (id - 1) ** 2.75 + id * 20) * variation(),
-  ) // Grows level^2.7
+    (90 + (id - 1) ** 2.8 + id * 30) * variation(),
+  ) // Grows 30*level + level^2.8
 
   const round: Round = {
     id,
@@ -100,7 +105,7 @@ export function generateRound(id: number, runId: string): Round {
 }
 
 export function shopUpgradeCost(run: RunState) {
-  return 50 + run.shopLevel * 50
+  return run.shopLevel * 100
 }
 
 export const DECK_CAPACITY_PER_LEVEL = {

@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css"
-import { alpha, color } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
@@ -8,31 +8,25 @@ export const tooltipClass = style({
   position: "absolute",
   background: color.bone90,
   color: color.bone10,
-  borderRadius: 8,
   border: `1px solid ${color.bone40}`,
-  padding: 12,
   ...fontSize.l,
-  maxWidth: "250px",
   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
   zIndex: 10_000,
   pointerEvents: "none",
   transformOrigin: "center bottom",
   display: "flex",
-  flexDirection: "column",
-  width: 300,
-  gap: 12,
+  width: 350,
+  gap: 24,
+  padding: 12,
+  borderRadius: 12,
 })
 
 export const tileClass = style({
   display: "flex",
-  alignItems: "center",
+  flexDirection: "column",
   gap: 16,
   fontFamily: primary,
   ...fontSize.h3,
-})
-
-export const miniTileClass = style({
-  flexShrink: 0,
 })
 
 export const detailListClass = recipe({
@@ -110,23 +104,37 @@ export const detailDescriptionClass = style({
   },
 })
 
-export const detailFreedomClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 4,
-  padding: 8,
-  borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.bronze80, 0.2)}, ${alpha(color.bronze80, 0.4)})`,
-  fontFamily: "system-ui",
-  ...fontSize.m,
+export const detailFreedomClass = recipe({
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    padding: 8,
+    borderRadius: 4,
+    fontFamily: "system-ui",
+    ...fontSize.m,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
+      color: kolor(10),
+    })),
+  },
 })
 
-export const detailFreedomTitleClass = style({
-  ...fontSize.m,
-  fontFamily: primary,
-  color: color.bronze20,
+export const detailFreedomTitleClass = recipe({
+  base: {
+    ...fontSize.m,
+    fontFamily: primary,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      color: kolor(30),
+    })),
+  },
 })
 
+// TODO: DRY
 export const detailInfoClass = style({
   padding: 8,
   borderRadius: 4,

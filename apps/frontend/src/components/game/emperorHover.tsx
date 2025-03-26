@@ -83,19 +83,19 @@ function EmperorDetails(props: EmperorDetailsProps) {
   return (
     <Portal>
       <div ref={setTooltipEl} class={tooltipClass} style={initialStyle}>
+        <EmperorIcon name={name()} />
         <div class={emperorContainerClass}>
           <span>{name().replaceAll("_", " ")}</span>
-          <EmperorIcon name={name()} width={80} />
+
+          <div class={detailInfoClass}>{description()}</div>
+
+          <Show when={level()}>
+            <dl class={detailListClass({ hue: "bone" })}>
+              <dt class={detailTermClass}>Level:</dt>
+              <dd class={detailDescriptionClass}>{level()}</dd>
+            </dl>
+          </Show>
         </div>
-
-        <div class={detailInfoClass}>{description()}</div>
-
-        <Show when={level()}>
-          <dl class={detailListClass({ type: "character" })}>
-            <dt class={detailTermClass}>Level:</dt>
-            <dd class={detailDescriptionClass}>{level()}</dd>
-          </dl>
-        </Show>
       </div>
     </Portal>
   )

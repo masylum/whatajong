@@ -22,17 +22,17 @@ import { formatDuration, intervalToDuration } from "date-fns"
 // biome-ignore format:
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "Awesome!", "Winner!", "Glorious!", "Well Played!" ]
 // biome-ignore format:
-const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Oooops...", "You Failed", "You Fell Short", "Crushed!", "Wasted!" ]
+const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Oooops...", "You Failed", "Crushed!", "Wasted!" ]
 
 function pick(arr: string[]) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-function GameOver(props: { win: boolean } & ParentProps) {
+function GameOver(props: { win: boolean; round?: number } & ParentProps) {
   return (
     <div class={gameOverClass}>
       <div class={screenClass({ win: props.win })}>
-        <Title win={props.win} />
+        <Title win={props.win} round={props.round} />
         {props.children}
       </div>
     </div>
@@ -73,13 +73,22 @@ export function BouncingCards() {
   return <For each={cards()}>{(card) => <BouncingCard card={card} />}</For>
 }
 
-export function Title(props: { win: boolean }) {
+export function Title(props: { win: boolean; round?: number }) {
+  const round = createMemo(() => (props.round ? `Round ${props.round}: ` : ""))
   return (
     <Show
       when={props.win}
-      fallback={<h1 class={titleClass}>{pick(DEFEAT_TITLES)}</h1>}
+      fallback={
+        <h1 class={titleClass}>
+          {round()}
+          {pick(DEFEAT_TITLES)}
+        </h1>
+      }
     >
-      <h1 class={titleClass}>{pick(WIN_TITLES)}</h1>
+      <h1 class={titleClass}>
+        {round()}
+        {pick(WIN_TITLES)}
+      </h1>
     </Show>
   )
 }

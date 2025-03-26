@@ -10,6 +10,7 @@ import {
   isWind,
   matchesSuit,
   type Card,
+  type Level,
   type Material,
   type Suit,
   type Tile,
@@ -25,7 +26,7 @@ import { MiniTiles } from "@/components/miniTiles"
 import { MiniTile } from "@/components/miniTile"
 
 export type Emperor = {
-  level: number
+  level: Level
   name: string
   description: JSXElement
   getCoins?: ({ tile }: { tile: Tile }) => number
@@ -43,7 +44,6 @@ export type Emperor = {
 // TODO: index them by name
 export function getEmperors(): Emperor[] {
   return [
-    // Starting value: 3 * 9 = 27 points
     // 1-DONE
     {
       level: 1,
@@ -57,7 +57,6 @@ export function getEmperors(): Emperor[] {
         return card && isCrack(card) ? 3 / 2 : 0
       },
     },
-    // Starting value: 2 * 9 = 18 points
     // 2-DONE
     {
       level: 1,
@@ -71,7 +70,6 @@ export function getEmperors(): Emperor[] {
         return card && isCrack(card) ? 1 / 2 : 0
       },
     },
-    // Starting value: 3 * 9 = 27 points
     // 3-DONE
     {
       level: 1,
@@ -85,7 +83,6 @@ export function getEmperors(): Emperor[] {
         return card && isBam(card) ? 3 / 2 : 0
       },
     },
-    // Starting value: 2 * 9 = 18 points
     // 4-DONE
     {
       level: 1,
@@ -99,7 +96,6 @@ export function getEmperors(): Emperor[] {
         return card && isBam(card) ? 1 / 2 : 0
       },
     },
-    // Starting value: 3 * 9 = 27 points
     // 5-DONE
     {
       level: 1,
@@ -113,7 +109,6 @@ export function getEmperors(): Emperor[] {
         return card && isDot(card) ? 3 / 2 : 0
       },
     },
-    // Starting value: 2 * 9 = 18 points
     // 6-DONE
     {
       level: 1,
@@ -127,7 +122,6 @@ export function getEmperors(): Emperor[] {
         return card && isDot(card) ? 1 / 2 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 7-DONE
     {
       level: 1,
@@ -142,7 +136,6 @@ export function getEmperors(): Emperor[] {
         return card === "b1" ? 10 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 8-DONE
     {
       level: 1,
@@ -157,7 +150,6 @@ export function getEmperors(): Emperor[] {
         return card === "c1" ? 10 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 9-DONE
     {
       level: 1,
@@ -171,7 +163,6 @@ export function getEmperors(): Emperor[] {
         return card === "o1" ? 10 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 10-DONE
     {
       level: 1,
@@ -185,7 +176,6 @@ export function getEmperors(): Emperor[] {
         return card === "b9" ? 10 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 11-DONE
     {
       level: 1,
@@ -199,7 +189,6 @@ export function getEmperors(): Emperor[] {
         return card === "c9" ? 10 : 0
       },
     },
-    // Starting value: 20 = 20 points
     // 12-DONE
     {
       level: 1,
@@ -323,7 +312,6 @@ export function getEmperors(): Emperor[] {
         game.points = game.points + 300
       },
     },
-    // Starting value: 1 * 34 = 34 points
     // 21-DONE
     {
       level: 2,
@@ -333,7 +321,6 @@ export function getEmperors(): Emperor[] {
         return 1
       },
     },
-    // Starting value: 0.5 * 34 = 17 points
     // 22-DONE
     {
       level: 2,
@@ -343,7 +330,6 @@ export function getEmperors(): Emperor[] {
         return 1 / 4
       },
     },
-    // Starting value: 2 * 5 * 3 = 30 points
     // 23-DONE
     {
       level: 2,
@@ -357,7 +343,6 @@ export function getEmperors(): Emperor[] {
         return rank % 2 === 1 ? 1 : 0
       },
     },
-    // Starting value: 3 * 4 * 3 = 36 points
     // 24-DONE
     {
       level: 2,

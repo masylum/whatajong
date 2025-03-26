@@ -94,12 +94,14 @@ export function getMaterialPoints(material: Material) {
     case "wood":
       return 2
     case "glass":
-      return 4
-    case "jade":
-      return 16
     case "bronze":
-      return 8
+      return 4
+    case "diamond":
     case "gold":
+      return 16
+    case "ivory":
+      return 8
+    case "jade":
       return 32
     default:
       return 0
@@ -110,11 +112,12 @@ export function getMaterialMultiplier(material: Material) {
   switch (material) {
     case "bronze":
     case "glass":
-    case "wood":
-      return 1
+    case "ivory":
+      return 0.5
     case "gold":
+    case "diamond":
     case "jade":
-      return 4
+      return 2
     default:
       return 0
   }
@@ -150,6 +153,8 @@ export function getPoints({
 export function getMaterialCoins(material: Material): number {
   switch (material) {
     case "bronze":
+    case "jade":
+    case "diamond":
       return 5
     case "gold":
       return 20
@@ -610,23 +615,29 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   const isCovered = overlaps(tileDb, tile, 1)
   const freedoms = getFreedoms(tileDb, tile)
   const countFreedoms = Object.values(freedoms).filter((v) => v).length
-  const material = getMaterial(tile, game)
+  const material = getMaterial(tileDb, tile, game)
 
-  if (material === "jade") return !isCovered
+  if (material === "diamond") return !isCovered
   if (material === "glass" || material === "wood") {
     return countFreedoms >= 1 && !isCovered
   }
 
-  if (material === "bone" || material === "bronze") {
-    const isFreeH = freedoms.left || freedoms.right
-    return isFreeH && !isCovered
+  if (material === "gold" || material === "jade") {
+    return countFreedoms >= 3 && !isCovered
   }
 
-  return countFreedoms >= 3 && !isCovered
+  const isFreeH = freedoms.left || freedoms.right
+  return isFreeH && !isCovered
 }
 
-export function getMaterial(tile: Tile, game?: Game): Material {
-  if (game?.flowerOrSeason) return "wood"
+export function getMaterial(tileDb: TileDb, tile: Tile, game?: Game): Material {
+  console.log(tile)
+  if (game?.flowerOrSeason) {
+    const freedoms = getFreedoms(tileDb, tile)
+    const isCovered = overlaps(tileDb, tile, 1)
+    const countFreedoms = Object.values(freedoms).filter((v) => v).length
+    return countFreedoms >= 1 && !isCovered ? "wood" : "bone"
+  }
 
   return tile.material
 }
@@ -649,20 +660,14 @@ export function suitName(card: Card | Suit) {
 }
 
 export const MUTATION_RANKS = {
-  1: ["d", "c"],
-  2: ["d", "b"],
+  1: ["o", "c"],
+  2: ["o", "b"],
   3: ["b", "c"],
 } as const
 
 export function cardName(card: Card) {
   const dragonCard = isDragon(card)
   if (dragonCard) {
-    console.log(
-      "dragonCard",
-      dragonCard,
-      getRank(dragonCard),
-      suitName(getRank(dragonCard)),
-    )
     return `${suitName(getRank(dragonCard))} dragon`
   }
 
@@ -689,8 +694,17 @@ export function cardName(card: Card) {
   return `${suitName(card)} ${getRank(card)}`
 }
 
+export function getMutationRanks(card: Mutation) {
+  const rank = getRank(card)
+  if (rank === "4" || rank === "5") return
+
+  return MUTATION_RANKS[rank]
+}
+
 export const materials = [
   "glass",
+  "diamond",
+  "ivory",
   "jade",
   "bone",
   "bronze",
@@ -756,7 +770,7 @@ export function mapGetLevels() {
 }
 
 export function isTransparent(material: Material) {
-  return material === "glass" || material === "jade"
+  return material === "glass" || material === "diamond"
 }
 
 export function getMap(tiles: number) {
@@ -783,3 +797,5 @@ export function getOwnedEmperors(run?: RunState) {
 
   return getEmperors().filter((emperor) => names.has(emperor.name))
 }
+
+export type Level = 1 | 2 | 3 | 4 | 5

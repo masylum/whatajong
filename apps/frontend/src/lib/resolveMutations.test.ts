@@ -46,35 +46,35 @@ describe("resolveMutations", () => {
     expect(tileDb.get("7")!.card).toBe("o7") // o8 -> o7
   })
 
-  it("swaps dragon and crack suits with m1 mutation", () => {
-    // Add dragon cards
-    tileDb.set("8", createTile({ id: "8", card: "dc", x: 2, y: 1, z: 0 }))
+  it("swaps dots and crack suits with m1 mutation", () => {
+    // Add dot cards
+    tileDb.set("8", createTile({ id: "8", card: "o1", x: 2, y: 1, z: 0 }))
 
     const mutationTile = createTile({ card: "m1" })
     resolveMutations(tileDb, mutationTile)
 
-    // Dragon cards become crack cards
-    expect(tileDb.get("8")!.card).toBe("cc")
+    // Dot cards become crack cards
+    expect(tileDb.get("8")!.card).toBe("c1")
 
-    // Crack cards become dragon cards
-    expect(tileDb.get("4")!.card).toBe("d2")
-    expect(tileDb.get("5")!.card).toBe("d5")
+    // Crack cards become dot cards
+    expect(tileDb.get("4")!.card).toBe("o2")
+    expect(tileDb.get("5")!.card).toBe("o5")
   })
 
-  it("swaps dragon and bamboo suits with m2 mutation", () => {
-    // Add dragon cards
-    tileDb.set("8", createTile({ id: "8", card: "db", x: 2, y: 1, z: 0 }))
+  it("swaps dot and bamboo suits with m2 mutation", () => {
+    // Add dot cards
+    tileDb.set("8", createTile({ id: "8", card: "o1", x: 2, y: 1, z: 0 }))
 
     const mutationTile = createTile({ card: "m2" })
     resolveMutations(tileDb, mutationTile)
 
-    // Dragon cards become bamboo cards
-    expect(tileDb.get("8")!.card).toBe("bb")
+    // Dot cards become bamboo cards
+    expect(tileDb.get("8")!.card).toBe("b1")
 
-    // Bamboo cards become dragon cards
-    expect(tileDb.get("1")!.card).toBe("d1")
-    expect(tileDb.get("2")!.card).toBe("d5")
-    expect(tileDb.get("3")!.card).toBe("d9")
+    // Bamboo cards become dot cards
+    expect(tileDb.get("1")!.card).toBe("o1")
+    expect(tileDb.get("2")!.card).toBe("o5")
+    expect(tileDb.get("3")!.card).toBe("o9")
   })
 
   it("swaps bamboo and crack suits with m3 mutation", () => {

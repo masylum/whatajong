@@ -12,7 +12,7 @@ describe("resolveRabbits", () => {
 
     expect(game.rabbitRun).toBeDefined()
     expect(game.rabbitRun!.card).toBe("r1")
-    expect(game.rabbitRun!.combo).toBe(1)
+    expect(game.rabbitRun!.combo).toBe(2)
     expect(game.rabbitRun!.score).toBe(false)
   })
 

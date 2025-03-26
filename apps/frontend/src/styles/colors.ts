@@ -101,15 +101,39 @@ export const huesAndShades = {
   },
 
   wood: {
-    90: "#f2e6ca",
-    80: "#dfcd9c",
-    70: "#c9b174",
-    60: "#c0a25f",
-    50: "#ad873c",
-    40: "#8b6a29",
-    30: "#5a4017",
-    20: "#361d0d",
+    90: "#f5d7a8",
+    80: "#e6bb7e",
+    70: "#daa55e",
+    60: "#cf9045",
+    50: "#b47732",
+    40: "#8d5c2a",
+    30: "#5f3b1e",
+    20: "#371c10",
     10: "#100604",
+  },
+
+  ivory: {
+    90: "#fbf8f1",
+    80: "#f1eee3",
+    70: "#dad6c7",
+    60: "#cec8b6",
+    50: "#b0aa99",
+    40: "#8a8370",
+    30: "#595240",
+    20: "#342e1d",
+    10: "#120e05",
+  },
+
+  diamond: {
+    90: "#faeef1",
+    80: "#f6dce3",
+    70: "#e1bdc7",
+    60: "#d4a7b4",
+    50: "#cc8ea1",
+    40: "#a16c7c",
+    30: "#684751",
+    20: "#3e2a30",
+    10: "#150b0e",
   },
 } as const
 
@@ -123,6 +147,8 @@ export const accentHues = [
   "bronze",
   "gold",
   "wood",
+  "ivory",
+  "diamond",
 ] as const
 
 export type Hue = keyof typeof huesAndShades
@@ -169,6 +195,19 @@ export function hueVariants<T>(map: (fn: HueShadeGetter, hue: AccentHue) => T) {
       return acc
     },
     {} as { [K in AccentHue]: T },
+  )
+}
+
+export function hueSelectors<T>(
+  keyMap: (hue: AccentHue) => string,
+  valueMap: (fn: HueShadeGetter, hue: AccentHue) => T,
+) {
+  return accentHues.reduce(
+    (acc, hue) => {
+      acc[keyMap(hue)] = valueMap(getHueColor(hue), hue)
+      return acc
+    },
+    {} as Record<string, T>,
   )
 }
 

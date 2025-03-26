@@ -1,7 +1,7 @@
 import { keyframes, style } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { alpha, color, hueVariants } from "@/styles/colors"
+import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { getSideSize, TILE_HEIGHT } from "@/state/constants"
 
@@ -69,8 +69,15 @@ export const deckContainerClass = style({
   gap: 16,
 })
 
+export const deckDetailsClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+})
+
 export const deckDescriptionClass = style({
   ...fontSize.m,
+  gridColumn: "1 / span 2",
   color: color.bam10,
   maxWidth: 300,
 })
@@ -80,9 +87,8 @@ export const deckRowsClass = style({
   flexDirection: "column",
   alignItems: "flex-start",
   justifyContent: "center",
-  padding: sideSize * 2,
-  paddingRight: sideSize * 4,
-  paddingBottom: sideSize * 4,
+  paddingRight: sideSize * 2,
+  paddingBottom: sideSize * 2,
   position: "relative",
   zIndex: 0,
 })
@@ -106,24 +112,69 @@ export const deckItemClass = style({
   top: 0,
 })
 
-export const deckTitleClass = style({
-  ...fontSize.h2,
-  fontFamily: primary,
-  color: color.bam20,
+export const deckTitleClass = recipe({
+  base: {
+    ...fontSize.h2,
+    fontFamily: primary,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+  },
+  variants: {
+    full: {
+      true: {
+        color: color.bam40,
+      },
+      false: {
+        color: color.bam30,
+      },
+    },
+  },
 })
 
-export const moneyClass = style({
-  ...fontSize.h3,
-  fontFamily: primary,
-  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-    0px 0px 0px 1px ${color.gold50},
-    0px 0px 3px -1px ${color.gold30},
-    0px 0px 10px -5px ${color.gold30}`,
-  color: color.bone10,
-  paddingInline: 16,
-  fontVariantLigatures: "none",
-  borderRadius: 24,
+export const moneyClass = recipe({
+  base: {
+    fontFamily: primary,
+    background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
+    boxShadow: `1px -1px 0px 0 inset ${color.gold90},
+      0px 0px 0px 1px ${color.gold50},
+      0px 0px 3px -1px ${color.gold30},
+      0px 0px 10px -5px ${color.gold30}
+    `,
+    color: color.gold10,
+    fontVariantLigatures: "none",
+    display: "inline-block",
+    borderRadius: 999,
+  },
+  variants: {
+    frozen: {
+      true: {
+        background: `linear-gradient(to bottom, ${color.glass80}, ${color.glass70})`,
+        boxShadow: `1px -1px 0px 0 inset ${color.glass90},
+          0px 0px 0px 1px ${color.glass50},
+          0px 0px 3px -1px ${color.glass30},
+          0px 0px 10px -5px ${color.glass30}
+        `,
+      },
+    },
+    size: {
+      big: {
+        ...fontSize.h2,
+        paddingInline: 16,
+        paddingBlock: 4,
+      },
+      medium: {
+        ...fontSize.m,
+        paddingInline: 12,
+        paddingBlock: 2,
+      },
+      small: {
+        ...fontSize.s,
+        paddingInline: 8,
+        paddingBlock: 1,
+      },
+    },
+  },
 })
 
 export const pairClass = style({
@@ -139,7 +190,7 @@ export const itemPairClass = style({
   left: -sideSize,
 })
 
-export const itemsContainerClass = style({
+export const shopItemsClass = style({
   width: "100%",
   display: "flex",
   flexDirection: "column",
@@ -151,12 +202,13 @@ export const itemsContainerClass = style({
 })
 
 export const itemsTitleClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
   ...fontSize.h2,
   fontFamily: primary,
   color: color.dot30,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
 })
 
 export const itemsClass = style({
@@ -215,20 +267,6 @@ export const itemTitleClass = style({
   fontFamily: primary,
 })
 
-export const itemCostClass = style({
-  ...fontSize.m,
-  fontFamily: primary,
-  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-    0px 0px 0px 1px ${color.gold50},
-    0px 0px 3px -1px ${color.gold30},
-    0px 0px 10px -5px ${color.gold30}`,
-  color: color.bone10,
-  paddingInline: 12,
-  paddingBlock: 2,
-  borderRadius: 16,
-})
-
 export const shopExtraClass = recipe({
   base: {
     display: "flex",
@@ -259,7 +297,7 @@ export const buttonClass = recipe({
     whiteSpace: "nowrap",
     fontVariantLigatures: "none",
     outline: "none",
-    outlineOffset: -2,
+    outlineOffset: 2,
   },
   variants: {
     disabled: {
@@ -275,7 +313,7 @@ export const buttonClass = recipe({
       border: `1px solid ${kolor(30)}`,
       color: kolor(90),
       ":focus": {
-        outline: `2px solid ${kolor(90)}`,
+        outline: `2px solid ${kolor(50)}`,
       },
       boxShadow: `
           -1px -1px 1px 0 inset ${kolor(20)},
@@ -318,21 +356,37 @@ export const detailsPositionerClass = style({
   justifyContent: "center",
 })
 
-export const detailsContentClass = style({
-  zIndex: 50,
-  width: 500,
-  border: `1px solid ${color.bone10}`,
-  borderRadius: 24,
-  padding: 24,
-  backgroundColor: color.bone90,
-  fontFamily: primary,
-  boxShadow: `0 0 0 4px inset ${color.bone70}`,
-  display: "flex",
-  flexDirection: "column",
-  gap: 24,
-  selectors: {
-    "&[data-expanded]": {
-      animation: `${contentShow} 300ms ease-out`,
+export const detailsContentClass = recipe({
+  base: {
+    zIndex: 50,
+    border: `1px solid ${color.bone10}`,
+    borderRadius: 12,
+    padding: 12,
+    backgroundColor: color.bone90,
+    fontFamily: primary,
+    display: "flex",
+    flexDirection: "column",
+    gap: 24,
+    selectors: {
+      "&[data-expanded]": {
+        animation: `${contentShow} 300ms ease-out`,
+      },
+    },
+  },
+  variants: {
+    type: {
+      tile: {
+        width: 400,
+      },
+      upgrade: {
+        width: 500,
+      },
+      emperor: {
+        width: 450,
+      },
+      tileUpgrade: {
+        width: 700,
+      },
     },
   },
 })
@@ -343,15 +397,29 @@ export const buttonsClass = style({
   justifyContent: "space-between",
 })
 
-export const materialUpgradeClass = style({
-  border: "none",
-  background: "none",
-  transition: "all 0.2s ease-in-out",
+export const materialUpgradesClass = style({
   display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 12,
-  padding: 0,
+  padding: 12,
+  gap: 24,
+})
+
+export const materialUpgradeClass = recipe({
+  base: {
+    border: "none",
+    background: "none",
+    transition: "all 0.2s ease-in-out",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 12,
+    padding: 12,
+    borderRadius: 8,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.2)}, ${alpha(kolor(50), 0.3)})`,
+    })),
+  },
 })
 
 export const materialUpgradeTitleClass = recipe({
@@ -398,23 +466,12 @@ export const detailTermClass = style({
   ...fontSize.m,
   fontFamily: primary,
   justifySelf: "start",
-  selectors: {
-    [`${detailListClass.classNames.variants.type.dot} &`]: {
-      color: color.dot30,
-    },
-    [`${detailListClass.classNames.variants.type.crack} &`]: {
-      color: color.crack30,
-    },
-    [`${detailListClass.classNames.variants.type.bam} &`]: {
-      color: color.bam30,
-    },
-    [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bronze20,
-    },
-    [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.gold20,
-    },
-  },
+  selectors: hueSelectors(
+    (hue) => `${detailListClass.classNames.variants.type[hue]} &`,
+    (kolor) => ({
+      color: kolor(30),
+    }),
+  ),
 })
 
 export const detailDescriptionClass = style({
@@ -422,35 +479,29 @@ export const detailDescriptionClass = style({
   fontFamily: primary,
   justifySelf: "end",
   gridColumnStart: 2,
-  selectors: {
-    [`${detailListClass.classNames.variants.type.dot} &`]: {
-      color: color.dot10,
-    },
-    [`${detailListClass.classNames.variants.type.crack} &`]: {
-      color: color.crack10,
-    },
-    [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bronze10,
-    },
-    [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.gold10,
-    },
-  },
+  selectors: hueSelectors(
+    (hue) => `${detailListClass.classNames.variants.type[hue]} &`,
+    (kolor) => ({
+      color: kolor(10),
+    }),
+  ),
 })
 
 export const upgradeTitleClass = style({
-  ...fontSize.l,
+  ...fontSize.h2,
+  textAlign: "center",
   fontFamily: primary,
-  color: color.bam20,
+  color: color.bone40,
 })
 
 export const upgradeDescriptionClass = style({
   ...fontSize.m,
+  textAlign: "center",
   fontFamily: "system-ui",
-  color: color.bam10,
-  background: `linear-gradient(to bottom, ${alpha(color.bam10, 0.1)}, ${alpha(color.bam10, 0.2)})`,
-  padding: 8,
-  borderRadius: 4,
+  color: color.bone30,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
 })
 
 export const emperorClass = recipe({
@@ -512,7 +563,7 @@ export const modalDetailsContentClass = style({
   display: "flex",
   flexDirection: "column",
   flex: 1,
-  gap: 24,
+  gap: 12,
 })
 
 export const emperorDetailsTitleClass = style({
@@ -525,7 +576,8 @@ export const emperorDetailsDescriptionClass = style({
   padding: 8,
   borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
-  color: color.crack20,
+  color: color.crack10,
+  fontFamily: "system-ui",
   ...fontSize.m,
 })
 
@@ -539,10 +591,40 @@ export const ownedEmperorsClass = style({
   background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
 })
 
-export const ownedEmperorsTitleClass = style({
-  ...fontSize.h2,
-  fontFamily: primary,
-  color: color.crack20,
+export const ownedEmperorsTitleClass = recipe({
+  base: {
+    ...fontSize.h2,
+    fontFamily: primary,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+  },
+  variants: {
+    full: {
+      true: {
+        color: color.crack40,
+      },
+      false: {
+        color: color.crack30,
+      },
+    },
+  },
+})
+
+export const fullExplanationClass = recipe({
+  base: {
+    ...fontSize.m,
+    fontFamily: "system-ui",
+    paddingInline: 12,
+    paddingBlock: 4,
+    borderRadius: 4,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      color: kolor(40),
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
+    })),
+  },
 })
 
 export const ownedEmperorsListClass = style({

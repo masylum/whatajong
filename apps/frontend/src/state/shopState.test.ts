@@ -10,7 +10,7 @@ describe("getNextMaterials", () => {
   }
 
   function subject(inputs: Material[], outputs: Material[]) {
-    expect(getNextMaterials(createDeckTiles(inputs), "mineral")).toStrictEqual(
+    expect(getNextMaterials(createDeckTiles(inputs), "freedom")).toStrictEqual(
       outputs,
     )
   }
@@ -24,19 +24,25 @@ describe("getNextMaterials", () => {
     subject(["glass", "bone", "bone"], ["glass", "glass"])
     subject(["glass", "glass"], ["glass", "glass", "bone"])
     subject(["glass", "glass", "bone"], ["glass", "glass", "bone", "bone"])
-    subject(["glass", "glass", "bone", "bone"], ["jade"])
-    subject(["jade"], ["jade", "bone"])
-    subject(["jade", "bone"], ["jade", "bone", "bone"])
-    subject(["jade", "bone", "bone"], ["jade", "glass"])
-    subject(["jade", "glass"], ["jade", "glass", "bone"])
-    subject(["jade", "glass", "bone"], ["jade", "glass", "bone", "bone"])
-    subject(["jade", "glass", "bone", "bone"], ["jade", "glass", "glass"])
-    subject(["jade", "glass", "glass"], ["jade", "glass", "glass", "bone"])
+    subject(["glass", "glass", "bone", "bone"], ["diamond"])
+    subject(["diamond"], ["diamond", "bone"])
+    subject(["diamond", "bone"], ["diamond", "bone", "bone"])
+    subject(["diamond", "bone", "bone"], ["diamond", "glass"])
+    subject(["diamond", "glass"], ["diamond", "glass", "bone"])
+    subject(["diamond", "glass", "bone"], ["diamond", "glass", "bone", "bone"])
+    subject(["diamond", "glass", "bone", "bone"], ["diamond", "glass", "glass"])
     subject(
-      ["jade", "glass", "glass", "bone"],
-      ["jade", "glass", "glass", "bone", "bone"],
+      ["diamond", "glass", "glass"],
+      ["diamond", "glass", "glass", "bone"],
     )
-    subject(["jade", "glass", "glass", "bone", "bone"], ["jade", "jade"])
+    subject(
+      ["diamond", "glass", "glass", "bone"],
+      ["diamond", "glass", "glass", "bone", "bone"],
+    )
+    subject(
+      ["diamond", "glass", "glass", "bone", "bone"],
+      ["diamond", "diamond"],
+    )
   })
 })
 
@@ -59,7 +65,7 @@ describe("getTransformation", () => {
       removes: string[]
     },
   ) {
-    expect(getTransformation(createDeckTiles(inputs), "mineral")).toStrictEqual(
+    expect(getTransformation(createDeckTiles(inputs), "freedom")).toStrictEqual(
       { adds, updates, removes },
     )
   }
@@ -87,7 +93,7 @@ describe("getTransformation", () => {
     )
     subject(
       { 1: "glass", 2: "glass", 3: "bone", 4: "bone" },
-      { adds: false, updates: { 1: "jade" }, removes: ["2", "3", "4"] },
+      { adds: false, updates: { 1: "diamond" }, removes: ["2", "3", "4"] },
     )
   })
 })

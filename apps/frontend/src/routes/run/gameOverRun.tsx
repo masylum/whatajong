@@ -1,8 +1,8 @@
 import { calculateSeconds } from "@/state/gameState"
 import { useGameState } from "@/state/gameState"
-import { batch, createMemo, Show } from "solid-js"
+import { batch, createMemo, For, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
-import { Rotate, Shop } from "@/components/icon"
+import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
 import { getIncome, useRound, useRunState } from "@/state/runState"
 import {
@@ -10,11 +10,29 @@ import {
   detailListClass,
   detailDescriptionClass,
   detailTermClass,
+  gameOverButtonsClass,
+  gameOverClass,
+  deckRowClass,
+  deckRowsClass,
+  titleClass,
+  deckClass,
+  pairClass,
+  deckItemClass,
+  ownedEmperorsClass,
+  ownedEmperorsListClass,
+  emperorClass,
+  gameOverInfoClass,
+  moneyClass,
 } from "./gameOverRun.css"
 import { nanoid } from "nanoid"
 import { useTileState } from "@/state/tileState"
 import { sumBy } from "remeda"
 import { useDeckState } from "@/state/deckState"
+import { getRank, getSuit, type DeckTile } from "@/lib/game"
+import { splitIntoRows } from "@/lib/splitIntoRows"
+import { BasicTile } from "@/components/game/basicTile"
+import { Emperor } from "@/components/emperor"
+import type { EmperorItem } from "@/state/shopState"
 
 export function GameOverRun() {
   const game = useGameState()
@@ -56,68 +74,162 @@ export function GameOverRun() {
   }
 
   return (
-    <GameOver win={win()}>
-      <div class={pointsContainerClass}>
-        <Show when={win()}>
-          <dl class={detailListClass({ hue: "gold" })}>
-            <dt class={detailTermClass}>Deck income</dt>
-            <dd class={detailDescriptionClass}>+ ${income()}</dd>
-            <Show when={tileCoins()}>
-              {(coins) => (
-                <>
-                  <dt class={detailTermClass}>Tile coins</dt>
-                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                </>
-              )}
-            </Show>
-            <Show when={overAchievementCoins()}>
-              {(coins) => (
-                <>
-                  <dt class={detailTermClass}>
-                    Over achiever ({Math.round(achievement() * 100)} %)
-                  </dt>
-                  <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                </>
-              )}
-            </Show>
+    <GameOver win={win()} round={run.round}>
+      <div class={gameOverClass}>
+        <div class={pointsContainerClass}>
+          <Show when={win()}>
+            <dl class={detailListClass({ hue: "gold" })}>
+              <dt class={detailTermClass}>Deck income</dt>
+              <dd class={detailDescriptionClass}>+ ${income()}</dd>
+              <Show when={tileCoins()}>
+                {(coins) => (
+                  <>
+                    <dt class={detailTermClass}>Tile coins</dt>
+                    <dd class={detailDescriptionClass}>+ ${coins()}</dd>
+                  </>
+                )}
+              </Show>
+              <Show when={overAchievementCoins()}>
+                {(coins) => (
+                  <>
+                    <dt class={detailTermClass}>
+                      Over achiever ({Math.round(achievement() * 100)} %)
+                    </dt>
+                    <dd class={detailDescriptionClass}>+ ${coins()}</dd>
+                  </>
+                )}
+              </Show>
+            </dl>
+          </Show>
+
+          <dl class={detailListClass({ hue: "bamb" })}>
+            <dt class={detailTermClass}>Points</dt>
+            <dd class={detailDescriptionClass}>{points()}</dd>
           </dl>
-        </Show>
 
-        <dl class={detailListClass({ hue: "bamb" })}>
-          <dt class={detailTermClass}>Points</dt>
-          <dd class={detailDescriptionClass}>{points()}</dd>
-        </dl>
+          <Show when={round().timerPoints}>
+            <dl class={detailListClass({ hue: "crack" })}>
+              <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
+              <dd class={detailDescriptionClass}>{penalty()}</dd>
+            </dl>
+          </Show>
 
-        <Show when={round().timerPoints}>
-          <dl class={detailListClass({ hue: "crack" })}>
-            <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
-            <dd class={detailDescriptionClass}>{penalty()}</dd>
+          <dl class={detailListClass({ hue: "dot" })}>
+            <dt class={detailTermClass}>Total Points</dt>
+            <dd class={detailDescriptionClass}>{totalPoints()}</dd>
+            <dt class={detailTermClass}>Objective</dt>
+            <dd class={detailDescriptionClass}>{round().pointObjective}</dd>
           </dl>
-        </Show>
 
-        <dl class={detailListClass({ hue: "dot" })}>
-          <dt class={detailTermClass}>Total Points</dt>
-          <dd class={detailDescriptionClass}>{totalPoints()}</dd>
-          <dt class={detailTermClass}>Objective</dt>
-          <dd class={detailDescriptionClass}>{round().pointObjective}</dd>
-        </dl>
-
-        <Show
-          when={win()}
-          fallback={
-            <LinkButton hue="crack" kind="dark" href={`/run/${nanoid()}`}>
-              <Rotate />
-              Try again
-            </LinkButton>
-          }
-        >
-          <Button hue="bam" kind="dark" onClick={() => onShop()}>
-            <Shop />
-            Go to shop
-          </Button>
+          <Show
+            when={win()}
+            fallback={
+              <div class={gameOverButtonsClass}>
+                <LinkButton hue="crack" kind="dark" href={`/run/${nanoid()}`}>
+                  <Rotate />
+                  Try same run
+                </LinkButton>
+                <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
+                  Start new run
+                  <ArrowRight />
+                </LinkButton>
+              </div>
+            }
+          >
+            <Button hue="bam" kind="dark" onClick={() => onShop()}>
+              <Shop />
+              Go to shop
+            </Button>
+          </Show>
+        </div>
+        <Show when={!win()}>
+          <div class={gameOverInfoClass}>
+            <h3 class={titleClass}>
+              Your Trasure <span class={moneyClass}>${run.money}</span>
+            </h3>
+            <OwnedEmperors />
+            <Deck />
+          </div>
         </Show>
       </div>
       <GameOver.BouncingCards />
     </GameOver>
+  )
+}
+
+function Deck() {
+  const deck = useDeckState()
+
+  const deckByRows = createMemo(() => {
+    function sortDeckTiles(tiles: DeckTile[]) {
+      return tiles.sort((a, b) => {
+        const suitA = getSuit(a.card)
+        const suitB = getSuit(b.card)
+        if (suitA !== suitB) {
+          const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
+          return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
+        }
+        return getRank(a.card).localeCompare(getRank(b.card))
+      })
+    }
+
+    return splitIntoRows(sortDeckTiles(deck.all), {
+      minCols: 9,
+      maxCols: 12,
+      minRows: 4,
+    })
+  })
+
+  return (
+    <div class={deckClass}>
+      <div class={titleClass}>Your Deck</div>
+      <div class={deckRowsClass}>
+        <For each={deckByRows()}>
+          {(deckTiles, i) => (
+            <div class={deckRowClass}>
+              <For each={deckTiles}>
+                {(deckTile, j) => (
+                  <div
+                    class={deckItemClass}
+                    style={{
+                      "z-index": i() * 9 + j(),
+                    }}
+                  >
+                    <BasicTile
+                      card={deckTile.card}
+                      material={deckTile.material}
+                    />
+                    <BasicTile class={pairClass} material={deckTile.material} />
+                  </div>
+                )}
+              </For>
+            </div>
+          )}
+        </For>
+      </div>
+    </div>
+  )
+}
+
+function OwnedEmperors() {
+  const run = useRunState()
+
+  const ownedEmperors = createMemo(
+    () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
+  )
+
+  return (
+    <div class={ownedEmperorsClass}>
+      <div class={titleClass}>Your Crew</div>
+      <div class={ownedEmperorsListClass}>
+        <For each={ownedEmperors()}>
+          {(emperor) => (
+            <div class={emperorClass}>
+              <Emperor name={emperor.name} />
+            </div>
+          )}
+        </For>
+      </div>
+    </div>
   )
 }
