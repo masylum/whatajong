@@ -58,7 +58,7 @@ export function useRunState() {
 export function useRound() {
   const run = useRunState()
 
-  return createMemo(() => generateRound(run))
+  return createMemo(() => generateRound(run.round, run))
 }
 
 type CreateRunStateParams = { id: () => string }
@@ -95,8 +95,7 @@ const DIFFICULTY = {
   },
 } as const
 
-export function generateRound(run: RunState): Round {
-  const id = run.round
+export function generateRound(id: number, run: RunState): Round {
   const runId = run.runId
   const rng = new Rand(`round-${runId}-${id}`)
   const { timer, point } = DIFFICULTY[run.difficulty!]

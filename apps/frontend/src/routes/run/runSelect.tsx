@@ -36,7 +36,7 @@ export default function RunSelect() {
     const rounds = []
 
     for (let i = 0; i < 3; i++) {
-      rounds.push(generateRound(run.round + i, run.runId))
+      rounds.push(generateRound(run.round + i, run))
     }
 
     return rounds

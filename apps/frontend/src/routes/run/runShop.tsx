@@ -1049,7 +1049,7 @@ function ShopHeader() {
       run.stage = "select"
     })
   }
-  const nextRound = createMemo(() => generateRound(run.round + 1, run.runId))
+  const nextRound = createMemo(() => generateRound(run.round + 1, run))
 
   return (
     <div class={shopHeaderClass}>
