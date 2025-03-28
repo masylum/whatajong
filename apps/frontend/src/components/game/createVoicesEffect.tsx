@@ -42,7 +42,7 @@ export function createVoicesEffect() {
       setSpeedStreak(newStreak)
 
       if (newStreak >= 3) {
-        const expressionIndex = Math.min(newStreak - 3, EXPRESSIONS.length - 1)
+        const expressionIndex = newStreak - 3
         const expressionSound = EXPRESSIONS[expressionIndex]
         if (expressionSound) {
           play(expressionSound, globalState.muted)
