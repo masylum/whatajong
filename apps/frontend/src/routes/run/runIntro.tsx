@@ -1,5 +1,6 @@
 import { createMemo, For, Match, Switch } from "solid-js"
 import {
+  backButtonClass,
   buttonClass,
   buttonContainerClass,
   buttonDescriptionTextClass,
@@ -26,6 +27,8 @@ import { color, type AccentHue } from "@/styles/colors"
 import { suitName, type Suit, type Card } from "@/lib/game"
 import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 import { BasicTile } from "@/components/game/basicTile"
+import { ArrowLeft } from "@/components/icon"
+import { LinkButton } from "@/components/button"
 
 const TILE_WIDTH = 25
 
@@ -40,6 +43,11 @@ export default function RunIntro() {
 
   return (
     <div class={containerClass}>
+      <div class={backButtonClass}>
+        <LinkButton href="/" hue="dot" kind="dark">
+          <ArrowLeft />
+        </LinkButton>
+      </div>
       <Switch>
         <Match when={!hasDifficulty()}>
           <SelectDifficulty onSelectMode={onSelectMode} />

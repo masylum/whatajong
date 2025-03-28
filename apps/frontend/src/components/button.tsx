@@ -6,22 +6,20 @@ import { useGlobalState } from "@/state/globalState"
 
 type Kind = "light" | "dark"
 type Props = {
-  href: string
   hue: AccentHue
   kind?: Kind
 } & JSX.IntrinsicElements["a"]
 
-export function LinkButton(props: Props) {
+export function LinkButton(iProps: Props) {
   const globalState = useGlobalState()
+  const [props, aProps] = splitProps(iProps, ["hue", "kind"])
 
   return (
     <a
       onMouseEnter={() => play(SOUNDS.CLICK2, globalState.muted)}
       class={buttonClass({ hue: props.hue, kind: props.kind })}
-      href={props.href}
-    >
-      {props.children}
-    </a>
+      {...aProps}
+    />
   )
 }
 

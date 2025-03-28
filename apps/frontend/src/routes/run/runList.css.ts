@@ -9,10 +9,16 @@ export const containerClass = style({
   flexDirection: "column",
   alignItems: "center",
   gap: 64,
-  padding: 64,
+  padding: 32,
   minHeight: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
+})
+
+export const backButtonClass = style({
+  position: "absolute",
+  top: 32,
+  left: 32,
 })
 
 export const gamesClass = style({

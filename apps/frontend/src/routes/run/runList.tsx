@@ -11,10 +11,11 @@ import {
   tableCellClass,
   tableRowClass,
   tableCellNameClass,
+  backButtonClass,
 } from "./runList.css"
 import { LinkButton } from "@/components/button"
 import { nanoid } from "nanoid"
-import { ArrowRight } from "@/components/icon"
+import { ArrowLeft, ArrowRight } from "@/components/icon"
 import { adjectives, nouns } from "@/lib/names"
 import { pickFromArray } from "@/lib/rand"
 import Rand from "rand-seed"
@@ -25,6 +26,11 @@ export default function RunList() {
 
   return (
     <div class={containerClass}>
+      <div class={backButtonClass}>
+        <LinkButton href="/" hue="dot" kind="dark">
+          <ArrowLeft />
+        </LinkButton>
+      </div>
       <div class={titleContainerClass}>
         <h1 class={titleClass}>Let's play!</h1>
       </div>

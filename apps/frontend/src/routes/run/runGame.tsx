@@ -19,8 +19,8 @@ import {
   emperorsClass,
 } from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
-import { Bell, Goal, Skull } from "@/components/icon"
-import { Button } from "@/components/button"
+import { ArrowLeft, Bell, Goal, Skull } from "@/components/icon"
+import { Button, LinkButton } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
@@ -161,6 +161,10 @@ function Bottom() {
     <div class={containerClass}>
       <Points timerPoints={round().timerPoints} />
       <nav class={menuContainerClass}>
+        <LinkButton href="/" hue="bam">
+          <ArrowLeft />
+          back
+        </LinkButton>
         <Button
           type="button"
           hue="dot"
