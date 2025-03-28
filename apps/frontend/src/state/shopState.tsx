@@ -35,7 +35,7 @@ import { useGlobalState } from "./globalState"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 
-const ITEM_COST = 30
+const ITEM_COST = 20
 const EMPEROR_COST = 60
 
 export const SELL_EMPEROR_AMOUNT = 30
