@@ -10,7 +10,7 @@ export const containerClass = style({
   alignItems: "center",
   gap: 64,
   padding: 64,
-  height: "100vh",
+  minHeight: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
 })

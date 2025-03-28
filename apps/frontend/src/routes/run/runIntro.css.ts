@@ -14,7 +14,7 @@ export const containerClass = style({
   justifyContent: "center",
   gap: 128,
   padding: 32,
-  height: "100vh",
+  minHeight: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
 })
