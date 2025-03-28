@@ -54,14 +54,6 @@ export function Home() {
           <img src="/tiles/dc.webp" alt="duel" width={36} height={52} />
           adventure game
         </a>
-        <a
-          onMouseEnter={onHover}
-          href="/instructions"
-          class={buttonClass({ hue: "dot" })}
-        >
-          <img src="/tiles/do.webp" alt="instructions" width={36} height={52} />
-          instructions
-        </a>
       </nav>
       <Mountains />
     </div>

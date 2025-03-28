@@ -3,7 +3,6 @@ import { Route, Router } from "@solidjs/router"
 import { render } from "solid-js/web"
 import { Home } from "./routes/home"
 import { Solo } from "./routes/solo/soloGame"
-import { Instructions } from "./routes/instructions"
 import { Layout } from "./components/layout"
 import Run from "./routes/run"
 
@@ -18,7 +17,6 @@ render(
       <Route path="/" component={Home} />
       <Route path="/play/:id" component={Solo} />
       <Route path="/run/:id" component={Run} />
-      <Route path="/instructions" component={Instructions} />
     </Router>
   ),
   root!,
