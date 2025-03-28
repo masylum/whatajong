@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, Show } from "solid-js"
+import { createEffect, createMemo, createSignal } from "solid-js"
 import { useGameState } from "@/state/gameState"
 import { makeTimer } from "@solid-primitives/timer"
 import {
@@ -12,19 +12,18 @@ import {
 import { getAvailablePairs } from "@/lib/game"
 import { useTileState } from "@/state/tileState"
 import { play, SOUNDS } from "../audio"
+import { useGlobalState } from "@/state/globalState"
 
 export function Points(props: { timerPoints: number }) {
   const game = useGameState()
 
   return (
     <div class={pointsContainerClass}>
-      <div class={pointsClass}>
+      <div data-tour="points" class={pointsClass}>
         <span class={statLabel}>Points</span>
         <div class={pillClass({ hue: "bam" })}>{game.points}</div>
       </div>
-      <Show when={props.timerPoints}>
-        {(timerPoints) => <Timer timerPoints={timerPoints()} />}
-      </Show>
+      <Timer timerPoints={props.timerPoints} />
     </div>
   )
 }
@@ -48,7 +47,7 @@ function Timer(props: { timerPoints: number }) {
   )
 
   return (
-    <div class={penaltyClass}>
+    <div data-tour="penalty" class={penaltyClass}>
       <span class={statLabel}>Penalty</span>
       <div class={pillClass({ hue: "crack" })}>
         {Math.floor(time() * props.timerPoints)}
@@ -59,6 +58,7 @@ function Timer(props: { timerPoints: number }) {
 
 export function Moves() {
   const tiles = useTileState()
+  const globalState = useGlobalState()
   const pairs = createMemo(() => getAvailablePairs(tiles).length)
 
   const urgencyLevel = createMemo(() => {
@@ -107,18 +107,18 @@ export function Moves() {
     }
 
     if (prevPairs > 1 && newPairs === 1) {
-      play(SOUNDS.ALARM3)
+      play(SOUNDS.ALARM3, globalState.muted)
     } else if (prevPairs > 2 && newPairs === 2) {
-      play(SOUNDS.ALARM2)
+      play(SOUNDS.ALARM2, globalState.muted)
     } else if (prevPairs > 3 && newPairs === 3) {
-      play(SOUNDS.ALARM1)
+      play(SOUNDS.ALARM1, globalState.muted)
     }
 
     return newPairs
   }, pairs())
 
   return (
-    <div class={movesClass({ urgency: urgencyLevel() })}>
+    <div data-tour="moves" class={movesClass({ urgency: urgencyLevel() })}>
       <span class={statLabel}>Moves</span>
       <div class={pillClass({ hue: hueForUrgency() })}>{pairs()}</div>
     </div>

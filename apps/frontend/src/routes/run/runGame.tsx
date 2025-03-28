@@ -1,11 +1,5 @@
 import { batch, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
-import {
-  GameStateProvider,
-  createGameState,
-  muted,
-  setMuted,
-  started,
-} from "@/state/gameState"
+import { GameStateProvider, createGameState, started } from "@/state/gameState"
 import { Board } from "@/components/game/board"
 import { GameOverRun } from "./gameOverRun"
 import { useRound, useRunState } from "@/state/runState"
@@ -20,11 +14,13 @@ import {
   FLIP_DURATION,
   menuContainerClass,
   roundTitleClass,
-  roundClass,
+  roundObjectiveClass,
   topContainerClass,
+  roundClass,
+  emperorsClass,
 } from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
-import { Bell, Skull } from "@/components/icon"
+import { Bell, Goal, Skull } from "@/components/icon"
 import { Button } from "@/components/button"
 import { Moves, Points } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
@@ -39,6 +35,7 @@ import { Emperor } from "@/components/emperor"
 import { shuffleTiles } from "@/lib/shuffleTiles"
 import Rand from "rand-seed"
 import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
+import { useGlobalState } from "@/state/globalState"
 
 export default function RunGame() {
   const run = useRunState()
@@ -47,14 +44,14 @@ export default function RunGame() {
   const id = createMemo(() => `${run.runId}-${round().id}`)
 
   const tiles = createTileState({ id, deck: deck.all })
-  const state = createGameState({ id })
+  const game = createGameState({ id })
 
   return (
-    <GameStateProvider game={state}>
+    <GameStateProvider game={game}>
       <TileStateProvider tileDb={tiles()}>
-        <Show when={started(state)}>
+        <Show when={started(game)}>
           <Show
-            when={state.endedAt}
+            when={game.endedAt}
             fallback={
               <Frame
                 board={
@@ -63,7 +60,7 @@ export default function RunGame() {
                       selectTile({
                         tileDb: tiles(),
                         run,
-                        game: state,
+                        game,
                         tileId,
                       })
                     }
@@ -84,6 +81,7 @@ export default function RunGame() {
 
 function Top() {
   const run = useRunState()
+  const round = useRound()
   const items = createMemo(() =>
     run.items.filter((item) => item.type === "emperor"),
   )
@@ -93,8 +91,11 @@ function Top() {
       <div class={topContainerClass}>
         <div class={roundClass}>
           <div class={roundTitleClass}>Round {run.round}</div>
+          <div class={roundObjectiveClass}>
+            <Goal /> {round().pointObjective} points
+          </div>
         </div>
-        <div class={roundClass}>
+        <div class={emperorsClass}>
           <For each={items()}>{(item) => <EmperorCard item={item} />}</For>
         </div>
       </div>
@@ -141,11 +142,12 @@ function EmperorCard(props: { item: EmperorItem }) {
       class={emperorCardClass({ deleted: deleted() })}
       onClick={() => setOpen(!open())}
     >
-      <div class={cardClass({ open: open() })}>
+      <div data-tour="emperors" class={cardClass({ open: open() })}>
         <div class={cardFrontClass}>
           <Emperor name={props.item.name} />
         </div>
         <div class={cardBackClass}>
+          <span>shuffle</span>
           <button class={cardBackButtonClass} type="button" onClick={onDiscard}>
             <Skull />
           </button>
@@ -157,6 +159,7 @@ function EmperorCard(props: { item: EmperorItem }) {
 
 function Bottom() {
   const round = useRound()
+  const globalState = useGlobalState()
 
   return (
     <div class={containerClass}>
@@ -166,9 +169,11 @@ function Bottom() {
           type="button"
           hue="dot"
           title="silence"
-          onClick={() => setMuted(!muted())}
+          onClick={() => {
+            globalState.muted = !globalState.muted
+          }}
         >
-          <Show when={muted()} fallback={<Bell />}>
+          <Show when={globalState.muted} fallback={<Bell />}>
             <BellOff />
           </Show>
         </Button>

@@ -7,6 +7,7 @@ import { Instructions } from "./routes/instructions"
 import { Layout } from "./components/layout"
 import Run from "./routes/run"
 
+import "@fontsource-variable/nunito"
 import "./styles/reset.css"
 
 const root = document.getElementById("root")

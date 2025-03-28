@@ -5,6 +5,7 @@ import RunSelect from "./run/runSelect"
 import { createMemo, Match, Switch } from "solid-js"
 import RunShop from "./run/runShop"
 import { createDeckState, DeckStateProvider } from "@/state/deckState"
+import RunIntro from "./run/runIntro"
 
 export default function Run() {
   const params = useParams()
@@ -17,6 +18,9 @@ export default function Run() {
     <RunStateProvider run={run}>
       <DeckStateProvider deck={newDeck()}>
         <Switch>
+          <Match when={run.stage === "intro"}>
+            <RunIntro />
+          </Match>
           <Match when={run.stage === "select"}>
             <RunSelect />
           </Match>

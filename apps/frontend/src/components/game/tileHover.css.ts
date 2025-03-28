@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const tooltipClass = style({
@@ -111,7 +111,7 @@ export const detailFreedomClass = recipe({
     gap: 4,
     padding: 8,
     borderRadius: 4,
-    fontFamily: "system-ui",
+    fontFamily: secondary,
     ...fontSize.m,
   },
   variants: {
@@ -139,6 +139,6 @@ export const detailInfoClass = style({
   padding: 8,
   borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(color.bone50, 0.2)}, ${alpha(color.bone50, 0.4)})`,
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   ...fontSize.m,
 })

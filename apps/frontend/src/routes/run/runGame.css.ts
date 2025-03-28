@@ -71,8 +71,8 @@ export const topContainerClass = style({
 
 export const roundClass = style({
   display: "flex",
+  flexDirection: "column",
   padding: 12,
-  gap: 32,
 })
 
 export const roundTitleClass = style({
@@ -80,6 +80,19 @@ export const roundTitleClass = style({
   borderRadius: 8,
   color: color.dot10,
   ...fontSize.h1,
+})
+
+export const roundObjectiveClass = style({
+  padding: 8,
+  borderRadius: 8,
+  color: color.dot30,
+  ...fontSize.h3,
+})
+
+export const emperorsClass = style({
+  display: "flex",
+  padding: 12,
+  gap: 32,
 })
 
 export const menuContainerClass = style({
@@ -142,6 +155,9 @@ export const cardBackClass = style([
   bothCardsClass,
   {
     display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    color: color.bone80,
     alignItems: "center",
     justifyContent: "center",
     transform: "rotateY(180deg)",

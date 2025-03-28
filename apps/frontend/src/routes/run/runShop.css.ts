@@ -1,5 +1,5 @@
 import { keyframes, style } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
@@ -26,7 +26,7 @@ const contentShow = keyframes({
 
 export const shopClass = style({
   minHeight: "100vh",
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
   padding: 32,
@@ -284,47 +284,6 @@ export const shopExtraClass = recipe({
   },
 })
 
-export const buttonClass = recipe({
-  base: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    paddingInline: 12,
-    paddingBlock: 8,
-    borderRadius: 8,
-    fontFamily: primary,
-    whiteSpace: "nowrap",
-    fontVariantLigatures: "none",
-    outline: "none",
-    outlineOffset: 2,
-  },
-  variants: {
-    disabled: {
-      false: {
-        cursor: "pointer",
-        ":hover": {
-          filter: "brightness(1.1)",
-        },
-      },
-    },
-    hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
-      border: `1px solid ${kolor(30)}`,
-      color: kolor(90),
-      ":focus": {
-        outline: `2px solid ${kolor(50)}`,
-      },
-      boxShadow: `
-          -1px -1px 1px 0 inset ${kolor(20)},
-          1px 1px 1px 0 inset ${kolor(60)},
-          0px 0px 5px -3px ${kolor(10)},
-          0px 0px 10px -5px ${kolor(10)}
-        `,
-    })),
-  },
-})
-
 export const continueClass = style({
   display: "flex",
   flexDirection: "column",
@@ -497,7 +456,7 @@ export const upgradeTitleClass = style({
 export const upgradeDescriptionClass = style({
   ...fontSize.m,
   textAlign: "center",
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   color: color.bone30,
   display: "flex",
   flexDirection: "column",
@@ -577,7 +536,7 @@ export const emperorDetailsDescriptionClass = style({
   borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
   color: color.crack10,
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   ...fontSize.m,
 })
 
@@ -614,7 +573,7 @@ export const ownedEmperorsTitleClass = recipe({
 export const fullExplanationClass = recipe({
   base: {
     ...fontSize.m,
-    fontFamily: "system-ui",
+    fontFamily: secondary,
     paddingInline: 12,
     paddingBlock: 4,
     borderRadius: 4,

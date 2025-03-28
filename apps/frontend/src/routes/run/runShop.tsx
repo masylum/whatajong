@@ -26,7 +26,6 @@ import {
   deckTitleClass,
   moneyClass,
   buttonsClass,
-  buttonClass,
   detailsContentClass,
   itemsTitleClass,
   materialUpgradeClass,
@@ -74,7 +73,7 @@ import {
   type EmperorItem,
   sellEmperor,
   SELL_EMPEROR_AMOUNT,
-  getItems,
+  generateShopItems,
   maxEmperors,
   emperorCost,
   type Path,
@@ -93,7 +92,7 @@ import {
   getMaterialCoins,
   type Level,
 } from "@/lib/game"
-import { Button } from "@/components/button"
+import { Button, ShopButton } from "@/components/button"
 import {
   ArrowRight,
   Dices,
@@ -118,6 +117,9 @@ import {
   TileHover,
 } from "@/components/game/tileHover"
 import { useHover } from "@/components/game/useHover"
+import { SOUNDS } from "@/components/audio"
+import { play } from "@/components/audio"
+import { useGlobalState } from "@/state/globalState"
 
 const REROLL_COST = 10
 const MIN_ROWS = 4
@@ -347,27 +349,28 @@ function CardDetails(props: {
         </div>
       </div>
       <div class={buttonsClass}>
-        <button
+        <ShopButton
           type="button"
-          class={buttonClass({ hue: "bone", disabled: false })}
+          hue="bone"
           onClick={() => {
             shop.currentItem = null
           }}
         >
           <X />
           close
-        </button>
+        </ShopButton>
 
-        <button
+        <ShopButton
           type="button"
-          class={buttonClass({ hue: "bam", disabled: false })}
+          hue="bam"
+          disabled={false}
           onClick={() => {
             buyTile(props.item)
           }}
         >
           <Buy />
           buy
-        </button>
+        </ShopButton>
       </div>
     </Dialog.Content>
   )
@@ -440,16 +443,16 @@ function TileItemDetails() {
           </div>
         </div>
         <div class={buttonsClass}>
-          <button
+          <ShopButton
             type="button"
-            class={buttonClass({ hue: "bone", disabled: false })}
+            hue="bone"
             onClick={() => {
               shop.currentItem = null
             }}
           >
             <X />
             close
-          </button>
+          </ShopButton>
         </div>
       </Dialog.Content>
     </Show>
@@ -494,39 +497,35 @@ function EmperorItemDetails() {
       </div>
 
       <div class={buttonsClass}>
-        <button
+        <ShopButton
           type="button"
-          class={buttonClass({ hue: "bone", disabled: false })}
+          hue="bone"
           onClick={() => {
             shop.currentItem = null
           }}
         >
           <X />
           close
-        </button>
+        </ShopButton>
 
         <Show
           when={isOwned()}
           fallback={
-            <button
+            <ShopButton
               type="button"
-              class={buttonClass({ hue: "bam", disabled: disabled() })}
+              hue="bam"
               disabled={disabled()}
               onClick={buyEmperor}
             >
               <Buy />
               recruit
-            </button>
+            </ShopButton>
           }
         >
-          <button
-            type="button"
-            class={buttonClass({ hue: "dot", disabled: false })}
-            onClick={sellCurrentEmperor}
-          >
+          <ShopButton type="button" hue="dot" onClick={sellCurrentEmperor}>
             <Buy />
             sell (${SELL_EMPEROR_AMOUNT})
-          </button>
+          </ShopButton>
         </Show>
       </div>
     </Dialog.Content>
@@ -552,7 +551,7 @@ function UpgradeItemDetails() {
   }
   const tileItems = createMemo(() =>
     (
-      getItems().filter(
+      generateShopItems().filter(
         (i) => i.level === item().level && i.type === "tile",
       ) as TileItem[]
     ).sort((a, b) => a.card.localeCompare(b.card)),
@@ -607,25 +606,25 @@ function UpgradeItemDetails() {
         </div>
       </div>
       <div class={buttonsClass}>
-        <button
+        <ShopButton
           type="button"
-          class={buttonClass({ hue: "bone", disabled: false })}
+          hue="bone"
           onClick={() => {
             shop.currentItem = null
           }}
         >
           <X />
           close
-        </button>
-        <button
+        </ShopButton>
+        <ShopButton
           type="button"
-          class={buttonClass({ hue: "bam", disabled: disabled() })}
+          hue="bam"
           disabled={disabled()}
           onClick={buyUpgrade}
         >
           <Buy />
           buy
-        </button>
+        </ShopButton>
       </div>
     </Dialog.Content>
   )
@@ -662,6 +661,7 @@ function UpgradeCardPreview(props: {
 function RerollButton() {
   const shop = useShopState()
   const run = useRunState()
+  const globalState = useGlobalState()
   const disabled = createMemo(() => REROLL_COST > run.money)
 
   function reroll() {
@@ -679,20 +679,22 @@ function RerollButton() {
       run.money = money - cost
       shop.reroll++
     })
+
+    play(SOUNDS.DICE, globalState.muted)
   }
 
   return (
     <div class={shopExtraClass({ disabled: disabled() })}>
       <h3 class={itemTitleClass}>refresh</h3>
-      <button
-        class={buttonClass({ hue: "dot", disabled: disabled() })}
+      <ShopButton
+        hue="dot"
         type="button"
         title="refresh items"
         onClick={reroll}
         disabled={disabled()}
       >
         <Dices />
-      </button>
+      </ShopButton>
       <span class={moneyClass({ size: "medium" })}>${REROLL_COST}</span>
     </div>
   )
@@ -701,8 +703,11 @@ function RerollButton() {
 function FreezeButton() {
   const shop = useShopState()
   const run = useRunState()
+  const globalState = useGlobalState()
 
   function freeze() {
+    play(SOUNDS.FREEZE, globalState.muted)
+
     if (run.freeze) {
       run.freeze.active = !run.freeze.active
       return
@@ -718,14 +723,14 @@ function FreezeButton() {
   return (
     <div class={shopExtraClass({ disabled: false })}>
       <h3 class={itemTitleClass}>freeze</h3>
-      <button
-        class={buttonClass({ hue: "glass", disabled: false })}
+      <ShopButton
+        hue="glass"
         type="button"
         title="freeze items"
         onClick={freeze}
       >
         <Freeze />
-      </button>
+      </ShopButton>
       <span class={moneyClass({ size: "medium" })}>$0</span>
     </div>
   )
@@ -757,15 +762,15 @@ function UpgradeButton() {
   return (
     <div class={shopExtraClass({ disabled: disabled() })}>
       <h3 class={itemTitleClass}>upgrade</h3>
-      <button
-        class={buttonClass({ hue: "dot", disabled: disabled() })}
+      <ShopButton
+        hue="dot"
         type="button"
         title="upgrade shop"
         disabled={disabled()}
         onClick={() => selectUpgrade((shopLevel() + 1) as Level)}
       >
         <Upgrade />
-      </button>
+      </ShopButton>
       <span class={moneyClass({ size: "medium" })}>
         ${shopUpgradeCost(run)}
       </span>
@@ -831,16 +836,17 @@ function MaterialUpgradeButton(props: {
         </dd>
       </dl>
       <MaterialFreedom material={props.material} hue={props.material} />
-      <button
+      <ShopButton
         type="button"
-        class={buttonClass({ hue: props.material, disabled: false })}
+        hue={props.material}
+        disabled={false}
         onClick={() => {
           upgradeTile(props.item)
         }}
       >
         <Buy />
         upgrade
-      </button>
+      </ShopButton>
     </div>
   )
 }

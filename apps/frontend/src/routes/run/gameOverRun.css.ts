@@ -152,14 +152,6 @@ export const ownedEmperorsClass = style({
   gap: 16,
 })
 
-export const ownedEmperorsTitleClass = style({
-  ...fontSize.h1,
-  fontFamily: primary,
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-})
-
 export const ownedEmperorsListClass = style({
   display: "flex",
   flexWrap: "wrap",

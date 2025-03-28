@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",
+    "@fontsource-variable/nunito": "^5.2.5",
     "@kobalte/core": "^0.13.9",
     "@solid-primitives/map": "^0.6.0",
     "@solid-primitives/mouse": "^2.1.0",
@@ -32,6 +33,7 @@
     "@vanilla-extract/recipes": "^0.5.5",
     "@vanilla-extract/vite-plugin": "^5.0.1",
     "@vitejs/plugin-legacy": "^6.0.2",
+    "boarding.js": "^3.6.0",
     "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
     "rand-seed": "^2.1.7",

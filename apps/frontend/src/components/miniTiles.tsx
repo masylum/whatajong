@@ -10,10 +10,13 @@ import {
   winds,
   type Suit,
 } from "@/lib/game"
-import { createMemo, For } from "solid-js"
+import { createMemo, For, Show } from "solid-js"
 import { MiniTile } from "./miniTile"
 
 export function MiniTiles(props: { suit: Suit }) {
+  const showRange = createMemo(
+    () => props.suit === "b" || props.suit === "c" || props.suit === "o",
+  )
   const cards = createMemo(() => {
     switch (props.suit) {
       case "b":
@@ -34,12 +37,25 @@ export function MiniTiles(props: { suit: Suit }) {
         return rabbits
       case "w":
         return winds
+      default:
+        throw new Error(`Unknown suit: ${props.suit}`)
     }
   })
 
   return (
     <span>
-      <For each={cards()}>{(card) => <MiniTile card={card} />}</For>
+      <Show
+        when={showRange()}
+        fallback={
+          <For each={cards()}>
+            {(card) => <MiniTile card={card} size={20} />}
+          </For>
+        }
+      >
+        <MiniTile card={cards()[0]} size={20} />
+        →
+        <MiniTile card={cards()[8]} size={20} />
+      </Show>
     </span>
   )
 }

@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const tooltipClass = style({
@@ -78,6 +78,6 @@ export const detailInfoClass = style({
   borderRadius: 4,
   background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
   color: color.crack10,
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   ...fontSize.m,
 })

@@ -28,7 +28,10 @@ import {
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
 import { countBy, entries } from "remeda"
-import { getEmperors } from "./emperors"
+import { getEmperors, type Emperor } from "./emperors"
+import { play, SOUNDS } from "@/components/audio"
+import { nanoid } from "nanoid"
+import { useGlobalState } from "./globalState"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 
@@ -118,17 +121,21 @@ function generateTileItems(level: Level, num: number, cards: Card[]) {
   ).flat()
 }
 
-export function generateEmperorItems() {
-  return getEmperors().flatMap((emperor, i) => ({
-    id: `emperor-${i}`,
+export function generateEmperorItem(emperor: Emperor) {
+  return {
+    id: nanoid(),
     name: emperor.name,
     type: "emperor" as const,
     level: emperor.level,
     description: emperor.description,
-  }))
+  }
 }
 
-export function getItems(): Item[] {
+export function generateEmperorItems() {
+  return getEmperors().map(generateEmperorItem)
+}
+
+export function generateShopItems(): Item[] {
   return [
     ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
     ...generateTileItems(2, 9, [...rabbits, ...flowers, ...seasons]),
@@ -147,7 +154,7 @@ export function generateItems(run: RunState, shop: ShopState) {
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
-  const initialPool = getItems().filter((item) => item.level <= shopLevel)
+  const initialPool = run.shopItems.filter((item) => item.level <= shopLevel)
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
 
@@ -172,6 +179,8 @@ export function buyItem(
   item: Item,
   fn: () => void,
 ) {
+  const globalState = useGlobalState()
+
   const cost =
     item.type === "emperor" ? emperorCost(item.level) : itemCost(item.level)
   const money = run.money
@@ -183,6 +192,8 @@ export function buyItem(
     shop.currentItem = null
     fn()
   })
+
+  play(SOUNDS.COIN2, globalState.muted)
 }
 
 function mergeCounts(
@@ -268,6 +279,7 @@ export function sellEmperor(
   shop: ShopState,
   emperor: EmperorItem,
 ) {
+  const globalState = useGlobalState()
   const cost = SELL_EMPEROR_AMOUNT
   const money = run.money
 
@@ -276,6 +288,8 @@ export function sellEmperor(
     shop.currentItem = null
     run.items = run.items.filter((item) => item.id !== emperor.id)
   })
+
+  play(SOUNDS.COIN2, globalState.muted)
 }
 
 export function maxEmperors(run: RunState) {

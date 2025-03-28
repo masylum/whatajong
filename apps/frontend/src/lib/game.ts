@@ -266,7 +266,6 @@ export function selectTile({
     const tile = tileDb.get(tileId)
     if (!tile) throw new Error("Tile not found")
 
-    console.log(tile.card, isFree(tileDb, tile, game))
     if (!isFree(tileDb, tile, game)) {
       tileDb.set(tileId, { ...tile, selected: false })
       return
@@ -631,7 +630,6 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
 }
 
 export function getMaterial(tileDb: TileDb, tile: Tile, game?: Game): Material {
-  console.log(tile)
   if (game?.flowerOrSeason) {
     const freedoms = getFreedoms(tileDb, tile)
     const isCovered = overlaps(tileDb, tile, 1)

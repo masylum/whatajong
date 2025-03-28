@@ -1,6 +1,5 @@
 import { createStore } from "solid-js/store"
 import { For } from "solid-js"
-import { muted } from "@/state/gameState"
 
 export const SOUNDS = {
   CLICK: "click",
@@ -9,6 +8,7 @@ export const SOUNDS = {
   RATTLE: "rattle",
   DING: "ding",
   COIN: "coin",
+  COIN2: "coin2",
   DRAGON: "dragon",
   GONG: "gong",
   WIND: "wind",
@@ -35,6 +35,8 @@ export const SOUNDS = {
   METAL_DING: "metal_ding",
   GLASS_DING: "glass_ding",
   STONE_DING: "stone_ding",
+  FREEZE: "freeze",
+  DICE: "dice",
 } as const
 
 // sorted by intensity
@@ -86,12 +88,15 @@ const [audioStore, setAudioStore] = createStore<AudioStore>({
   [SOUNDS.METAL_DING]: undefined,
   [SOUNDS.GLASS_DING]: undefined,
   [SOUNDS.STONE_DING]: undefined,
+  [SOUNDS.FREEZE]: undefined,
+  [SOUNDS.COIN2]: undefined,
+  [SOUNDS.DICE]: undefined,
 })
 
-function play(track: Track, volume = 1) {
+function play(track: Track, muted: boolean, volume = 1) {
   const audio = audioStore[track]
   if (audio) {
-    audio.volume = muted() ? 0 : volume
+    audio.volume = muted ? 0 : volume
     audio.currentTime = 0
     audio.play()
   }
@@ -107,7 +112,7 @@ export function Audio() {
   )
 
   return (
-    <>
+    <div style={{ display: "none" }}>
       <For each={soundEntries}>
         {(track) => (
           <audio preload="auto" ref={setRef(track)}>
@@ -115,7 +120,7 @@ export function Audio() {
           </audio>
         )}
       </For>
-    </>
+    </div>
   )
 }
 

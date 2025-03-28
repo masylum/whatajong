@@ -62,7 +62,7 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
       })}
     >
       <MiniTile card={card()} size={48} />
-      <span class={comboRecipe({ hue: hue() })}>
+      <span data-tour="dragon-run" class={comboRecipe({ hue: hue() })}>
         dragon run +{combo()} mult
       </span>
     </div>

@@ -39,10 +39,9 @@ import { play, SOUNDS } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
 import { useTileState } from "@/state/tileState"
-import { useHover } from "./useHover"
-import { TileHover } from "./tileHover"
 import { useGameState } from "@/state/gameState"
 import { getHueColor } from "@/styles/colors"
+import { useGlobalState } from "@/state/globalState"
 
 type Props = {
   tile: Tile
@@ -61,9 +60,6 @@ export function TileComponent(iProps: Props) {
 
   const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
   const sideSize = createMemo(() => getSideSize(props.height))
-  const { isHovering, mousePosition, hoverProps } = useHover({
-    delay: 2_000,
-  })
 
   const coords = createMemo(
     () => {
@@ -100,6 +96,7 @@ export function TileComponent(iProps: Props) {
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
+  const globalState = useGlobalState()
 
   const selected = createMemo(() => props.tile.selected)
   const state = createMemo<State>(() => {
@@ -128,7 +125,7 @@ export function TileComponent(iProps: Props) {
 
     if (prevState === "selected" && currentState === "idle") {
       setOopsie(true)
-      play(SOUNDS.SHAKE)
+      play(SOUNDS.SHAKE, globalState.muted)
       setTimeout(() => {
         setOopsie(false)
       }, SHAKE_DURATION * SHAKE_REPEAT)
@@ -147,44 +144,42 @@ export function TileComponent(iProps: Props) {
         setDeleted(true)
       }, DELETED_DURATION)
 
-      const volume = props.tile.deleted ? 1 : 0.5
-
       if (isDragon(props.tile.card)) {
-        play(SOUNDS.DRAGON, volume)
+        play(SOUNDS.DRAGON, globalState.muted)
       } else if (isFlower(props.tile.card) || isSeason(props.tile.card)) {
-        play(SOUNDS.GONG, volume)
+        play(SOUNDS.GONG, globalState.muted)
       } else if (isWind(props.tile.card)) {
-        play(SOUNDS.WIND, volume)
+        play(SOUNDS.WIND, globalState.muted)
       } else if (isPhoenix(props.tile.card)) {
-        play(SOUNDS.PHOENIX, volume)
+        play(SOUNDS.PHOENIX, globalState.muted)
       } else if (isRabbit(props.tile.card)) {
-        play(SOUNDS.RABBIT, volume)
+        play(SOUNDS.RABBIT, globalState.muted)
       } else if (isFlower(props.tile.card)) {
-        play(SOUNDS.FLOWER, volume)
+        play(SOUNDS.FLOWER, globalState.muted)
       } else if (isSeason(props.tile.card)) {
-        play(SOUNDS.SEASON, volume)
+        play(SOUNDS.SEASON, globalState.muted)
       } else if (
         props.tile.material === "bronze" ||
         props.tile.material === "gold"
       ) {
-        play(SOUNDS.METAL_DING, volume)
+        play(SOUNDS.METAL_DING, globalState.muted)
       } else if (
         props.tile.material === "glass" ||
         props.tile.material === "diamond"
       ) {
-        play(SOUNDS.GLASS_DING, volume)
+        play(SOUNDS.GLASS_DING, globalState.muted)
       } else if (
         props.tile.material === "ivory" ||
         props.tile.material === "jade"
       ) {
-        play(SOUNDS.STONE_DING, volume)
+        play(SOUNDS.STONE_DING, globalState.muted)
       } else {
-        play(SOUNDS.DING, volume)
+        play(SOUNDS.DING, globalState.muted)
       }
 
       if (props.tile.coins) {
         setTimeout(() => {
-          play(SOUNDS.COIN, volume)
+          play(SOUNDS.COIN, globalState.muted)
         }, 300)
       }
 
@@ -250,7 +245,6 @@ export function TileComponent(iProps: Props) {
           data-id={props.tile.id}
           data-tile={JSON.stringify(props.tile)}
           class={tileClass}
-          {...hoverProps}
         >
           <g class={animation()}>
             <TileSide d={dPath()} material={material()} />
@@ -268,7 +262,7 @@ export function TileComponent(iProps: Props) {
               class={clickableClass({ canBeSelected: canBeSelected() })}
               onMouseDown={() => {
                 if (!canBeSelected()) return
-                play(SOUNDS.CLICK)
+                play(SOUNDS.CLICK, globalState.muted)
                 props.onSelect(props.tile)
               }}
               onMouseEnter={() => {
@@ -278,13 +272,6 @@ export function TileComponent(iProps: Props) {
             />
           </g>
         </svg>
-      </Show>
-      <Show when={isHovering() && !props.tile.deleted}>
-        <TileHover
-          card={props.tile.card}
-          material={props.tile.material}
-          mousePosition={mousePosition()}
-        />
       </Show>
     </>
   )

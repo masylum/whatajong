@@ -31,6 +31,7 @@ export const gameRecipe = recipe({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
+    overflow: "hidden",
     ":before": {
       backgroundImage: "url(/halftone.png)",
       content: "",

@@ -1,11 +1,5 @@
 import { createMemo, Show } from "solid-js"
-import {
-  createGameState,
-  GameStateProvider,
-  muted,
-  setMuted,
-  started,
-} from "@/state/gameState"
+import { createGameState, GameStateProvider, started } from "@/state/gameState"
 import { Board } from "@/components/game/board"
 import { useParams } from "@solidjs/router"
 import { getStandardDeck, selectTile } from "@/lib/game"
@@ -20,6 +14,7 @@ import { nanoid } from "nanoid"
 import { menuContainer, container } from "./soloGame.css"
 import { createTileState, TileStateProvider } from "@/state/tileState"
 import { createRunState, RunStateProvider } from "@/state/runState"
+import { useGlobalState } from "@/state/globalState"
 
 export function Solo() {
   const params = useParams()
@@ -72,6 +67,8 @@ export function Top() {
 }
 
 export function Bottom() {
+  const globalState = useGlobalState()
+
   return (
     <div class={container}>
       <Points timerPoints={0.25} />
@@ -88,9 +85,11 @@ export function Bottom() {
           type="button"
           hue="dot"
           title="silence"
-          onClick={() => setMuted(!muted())}
+          onClick={() => {
+            globalState.muted = !globalState.muted
+          }}
         >
-          <Show when={muted()} fallback={<Bell />}>
+          <Show when={globalState.muted} fallback={<Bell />}>
             <BellOff />
           </Show>
         </Button>

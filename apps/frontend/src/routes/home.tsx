@@ -19,6 +19,7 @@ import { nanoid } from "nanoid"
 import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
 import { play, SOUNDS } from "@/components/audio"
+import { useGlobalState } from "@/state/globalState"
 
 function cards() {
   const rng = new Rand()
@@ -26,8 +27,10 @@ function cards() {
 }
 
 export function Home() {
+  const globalState = useGlobalState()
+
   function onHover() {
-    play(SOUNDS.CLICK2)
+    play(SOUNDS.CLICK2, globalState.muted)
   }
 
   return (
@@ -40,7 +43,7 @@ export function Home() {
           href={`/play/${nanoid()}`}
           class={buttonClass({ hue: "bam" })}
         >
-          <img src="/tiles/b.webp" alt="classic" width={24} height={24} />
+          <img src="/tiles/db.webp" alt="classic" width={36} height={52} />
           classic game
         </a>
         <a
@@ -48,7 +51,7 @@ export function Home() {
           href={`/run/${nanoid()}`}
           class={buttonClass({ hue: "crack" })}
         >
-          <img src="/tiles/c.webp" alt="duel" width={24} height={24} />
+          <img src="/tiles/dc.webp" alt="duel" width={36} height={52} />
           adventure game
         </a>
         <a
@@ -56,7 +59,7 @@ export function Home() {
           href="/instructions"
           class={buttonClass({ hue: "dot" })}
         >
-          <img src="/tiles/o.webp" alt="instructions" width={24} height={24} />
+          <img src="/tiles/do.webp" alt="instructions" width={36} height={52} />
           instructions
         </a>
       </nav>

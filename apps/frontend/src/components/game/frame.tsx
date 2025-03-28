@@ -10,6 +10,8 @@ import { DustParticles } from "./dustParticles"
 import { play, SOUNDS } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
+import { useGlobalState } from "@/state/globalState"
+import createGameTour from "@/lib/createGameTour"
 
 type Props = {
   board: JSXElement
@@ -18,16 +20,18 @@ type Props = {
 }
 export function Frame(props: Props) {
   const game = useGameState()
+  const globalState = useGlobalState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
 
+  // TODO: Move to powerups?
   createEffect((prevCombo: number) => {
     const combo = getDragonCombo()
 
     if (combo > prevCombo) {
       setComboAnimation(combo)
-      play(SOUNDS.GRUNT)
+      play(SOUNDS.GRUNT, globalState.muted)
       setTimeout(() => {
         setComboAnimation(0)
       }, COMBO_ANIMATION_DURATION)
@@ -37,7 +41,11 @@ export function Frame(props: Props) {
   }, getDragonCombo())
 
   onMount(() => {
-    play(SOUNDS.GONG)
+    play(SOUNDS.GONG, globalState.muted)
+  })
+
+  onMount(() => {
+    createGameTour()
   })
 
   return (

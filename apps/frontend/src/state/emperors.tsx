@@ -29,6 +29,8 @@ export type Emperor = {
   level: Level
   name: string
   description: JSXElement
+  suit?: Suit
+  type?: "discard" | "tile"
   getCoins?: ({ tile }: { tile: Tile }) => number
   getRawPoints?: ({
     card,
@@ -48,9 +50,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "astronomer",
+      suit: "c",
+      type: "tile",
       description: (
         <>
-          +3 points when matching crack tiles (<MiniTiles suit="c" />)
+          +3 points when matching any Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -61,9 +65,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "mathematician",
+      suit: "c",
+      type: "tile",
       description: (
         <>
-          +1 mult when matching crack tiles (<MiniTiles suit="c" />)
+          +1 mult when matching any Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -74,9 +80,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "gardener",
+      suit: "b",
+      type: "tile",
       description: (
         <>
-          +3 points when matching bam tiles (<MiniTiles suit="b" />)
+          +3 points when matching any Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -87,9 +95,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "herbolist",
+      suit: "b",
+      type: "tile",
       description: (
         <>
-          +1 mult when matching bam tiles (<MiniTiles suit="b" />)
+          +1 mult when matching any Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -100,9 +110,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "wheelwright",
+      suit: "o",
+      type: "tile",
       description: (
         <>
-          +3 points when matching dot tiles (<MiniTiles suit="o" />)
+          +3 points when matching any Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -113,9 +125,11 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "treasurer",
+      suit: "o",
+      type: "tile",
       description: (
         <>
-          +1 mult when matching dot tiles (<MiniTiles suit="o" />)
+          +1 mult when matching any Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -126,10 +140,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "birdwatcher",
+      suit: "b",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "bam 1" (<MiniTile card="b1" />)
-          tile
+          +20 points when matching the tile "Bam 1" (
+          <MiniTile size={20} card="b1" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -140,10 +156,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "caligrapher",
+      suit: "c",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "crack 1" ( <MiniTile card="c1" />)
-          tile
+          +20 points when matching the tile "Crack 1" ({" "}
+          <MiniTile size={20} card="c1" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -154,9 +172,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "numismatic",
+      suit: "o",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "dot 1" (<MiniTile card="o1" />)
+          +20 points when matching the tile "Dot 1" (
+          <MiniTile size={20} card="o1" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -167,9 +188,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "woodworker",
+      suit: "b",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "bam 9" (<MiniTile card="b9" />)
+          +20 points when matching the tile "Bam 9" (
+          <MiniTile size={20} card="b9" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -180,9 +204,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "librarian",
+      suit: "c",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "crack 9" (<MiniTile card="c9" />)
+          +20 points when matching the tile "Crack 9" (
+          <MiniTile size={20} card="c9" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -193,9 +220,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "cooper",
+      suit: "o",
+      type: "tile",
       description: (
         <>
-          +20 points when matching the tile "dot 9" (<MiniTile card="o9" />)
+          +20 points when matching the tile "Dot 9" (
+          <MiniTile size={20} card="o9" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -206,7 +236,8 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "barterer",
-      description: <>When discarded, get 100 coins</>,
+      type: "discard",
+      description: <>+100 coins when discarded</>,
       whenDiscarded() {
         const run = useRunState()
         run.money = run.money + 100
@@ -216,11 +247,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "food_vendor",
+      suit: "o",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random bam tiles (
-          <MiniTiles suit="b" />) to dot tiles (<MiniTiles suit="o" />) from the
-          board and your deck
+          When discarded, permanently transform 3 random Bam tiles (
+          <MiniTiles suit="b" />) into Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       whenDiscarded() {
@@ -231,11 +263,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "retailer",
+      suit: "c",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random bam tiles (
-          <MiniTiles suit="b" />) to crack tiles (<MiniTiles suit="c" />) from
-          the board and your deck
+          When discarded, permanently transform 3 random Bam tiles (
+          <MiniTiles suit="b" />) into Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       whenDiscarded() {
@@ -246,11 +279,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "fisherwoman",
+      suit: "c",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random dot tiles (
-          <MiniTiles suit="o" />) to crack tiles (<MiniTiles suit="c" />) from
-          the board and your deck
+          When discarded, permanently transform 3 random Dot tiles (
+          <MiniTiles suit="o" />) into Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       whenDiscarded() {
@@ -261,11 +295,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "shopkeeper",
+      suit: "b",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random dot tiles (
-          <MiniTiles suit="o" />) to bam tiles (<MiniTiles suit="b" />) from the
-          board and your deck
+          When discarded, permanently transform 3 random Dot tiles (
+          <MiniTiles suit="o" />) into Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       whenDiscarded() {
@@ -276,11 +311,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "trader",
+      suit: "b",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random crack tiles (
-          <MiniTiles suit="c" />) to bam tiles (<MiniTiles suit="b" />) from the
-          board and your deck
+          When discarded, permanently transform 3 random Crack tiles (
+          <MiniTiles suit="c" />) into Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       whenDiscarded() {
@@ -291,11 +327,12 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "fishmonger",
+      suit: "o",
+      type: "discard",
       description: (
         <>
-          When discarded, permanently change 3 random crack tiles (
-          <MiniTiles suit="c" />) to dot tiles (<MiniTiles suit="o" />) from the
-          board and your deck
+          When discarded, permanently transform 3 random Crack tiles (
+          <MiniTiles suit="c" />) into Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       whenDiscarded() {
@@ -306,6 +343,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 1,
       name: "martyr",
+      type: "discard",
       description: <>+300 points when discarded</>,
       whenDiscarded() {
         const game = useGameState()
@@ -362,7 +400,7 @@ export function getEmperors(): Emperor[] {
       name: "biologist",
       description: (
         <>
-          +1 mult when matching flower tiles (<MiniTiles suit="f" />
+          +1 mult when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -376,7 +414,7 @@ export function getEmperors(): Emperor[] {
       name: "florist",
       description: (
         <>
-          +10 points when matching flower tiles (<MiniTiles suit="f" />
+          +10 points when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -390,7 +428,7 @@ export function getEmperors(): Emperor[] {
       name: "botanist",
       description: (
         <>
-          +4 coins when matching flower tiles (<MiniTiles suit="f" />
+          +4 coins when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -404,7 +442,7 @@ export function getEmperors(): Emperor[] {
       name: "breeder",
       description: (
         <>
-          +2 mult when matching rabbit tiles (<MiniTiles suit="r" />)
+          +2 mult when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -417,7 +455,7 @@ export function getEmperors(): Emperor[] {
       name: "veterinarian",
       description: (
         <>
-          +10 points when matching rabbit tiles (<MiniTiles suit="r" />)
+          +10 points when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -430,7 +468,7 @@ export function getEmperors(): Emperor[] {
       name: "butcher",
       description: (
         <>
-          +4 coins when matching rabbit tiles (<MiniTiles suit="r" />)
+          +4 coins when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getCoins({ tile }) {
@@ -443,7 +481,7 @@ export function getEmperors(): Emperor[] {
       name: "drakologist",
       description: (
         <>
-          +16 points when matching dragon tiles (<MiniTiles suit="d" />)
+          +16 points when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -456,7 +494,7 @@ export function getEmperors(): Emperor[] {
       name: "dragon_rider",
       description: (
         <>
-          +2 mult when matching dragon tiles (<MiniTiles suit="d" />)
+          +2 mult when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -469,7 +507,7 @@ export function getEmperors(): Emperor[] {
       name: "warden",
       description: (
         <>
-          +6 coins when matching dragon tiles (<MiniTiles suit="d" />)
+          +6 coins when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getCoins({ tile }) {
@@ -482,7 +520,7 @@ export function getEmperors(): Emperor[] {
       name: "phoenixologist",
       description: (
         <>
-          +16 points when matching phoenix tiles (<MiniTiles suit="p" />)
+          +16 points when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -495,7 +533,7 @@ export function getEmperors(): Emperor[] {
       name: "phoenix_rider",
       description: (
         <>
-          +2 mult when matching phoenix tiles (<MiniTiles suit="p" />)
+          +2 mult when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -508,7 +546,7 @@ export function getEmperors(): Emperor[] {
       name: "keeper",
       description: (
         <>
-          +6 coins when matching phoenix tiles (<MiniTiles suit="p" />)
+          +6 coins when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getCoins({ tile }) {
@@ -521,34 +559,36 @@ export function getEmperors(): Emperor[] {
       name: "glassblower",
       description: (
         <>
-          +20 points when matching glass tiles (<MiniTile material="glass" />)
+          +20 points when matching Glass tiles (
+          <MiniTile size={20} material="glass" />)
         </>
       ),
       getRawPoints({ material }) {
         return material === "glass" ? 20 / 2 : 0
       },
     },
-    // 38-NOT_IMPLEMENTED
-    //{
-    //  level: 3,
-    //  name: "carver",
-    //  description: "+10 coins for ivory tiles.",
-    //  description: (
-    //    <>
-    //      +10 coins when matching ivory tiles (<MiniTile material="ivory" />)
-    //    </>
-    //  ),
-    //  getRawPoints({ material }) {
-    //    return material === "ivory" ? 10 / 2 : 0
-    //  },
-    //},
+    // 38-DONE
+    {
+      level: 3,
+      name: "stonemason",
+      description: (
+        <>
+          +10 coins when matching ivory tiles (
+          <MiniTile size={20} material="ivory" />)
+        </>
+      ),
+      getRawPoints({ material }) {
+        return material === "ivory" ? 10 / 2 : 0
+      },
+    },
     // 39-DONE
     {
       level: 3,
       name: "smith",
       description: (
         <>
-          +2 mult when matching bronze tiles (<MiniTile material="bronze" />)
+          +2 mult when matching Bronze tiles (
+          <MiniTile size={20} material="bronze" />)
         </>
       ),
       getRawMultiplier({ material }) {

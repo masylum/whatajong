@@ -2,14 +2,10 @@ import type { Game } from "@/lib/game"
 import {
   createContext,
   createMemo,
-  createSignal,
   useContext,
   type ParentProps,
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
-
-// TODO: move elsewhere, this is global state
-export const [muted, setMuted] = createSignal(false)
 
 type CreateGameStateParams = { id: () => string }
 export function createGameState(params: CreateGameStateParams) {

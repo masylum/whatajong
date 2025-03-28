@@ -1,5 +1,5 @@
 import { alpha, color } from "@/styles/colors"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
@@ -7,9 +7,9 @@ import { recipe } from "@vanilla-extract/recipes"
 export const containerClass = style({
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
-  gap: 128,
-  padding: 32,
+  justifyContent: "space-between",
+  gap: 64,
+  padding: 64,
   height: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
@@ -28,6 +28,7 @@ export const gameClass = recipe({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    width: 300,
     flex: 1,
     gap: 32,
   },
@@ -65,6 +66,7 @@ export const gameTitleClass = style({
 export const titleContainerClass = style({
   display: "flex",
   flexDirection: "column",
+  alignItems: "center",
   gap: 16,
 })
 
@@ -81,6 +83,7 @@ export const subtitleClass = style({
   fontFamily: primary,
   color: color.dot60,
   textAlign: "center",
+  maxWidth: 1000,
 })
 
 export const detailListClass = style({
@@ -93,7 +96,6 @@ export const detailListClass = style({
 export const detailTermClass = style({
   ...fontSize.l,
   fontFamily: primary,
-  justifySelf: "end",
   selectors: {
     [`${gameClass.classNames.variants.current.true} &`]: {
       color: color.bam60,
@@ -117,4 +119,29 @@ export const detailDescriptionClass = style({
       color: color.dot50,
     },
   },
+})
+
+export const tipsClass = style({
+  padding: 24,
+  borderRadius: 8,
+  maxWidth: 600,
+  display: "flex",
+  alignItems: "flex-start",
+  alignSelf: "flex-end",
+  gap: 16,
+})
+
+export const tipClass = style({
+  color: color.dot70,
+  ...fontSize.m,
+  fontFamily: secondary,
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+})
+
+export const tipTitleClass = style({
+  ...fontSize.h3,
+  fontFamily: primary,
+  color: color.dot60,
 })

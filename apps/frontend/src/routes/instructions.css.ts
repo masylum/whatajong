@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 import { color, alpha, hueVariants } from "@/styles/colors"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 
 export const instructionsClass = style({
@@ -46,7 +46,7 @@ export const sectionSubtitleClass = style({
 
 export const paragraphClass = style({
   ...fontSize.readable,
-  fontFamily: "system-ui",
+  fontFamily: secondary,
   color: color.bone10,
   marginBottom: "1rem",
 })
@@ -89,7 +89,7 @@ export const tileIconClass = style({
 export const tileTextClass = style({
   ...fontSize.readable,
   color: color.bone10,
-  fontFamily: "system-ui",
+  fontFamily: secondary,
 })
 
 export const highlightClass = recipe({

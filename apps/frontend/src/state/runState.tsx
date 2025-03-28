@@ -5,9 +5,8 @@ import {
   useContext,
   type ParentProps,
 } from "solid-js"
-import { generateEmperorItems, type Item } from "./shopState"
+import { generateShopItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
-import { shuffle } from "@/lib/rand"
 import type { Deck, Level } from "@/lib/game"
 
 const RUN_STATE_NAMESPACE = "run-state"
@@ -18,7 +17,9 @@ export type RunState = {
   round: number
   stage: RoundStage
   shopLevel: Level
+  shopItems: Item[]
   items: Item[]
+  difficulty?: Difficulty
   freeze?: {
     round: number
     reroll: number
@@ -26,7 +27,8 @@ export type RunState = {
   }
 }
 
-export type RoundStage = "select" | "game" | "shop"
+export type Difficulty = "easy" | "medium" | "hard"
+export type RoundStage = "intro" | "select" | "game" | "shop"
 export type Round = {
   id: number
   pointObjective: number
@@ -56,7 +58,7 @@ export function useRunState() {
 export function useRound() {
   const run = useRunState()
 
-  return createMemo(() => generateRound(run.round, run.runId))
+  return createMemo(() => generateRound(run))
 }
 
 type CreateRunStateParams = { id: () => string }
@@ -65,34 +67,52 @@ export function createRunState(params: CreateRunStateParams) {
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
     init: () => {
-      const rng = new Rand(`run-${params.id()}`)
-      const initialEmperor = shuffle(generateEmperorItems(), rng).filter(
-        (emperor) => emperor.level === 1,
-      )[0]!
-
       return {
         runId: params.id(),
         money: 0,
         round: 1,
-        stage: "select",
+        stage: "intro",
         shopLevel: 1,
-        items: [initialEmperor],
+        shopItems: generateShopItems(),
+        items: [],
       }
     },
   })
 }
 
-export function generateRound(id: number, runId: string): Round {
+const DIFFICULTY = {
+  easy: {
+    timer: { exp: 1.2, lin: 0.5 },
+    point: { exp: 2.4, lin: 20 },
+  },
+  medium: {
+    timer: { exp: 1.3, lin: 1 },
+    point: { exp: 2.8, lin: 30 },
+  },
+  hard: {
+    timer: { exp: 1.4, lin: 2 },
+    point: { exp: 3, lin: 60 },
+  },
+} as const
+
+export function generateRound(run: RunState): Round {
+  const id = run.round
+  const runId = run.runId
   const rng = new Rand(`round-${runId}-${id}`)
+  const { timer, point } = DIFFICULTY[run.difficulty!]
 
   function variation() {
     const rand = rng.next()
     return 1 + (rand * 2 - 1) * 0.2
   }
 
-  const timerPoints = ((id + 1.3 ** id) / 20) * variation() // Grows level + 1.3^level
+  const var1 = variation()
+  const var2 = variation()
+  const level = id - 1
+  const timerPoints =
+    level === 0 ? 0 : ((level * timer.lin + timer.exp ** level) / 20) * var1 // Grows level + 1.3^level
   const pointObjective = Math.round(
-    (90 + (id - 1) ** 2.8 + id * 30) * variation(),
+    (110 + level * point.lin + level ** point.exp) * var2,
   ) // Grows 30*level + level^2.8
 
   const round: Round = {

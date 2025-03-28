@@ -13,7 +13,7 @@ export function TileImage(iProps: Props) {
 
   return (
     <image
-      href={`/tiles2/${props.card}.webp`}
+      href={`/tiles/${props.card}.webp`}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}
