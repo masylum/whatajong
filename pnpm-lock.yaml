@@ -48,9 +48,6 @@ importers:
       '@kobalte/core':
         specifier: ^0.13.9
         version: 0.13.9(solid-js@1.9.4)
-      '@sjmc11/tourguidejs':
-        specifier: ^0.0.20
-        version: 0.0.20
       '@solid-primitives/map':
         specifier: ^0.6.0
         version: 0.6.0(solid-js@1.9.4)
@@ -1429,9 +1426,6 @@ packages:
     resolution: {integrity: sha512-0PVwmgzZ8+TZ9oGBmdZoQVXflbvuwzN/HRclujpl4N/q3i+y0lqLw8n1bXA8ru3sApDjlmONaNAuYr38y1Kr9w==}
     cpu: [x64]
     os: [win32]
-
-  '@sjmc11/tourguidejs@0.0.20':
-    resolution: {integrity: sha512-5jWjiZLp2yKSuFVzYMTmxBw/vjEg66mEmmSQQiyjVaGD/N2cGgKa0zc4zNyuNrKZzW06pJueTHQJ6yayJAE1qQ==}
 
   '@solid-primitives/event-listener@2.4.0':
     resolution: {integrity: sha512-TSfR1PNTfojFEYGSxSMCnUhXsaYWBo4p+cm73QmWODa9YnaQAk6PB7VjzG2bOT2D817VlvuOqTj0Qdq+MZrdGg==}
@@ -3882,11 +3876,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.34.6':
     optional: true
 
-  '@sjmc11/tourguidejs@0.0.20':
-    dependencies:
-      '@floating-ui/dom': 1.6.13
-      sass: 1.86.0
-
   '@solid-primitives/event-listener@2.4.0(solid-js@1.9.4)':
     dependencies:
       '@solid-primitives/utils': 6.3.0(solid-js@1.9.4)
@@ -4280,6 +4269,7 @@ snapshots:
   chokidar@4.0.3:
     dependencies:
       readdirp: 4.1.2
+    optional: true
 
   color-convert@2.0.1:
     dependencies:
@@ -4511,7 +4501,8 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  immutable@5.1.1: {}
+  immutable@5.1.1:
+    optional: true
 
   is-arrayish@0.3.2:
     optional: true
@@ -4723,7 +4714,8 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  readdirp@4.1.2: {}
+  readdirp@4.1.2:
+    optional: true
 
   regenerate-unicode-properties@10.2.0:
     dependencies:
@@ -4814,6 +4806,7 @@ snapshots:
       source-map-js: 1.2.1
     optionalDependencies:
       '@parcel/watcher': 2.5.1
+    optional: true
 
   saxes@6.0.0:
     dependencies:
