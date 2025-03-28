@@ -22,15 +22,15 @@ export function Solo() {
 
   const run = createRunState({ id })
   const tiles = createTileState({ id, deck: getStandardDeck() })
-  const state = createGameState({ id })
+  const game = createGameState({ id })
 
   return (
     <RunStateProvider run={run}>
-      <GameStateProvider game={state}>
+      <GameStateProvider game={game}>
         <TileStateProvider tileDb={tiles()}>
-          <Show when={started(state)}>
+          <Show when={started(game)}>
             <Show
-              when={state.endedAt}
+              when={game.endedAt}
               fallback={
                 <Frame
                   board={
@@ -38,7 +38,8 @@ export function Solo() {
                       onSelectTile={(tileId) =>
                         selectTile({
                           tileDb: tiles(),
-                          game: state,
+                          run,
+                          game,
                           tileId,
                         })
                       }

@@ -1,7 +1,6 @@
 import { batch, createMemo, createSignal, For, onCleanup, Show } from "solid-js"
 import { GameStateProvider, createGameState, started } from "@/state/gameState"
 import { Board } from "@/components/game/board"
-import { GameOverRun } from "./gameOverRun"
 import { useRound, useRunState } from "@/state/runState"
 import { Frame } from "@/components/game/frame"
 import {
@@ -36,6 +35,7 @@ import { shuffleTiles } from "@/lib/shuffleTiles"
 import Rand from "rand-seed"
 import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
 import { useGlobalState } from "@/state/globalState"
+import RunGameOver from "./runGameOver"
 
 export default function RunGame() {
   const run = useRunState()
@@ -50,28 +50,23 @@ export default function RunGame() {
     <GameStateProvider game={game}>
       <TileStateProvider tileDb={tiles()}>
         <Show when={started(game)}>
-          <Show
-            when={game.endedAt}
-            fallback={
-              <Frame
-                board={
-                  <Board
-                    onSelectTile={(tileId) =>
-                      selectTile({
-                        tileDb: tiles(),
-                        run,
-                        game,
-                        tileId,
-                      })
-                    }
-                  />
-                }
-                bottom={<Bottom />}
-                top={<Top />}
-              />
-            }
-          >
-            <GameOverRun />
+          <Show when={!game.endCondition} fallback={<RunGameOver />}>
+            <Frame
+              board={
+                <Board
+                  onSelectTile={(tileId) =>
+                    selectTile({
+                      tileDb: tiles(),
+                      run,
+                      game,
+                      tileId,
+                    })
+                  }
+                />
+              }
+              bottom={<Bottom />}
+              top={<Top />}
+            />
           </Show>
         </Show>
       </TileStateProvider>
@@ -109,6 +104,7 @@ function EmperorCard(props: { item: EmperorItem }) {
   const [deleted, setDeleted] = createSignal(false)
   const tiles = useTileState()
   const run = useRunState()
+  const deck = useDeckState()
 
   function onDiscard() {
     const rng = new Rand()
@@ -117,7 +113,7 @@ function EmperorCard(props: { item: EmperorItem }) {
       shuffleTiles({ rng, tileDb: tiles })
 
       for (const emperor of getOwnedEmperors(run)) {
-        emperor.whenDiscarded?.()
+        emperor.whenDiscarded?.({ run, deck, tiles })
       }
     })
 

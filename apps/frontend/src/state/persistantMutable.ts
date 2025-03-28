@@ -18,7 +18,6 @@ export function createPersistantMutable<T extends Record<string, any>>(
   createEffect(
     on(params.id, (id) => {
       const persistedState = localStorage.getItem(key(id))
-      console.log("key", key(id), persistedState)
 
       if (persistedState) {
         modifyMutable(mutable, reconcile(JSON.parse(persistedState)))

@@ -61,6 +61,12 @@ export function useRound() {
   return createMemo(() => generateRound(run.round, run))
 }
 
+export function fetchRuns() {
+  return Object.entries(localStorage)
+    .filter(([key]) => key.startsWith(RUN_STATE_NAMESPACE))
+    .map(([_, value]) => JSON.parse(value))
+}
+
 type CreateRunStateParams = { id: () => string }
 export function createRunState(params: CreateRunStateParams) {
   return createPersistantMutable<RunState>({

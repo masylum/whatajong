@@ -18,7 +18,7 @@ import {
   titleContainerClass,
 } from "./runIntro.css"
 import { useRunState, type Difficulty } from "@/state/runState"
-import { shuffle } from "@/lib/rand"
+import { pickFromArray } from "@/lib/rand"
 import { generateEmperorItem } from "@/state/shopState"
 import Rand from "rand-seed"
 import { getEmperors, type Emperor } from "@/state/emperors"
@@ -116,23 +116,29 @@ function ModeButton(props: {
 
 function SelectEmperor() {
   const run = useRunState()
-  const rng = createMemo(() => new Rand(`run-${run.runId}`))
   const emperors = createMemo(() => {
-    const candidates = shuffle(
-      getEmperors().filter((emperor) => emperor.level === 1),
-      rng(),
-    )
-    const first = candidates.find(
-      (emperor) => emperor.type === "discard" && emperor.suit,
+    const rng = new Rand(`emperors-choice-${run.runId}`)
+    const candidates = getEmperors().filter((emperor) => emperor.level === 1)
+    const first = pickFromArray(
+      candidates.filter(
+        (emperor) => emperor.type === "discard" && emperor.suit,
+      ),
+      rng,
     )!
-    const second = candidates.find(
-      (emperor) => emperor.type === "tile" && emperor.suit !== first.suit,
+    const second = pickFromArray(
+      candidates.filter(
+        (emperor) => emperor.type === "tile" && emperor.suit !== first.suit,
+      ),
+      rng,
     )!
-    const third = candidates.find(
-      (emperor) =>
-        emperor.type === "tile" &&
-        emperor.suit !== first.suit &&
-        emperor.suit !== second.suit,
+    const third = pickFromArray(
+      candidates.filter(
+        (emperor) =>
+          emperor.type === "tile" &&
+          emperor.suit !== first.suit &&
+          emperor.suit !== second.suit,
+      ),
+      rng,
     )!
 
     return [third, second, first]

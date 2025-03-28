@@ -7,16 +7,25 @@ import {
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
+const GAME_STATE_NAMESPACE = "game-state"
+
 type CreateGameStateParams = { id: () => string }
 export function createGameState(params: CreateGameStateParams) {
   return createPersistantMutable<Game>({
-    namespace: "game-state",
+    namespace: GAME_STATE_NAMESPACE,
     id: params.id,
     init: () => ({
       startedAt: new Date().getTime(),
       points: 0,
     }),
   })
+}
+
+export function fetchGameState(id: string): Game | undefined {
+  const item = localStorage.getItem(`${GAME_STATE_NAMESPACE}-${id}`)
+  if (!item) return undefined
+
+  return JSON.parse(item)
 }
 
 export function calculateSeconds(game: Game) {

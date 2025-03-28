@@ -9,21 +9,22 @@ import {
   isRabbit,
   isWind,
   matchesSuit,
+  toPairs,
   type Card,
+  type Deck,
   type Level,
   type Material,
   type Suit,
   type Tile,
+  type TileDb,
 } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
-import { useDeckState } from "./deckState"
-import { useRunState } from "./runState"
-import { useTileState } from "./tileState"
 import { batch, type JSXElement } from "solid-js"
 import { useGameState } from "./gameState"
 import { MiniTiles } from "@/components/miniTiles"
 import { MiniTile } from "@/components/miniTile"
+import type { RunState } from "./runState"
 
 export type Emperor = {
   level: Level
@@ -40,7 +41,11 @@ export type Emperor = {
     card,
     material,
   }: { card?: Card; material?: Material }) => number
-  whenDiscarded?: () => void
+  whenDiscarded?: ({
+    run,
+    deck,
+    tiles,
+  }: { run: RunState; deck: Deck; tiles: TileDb }) => void
 }
 
 // TODO: index them by name
@@ -238,8 +243,7 @@ export function getEmperors(): Emperor[] {
       name: "barterer",
       type: "discard",
       description: <>+100 coins when discarded</>,
-      whenDiscarded() {
-        const run = useRunState()
+      whenDiscarded({ run }) {
         run.money = run.money + 100
       },
     },
@@ -255,8 +259,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="b" />) into Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("b", "o")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "b", to: "o", deck, tiles })
       },
     },
     // 15-DONE
@@ -271,8 +275,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="b" />) into Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("b", "c")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "b", to: "c", deck, tiles })
       },
     },
     // 16-DONE
@@ -287,8 +291,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="o" />) into Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("o", "c")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "o", to: "c", deck, tiles })
       },
     },
     // 17-DONE
@@ -303,8 +307,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="o" />) into Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("o", "b")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "o", to: "b", deck, tiles })
       },
     },
     // 18-DONE
@@ -319,8 +323,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="c" />) into Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("c", "b")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "c", to: "b", deck, tiles })
       },
     },
     // 19-DONE
@@ -335,8 +339,8 @@ export function getEmperors(): Emperor[] {
           <MiniTiles suit="c" />) into Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
-      whenDiscarded() {
-        changeTilesPermanently("c", "o")
+      whenDiscarded({ deck, tiles }) {
+        changeTilesPermanently({ from: "c", to: "o", deck, tiles })
       },
     },
     // 20-DONE
@@ -682,29 +686,36 @@ export function getEmperors(): Emperor[] {
   ]
 }
 
-function changeTilesPermanently(from: Suit, to: Suit) {
-  const deck = useDeckState()
-  const tiles = useTileState()
+function changeTilesPermanently({
+  from,
+  to,
+  deck,
+  tiles,
+}: { from: Suit; to: Suit; deck: Deck; tiles: TileDb }) {
   const fromTiles = tiles
     .filterBy({ deleted: false })
     .filter((tile) => matchesSuit(tile.card, from))
   const rng = new Rand()
-  const threeTiles = shuffle(fromTiles, rng).slice(0, 3)
+  const pairs = toPairs(fromTiles)
+  const threePairs = shuffle(pairs, rng).slice(0, 3)
 
   batch(() => {
-    for (const tile of threeTiles) {
-      const newCard = tile.card.replace(from, to) as Card
-      tiles.set(tile.id, {
-        ...tile,
-        card: newCard,
-      })
-
-      const deckTile = deck.findBy({ card: tile.card })
-      if (deckTile) {
-        deck.set(deckTile.id, {
-          ...deckTile,
+    for (const pair of threePairs) {
+      for (const tile of pair) {
+        const oldCard = tile.card
+        const newCard = oldCard.replace(from, to) as Card
+        tiles.set(tile.id, {
+          ...tile,
           card: newCard,
         })
+
+        const deckTile = deck.findBy({ card: oldCard })
+        if (deckTile) {
+          deck.set(deckTile.id, {
+            ...deckTile,
+            card: newCard,
+          })
+        }
       }
     }
   })

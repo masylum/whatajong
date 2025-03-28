@@ -247,10 +247,10 @@ describe("getPoints", () => {
     const goldTile = createTile({ card: "c1", material: "gold" })
     const goldWindTile = createTile({ card: "wn", material: "gold" })
 
-    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(170)
-    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(306)
-    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(360)
-    expect(getPoints({ game, tiles: [jadeTile, jadeTile] })).toBe(594)
+    expect(getPoints({ game, tiles: [boneTile, jadeTile] })).toBe(102)
+    expect(getPoints({ game, tiles: [goldTile, goldTile] })).toBe(170)
+    expect(getPoints({ game, tiles: [goldWindTile, goldWindTile] })).toBe(200)
+    expect(getPoints({ game, tiles: [jadeTile, jadeTile] })).toBe(330)
   })
 
   it("adds correct point values for different materials", () => {
@@ -261,12 +261,12 @@ describe("getPoints", () => {
     const bronzeTile = createTile({ card: "c1", material: "bronze" })
     const goldTile = createTile({ card: "c1", material: "gold" })
 
-    expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [diamondTile] })).toBe(85)
-    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(18)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(165)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [goldTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [glassTile] })).toBe(7.5)
+    expect(getPoints({ game, tiles: [diamondTile] })).toBe(51)
+    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(13.5)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(99)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(7.5)
+    expect(getPoints({ game, tiles: [goldTile] })).toBe(51)
   })
 
   it("applies multipliers correctly for special materials", () => {
@@ -277,12 +277,12 @@ describe("getPoints", () => {
     const bronzeTile = createTile({ card: "c1", material: "bronze" })
     const goldTile = createTile({ card: "c1", material: "gold" })
 
-    expect(getPoints({ game, tiles: [glassTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [diamondTile] })).toBe(85)
-    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(18)
-    expect(getPoints({ game, tiles: [jadeTile] })).toBe(165)
-    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(10)
-    expect(getPoints({ game, tiles: [goldTile] })).toBe(85)
+    expect(getPoints({ game, tiles: [glassTile] })).toBe(7.5)
+    expect(getPoints({ game, tiles: [diamondTile] })).toBe(51)
+    expect(getPoints({ game, tiles: [ivoryTile] })).toBe(13.5)
+    expect(getPoints({ game, tiles: [jadeTile] })).toBe(99)
+    expect(getPoints({ game, tiles: [bronzeTile] })).toBe(7.5)
+    expect(getPoints({ game, tiles: [goldTile] })).toBe(51)
   })
 
   it("multiplies correctly for high-value cards", () => {
@@ -293,12 +293,12 @@ describe("getPoints", () => {
     const ivoryWindTile = createTile({ card: "wn", material: "ivory" })
     const jadeWindTile = createTile({ card: "wn", material: "jade" })
 
-    expect(getPoints({ game, tiles: [glassWindTile] })).toBe(16)
-    expect(getPoints({ game, tiles: [diamondWindTile] })).toBe(100)
-    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(16)
-    expect(getPoints({ game, tiles: [goldWindTile] })).toBe(100)
-    expect(getPoints({ game, tiles: [ivoryWindTile] })).toBe(24)
-    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(180)
+    expect(getPoints({ game, tiles: [glassWindTile] })).toBe(12)
+    expect(getPoints({ game, tiles: [diamondWindTile] })).toBe(60)
+    expect(getPoints({ game, tiles: [bronzeWindTile] })).toBe(12)
+    expect(getPoints({ game, tiles: [goldWindTile] })).toBe(60)
+    expect(getPoints({ game, tiles: [ivoryWindTile] })).toBe(18)
+    expect(getPoints({ game, tiles: [jadeWindTile] })).toBe(108)
   })
 
   it("applies dragon multipliers to matching suits", () => {
@@ -322,7 +322,7 @@ describe("getPoints", () => {
     createDragonPowerup("dc", 2)
     const jadeCircleTile = createTile({ card: "c1", material: "jade" })
 
-    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(231)
+    expect(getPoints({ game, tiles: [jadeCircleTile] })).toBe(165)
   })
 })
 

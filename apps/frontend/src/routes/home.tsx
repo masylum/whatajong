@@ -20,6 +20,7 @@ import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
 import { play, SOUNDS } from "@/components/audio"
 import { useGlobalState } from "@/state/globalState"
+import { fetchRuns } from "@/state/runState"
 
 function cards() {
   const rng = new Rand()
@@ -28,6 +29,7 @@ function cards() {
 
 export function Home() {
   const globalState = useGlobalState()
+  const runs = createMemo(() => fetchRuns())
 
   function onHover() {
     play(SOUNDS.CLICK2, globalState.muted)
@@ -48,7 +50,7 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href={`/run/${nanoid()}`}
+          href={runs().length > 0 ? "/runs" : `/run/${nanoid()}`}
           class={buttonClass({ hue: "crack" })}
         >
           <img src="/tiles/dc.webp" alt="duel" width={36} height={52} />

@@ -1,5 +1,8 @@
-import { calculateSeconds } from "@/state/gameState"
-import { useGameState } from "@/state/gameState"
+import {
+  calculateSeconds,
+  createGameState,
+  GameStateProvider,
+} from "@/state/gameState"
 import { batch, createMemo, For, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
@@ -23,9 +26,9 @@ import {
   emperorClass,
   gameOverInfoClass,
   moneyClass,
-} from "./gameOverRun.css"
+} from "./runGameOver.css"
 import { nanoid } from "nanoid"
-import { useTileState } from "@/state/tileState"
+import { createTileState } from "@/state/tileState"
 import { sumBy } from "remeda"
 import { useDeckState } from "@/state/deckState"
 import { getRank, getSuit, type DeckTile } from "@/lib/game"
@@ -34,13 +37,16 @@ import { BasicTile } from "@/components/game/basicTile"
 import { Emperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
 
-export function GameOverRun() {
-  const game = useGameState()
+export default function RunGameOver() {
   const run = useRunState()
-  const tiles = useTileState()
-
   const round = useRound()
+  const id = createMemo(() => `${run.runId}-${round().id}`)
+  const game = createGameState({ id })
+  const deck = useDeckState()
+  const tiles = createTileState({ id, deck: deck.all })
+
   const time = createMemo(() => calculateSeconds(game))
+  console.log(game)
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
@@ -54,7 +60,7 @@ export function GameOverRun() {
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
 
   const tileCoins = createMemo(() =>
-    sumBy(tiles.filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
+    sumBy(tiles().filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
   )
   const overAchievementCoins = createMemo(() => {
     const overAchievement = achievement() - 1
@@ -63,7 +69,6 @@ export function GameOverRun() {
     return Math.min(Math.floor((overAchievement * 10) / 2), 100)
   })
 
-  const deck = useDeckState()
   const income = createMemo(() => getIncome(deck, run))
 
   function onShop() {
@@ -74,86 +79,88 @@ export function GameOverRun() {
   }
 
   return (
-    <GameOver win={win()} round={run.round}>
-      <div class={gameOverClass}>
-        <div class={pointsContainerClass}>
-          <Show when={win()}>
-            <dl class={detailListClass({ hue: "gold" })}>
-              <dt class={detailTermClass}>Deck income</dt>
-              <dd class={detailDescriptionClass}>+ ${income()}</dd>
-              <Show when={tileCoins()}>
-                {(coins) => (
-                  <>
-                    <dt class={detailTermClass}>Tile coins</dt>
-                    <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                  </>
-                )}
-              </Show>
-              <Show when={overAchievementCoins()}>
-                {(coins) => (
-                  <>
-                    <dt class={detailTermClass}>
-                      Over achiever ({Math.round(achievement() * 100)} %)
-                    </dt>
-                    <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                  </>
-                )}
-              </Show>
+    <GameStateProvider game={game}>
+      <GameOver win={win()} round={run.round}>
+        <div class={gameOverClass}>
+          <div class={pointsContainerClass}>
+            <Show when={win()}>
+              <dl class={detailListClass({ hue: "gold" })}>
+                <dt class={detailTermClass}>Deck income</dt>
+                <dd class={detailDescriptionClass}>+ ${income()}</dd>
+                <Show when={tileCoins()}>
+                  {(coins) => (
+                    <>
+                      <dt class={detailTermClass}>Tile coins</dt>
+                      <dd class={detailDescriptionClass}>+ ${coins()}</dd>
+                    </>
+                  )}
+                </Show>
+                <Show when={overAchievementCoins()}>
+                  {(coins) => (
+                    <>
+                      <dt class={detailTermClass}>
+                        Over achiever ({Math.round(achievement() * 100)} %)
+                      </dt>
+                      <dd class={detailDescriptionClass}>+ ${coins()}</dd>
+                    </>
+                  )}
+                </Show>
+              </dl>
+            </Show>
+
+            <dl class={detailListClass({ hue: "bamb" })}>
+              <dt class={detailTermClass}>Points</dt>
+              <dd class={detailDescriptionClass}>{points()}</dd>
             </dl>
-          </Show>
 
-          <dl class={detailListClass({ hue: "bamb" })}>
-            <dt class={detailTermClass}>Points</dt>
-            <dd class={detailDescriptionClass}>{points()}</dd>
-          </dl>
+            <Show when={round().timerPoints}>
+              <dl class={detailListClass({ hue: "crack" })}>
+                <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
+                <dd class={detailDescriptionClass}>{penalty()}</dd>
+              </dl>
+            </Show>
 
-          <Show when={round().timerPoints}>
-            <dl class={detailListClass({ hue: "crack" })}>
-              <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
-              <dd class={detailDescriptionClass}>{penalty()}</dd>
+            <dl class={detailListClass({ hue: "dot" })}>
+              <dt class={detailTermClass}>Total Points</dt>
+              <dd class={detailDescriptionClass}>{totalPoints()}</dd>
+              <dt class={detailTermClass}>Objective</dt>
+              <dd class={detailDescriptionClass}>{round().pointObjective}</dd>
             </dl>
-          </Show>
 
-          <dl class={detailListClass({ hue: "dot" })}>
-            <dt class={detailTermClass}>Total Points</dt>
-            <dd class={detailDescriptionClass}>{totalPoints()}</dd>
-            <dt class={detailTermClass}>Objective</dt>
-            <dd class={detailDescriptionClass}>{round().pointObjective}</dd>
-          </dl>
-
-          <Show
-            when={win()}
-            fallback={
-              <div class={gameOverButtonsClass}>
-                <LinkButton hue="crack" kind="dark" href={`/run/${nanoid()}`}>
-                  <Rotate />
-                  Try same run
-                </LinkButton>
-                <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
-                  Start new run
-                  <ArrowRight />
-                </LinkButton>
-              </div>
-            }
-          >
-            <Button hue="bam" kind="dark" onClick={() => onShop()}>
-              <Shop />
-              Go to shop
-            </Button>
+            <Show
+              when={win()}
+              fallback={
+                <div class={gameOverButtonsClass}>
+                  <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
+                    <Rotate />
+                    Try same run
+                  </LinkButton>
+                  <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
+                    Start new run
+                    <ArrowRight />
+                  </LinkButton>
+                </div>
+              }
+            >
+              <Button hue="bam" kind="dark" onClick={() => onShop()}>
+                <Shop />
+                Go to shop
+              </Button>
+            </Show>
+          </div>
+          <Show when={!win()}>
+            <div class={gameOverInfoClass}>
+              <h3 class={titleClass}>
+                Your Trasure <span class={moneyClass}>${run.money}</span>
+              </h3>
+              <OwnedEmperors />
+              <Deck />
+            </div>
           </Show>
         </div>
-        <Show when={!win()}>
-          <div class={gameOverInfoClass}>
-            <h3 class={titleClass}>
-              Your Trasure <span class={moneyClass}>${run.money}</span>
-            </h3>
-            <OwnedEmperors />
-            <Deck />
-          </div>
-        </Show>
-      </div>
-      <GameOver.BouncingCards />
-    </GameOver>
+        <GameOver.BouncingCards />
+      </GameOver>
+    </GameStateProvider>
   )
 }
 

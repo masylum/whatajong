@@ -13,8 +13,8 @@ import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveRabbits } from "./resolveRabbits"
 import { resolveMutations } from "./resolveMutations"
 
-export const WIN_CONDITIONS = ["empty-board", "no-pairs"] as const
-export type WinCondition = (typeof WIN_CONDITIONS)[number]
+export const END_CONDITIONS = ["empty-board", "no-pairs"] as const
+export type EndConditions = (typeof END_CONDITIONS)[number]
 
 export type PhoenixRun = {
   card: Phoenix
@@ -37,7 +37,7 @@ export type Game = {
   startedAt?: number
   endedAt?: number
   points: number
-  endCondition?: WinCondition
+  endCondition?: EndConditions
   transport?: Transport
   flowerOrSeason?: Flower | Season
   dragonRun?: DragonRun
@@ -59,14 +59,13 @@ export function gameOverCondition(tileDb: TileDb, game?: Game) {
   return null
 }
 
-export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
-  const freeTiles = getFreeTiles(tileDb, game)
+export function toPairs(tiles: Tile[]) {
   const pairs: [Tile, Tile][] = []
 
-  for (let i = 0; i < freeTiles.length; i++) {
-    for (let j = i + 1; j < freeTiles.length; j++) {
-      const tile1 = freeTiles[i]!
-      const tile2 = freeTiles[j]!
+  for (let i = 0; i < tiles.length; i++) {
+    for (let j = i + 1; j < tiles.length; j++) {
+      const tile1 = tiles[i]!
+      const tile2 = tiles[j]!
       if (!cardsMatch(tile1.card, tile2.card)) continue
 
       pairs.push([tile1, tile2])
@@ -74,6 +73,11 @@ export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
   }
 
   return pairs
+}
+
+export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
+  const freeTiles = getFreeTiles(tileDb, game)
+  return toPairs(freeTiles)
 }
 
 export function getCardPoints(card: Card) {
