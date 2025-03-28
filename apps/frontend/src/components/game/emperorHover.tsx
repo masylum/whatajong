@@ -77,7 +77,7 @@ function EmperorDetails(props: EmperorDetailsProps) {
   })
 
   const name = createMemo(() => props.emperor.name)
-  const description = createMemo(() => props.emperor.description ?? "")
+  const description = createMemo(() => props.emperor.description())
   const level = createMemo(() => props.emperor.level)
 
   return (

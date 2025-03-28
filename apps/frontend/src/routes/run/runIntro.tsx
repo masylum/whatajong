@@ -202,7 +202,7 @@ function SelectEmperor() {
               <div class={buttonTextClass}>
                 {emperor.name.replaceAll("_", " ")}
                 <div class={buttonDescriptionTextClass}>
-                  {emperor.description}
+                  {emperor.description()}
                 </div>
               </div>
             </button>

@@ -492,7 +492,9 @@ function EmperorItemDetails() {
             {item().name.replaceAll("_", " ")}
           </div>
 
-          <div class={emperorDetailsDescriptionClass}>{item().description}</div>
+          <div class={emperorDetailsDescriptionClass}>
+            {item().description()}
+          </div>
         </div>
       </div>
 

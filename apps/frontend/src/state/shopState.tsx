@@ -63,7 +63,7 @@ type BaseItem = {
 export type EmperorItem = BaseItem & {
   type: "emperor"
   name: string
-  description: JSXElement
+  description: () => JSXElement
 }
 
 export type TileItem = BaseItem & {

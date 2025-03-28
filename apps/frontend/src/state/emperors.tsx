@@ -29,7 +29,7 @@ import type { RunState } from "./runState"
 export type Emperor = {
   level: Level
   name: string
-  description: JSXElement
+  description: () => JSXElement
   suit?: Suit
   type?: "discard" | "tile"
   getCoins?: ({ tile }: { tile: Tile }) => number
@@ -57,7 +57,7 @@ export function getEmperors(): Emperor[] {
       name: "astronomer",
       suit: "c",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +3 points when matching any Crack tiles (<MiniTiles suit="c" />)
         </>
@@ -72,7 +72,7 @@ export function getEmperors(): Emperor[] {
       name: "mathematician",
       suit: "c",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +1 mult when matching any Crack tiles (<MiniTiles suit="c" />)
         </>
@@ -87,7 +87,7 @@ export function getEmperors(): Emperor[] {
       name: "gardener",
       suit: "b",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +3 points when matching any Bam tiles (<MiniTiles suit="b" />)
         </>
@@ -102,7 +102,7 @@ export function getEmperors(): Emperor[] {
       name: "herbolist",
       suit: "b",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +1 mult when matching any Bam tiles (<MiniTiles suit="b" />)
         </>
@@ -117,7 +117,7 @@ export function getEmperors(): Emperor[] {
       name: "wheelwright",
       suit: "o",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +3 points when matching any Dot tiles (<MiniTiles suit="o" />)
         </>
@@ -132,7 +132,7 @@ export function getEmperors(): Emperor[] {
       name: "treasurer",
       suit: "o",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +1 mult when matching any Dot tiles (<MiniTiles suit="o" />)
         </>
@@ -147,7 +147,7 @@ export function getEmperors(): Emperor[] {
       name: "birdwatcher",
       suit: "b",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Bam 1" (
           <MiniTile size={20} card="b1" />)
@@ -163,7 +163,7 @@ export function getEmperors(): Emperor[] {
       name: "caligrapher",
       suit: "c",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Crack 1" ({" "}
           <MiniTile size={20} card="c1" />)
@@ -179,7 +179,7 @@ export function getEmperors(): Emperor[] {
       name: "numismatic",
       suit: "o",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Dot 1" (
           <MiniTile size={20} card="o1" />)
@@ -195,7 +195,7 @@ export function getEmperors(): Emperor[] {
       name: "woodworker",
       suit: "b",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Bam 9" (
           <MiniTile size={20} card="b9" />)
@@ -211,7 +211,7 @@ export function getEmperors(): Emperor[] {
       name: "librarian",
       suit: "c",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Crack 9" (
           <MiniTile size={20} card="c9" />)
@@ -227,7 +227,7 @@ export function getEmperors(): Emperor[] {
       name: "cooper",
       suit: "o",
       type: "tile",
-      description: (
+      description: () => (
         <>
           +20 points when matching the tile "Dot 9" (
           <MiniTile size={20} card="o9" />)
@@ -242,7 +242,7 @@ export function getEmperors(): Emperor[] {
       level: 1,
       name: "barterer",
       type: "discard",
-      description: <>+100 coins when discarded</>,
+      description: () => <>+100 coins when discarded</>,
       whenDiscarded({ run }) {
         run.money = run.money + 100
       },
@@ -253,7 +253,7 @@ export function getEmperors(): Emperor[] {
       name: "food_vendor",
       suit: "o",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Bam tiles (
           <MiniTiles suit="b" />) into Dot tiles (<MiniTiles suit="o" />)
@@ -269,7 +269,7 @@ export function getEmperors(): Emperor[] {
       name: "retailer",
       suit: "c",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Bam tiles (
           <MiniTiles suit="b" />) into Crack tiles (<MiniTiles suit="c" />)
@@ -285,7 +285,7 @@ export function getEmperors(): Emperor[] {
       name: "fisherwoman",
       suit: "c",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Dot tiles (
           <MiniTiles suit="o" />) into Crack tiles (<MiniTiles suit="c" />)
@@ -301,7 +301,7 @@ export function getEmperors(): Emperor[] {
       name: "shopkeeper",
       suit: "b",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Dot tiles (
           <MiniTiles suit="o" />) into Bam tiles (<MiniTiles suit="b" />)
@@ -317,7 +317,7 @@ export function getEmperors(): Emperor[] {
       name: "trader",
       suit: "b",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Crack tiles (
           <MiniTiles suit="c" />) into Bam tiles (<MiniTiles suit="b" />)
@@ -333,7 +333,7 @@ export function getEmperors(): Emperor[] {
       name: "fishmonger",
       suit: "o",
       type: "discard",
-      description: (
+      description: () => (
         <>
           When discarded, permanently transform 3 random Crack tiles (
           <MiniTiles suit="c" />) into Dot tiles (<MiniTiles suit="o" />)
@@ -348,7 +348,7 @@ export function getEmperors(): Emperor[] {
       level: 1,
       name: "martyr",
       type: "discard",
-      description: <>+300 points when discarded</>,
+      description: () => <>+300 points when discarded</>,
       whenDiscarded() {
         const game = useGameState()
         game.points = game.points + 300
@@ -358,7 +358,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "warrior",
-      description: <>+2 points when matching any tiles</>,
+      description: () => <>+2 points when matching any tiles</>,
       getRawPoints() {
         return 1
       },
@@ -367,7 +367,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "combatant",
-      description: <>+0.5 mult when matching any tiles</>,
+      description: () => <>+0.5 mult when matching any tiles</>,
       getRawMultiplier() {
         return 1 / 4
       },
@@ -376,7 +376,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "wizard",
-      description: <>+2 points when matching odd tiles.</>,
+      description: () => <>+2 points when matching odd tiles.</>,
       getRawPoints({ card }) {
         if (!card) return 0
         const rank = Number.parseInt(getRank(card))
@@ -389,7 +389,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "sorcerer",
-      description: <>+2 points when matching even tiles.</>,
+      description: () => <>+2 points when matching even tiles.</>,
       getRawPoints({ card }) {
         if (!card) return 0
         const rank = Number.parseInt(getRank(card))
@@ -402,7 +402,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "biologist",
-      description: (
+      description: () => (
         <>
           +1 mult when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
@@ -416,7 +416,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "florist",
-      description: (
+      description: () => (
         <>
           +10 points when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
@@ -430,7 +430,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "botanist",
-      description: (
+      description: () => (
         <>
           +4 coins when matching Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
@@ -444,7 +444,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "breeder",
-      description: (
+      description: () => (
         <>
           +2 mult when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
@@ -457,7 +457,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "veterinarian",
-      description: (
+      description: () => (
         <>
           +10 points when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
@@ -470,7 +470,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "butcher",
-      description: (
+      description: () => (
         <>
           +4 coins when matching Rabbit tiles (<MiniTiles suit="r" />)
         </>
@@ -483,7 +483,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "drakologist",
-      description: (
+      description: () => (
         <>
           +16 points when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
@@ -496,7 +496,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "dragon_rider",
-      description: (
+      description: () => (
         <>
           +2 mult when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
@@ -509,7 +509,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "warden",
-      description: (
+      description: () => (
         <>
           +6 coins when matching Dragon tiles (<MiniTiles suit="d" />)
         </>
@@ -522,7 +522,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "phoenixologist",
-      description: (
+      description: () => (
         <>
           +16 points when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
@@ -535,7 +535,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "phoenix_rider",
-      description: (
+      description: () => (
         <>
           +2 mult when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
@@ -548,7 +548,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "keeper",
-      description: (
+      description: () => (
         <>
           +6 coins when matching Phoenix tiles (<MiniTiles suit="p" />)
         </>
@@ -561,7 +561,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "glassblower",
-      description: (
+      description: () => (
         <>
           +20 points when matching Glass tiles (
           <MiniTile size={20} material="glass" />)
@@ -575,7 +575,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "stonemason",
-      description: (
+      description: () => (
         <>
           +10 coins when matching ivory tiles (
           <MiniTile size={20} material="ivory" />)
@@ -589,7 +589,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 3,
       name: "smith",
-      description: (
+      description: () => (
         <>
           +2 mult when matching Bronze tiles (
           <MiniTile size={20} material="bronze" />)
@@ -610,7 +610,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 4,
       name: "sailor",
-      description: (
+      description: () => (
         <>
           +3 mult for winds tiles (<MiniTiles suit="w" />)
         </>
@@ -623,7 +623,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 4,
       name: "skipper",
-      description: (
+      description: () => (
         <>
           +24 points for winds tiles (<MiniTiles suit="w" />)
         </>
@@ -636,7 +636,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 4,
       name: "captain",
-      description: (
+      description: () => (
         <>
           +10 coins for winds tiles (<MiniTiles suit="w" />)
         </>
