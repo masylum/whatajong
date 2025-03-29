@@ -31,7 +31,7 @@ import { countBy, entries } from "remeda"
 import { getEmperors, type Emperor } from "./emperors"
 import { play, SOUNDS } from "@/components/audio"
 import { nanoid } from "nanoid"
-import { useGlobalState } from "./globalState"
+import { useGlobalState, type GlobalState } from "./globalState"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 
@@ -177,10 +177,9 @@ export function buyItem(
   run: RunState,
   shop: ShopState,
   item: Item,
+  globalState: GlobalState,
   fn: () => void,
 ) {
-  const globalState = useGlobalState()
-
   const cost =
     item.type === "emperor" ? emperorCost(item.level) : itemCost(item.level)
   const money = run.money

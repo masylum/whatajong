@@ -316,10 +316,11 @@ function CardDetails(props: {
   const card = createMemo(() => props.item.card)
   const shop = useShopState()
   const run = useRunState()
+  const globalState = useGlobalState()
   const deck = useDeckState()
 
   function buyTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
+    buyItem(run, shop, item, globalState, () => {
       const id = nanoid()
       deck.set(id, { id, material: "bone", card: item.card })
     })
@@ -462,6 +463,7 @@ function TileItemDetails() {
 function EmperorItemDetails() {
   const shop = useShopState()
   const run = useRunState()
+  const globalState = useGlobalState()
   const item = createMemo(() => shop.currentItem as EmperorItem)
   const emperorCount = createMemo(
     () => run.items.filter((item) => item.type === "emperor").length,
@@ -476,7 +478,7 @@ function EmperorItemDetails() {
   )
 
   function buyEmperor() {
-    buyItem(run, shop, item(), () => {})
+    buyItem(run, shop, item(), globalState, () => {})
   }
 
   function sellCurrentEmperor() {
@@ -788,6 +790,7 @@ function MaterialUpgradeButton(props: {
   const run = useRunState()
   const shop = useShopState()
   const deck = useDeckState()
+  const globalState = useGlobalState()
 
   const tilesWithSameCard = createMemo(() =>
     deck.filterBy({ card: props.item.card }),
@@ -797,7 +800,7 @@ function MaterialUpgradeButton(props: {
   )
 
   function upgradeTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
+    buyItem(run, shop, item, globalState, () => {
       const { updates, removes } = transformation()
 
       for (const [id, material] of entries(updates)) {
