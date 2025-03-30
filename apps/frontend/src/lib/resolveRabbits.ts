@@ -1,4 +1,5 @@
 import { type Game, type Tile, isRabbit } from "./game"
+import { captureEvent } from "./observability"
 
 export function resolveRabbits(game: Game, tile: Tile) {
   const rabbitRun = game.rabbitRun
@@ -15,6 +16,10 @@ export function resolveRabbits(game: Game, tile: Tile) {
 
   if (rabbitRun.score) {
     game.rabbitRun = undefined
+    captureEvent("rabbit_run_finished", {
+      card: rabbitRun.card,
+      combo: rabbitRun.combo,
+    })
     return
   }
 

@@ -13,6 +13,7 @@ import {
   type Dragon,
   isSuit,
 } from "./game"
+import { captureEvent } from "./observability"
 
 export function cardMatchesDragon(runCard: Dragon, card: Card) {
   const targetSuit = getRank(runCard)
@@ -52,6 +53,10 @@ export function resolveDragons(game: Game, tile: Tile) {
   }
 
   if (!continuesDragonRun(dragonRun.card, newCard)) {
+    captureEvent("dragon_run_finished", {
+      card: dragonRun.card,
+      combo: dragonRun.combo,
+    })
     game.dragonRun = dragonCard ? { card: dragonCard, combo: 0 } : undefined
     return
   }

@@ -1,4 +1,4 @@
-import { createMemo, Show } from "solid-js"
+import { createMemo, onMount, Show } from "solid-js"
 import { createGameState, GameStateProvider, started } from "@/state/gameState"
 import { Board } from "@/components/game/board"
 import { useParams } from "@solidjs/router"
@@ -15,6 +15,7 @@ import { menuContainer, container } from "./soloGame.css"
 import { createTileState, TileStateProvider } from "@/state/tileState"
 import { createRunState, RunStateProvider } from "@/state/runState"
 import { useGlobalState } from "@/state/globalState"
+import { captureRun } from "@/lib/observability"
 
 export function Solo() {
   const params = useParams()
@@ -23,6 +24,10 @@ export function Solo() {
   const run = createRunState({ id })
   const tiles = createTileState({ id, deck: getStandardDeck() })
   const game = createGameState({ id })
+
+  onMount(() => {
+    captureRun(id(), "solo")
+  })
 
   return (
     <RunStateProvider run={run}>

@@ -36,6 +36,7 @@
     "boarding.js": "^3.6.0",
     "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
+    "posthog-js": "^1.234.1",
     "rand-seed": "^2.1.7",
     "remeda": "^2.21.0",
     "solid-js": "^1.9.4",

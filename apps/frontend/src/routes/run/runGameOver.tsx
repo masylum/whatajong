@@ -3,7 +3,7 @@ import {
   createGameState,
   GameStateProvider,
 } from "@/state/gameState"
-import { batch, createMemo, For, Show } from "solid-js"
+import { batch, createMemo, For, onMount, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
@@ -36,6 +36,7 @@ import { splitIntoRows } from "@/lib/splitIntoRows"
 import { BasicTile } from "@/components/game/basicTile"
 import { Emperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
+import { captureEvent } from "@/lib/observability"
 
 export default function RunGameOver() {
   const run = useRunState()
@@ -77,6 +78,20 @@ export default function RunGameOver() {
       run.money = run.money + income() + tileCoins() + overAchievementCoins()
     })
   }
+
+  onMount(() => {
+    captureEvent("game_over", {
+      win: win(),
+      points: totalPoints(),
+      round: round().id,
+      roundObjective: round().pointObjective,
+      roundTimerPoints: round().timerPoints,
+      tileCoins: tileCoins(),
+      overAchievementCoins: overAchievementCoins(),
+      income: income(),
+      time: time(),
+    })
+  })
 
   return (
     <GameStateProvider game={game}>

@@ -32,6 +32,7 @@ import { getEmperors, type Emperor } from "./emperors"
 import { play, SOUNDS } from "@/components/audio"
 import { nanoid } from "nanoid"
 import { useGlobalState, type GlobalState } from "./globalState"
+import { captureEvent } from "@/lib/observability"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
 
@@ -191,6 +192,8 @@ export function buyItem(
     shop.currentItem = null
     fn()
   })
+
+  captureEvent("item_bought", item)
 
   play(SOUNDS.COIN2, globalState.muted)
 }

@@ -2,10 +2,11 @@ import { useParams } from "@solidjs/router"
 import { createRunState, RunStateProvider } from "../state/runState"
 import RunGame from "./run/runGame"
 import RunSelect from "./run/runSelect"
-import { createMemo, Match, Switch } from "solid-js"
+import { createMemo, Match, onMount, Switch } from "solid-js"
 import RunShop from "./run/runShop"
 import { createDeckState, DeckStateProvider } from "@/state/deckState"
 import RunIntro from "./run/runIntro"
+import { captureRun } from "@/lib/observability"
 
 export default function Run() {
   const params = useParams()
@@ -13,6 +14,10 @@ export default function Run() {
 
   const run = createRunState({ id })
   const newDeck = createDeckState({ id })
+
+  onMount(() => {
+    captureRun(id(), "adventure")
+  })
 
   return (
     <RunStateProvider run={run}>

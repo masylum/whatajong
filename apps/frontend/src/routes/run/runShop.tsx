@@ -120,6 +120,7 @@ import { useHover } from "@/components/game/useHover"
 import { SOUNDS } from "@/components/audio"
 import { play } from "@/components/audio"
 import { useGlobalState } from "@/state/globalState"
+import { captureEvent } from "@/lib/observability"
 
 const REROLL_COST = 10
 const MIN_ROWS = 4
@@ -685,6 +686,7 @@ function RerollButton() {
     })
 
     play(SOUNDS.DICE, globalState.muted)
+    captureEvent("reroll", { reroll: shop.reroll })
   }
 
   return (
@@ -722,6 +724,7 @@ function FreezeButton() {
       reroll: shop.reroll,
       active: true,
     }
+    captureEvent("freeze", { reroll: shop.reroll })
   }
 
   return (
@@ -810,6 +813,11 @@ function MaterialUpgradeButton(props: {
       for (const id of removes) {
         deck.del(id)
       }
+    })
+    captureEvent("tile_upgraded", {
+      material: props.material,
+      card: props.item.card,
+      path: props.path,
     })
   }
 

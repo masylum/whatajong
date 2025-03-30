@@ -29,6 +29,7 @@ import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft } from "@/components/icon"
 import { LinkButton } from "@/components/button"
+import { captureEvent } from "@/lib/observability"
 
 const TILE_WIDTH = 25
 
@@ -155,6 +156,8 @@ function SelectEmperor() {
   function onSelectEmperor(emperor: Emperor) {
     run.items = [generateEmperorItem(emperor)]
     run.stage = "game"
+
+    captureEvent("run_started", run)
   }
 
   return (

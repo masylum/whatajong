@@ -10,6 +10,7 @@ import {
   isJoker,
   isSuit,
 } from "./game"
+import { captureEvent } from "./observability"
 
 function continuesPhoenixRun(number: number, card: Card) {
   if (isJoker(card) || isMutation(card) || isRabbit(card) || isDragon(card))
@@ -39,6 +40,10 @@ export function resolvePhoenixRun(game: Game, tile: Tile) {
     game.phoenixRun = phoenixCard
       ? { card: phoenixCard, number: 0, combo: 0 }
       : undefined
+    captureEvent("phoenix_run_finished", {
+      card: phoenixRun.card,
+      combo: phoenixRun.combo,
+    })
     return
   }
 

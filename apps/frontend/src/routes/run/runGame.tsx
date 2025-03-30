@@ -36,6 +36,7 @@ import Rand from "rand-seed"
 import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
 import { useGlobalState } from "@/state/globalState"
 import RunGameOver from "./runGameOver"
+import { captureEvent } from "@/lib/observability"
 
 export default function RunGame() {
   const run = useRunState()
@@ -131,6 +132,10 @@ function EmperorCard(props: { item: EmperorItem }) {
     }, FLIP_DURATION)
 
     onCleanup(() => clearTimeout(deltedTimeout))
+
+    captureEvent("emperor_discarded", {
+      emperor: props.item.name,
+    })
   }
 
   return (
