@@ -9,8 +9,11 @@ import RunList from "./routes/run/runList"
 
 import "@fontsource-variable/nunito"
 import "./styles/reset.css"
+import { initObservability } from "./lib/observability"
 
 const root = document.getElementById("root")
+
+initObservability()
 
 render(
   () => (

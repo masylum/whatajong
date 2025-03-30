@@ -1,8 +1,10 @@
 import posthog from "posthog-js"
 
-posthog.init("phc_jgksyhrnlwlQ2I5iWOZP6h7CKgf22tTxSJgWpMWYd9g", {
-  api_host: "https://eu.i.posthog.com",
-})
+export function initObservability() {
+  posthog.init("phc_jgksyhrnlwlQ2I5iWOZP6h7CKgf22tTxSJgWpMWYd9g", {
+    api_host: "https://eu.i.posthog.com",
+  })
+}
 
 export function captureRun(runId: string, type: "solo" | "adventure") {
   posthog.group("run", runId)
