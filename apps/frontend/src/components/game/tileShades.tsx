@@ -1,7 +1,7 @@
 import { createMemo, mergeProps, Show } from "solid-js"
 import { useTileState } from "@/state/tileState"
 import { getFinder, type Tile } from "@/lib/game"
-import { TILE_HEIGHT, TILE_WIDTH, getSideSize } from "@/state/constants"
+import { getSideSize, getTileSize } from "@/state/constants"
 import { shadeClass } from "./tileShades.css"
 import { SOFT_SHADE_FILTER_ID } from "./defs"
 
@@ -12,7 +12,11 @@ type Props = {
 }
 export function TileShades(iProps: Props) {
   const tiles = useTileState()
-  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const tileSize = getTileSize()
+  const props = mergeProps(
+    { width: tileSize().width, height: tileSize().height },
+    iProps,
+  )
   const sideSize = createMemo(() => getSideSize(props.height))
 
   const shadeVariants = createMemo(() => {
@@ -124,6 +128,7 @@ export function TopShade(props: SideShadeProps) {
 }
 
 export function RightShade(props: SideShadeProps) {
+  const tileSize = getTileSize()
   const rightShadePath = createMemo(() => {
     const { topLeft, left, bottomLeft } = props.shadeVariants
 
@@ -131,7 +136,7 @@ export function RightShade(props: SideShadeProps) {
       return `
         M 0 0
         l ${-props.sideSize} ${-props.sideSize}
-        v ${TILE_HEIGHT / 2}
+        v ${tileSize().height / 2}
         l ${props.sideSize} ${props.sideSize}
         Z
       `
@@ -139,10 +144,10 @@ export function RightShade(props: SideShadeProps) {
 
     if (!bottomLeft && left) {
       return `
-        M 0 ${TILE_HEIGHT / 2}
+        M 0 ${tileSize().height / 2}
         h ${-props.sideSize * 2}
         l ${props.sideSize} ${props.sideSize}
-        v ${TILE_HEIGHT / 2 - 2 * props.sideSize}
+        v ${tileSize().height / 2 - 2 * props.sideSize}
         l ${props.sideSize} ${props.sideSize}
         Z
       `
@@ -153,7 +158,7 @@ export function RightShade(props: SideShadeProps) {
         M 0 0
         h ${-props.sideSize * 2}
         l ${props.sideSize} ${props.sideSize}
-        v ${TILE_HEIGHT - props.sideSize * 2}
+        v ${tileSize().height - props.sideSize * 2}
         l ${props.sideSize} ${props.sideSize}
         Z
       `
@@ -163,7 +168,7 @@ export function RightShade(props: SideShadeProps) {
       return `
         M 0 0
         l ${-props.sideSize} ${-props.sideSize}
-        v ${TILE_HEIGHT}
+        v ${tileSize().height}
         l ${props.sideSize} ${props.sideSize}
         Z
       `

@@ -7,7 +7,7 @@ import { batch, createMemo, For, onMount, Show } from "solid-js"
 import { Button, LinkButton } from "@/components/button"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
-import { getIncome, useRound, useRunState } from "@/state/runState"
+import { getIncome, runGameWin, useRound, useRunState } from "@/state/runState"
 import {
   pointsContainerClass,
   detailListClass,
@@ -37,6 +37,7 @@ import { BasicTile } from "@/components/game/basicTile"
 import { Emperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
 import { captureEvent } from "@/lib/observability"
+import { getTileSize, getSideSize } from "@/state/constants"
 
 export default function RunGameOver() {
   const run = useRunState()
@@ -47,17 +48,10 @@ export default function RunGameOver() {
   const tiles = createTileState({ id, deck: deck.all })
 
   const time = createMemo(() => calculateSeconds(game))
-  console.log(game)
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
-  const win = createMemo(() => {
-    if (game.endCondition !== "empty-board") return false
-    const enoughPoints = totalPoints() >= round().pointObjective
-    if (!enoughPoints) return false
-
-    return true
-  })
+  const win = createMemo(() => runGameWin(game, run))
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
 
   const tileCoins = createMemo(() =>
@@ -201,11 +195,19 @@ function Deck() {
       minRows: 4,
     })
   })
+  const tileSize = getTileSize()
+  const sideSize = createMemo(() => getSideSize(tileSize().height))
 
   return (
     <div class={deckClass}>
       <div class={titleClass}>Your Deck</div>
-      <div class={deckRowsClass}>
+      <div
+        class={deckRowsClass}
+        style={{
+          "padding-bottom": `${sideSize() * 2}px`,
+          "padding-right": `${sideSize() * 2}px`,
+        }}
+      >
         <For each={deckByRows()}>
           {(deckTiles, i) => (
             <div class={deckRowClass}>
@@ -221,7 +223,13 @@ function Deck() {
                       card={deckTile.card}
                       material={deckTile.material}
                     />
-                    <BasicTile class={pairClass} material={deckTile.material} />
+                    <BasicTile
+                      class={pairClass}
+                      style={{
+                        transform: `translate(${sideSize()}px, ${sideSize()}px)`,
+                      }}
+                      material={deckTile.material}
+                    />
                   </div>
                 )}
               </For>

@@ -1,3 +1,4 @@
+import { mediaQuery } from "@/styles/breakpoints"
 import { color, hueVariants, alpha } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
@@ -9,18 +10,36 @@ export const homeClass = style({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  padding: 64,
-  gap: 64,
+  padding: 32,
+  paddingTop: 0,
+  gap: 32,
   height: "100vh",
-  marginTop: -64,
   fontFamily: primary,
   backgroundImage: "url(/halftone.png)",
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 64,
+      gap: 64,
+      paddingTop: 0,
+    },
+  },
 })
 
 export const titleClass = style({
-  ...fontSize.hero2,
+  ...fontSize.h1,
   color: color.crack50,
   textAlign: "center",
+  "@media": {
+    [mediaQuery({ p: "xs", l: "xxs" })]: {
+      ...fontSize.hero4,
+    },
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.hero3,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.hero2,
+    },
+  },
 })
 
 export const navClass = style({
@@ -36,13 +55,29 @@ export const buttonClass = recipe({
   base: {
     display: "flex",
     width: "100%",
+    justifyContent: "center",
     alignItems: "center",
     gap: 8,
     textDecoration: "none",
     textAlign: "center",
-    paddingInline: 24,
-    paddingBlock: 16,
-    borderRadius: 16,
+    paddingInline: 8,
+    paddingBlock: 4,
+    borderRadius: 8,
+    ...fontSize.l,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xxs" })]: {
+        ...fontSize.h3,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        ...fontSize.h2,
+        paddingInline: 16,
+        paddingBlock: 12,
+        borderRadius: 12,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h1,
+      },
+    },
   },
   variants: {
     hue: hueVariants((hue) => ({
@@ -53,6 +88,17 @@ export const buttonClass = recipe({
         color: hue(20),
       },
     })),
+  },
+})
+
+export const buttonIconClass = style({
+  width: 27,
+  height: 39,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      width: 36,
+      height: 52,
+    },
   },
 })
 

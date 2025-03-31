@@ -8,7 +8,6 @@ import {
   cardBackClass,
   cardClass,
   cardFrontClass,
-  containerClass,
   emperorCardClass,
   FLIP_DURATION,
   menuContainerClass,
@@ -17,6 +16,8 @@ import {
   topContainerClass,
   roundClass,
   emperorsClass,
+  roundObjectiveIconClass,
+  bottomContainerClass,
 } from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
 import { ArrowLeft, Bell, Goal, Skull } from "@/components/icon"
@@ -83,12 +84,13 @@ function Top() {
   )
 
   return (
-    <div class={containerClass}>
+    <>
       <div class={topContainerClass}>
         <div class={roundClass}>
           <div class={roundTitleClass}>Round {run.round}</div>
           <div class={roundObjectiveClass}>
-            <Goal /> {round().pointObjective} points
+            <Goal class={roundObjectiveIconClass} /> {round().pointObjective}{" "}
+            points
           </div>
         </div>
         <div class={emperorsClass}>
@@ -96,7 +98,7 @@ function Top() {
         </div>
       </div>
       <Powerups />
-    </div>
+    </>
   )
 }
 
@@ -163,7 +165,7 @@ function Bottom() {
   const globalState = useGlobalState()
 
   return (
-    <div class={containerClass}>
+    <div class={bottomContainerClass}>
       <Points timerPoints={round().timerPoints} />
       <nav class={menuContainerClass}>
         <LinkButton href="/" hue="bam">

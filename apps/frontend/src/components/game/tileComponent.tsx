@@ -5,7 +5,7 @@ import {
   Show,
   mergeProps,
 } from "solid-js"
-import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
+import { getTileSize } from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -57,8 +57,12 @@ type State = "idle" | "selected" | "deleted"
 export function TileComponent(iProps: Props) {
   const game = useGameState()
   const tiles = useTileState()
+  const tileSize = getTileSize()
 
-  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const props = mergeProps(
+    { width: tileSize().width, height: tileSize().height },
+    iProps,
+  )
   const sideSize = createMemo(() => getSideSize(props.height))
 
   const coords = createMemo(
@@ -238,12 +242,10 @@ export function TileComponent(iProps: Props) {
             top: `${coords().y}px`,
             overflow: "visible",
             "z-index": zIndex(),
-            "backdrop-filter": "blur(0.5px)",
           }}
           width={props.width}
           height={props.height}
           data-id={props.tile.id}
-          data-tile={JSON.stringify(props.tile)}
           class={tileClass}
         >
           <g class={animation()}>
@@ -282,19 +284,21 @@ export function strokePath({
   height,
 }: { width: number; height: number }) {
   const sideSize = getSideSize(height)
+  const tileSize = getTileSize()
+  const corner = createMemo(() => tileSize().corner)
 
   return `
-    M 0 ${CORNER_RADIUS}
-    v ${height - 3 * CORNER_RADIUS}
-    t 0 ${CORNER_RADIUS}
-    t ${sideSize} ${sideSize + CORNER_RADIUS}
-    h ${width - CORNER_RADIUS}
-    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 ${CORNER_RADIUS} -${CORNER_RADIUS}
-    v ${-height + 3 * CORNER_RADIUS}
-    t 0 ${-CORNER_RADIUS}
-    t ${-sideSize} ${-sideSize - CORNER_RADIUS}
-    h ${-width + CORNER_RADIUS}
-    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 -${CORNER_RADIUS} ${CORNER_RADIUS}
+    M 0 ${corner()}
+    v ${height - 3 * corner()}
+    t 0 ${corner()}
+    t ${sideSize} ${sideSize + corner()}
+    h ${width - corner()}
+    a ${corner()} ${corner()} 0 0 0 ${corner()} -${corner()}
+    v ${-height + 3 * corner()}
+    t 0 ${-corner()}
+    t ${-sideSize} ${-sideSize - corner()}
+    h ${-width + corner()}
+    a ${corner()} ${corner()} 0 0 0 -${corner()} ${corner()}
     Z
   `
 }

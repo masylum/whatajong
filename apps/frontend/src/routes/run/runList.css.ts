@@ -1,3 +1,4 @@
+import { widthQueries } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
@@ -68,6 +69,11 @@ export const tableRowClass = recipe({
   base: {
     ...fontSize.l,
     fontFamily: secondary,
+    "@media": {
+      [widthQueries.m]: {
+        ...fontSize.m,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -79,6 +85,11 @@ export const tableRowClass = recipe({
 
 export const tableCellClass = style({
   padding: 24,
+  "@media": {
+    [widthQueries.m]: {
+      padding: 16,
+    },
+  },
 })
 
 export const tableCellNameClass = style([

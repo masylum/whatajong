@@ -20,7 +20,6 @@ export function Board(props: BoardProps) {
         position: "relative",
         width: `${getCanvasWidth()}px`,
         height: `${getCanvasHeight()}px`,
-        margin: "0 auto",
       }}
     >
       <For each={tiles.all}>

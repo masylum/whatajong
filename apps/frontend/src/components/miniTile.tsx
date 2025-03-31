@@ -14,7 +14,7 @@ export function MiniTile(props: {
       <Show when={props.card}>
         {(card) => (
           <img
-            src={`/tiles/${card()}.webp`}
+            src={`/tiles/xs/${card()}.webp`}
             alt={card()}
             height={mProps.size}
           />

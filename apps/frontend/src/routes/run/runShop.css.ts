@@ -3,9 +3,7 @@ import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
-import { getSideSize, TILE_HEIGHT } from "@/state/constants"
 
-const sideSize = getSideSize(TILE_HEIGHT)
 const MAX_WIDTH = 1000
 
 const overlayShow = keyframes({
@@ -87,8 +85,6 @@ export const deckRowsClass = style({
   flexDirection: "column",
   alignItems: "flex-start",
   justifyContent: "center",
-  paddingRight: sideSize * 2,
-  paddingBottom: sideSize * 2,
   position: "relative",
   zIndex: 0,
 })
@@ -105,11 +101,6 @@ export const deckItemClass = style({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  transitionProperty: "top, left",
-  transitionDuration: "0.2s",
-  transitionTimingFunction: "ease-in-out",
-  left: 0,
-  top: 0,
 })
 
 export const deckTitleClass = recipe({
@@ -180,14 +171,11 @@ export const moneyClass = recipe({
 export const pairClass = style({
   position: "absolute",
   zIndex: -1,
-  top: sideSize,
-  left: sideSize,
 })
 
 export const itemPairClass = style({
   position: "relative",
   zIndex: 1,
-  left: -sideSize,
 })
 
 export const shopItemsClass = style({
@@ -231,10 +219,8 @@ export const itemClass = recipe({
     background: "none",
     padding: 0,
     color: color.dot10,
-    position: "relative",
     transition: "all 0.2s ease-in-out",
-    left: 0,
-    top: 0,
+    willChange: "filter, transform",
   },
   variants: {
     disabled: {
@@ -251,8 +237,7 @@ export const itemClass = recipe({
     selected: {
       true: {
         filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
-        left: -4,
-        top: -4,
+        transform: "translate(-4px, -4px)",
         ":hover": {
           filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
         },

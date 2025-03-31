@@ -110,8 +110,6 @@ function ModeButton(props: {
       <img
         src={`/difficulty/${props.mode}.webp`}
         alt={props.mode}
-        width="280"
-        height="420"
         class={buttonImageClass}
         onClick={() => props.onClick(props.mode)}
       />

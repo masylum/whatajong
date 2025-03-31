@@ -1,3 +1,4 @@
+import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
 import { color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
@@ -12,39 +13,94 @@ export const containerClass = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  gap: 128,
-  padding: 32,
   minHeight: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
+  "@media": {
+    "(orientation: portrait)": {
+      gap: 64,
+      padding: 12,
+    },
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      gap: 96,
+      padding: 32,
+    },
+    [`(orientation: portrait) and ${widthQueries.xl}`]: {
+      gap: 128,
+    },
+    "(orientation: landscape)": {
+      gap: 32,
+      padding: 12,
+    },
+    [`(orientation: landscape) and ${heightQueries.s}`]: {
+      gap: 64,
+      padding: 32,
+    },
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      gap: 96,
+    },
+    [`(orientation: portrait) and ${widthQueries.xl}`]: {
+      gap: 128,
+    },
+  },
 })
 
 export const backButtonClass = style({
   position: "absolute",
-  top: 32,
-  left: 32,
+  top: 12,
+  left: 12,
+  "@media": {
+    [mediaQuery({ p: "l", l: "s" })]: {
+      top: 32,
+      left: 32,
+    },
+  },
 })
 
 export const titleContainerClass = style({
   display: "flex",
   flexDirection: "column",
-  gap: 16,
+  gap: 8,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 12,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 16,
+    },
+  },
 })
 
 export const titleClass = style({
-  ...fontSize.hero3,
+  ...fontSize.h1,
   fontFamily: primary,
   color: color.dot90,
   fontVariantLigatures: "none",
   textAlign: "center",
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.hero4,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero3,
+    },
+  },
 })
 
 export const subtitleClass = style({
-  ...fontSize.h1,
+  ...fontSize.h3,
   fontFamily: primary,
   color: color.dot60,
   textAlign: "center",
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h1,
+    },
+  },
 })
 
 export const buttonContainerClass = recipe({
@@ -56,7 +112,15 @@ export const buttonContainerClass = recipe({
   variants: {
     size: {
       mode: {
-        gap: 64,
+        gap: 12,
+        "@media": {
+          [mediaQuery({ p: "l", l: "m" })]: {
+            gap: 24,
+          },
+          [mediaQuery({ p: "xl", l: "l" })]: {
+            gap: 32,
+          },
+        },
       },
       emperor: {
         gap: 24,
@@ -67,7 +131,7 @@ export const buttonContainerClass = recipe({
 
 export const buttonClass = recipe({
   base: {
-    borderRadius: 24,
+    borderRadius: 16,
     padding: 0,
     width: CHOICE_MODE_WIDTH,
     overflow: "hidden",
@@ -84,10 +148,33 @@ export const buttonClass = recipe({
     },
     selectors: {
       [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
-        width: CHOICE_MODE_WIDTH,
+        width: (CHOICE_MODE_WIDTH * 2) / 3,
       },
       [`${buttonContainerClass.classNames.variants.size.emperor} &`]: {
-        width: CHOICE_EMPEROR_WIDTH,
+        width: (CHOICE_EMPEROR_WIDTH * 2) / 3,
+      },
+    },
+    "@media": {
+      [mediaQuery({ p: "m", l: "xs" })]: {
+        borderRadius: 24,
+        selectors: {
+          [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
+            width: (CHOICE_MODE_WIDTH * 2) / 3,
+          },
+          [`${buttonContainerClass.classNames.variants.size.emperor} &`]: {
+            width: (CHOICE_EMPEROR_WIDTH * 2) / 3,
+          },
+        },
+      },
+      [mediaQuery({ p: "xl", l: "m" })]: {
+        selectors: {
+          [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
+            width: CHOICE_MODE_WIDTH,
+          },
+          [`${buttonContainerClass.classNames.variants.size.emperor} &`]: {
+            width: CHOICE_EMPEROR_WIDTH,
+          },
+        },
       },
     },
   },
@@ -100,6 +187,17 @@ export const buttonClass = recipe({
 })
 
 export const buttonImageClass = style({
+  width: "100%",
+  objectFit: "cover",
+  maxHeight: 120,
+  "@media": {
+    [mediaQuery({ p: "m", l: "xs" })]: {
+      maxHeight: 150,
+    },
+    [mediaQuery({ p: "l", l: "s" })]: {
+      maxHeight: "inherit",
+    },
+  },
   selectors: {
     [`${buttonClass.classNames.variants.hue.bam} &:hover`]: {
       filter: "hue-rotate(45deg)",
@@ -117,13 +215,40 @@ export const buttonTextClass = style({
   ...fontSize.h1,
   fontFamily: primary,
   textAlign: "center",
-  padding: 12,
   display: "flex",
   flexDirection: "column",
-  gap: 12,
+  justifyContent: "space-between",
+  flex: 1,
+  padding: 8,
+  gap: 8,
+  "@media": {
+    [mediaQuery({ p: "m", l: "xs" })]: {
+      padding: 12,
+      gap: 12,
+      selectors: {
+        [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
+          ...fontSize.h3,
+        },
+      },
+    },
+    [mediaQuery({ p: "l", l: "s" })]: {
+      selectors: {
+        [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
+          ...fontSize.h2,
+        },
+      },
+    },
+    [mediaQuery({ p: "xl", l: "m" })]: {
+      selectors: {
+        [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
+          ...fontSize.h1,
+        },
+      },
+    },
+  },
   selectors: {
     [`${buttonContainerClass.classNames.variants.size.mode} &`]: {
-      ...fontSize.h1,
+      ...fontSize.m,
     },
     [`${buttonContainerClass.classNames.variants.size.emperor} &`]: {
       ...fontSize.h2,
@@ -138,7 +263,7 @@ export const buttonTextClass = style({
 })
 
 export const buttonSmallTextClass = style({
-  ...fontSize.h3,
+  ...fontSize.m,
   fontFamily: primary,
   textAlign: "center",
   selectors: {
@@ -148,6 +273,14 @@ export const buttonSmallTextClass = style({
         color: kolor(50),
       }),
     ),
+  },
+  "@media": {
+    [mediaQuery({ p: "m", l: "xs" })]: {
+      ...fontSize.l,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h3,
+    },
   },
 })
 

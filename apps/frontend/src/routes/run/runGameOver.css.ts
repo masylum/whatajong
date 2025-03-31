@@ -3,10 +3,6 @@ import { alpha, color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
-import { getSideSize } from "@/state/constants"
-import { TILE_HEIGHT } from "@/state/constants"
-
-const sideSize = getSideSize(TILE_HEIGHT)
 
 export const gameOverClass = style({
   display: "flex",
@@ -117,8 +113,6 @@ export const deckRowsClass = style({
   flexDirection: "column",
   alignItems: "flex-start",
   justifyContent: "center",
-  paddingRight: sideSize * 2,
-  paddingBottom: sideSize * 2,
   position: "relative",
   zIndex: 0,
 })
@@ -135,15 +129,11 @@ export const deckItemClass = style({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  left: 0,
-  top: 0,
 })
 
 export const pairClass = style({
   position: "absolute",
   zIndex: -1,
-  top: sideSize,
-  left: sideSize,
 })
 
 export const ownedEmperorsClass = style({

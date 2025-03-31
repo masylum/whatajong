@@ -1,5 +1,5 @@
 import { type JSX, Show, splitProps } from "solid-js"
-import { EMPEROR_HEIGHT, EMPEROR_WIDTH, emperorClass } from "./emperor.css"
+import { emperorClass } from "./emperor.css"
 import { EmperorHover } from "./game/emperorHover"
 import { useHover } from "./game/useHover"
 
@@ -46,12 +46,6 @@ export function EmperorIcon(
       {...imgProps}
       alt={props.name}
       class={emperorClass({ frozen: props.frozen ?? false })}
-      width={props.width ?? EMPEROR_WIDTH}
-      height={
-        props.width
-          ? (props.width * EMPEROR_HEIGHT) / EMPEROR_WIDTH
-          : EMPEROR_HEIGHT
-      }
     />
   )
 }

@@ -1,4 +1,4 @@
-import { fetchRuns, type RunState } from "@/state/runState"
+import { fetchRuns, runGameWin, type RunState } from "@/state/runState"
 import { createMemo, For, Show } from "solid-js"
 import {
   gamesClass,
@@ -67,9 +67,11 @@ function RunRow(props: { run: RunState }) {
   )
   const hue = createMemo(() => {
     if (props.run.stage !== "game") return "dot"
-    const gameOver = gameState()?.endCondition
-    if (!gameOver) return "dot"
-    if (gameOver === "empty-board") return "bam"
+    const game = gameState()
+    if (!game) return "dot"
+
+    const win = runGameWin(game, props.run)
+    if (win) return "dot"
 
     return "crack"
   })

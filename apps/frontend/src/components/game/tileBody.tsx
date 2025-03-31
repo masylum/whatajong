@@ -1,8 +1,8 @@
-import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
 import { isTransparent, type Material } from "@/lib/game"
 import { getHueColor } from "@/styles/colors"
+import { getTileSize } from "@/state/constants"
 
 type Props = {
   material?: Material
@@ -11,24 +11,30 @@ type Props = {
 }
 
 export function TileBody(iProps: Props) {
+  const tileSize = getTileSize()
   const props = mergeProps(
-    { material: "bone", width: TILE_WIDTH, height: TILE_HEIGHT } as const,
+    {
+      material: "bone",
+      width: tileSize().width,
+      height: tileSize().height,
+    } as const,
     iProps,
   )
   const fill = createMemo(() => MATERIALS[props.material].body)
+  const corner = createMemo(() => tileSize().corner)
 
   return (
     <>
       <path
-        d={`M ${CORNER_RADIUS} 0
-          h ${props.width - 2 * CORNER_RADIUS}
-          a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} ${CORNER_RADIUS}
-          v ${props.height - 2 * CORNER_RADIUS} 
-          a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} ${CORNER_RADIUS}
-          h ${-props.width + 2 * CORNER_RADIUS}
-          a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 -${CORNER_RADIUS} -${CORNER_RADIUS}
-          v ${-props.height + 2 * CORNER_RADIUS}
-          a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 1 ${CORNER_RADIUS} -${CORNER_RADIUS}
+        d={`M ${corner()} 0
+          h ${props.width - 2 * corner()}
+          a ${corner()} ${corner()} 0 0 1 ${corner()} ${corner()}
+          v ${props.height - 2 * corner()} 
+          a ${corner()} ${corner()} 0 0 1 -${corner()} ${corner()}
+          h ${-props.width + 2 * corner()}
+          a ${corner()} ${corner()} 0 0 1 -${corner()} -${corner()}
+          v ${-props.height + 2 * corner()}
+          a ${corner()} ${corner()} 0 0 1 ${corner()} -${corner()}
           Z`}
         fill-opacity={isTransparent(props.material) ? 0.6 : 1}
         stroke={getHueColor(props.material)(90)}

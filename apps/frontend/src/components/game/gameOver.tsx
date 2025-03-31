@@ -39,11 +39,11 @@ function GameOver(props: { win: boolean; round?: number } & ParentProps) {
   )
 }
 
-function BouncingCard(props: { card: Card }) {
+function FallingTile(props: { card: Card }) {
   const cardStartX = createMemo(() => Math.random() * window.innerWidth)
   const cardEndX = createMemo(() => cardStartX() + (Math.random() - 0.5) * 400)
   const cardRotation = createMemo(() => (Math.random() - 0.5) * 720)
-  const cardDuration = createMemo(() => 2 + Math.random() * 10)
+  const cardDuration = createMemo(() => 2 + Math.random() * 15)
   const delay = createMemo(() => Math.random() * 10)
 
   return (
@@ -63,14 +63,14 @@ function BouncingCard(props: { card: Card }) {
   )
 }
 
-export function BouncingCards() {
+export function FallingTiles() {
   const cards = createMemo<Card[]>(() => {
     const rng = new Rand()
     return shuffle(getStandardPairs(), rng)
       .slice(0, 10)
       .flatMap(([p, _]) => p)
   })
-  return <For each={cards()}>{(card) => <BouncingCard card={card} />}</For>
+  return <For each={cards()}>{(card) => <FallingTile card={card} />}</For>
 }
 
 export function Title(props: { win: boolean; round?: number }) {
@@ -117,6 +117,6 @@ function Points(props: { points: number }) {
 
 GameOver.Time = Time
 GameOver.Points = Points
-GameOver.BouncingCards = BouncingCards
+GameOver.BouncingCards = FallingTiles
 
 export { GameOver }

@@ -1,5 +1,4 @@
 import { keyframes, style } from "@vanilla-extract/css"
-import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 import { color } from "@/styles/colors"
@@ -51,12 +50,12 @@ const floatingNumberKeyframes = keyframes({
 
 export const shakeAnimation = style({
   animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
 })
 
 export const deletedAnimationClass = style({
   animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
 })
 
 export const scoreClass = style({
@@ -69,11 +68,12 @@ export const scoreClass = style({
   fontWeight: "bold",
   userSelect: "none",
   fontFamily: primary,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
   pointerEvents: "none",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  willChange: "transform",
   gap: 8,
 })
 
@@ -105,6 +105,7 @@ export const tileClass = style({
   transitionDuration: `${DELETED_DURATION}ms`,
   transitionTimingFunction: "ease-in",
   outline: "none",
+  willChange: "transform",
 })
 
 export const clickableClass = recipe({

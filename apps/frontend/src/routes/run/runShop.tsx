@@ -121,6 +121,7 @@ import { SOUNDS } from "@/components/audio"
 import { play } from "@/components/audio"
 import { useGlobalState } from "@/state/globalState"
 import { captureEvent } from "@/lib/observability"
+import { getSideSize, getTileSize } from "@/state/constants"
 
 const REROLL_COST = 10
 const MIN_ROWS = 4
@@ -188,6 +189,8 @@ function DeckTileComponent(props: {
   const { isHovering, hoverProps, mousePosition } = useHover({
     delay: 500,
   })
+  const tileSize = getTileSize()
+  const sideSize = createMemo(() => getSideSize(tileSize().height))
 
   return (
     <>
@@ -202,7 +205,14 @@ function DeckTileComponent(props: {
           card={props.deckTile.card}
           material={props.deckTile.material}
         />
-        <BasicTile class={pairClass} material={props.deckTile.material} />
+        <BasicTile
+          style={{
+            top: `${sideSize()}px`,
+            left: `${sideSize()}px`,
+          }}
+          class={pairClass}
+          material={props.deckTile.material}
+        />
       </div>
 
       <Show when={isHovering()}>
@@ -238,6 +248,8 @@ function ItemTile(props: {
     delay: 500,
   })
   const material = createMemo(() => (frozen() ? "glass" : "bone"))
+  const tileSize = getTileSize()
+  const sideSize = createMemo(() => getSideSize(tileSize().height))
 
   return (
     <>
@@ -251,9 +263,18 @@ function ItemTile(props: {
         onClick={() => props.onClick?.(props.item)}
         {...hoverProps}
       >
-        <div class={itemPairClass}>
+        <div
+          class={itemPairClass}
+          style={{
+            left: `${-sideSize()}px`,
+          }}
+        >
           <BasicTile card={props.item.card} material={material()} />
           <BasicTile
+            style={{
+              top: `${sideSize()}px`,
+              left: `${sideSize()}px`,
+            }}
             class={pairClass}
             card={props.item.card}
             material={material()}
@@ -561,6 +582,8 @@ function UpgradeItemDetails() {
       ) as TileItem[]
     ).sort((a, b) => a.card.localeCompare(b.card)),
   )
+  const tileSize = getTileSize()
+  const sideSize = createMemo(() => getSideSize(tileSize().height))
 
   return (
     <Dialog.Content class={detailsContentClass({ type: "upgrade" })}>
@@ -591,7 +614,13 @@ function UpgradeItemDetails() {
         </dl>
         <div class={detailListClass({ type: "bam" })}>
           <span class={detailTermClass}>new tiles:</span>
-          <div class={deckRowsClass}>
+          <div
+            class={deckRowsClass}
+            style={{
+              "padding-bottom": `${sideSize() * 2}px`,
+              "padding-right": `${sideSize() * 2}px`,
+            }}
+          >
             <For each={chunk(tileItems(), 18)}>
               {(chunk, i) => (
                 <div class={deckRowClass}>

@@ -3,22 +3,36 @@ import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes } from "@vanilla-extract/css"
+import { mediaQuery } from "@/styles/breakpoints"
 
 const statItem = style({
   display: "flex",
   flexDirection: "column",
-  ...fontSize.h2,
-  gap: 12,
+  ...fontSize.l,
+  gap: 8,
+  "@media": {
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h2,
+      gap: 12,
+    },
+  },
 })
 
 export const pillClass = recipe({
   base: {
-    ...fontSize.h2,
+    ...fontSize.h3,
     textAlign: "center",
-    borderRadius: 12,
-    paddingInline: 12,
-    paddingBlock: 4,
+    borderRadius: 8,
+    paddingInline: 8,
+    paddingBlock: 2,
     color: "white",
+    "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h2,
+        paddingInline: 12,
+        paddingBlock: 4,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({

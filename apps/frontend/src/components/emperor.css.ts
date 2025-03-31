@@ -1,3 +1,4 @@
+import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 
@@ -7,7 +8,7 @@ export const EMPEROR_HEIGHT = 120
 export const emperorClass = recipe({
   base: {
     flexShrink: 0,
-    borderRadius: 16,
+    borderRadius: 8,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -21,6 +22,14 @@ export const emperorClass = recipe({
         ${color.bone80} 0%,
         ${color.bone90} 50%
       )`,
+    "@media": {
+      [mediaQuery({ p: "l", l: "s" })]: {
+        borderRadius: 12,
+      },
+      [mediaQuery({ p: "xl", l: "m" })]: {
+        borderRadius: 16,
+      },
+    },
   },
   variants: {
     frozen: {

@@ -7,7 +7,8 @@ import {
 } from "solid-js"
 import { generateShopItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
-import type { Deck, Level } from "@/lib/game"
+import type { Deck, Game, Level } from "@/lib/game"
+import { calculateSeconds } from "./gameState"
 
 const RUN_STATE_NAMESPACE = "run-state"
 
@@ -28,7 +29,7 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-export type RoundStage = "intro" | "select" | "game" | "shop"
+export type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
 export type Round = {
   id: number
   pointObjective: number
@@ -143,4 +144,19 @@ export const DECK_CAPACITY_PER_LEVEL = {
 
 export function getIncome(deck: Deck, run: RunState) {
   return deck.size * run.shopLevel
+}
+
+export function totalPoints(game: Game, round: Round) {
+  const time = calculateSeconds(game)
+  const penalty = Math.floor(time * round.timerPoints)
+  return game.points - penalty
+}
+
+export function runGameWin(game: Game, run: RunState) {
+  const round = generateRound(run.round, run)
+  if (game.endCondition !== "empty-board") return false
+  const enoughPoints = totalPoints(game, round) >= round.pointObjective
+  if (!enoughPoints) return false
+
+  return true
 }

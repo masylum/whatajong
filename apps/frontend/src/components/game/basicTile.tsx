@@ -1,22 +1,23 @@
-import { TILE_RATIO, TILE_WIDTH } from "@/state/constants"
 import { getHueColor, type AccentHue } from "@/styles/colors"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import type { Card, Suit, Material } from "@/lib/game"
+import type { Card, Material } from "@/lib/game"
 import { createMemo, Show, splitProps, type JSX } from "solid-js"
 import { TileImage } from "./tileImage"
 import { strokePath } from "./tileComponent"
 import { tileClass } from "./basicTile.css"
+import { getTileSize, TILE_RATIO } from "@/state/constants"
 
 type Props = {
-  card?: Card | Suit
+  card?: Card
   highlighted?: AccentHue | "white"
   material?: Material
   width?: number
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
   const [local, other] = splitProps(props, ["card", "highlighted", "material"])
-  const width = createMemo(() => props.width ?? TILE_WIDTH)
+  const tileSize = getTileSize()
+  const width = createMemo(() => props.width ?? tileSize().width)
   const height = createMemo(() => width() * TILE_RATIO)
   const dPath = createMemo(() =>
     strokePath({ width: width(), height: height() }),

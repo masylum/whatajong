@@ -5,6 +5,7 @@ import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
 import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
+import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
 
 export const FLIP_DURATION = 1000
 export const DELETED_DURATION = 300
@@ -50,66 +51,117 @@ export const contentHide = keyframes({
   },
 })
 
-export const containerClass = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontFamily: primary,
-  gap: "1.5rem",
+const containerClass = style({
   padding: 12,
-  zIndex: 3,
+  display: "flex",
+  fontFamily: primary,
   userSelect: "none",
-  color: color.bone10,
+  justifyContent: "space-between",
+  position: "absolute",
+  left: 0,
+  right: 0,
+  gap: 32,
+  zIndex: 3,
 })
 
-export const topContainerClass = style({
-  display: "flex",
-  justifyContent: "space-between",
-  flex: 1,
-  gap: 32,
-})
+export const topContainerClass = style([containerClass, { top: 0 }])
+export const bottomContainerClass = style([containerClass, { bottom: 0 }])
 
 export const roundClass = style({
   display: "flex",
   flexDirection: "column",
-  padding: 12,
+  gap: 4,
+  "@media": {
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      gap: 12,
+    },
+    [`(orientation: landscape) and ${heightQueries.s}`]: {
+      gap: 12,
+    },
+  },
 })
 
 export const roundTitleClass = style({
-  padding: 8,
-  borderRadius: 8,
   color: color.dot10,
-  ...fontSize.h1,
+  ...fontSize.h3,
+  "@media": {
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      ...fontSize.h1,
+    },
+    [`(orientation: landscape) and ${heightQueries.s}`]: {
+      ...fontSize.h1,
+    },
+  },
 })
 
 export const roundObjectiveClass = style({
-  padding: 8,
-  borderRadius: 8,
   color: color.dot30,
-  ...fontSize.h3,
+  ...fontSize.l,
+  "@media": {
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      ...fontSize.h3,
+    },
+    [`(orientation: landscape) and ${heightQueries.s}`]: {
+      ...fontSize.h3,
+    },
+  },
+})
+
+export const roundObjectiveIconClass = style({
+  width: 18,
+  height: 18,
+  "@media": {
+    [`(orientation: portrait) and ${widthQueries.l}`]: {
+      width: 24,
+      height: 24,
+    },
+    [`(orientation: landscape) and ${heightQueries.s}`]: {
+      width: 24,
+      height: 24,
+    },
+  },
 })
 
 export const emperorsClass = style({
   display: "flex",
-  padding: 12,
-  gap: 32,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "l", l: "s" })]: {
+      gap: 24,
+    },
+  },
 })
 
 export const menuContainerClass = style({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  gap: 32,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "l", l: "s" })]: {
+      gap: 24,
+    },
+  },
 })
 
 export const emperorCardClass = recipe({
   base: {
     cursor: "pointer",
     perspective: 1000,
-    width: EMPEROR_WIDTH,
-    height: EMPEROR_HEIGHT,
+    width: 40,
+    height: 60,
     ":hover": {
       filter: "brightness(1.1)",
+    },
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
+        width: 60,
+        height: 90,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        width: EMPEROR_WIDTH,
+        height: EMPEROR_HEIGHT,
+      },
     },
   },
   variants: {
