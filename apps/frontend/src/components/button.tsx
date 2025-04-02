@@ -33,7 +33,9 @@ export function Button(iProps: ButtonProps) {
 
   return (
     <button
-      onMouseEnter={() => play(SOUNDS.CLICK2, globalState.muted)}
+      onMouseEnter={() =>
+        !buttonProps.disabled && play(SOUNDS.CLICK2, globalState.muted)
+      }
       class={buttonClass({ hue: props.hue, kind: props.kind })}
       {...buttonProps}
     />

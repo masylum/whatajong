@@ -1,29 +1,37 @@
 import { createEffect, createMemo, createSignal } from "solid-js"
 import { useGameState } from "@/state/gameState"
 import { makeTimer } from "@solid-primitives/timer"
-import {
-  statLabel,
-  movesClass,
-  pointsClass,
-  pointsContainerClass,
-  pillClass,
-  penaltyClass,
-} from "./stats.css"
+import { movesClass, pointsClass, pillClass, penaltyClass } from "./stats.css"
 import { getAvailablePairs } from "@/lib/game"
 import { useTileState } from "@/state/tileState"
 import { play, SOUNDS } from "../audio"
 import { useGlobalState } from "@/state/globalState"
 
-export function Points(props: { timerPoints: number }) {
+export function PointsAndPenalty(props: { timerPoints: number }) {
   const game = useGameState()
 
   return (
-    <div class={pointsContainerClass}>
-      <div data-tour="points" class={pointsClass}>
-        <span class={statLabel}>Points</span>
-        <div class={pillClass({ hue: "bam" })}>{game.points}</div>
-      </div>
+    <>
+      <Points points={game.points} />
       <Timer timerPoints={props.timerPoints} />
+    </>
+  )
+}
+
+export function Points(props: { points: number }) {
+  return (
+    <div data-tour="points" class={pointsClass}>
+      <span>Points</span>
+      <div class={pillClass({ hue: "bam" })}>{props.points}</div>
+    </div>
+  )
+}
+
+export function Penalty(props: { points: number }) {
+  return (
+    <div data-tour="penalty" class={penaltyClass}>
+      <span>Penalty</span>
+      <div class={pillClass({ hue: "crack" })}>{props.points}</div>
     </div>
   )
 }
@@ -46,15 +54,10 @@ function Timer(props: { timerPoints: number }) {
     setInterval,
   )
 
-  return (
-    <div data-tour="penalty" class={penaltyClass}>
-      <span class={statLabel}>Penalty</span>
-      <div class={pillClass({ hue: "crack" })}>
-        {Math.floor(time() * props.timerPoints)}
-      </div>
-    </div>
-  )
+  return <Penalty points={Math.floor(time() * props.timerPoints)} />
 }
+
+type Urgency = "normal" | "mild" | "moderate" | "urgent"
 
 export function Moves() {
   const tiles = useTileState()
@@ -84,19 +87,6 @@ export function Moves() {
     return "normal"
   })
 
-  const hueForUrgency = createMemo(() => {
-    switch (urgencyLevel()) {
-      case "mild":
-        return "gold"
-      case "moderate":
-        return "bone"
-      case "urgent":
-        return "crack"
-      default:
-        return "dot"
-    }
-  })
-
   createEffect((prevPairs: number) => {
     const newPairs = pairs()
     const tilesAlive = tiles.filterBy({ deleted: false })
@@ -117,10 +107,30 @@ export function Moves() {
     return newPairs
   }, pairs())
 
+  return <MovesIndicator urgency={urgencyLevel()} pairs={pairs()} />
+}
+
+export function MovesIndicator(props: {
+  urgency: Urgency
+  pairs: number
+}) {
+  const hueForUrgency = createMemo(() => {
+    switch (props.urgency) {
+      case "mild":
+        return "gold"
+      case "moderate":
+        return "bone"
+      case "urgent":
+        return "crack"
+      default:
+        return "dot"
+    }
+  })
+
   return (
-    <div data-tour="moves" class={movesClass({ urgency: urgencyLevel() })}>
-      <span class={statLabel}>Moves</span>
-      <div class={pillClass({ hue: hueForUrgency() })}>{pairs()}</div>
+    <div data-tour="moves" class={movesClass({ urgency: props.urgency })}>
+      <span>Moves</span>
+      <div class={pillClass({ hue: hueForUrgency() })}>{props.pairs}</div>
     </div>
   )
 }

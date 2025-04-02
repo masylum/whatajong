@@ -1,14 +1,15 @@
 import { style } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
-import { alpha, color } from "@/styles/colors"
+import { color } from "@/styles/colors"
 import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
 import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
+import { primary } from "@/styles/fontFamily.css"
 
 export const FLIP_DURATION = 1000
 export const DELETED_DURATION = 300
+const EMPEROR_RATIO = EMPEROR_WIDTH / EMPEROR_HEIGHT
 
 const deletedKeyframes = keyframes({
   "0%": {
@@ -51,31 +52,15 @@ export const contentHide = keyframes({
   },
 })
 
-const containerClass = style({
-  padding: 12,
-  display: "flex",
-  fontFamily: primary,
-  userSelect: "none",
-  justifyContent: "space-between",
-  position: "absolute",
-  left: 0,
-  right: 0,
-  gap: 32,
-  zIndex: 3,
-})
-
-export const topContainerClass = style([containerClass, { top: 0 }])
-export const bottomContainerClass = style([containerClass, { bottom: 0 }])
-
 export const roundClass = style({
   display: "flex",
   flexDirection: "column",
   gap: 4,
   "@media": {
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      gap: 12,
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 8,
     },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
+    [mediaQuery({ p: "xl", l: "l" })]: {
       gap: 12,
     },
   },
@@ -122,23 +107,16 @@ export const roundObjectiveIconClass = style({
   },
 })
 
-export const emperorsClass = style({
-  display: "flex",
-  gap: 12,
-  "@media": {
-    [mediaQuery({ p: "l", l: "s" })]: {
-      gap: 24,
-    },
-  },
-})
-
 export const menuContainerClass = style({
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
   gap: 12,
   "@media": {
-    [mediaQuery({ p: "l", l: "s" })]: {
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
       gap: 24,
     },
   },
@@ -147,24 +125,65 @@ export const menuContainerClass = style({
 export const emperorCardClass = recipe({
   base: {
     cursor: "pointer",
-    perspective: 1000,
-    width: 40,
-    height: 60,
+    width: 40 * EMPEROR_RATIO,
+    height: 40,
+    borderRadius: 8,
+    overflow: "hidden",
+    border: `1px solid ${color.bone40}`,
+    backgroundColor: color.bone90,
+    padding: 0,
+    outline: "none",
     ":hover": {
       filter: "brightness(1.1)",
     },
-    "@media": {
-      [mediaQuery({ p: "m", l: "s" })]: {
-        width: 60,
-        height: 90,
-      },
-      [mediaQuery({ p: "l", l: "m" })]: {
-        width: EMPEROR_WIDTH,
-        height: EMPEROR_HEIGHT,
-      },
+    ":focus": {
+      outline: `2px solid ${color.bone30}`,
+      outlineOffset: 2,
     },
   },
   variants: {
+    orientation: {
+      landscape: {
+        "@media": {
+          [widthQueries.xs]: {
+            width: 50 * EMPEROR_RATIO,
+            height: 50,
+          },
+          [widthQueries.s]: {
+            width: 60 * EMPEROR_RATIO,
+            height: 60,
+          },
+          [widthQueries.m]: {
+            width: 70 * EMPEROR_RATIO,
+            height: 70,
+          },
+          [widthQueries.l]: {
+            width: 80 * EMPEROR_RATIO,
+            height: 80,
+          },
+        },
+      },
+      portrait: {
+        "@media": {
+          [heightQueries.xs]: {
+            height: 50,
+            width: 50 * EMPEROR_RATIO,
+          },
+          [heightQueries.s]: {
+            height: 60,
+            width: 60 * EMPEROR_RATIO,
+          },
+          [heightQueries.m]: {
+            height: 70,
+            width: 70 * EMPEROR_RATIO,
+          },
+          [heightQueries.l]: {
+            height: 80,
+            width: 80 * EMPEROR_RATIO,
+          },
+        },
+      },
+    },
     deleted: {
       true: {
         animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
@@ -174,72 +193,17 @@ export const emperorCardClass = recipe({
   },
 })
 
-export const cardClass = recipe({
-  base: {
-    position: "relative",
-    width: "100%",
-    height: "100%",
-    transition: `transform ${FLIP_DURATION}ms`,
-    transformStyle: "preserve-3d",
-  },
-  variants: {
-    open: {
-      true: {
-        transform: "rotateY(180deg)",
-      },
-      false: {
-        transform: "rotateY(0deg)",
-      },
-    },
-  },
+export const emperorDialogClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 32,
 })
 
-const bothCardsClass = style({
-  position: "absolute",
-  width: "100%",
-  height: "100%",
-  backfaceVisibility: "hidden",
-})
-
-export const cardFrontClass = style([bothCardsClass, {}])
-
-export const cardBackClass = style([
-  bothCardsClass,
-  {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    color: color.bone80,
-    alignItems: "center",
-    justifyContent: "center",
-    transform: "rotateY(180deg)",
-    background: color.bone20,
-    borderRadius: 16,
-    padding: 12,
-    boxShadow: `
-      0px 0px 0px 4px inset ${color.bone10},
-      0px 0px 0px 2px ${alpha(color.bone10, 0.5)}
-    `,
-  },
-])
-
-export const cardBackButtonClass = style({
-  color: color.bone90,
-  borderRadius: 8,
-  background: `linear-gradient(
-  to bottom,
-    ${color.bone30},
-    ${color.bone20}
-  )`,
-  boxShadow: `
-    1px 1px 1px 0px inset ${color.bone40},
-    -1px -1px 1px 0px inset ${alpha(color.bone10, 0.7)},
-    0px 0px 0px 2px ${alpha(color.bone10, 0.5)}
-  `,
-  padding: 8,
-  border: "none",
-  cursor: "pointer",
-  ":hover": {
-    filter: "brightness(1.1)",
-  },
+export const emperorDialogButtonsClass = style({
+  display: "flex",
+  fontFamily: primary,
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: color.bone20,
+  gap: 12,
 })

@@ -15,7 +15,6 @@ import {
   detailDescriptionClass,
   detailListClass,
   detailFreedomClass,
-  detailFreedomTitleClass,
   detailInfoClass,
 } from "./tileHover.css"
 import type { Card, Material, Mutation } from "@/lib/game"
@@ -117,14 +116,11 @@ export function MaterialFreedom(iProps: {
 
   return (
     <div class={detailFreedomClass({ hue: props.hue })}>
-      <span class={detailFreedomTitleClass({ hue: props.hue })}>Freedom</span>
       <Switch>
         <Match when={props.material === "glass" || props.material === "wood"}>
-          These tiles can be selected if at least 1 side is open.
+          Free if at least 1 side is open.
         </Match>
-        <Match when={props.material === "diamond"}>
-          These tiles can always be selected.
-        </Match>
+        <Match when={props.material === "diamond"}>Always free.</Match>
         <Match
           when={
             props.material === "bone" ||
@@ -132,10 +128,10 @@ export function MaterialFreedom(iProps: {
             props.material === "bronze"
           }
         >
-          These tiles can be selected if the left or right side is open.
+          Free if the left or right side is open.
         </Match>
         <Match when={props.material === "gold" || props.material === "jade"}>
-          These tiles can be selected if at least 3 sides are open.
+          Free if at least 3 sides are open.
         </Match>
       </Switch>
     </div>

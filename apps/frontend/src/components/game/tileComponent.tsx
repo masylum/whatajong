@@ -5,7 +5,7 @@ import {
   Show,
   mergeProps,
 } from "solid-js"
-import { getTileSize } from "@/state/constants"
+import { useTileSize } from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -57,7 +57,7 @@ type State = "idle" | "selected" | "deleted"
 export function TileComponent(iProps: Props) {
   const game = useGameState()
   const tiles = useTileState()
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
 
   const props = mergeProps(
     { width: tileSize().width, height: tileSize().height },
@@ -284,7 +284,7 @@ export function strokePath({
   height,
 }: { width: number; height: number }) {
   const sideSize = getSideSize(height)
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const corner = createMemo(() => tileSize().corner)
 
   return `

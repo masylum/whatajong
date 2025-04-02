@@ -1,8 +1,9 @@
-import { keyframes, style } from "@vanilla-extract/css"
+import { createContainer, keyframes, style } from "@vanilla-extract/css"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
+import { heightQueries, mediaQuery } from "@/styles/breakpoints"
 
 const MAX_WIDTH = 1000
 
@@ -14,28 +15,43 @@ const overlayShow = keyframes({
 const contentShow = keyframes({
   from: {
     opacity: 0,
-    transform: "scale(0.96)",
+    transform: "scale(0.96) translateY(30px)",
   },
   to: {
     opacity: 1,
-    transform: "scale(1)",
+    transform: "scale(1) translateY(0)",
   },
 })
 
-export const shopClass = style({
-  minHeight: "100vh",
-  fontFamily: secondary,
+export const backgroundClass = style({
+  height: "100vh",
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
-  padding: 32,
 })
 
-export const shopGridClass = style({
+export const shopClass = style({
   display: "flex",
-  flexDirection: "column",
-  gap: 32,
   maxWidth: MAX_WIDTH,
   margin: "0 auto",
+  flexDirection: "column",
+  fontFamily: secondary,
+  gap: 12,
+  padding: 12,
+  height: "100%",
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+      padding: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 20,
+      padding: 20,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 24,
+      padding: 24,
+    },
+  },
 })
 
 export const shopHeaderClass = style({
@@ -45,46 +61,34 @@ export const shopHeaderClass = style({
   alignItems: "center",
 })
 
-export const titleClass = style({
-  ...fontSize.hero3,
-  fontFamily: primary,
-  color: color.jade20,
-})
-
 export const deckClass = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between",
-  padding: 16,
-  gap: 16,
+  padding: 8,
+  gap: 8,
   borderRadius: 12,
+  width: "70%",
   background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
-})
-
-export const deckContainerClass = style({
-  display: "flex",
-  justifyContent: "space-between",
-  gap: 16,
-})
-
-export const deckDetailsClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-})
-
-export const deckDescriptionClass = style({
-  ...fontSize.m,
-  gridColumn: "1 / span 2",
-  color: color.bam10,
-  maxWidth: 300,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      padding: 12,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 16,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      padding: 20,
+      width: "100%",
+    },
+  },
 })
 
 export const deckRowsClass = style({
   display: "flex",
-  flexDirection: "column",
   alignItems: "flex-start",
-  justifyContent: "center",
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
   position: "relative",
   zIndex: 0,
 })
@@ -105,11 +109,19 @@ export const deckItemClass = style({
 
 export const deckTitleClass = recipe({
   base: {
-    ...fontSize.h2,
+    ...fontSize.s,
     fontFamily: primary,
     display: "flex",
     alignItems: "center",
     gap: 12,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.m,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        ...fontSize.l,
+      },
+    },
   },
   variants: {
     full: {
@@ -123,48 +135,36 @@ export const deckTitleClass = recipe({
   },
 })
 
-export const moneyClass = recipe({
+export const pillClass = recipe({
   base: {
     fontFamily: primary,
-    background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-    boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-      0px 0px 0px 1px ${color.gold50},
-      0px 0px 3px -1px ${color.gold30},
-      0px 0px 10px -5px ${color.gold30}
-    `,
-    color: color.gold10,
     fontVariantLigatures: "none",
     display: "inline-block",
     borderRadius: 999,
-  },
-  variants: {
-    frozen: {
-      true: {
-        background: `linear-gradient(to bottom, ${color.glass80}, ${color.glass70})`,
-        boxShadow: `1px -1px 0px 0 inset ${color.glass90},
-          0px 0px 0px 1px ${color.glass50},
-          0px 0px 3px -1px ${color.glass30},
-          0px 0px 10px -5px ${color.glass30}
-        `,
-      },
-    },
-    size: {
-      big: {
-        ...fontSize.h2,
-        paddingInline: 16,
-        paddingBlock: 4,
-      },
-      medium: {
+    ...fontSize.s,
+    paddingInline: 8,
+    paddingBlock: 1,
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
         ...fontSize.m,
         paddingInline: 12,
         paddingBlock: 2,
       },
-      small: {
-        ...fontSize.s,
-        paddingInline: 8,
-        paddingBlock: 1,
-      },
     },
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${kolor(80)}, ${kolor(70)})`,
+      boxShadow: `1px -1px 0px 0 inset ${kolor(90)},
+        0px 0px 0px 1px ${kolor(50)},
+        0px 0px 3px -1px ${kolor(30)},
+        0px 0px 10px -5px ${kolor(30)}
+      `,
+      color: kolor(10),
+    })),
+  },
+  defaultVariants: {
+    hue: "gold",
   },
 })
 
@@ -180,47 +180,49 @@ export const itemPairClass = style({
 
 export const shopItemsClass = style({
   width: "100%",
-  display: "flex",
-  flexDirection: "column",
+  display: "grid",
+  gridTemplateColumns: "repeat(8, 1fr)",
   justifyContent: "space-between",
-  gap: 16,
-  padding: 16,
-  borderRadius: 12,
   background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
+  padding: 8,
+  borderRadius: 12,
+  gap: 8,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 12,
+      padding: 12,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 16,
+      padding: 16,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 20,
+      padding: 20,
+    },
+  },
 })
 
-export const itemsTitleClass = style({
-  ...fontSize.h2,
-  fontFamily: primary,
-  color: color.dot30,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-})
-
-export const itemsClass = style({
-  display: "flex",
-  alignItems: "flex-end",
-  height: 120 + 28 + 16, // 28 is the coins height, 16 is the gap
-  justifyContent: "center",
-  gap: 32,
-})
-
-export const itemClass = recipe({
+export const tileItemClass = recipe({
   base: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 16,
-    width: 80,
+    padding: 0,
+    gap: 8,
     justifyContent: "flex-end",
     border: "none",
     background: "none",
-    padding: 0,
     color: color.dot10,
     transition: "all 0.2s ease-in-out",
-    willChange: "filter, transform",
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        gap: 12,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        gap: 16,
+      },
+    },
   },
   variants: {
     disabled: {
@@ -246,19 +248,21 @@ export const itemClass = recipe({
   },
 })
 
-export const itemTitleClass = style({
-  ...fontSize.m,
-  color: color.dot30,
-  fontFamily: primary,
-})
-
 export const shopExtraClass = recipe({
   base: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     alignSelf: "flex-end",
-    gap: 16,
+    gap: 8,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        gap: 12,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        gap: 16,
+      },
+    },
   },
   variants: {
     disabled: {
@@ -310,7 +314,15 @@ export const detailsContentClass = recipe({
     fontFamily: primary,
     display: "flex",
     flexDirection: "column",
-    gap: 24,
+    gap: 12,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        gap: 16,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        gap: 20,
+      },
+    },
     selectors: {
       "&[data-expanded]": {
         animation: `${contentShow} 300ms ease-out`,
@@ -343,10 +355,16 @@ export const buttonsClass = style({
 
 export const materialUpgradesClass = style({
   display: "flex",
-  padding: 12,
-  gap: 24,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 20,
+    },
+  },
 })
-
 export const materialUpgradeClass = recipe({
   base: {
     border: "none",
@@ -370,6 +388,9 @@ export const materialUpgradeTitleClass = recipe({
   base: {
     ...fontSize.l,
     fontFamily: primary,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
   },
   variants: {
     material: hueVariants((kolor) => ({
@@ -384,20 +405,33 @@ export const detailTitleClass = style({
   justifyContent: "space-between",
   width: "100%",
   gap: 24,
-  ...fontSize.h2,
+  ...fontSize.l,
   fontFamily: primary,
   color: color.bone10,
+  "@media": {
+    [heightQueries.s]: {
+      ...fontSize.h3,
+    },
+    [heightQueries.m]: {
+      ...fontSize.h2,
+    },
+  },
 })
 
 export const detailListClass = recipe({
   base: {
     display: "grid",
-    gridGap: 12,
+    gridGap: 8,
     width: "100%",
     gridTemplateColumns: "max-content",
     padding: 8,
     borderRadius: 4,
     fontVariantLigatures: "none",
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        gridGap: 12,
+      },
+    },
   },
   variants: {
     type: hueVariants((kolor) => ({
@@ -407,7 +441,7 @@ export const detailListClass = recipe({
 })
 
 export const detailTermClass = style({
-  ...fontSize.m,
+  ...fontSize.s,
   fontFamily: primary,
   justifySelf: "start",
   selectors: hueSelectors(
@@ -416,10 +450,15 @@ export const detailTermClass = style({
       color: kolor(30),
     }),
   ),
+  "@media": {
+    [heightQueries.s]: {
+      ...fontSize.m,
+    },
+  },
 })
 
 export const detailDescriptionClass = style({
-  ...fontSize.m,
+  ...fontSize.s,
   fontFamily: primary,
   justifySelf: "end",
   gridColumnStart: 2,
@@ -429,40 +468,65 @@ export const detailDescriptionClass = style({
       color: kolor(10),
     }),
   ),
+  "@media": {
+    [heightQueries.s]: {
+      ...fontSize.m,
+    },
+  },
 })
 
 export const upgradeTitleClass = style({
-  ...fontSize.h2,
+  ...fontSize.l,
   textAlign: "center",
   fontFamily: primary,
   color: color.bone40,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.h3,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h2,
+    },
+  },
 })
 
 export const upgradeDescriptionClass = style({
-  ...fontSize.m,
+  ...fontSize.s,
   textAlign: "center",
   fontFamily: secondary,
   color: color.bone30,
   display: "flex",
   flexDirection: "column",
-  gap: 12,
+  gap: 4,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.m,
+      gap: 8,
+    },
+  },
 })
 
-export const emperorClass = recipe({
+export const emperorItemClass = recipe({
   base: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 16,
+    gap: 8,
+    paddingBlock: 0,
+    paddingInline: 16,
     justifyContent: "center",
     border: "none",
     background: "none",
-    padding: 0,
     color: color.crack10,
-    position: "relative",
     transition: "all 0.2s ease-in-out",
-    left: 0,
-    top: 0,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        gap: 12,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        gap: 16,
+      },
+    },
   },
   variants: {
     disabled: {
@@ -479,8 +543,7 @@ export const emperorClass = recipe({
     selected: {
       true: {
         filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
-        left: -4,
-        top: -4,
+        transform: "translate(-4px, -4px)",
         ":hover": {
           filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
         },
@@ -489,17 +552,9 @@ export const emperorClass = recipe({
   },
 })
 
-export const emptyEmperorClass = style({
-  width: 80,
-  height: 120,
-  borderRadius: 16,
-  background: alpha(color.crack10, 0.1),
-  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
-})
-
 export const modalDetailsClass = style({
-  display: "flex",
-  justifyContent: "space-between",
+  display: "grid",
+  gridTemplateColumns: "minmax(50px, 1fr) minmax(70%, max-content)",
   gap: 24,
 })
 
@@ -524,24 +579,49 @@ export const emperorDetailsDescriptionClass = style({
   fontFamily: secondary,
   ...fontSize.m,
 })
+export const ownedEmperorsContainer = createContainer()
 
 export const ownedEmperorsClass = style({
-  width: "100%",
   display: "flex",
   flexDirection: "column",
-  padding: 16,
+  containerName: ownedEmperorsContainer,
+  containerType: "inline-size",
+  padding: 8,
+  gap: 8,
   borderRadius: 12,
-  gap: 16,
+  width: "30%",
+  minHeight: 0,
   background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      padding: 12,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 16,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      padding: 20,
+      width: "100%",
+    },
+  },
 })
 
 export const ownedEmperorsTitleClass = recipe({
   base: {
-    ...fontSize.h2,
+    ...fontSize.s,
     fontFamily: primary,
     display: "flex",
     alignItems: "center",
     gap: 12,
+    whiteSpace: "nowrap",
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.m,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        ...fontSize.l,
+      },
+    },
   },
   variants: {
     full: {
@@ -557,7 +637,7 @@ export const ownedEmperorsTitleClass = recipe({
 
 export const fullExplanationClass = recipe({
   base: {
-    ...fontSize.m,
+    ...fontSize.s,
     fontFamily: secondary,
     paddingInline: 12,
     paddingBlock: 4,
@@ -574,46 +654,126 @@ export const fullExplanationClass = recipe({
 export const ownedEmperorsListClass = style({
   display: "flex",
   flexWrap: "wrap",
-  gap: 12,
-  justifyContent: "center",
+  minHeight: 0,
+  gap: 4,
+  gridTemplateRows: "repeat(3, 1fr)",
+  gridAutoRows: "1fr",
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 8,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 12,
+    },
+  },
+})
+
+export const emperorWrapperClass = style({
+  width: 30,
+  "@container": {
+    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
+      width: 40,
+    },
+    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
+      width: 50,
+    },
+    [`${ownedEmperorsContainer} (min-width: 700px)`]: {
+      width: 60,
+    },
+  },
+})
+
+export const emptyEmperorClass = style({
+  background: alpha(color.crack10, 0.1),
+  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
+  borderRadius: 8,
+  aspectRatio: "2 / 3",
+  flex: 1,
+  "@container": {
+    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
+      borderRadius: 12,
+    },
+    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
+      borderRadius: 16,
+    },
+  },
 })
 
 export const MINI_TILE_SIZE = 24
 
-export const nextRoundClass = style({
+export const shopHeaderItemsClass = style({
   display: "flex",
   alignItems: "center",
-  borderRadius: 12,
-  padding: 12,
-  background: `linear-gradient(to bottom, ${alpha(color.bone70, 0.2)}, ${alpha(color.bone70, 0.3)})`,
-  gap: 24,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 20,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 24,
+    },
+  },
+})
+export const shopHeaderItemClass = recipe({
+  base: {
+    display: "flex",
+    padding: 8,
+    borderRadius: 8,
+    alignItems: "center",
+    fontFamily: primary,
+    gap: 12,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(70), 0.2)}, ${alpha(kolor(70), 0.3)})`,
+      color: kolor(30),
+    })),
+  },
 })
 
-export const nextRoundTitleClass = style({
-  ...fontSize.h2,
-  fontFamily: primary,
-  color: color.bone30,
-  whiteSpace: "nowrap",
+export const emperorImageClass = recipe({
+  base: {},
+  variants: {
+    frozen: {
+      true: {
+        filter: "hue-rotate(175deg) saturate(0.7) brightness(0.8)",
+      },
+    },
+  },
 })
 
-export const nextRoundDetailListClass = style({
-  display: "grid",
-  columnGap: 8,
-  rowGap: 4,
-  width: "100%",
-  gridTemplateColumns: "max-content",
-  alignItems: "center",
-})
-
-export const nextRoundDetailTermClass = style({
-  color: color.bone40,
+export const propertiesClass = style({
   display: "flex",
-  alignItems: "center",
+  overflow: "hidden",
+  minHeight: 0,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 20,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 24,
+      flexDirection: "column",
+    },
+  },
 })
 
-export const nextRoundDetailDescriptionClass = style({
-  color: color.bone30,
-  ...fontSize.s,
+export const shopHeaderTitleClass = style({
+  ...fontSize.h3,
   fontFamily: primary,
-  gridColumnStart: 2,
+  color: color.bone10,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h1,
+    },
+  },
 })

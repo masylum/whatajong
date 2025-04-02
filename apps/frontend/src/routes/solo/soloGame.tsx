@@ -7,15 +7,16 @@ import { GameOverSolo } from "./gameOverSolo"
 import { Frame } from "@/components/game/frame"
 import { LinkButton } from "@/components/button"
 import { Powerups } from "@/components/game/powerups"
-import { Points, Moves } from "@/components/game/stats"
+import { PointsAndPenalty, Moves } from "@/components/game/stats"
 import { Button } from "@/components/button"
-import { ArrowLeft, Bell, BellOff, Rotate } from "@/components/icon"
+import { Bell, BellOff, Rotate, Home } from "@/components/icon"
 import { nanoid } from "nanoid"
-import { menuContainer, container } from "./soloGame.css"
+import { menuContainer } from "./soloGame.css"
 import { createTileState, TileStateProvider } from "@/state/tileState"
 import { createRunState, RunStateProvider } from "@/state/runState"
 import { useGlobalState } from "@/state/globalState"
 import { captureRun } from "@/lib/observability"
+import { GameTutorial } from "@/components/gameTutorial"
 
 export function Solo() {
   const params = useParams()
@@ -33,74 +34,77 @@ export function Solo() {
     <RunStateProvider run={run}>
       <GameStateProvider game={game}>
         <TileStateProvider tileDb={tiles()}>
-          <Show when={started(game)}>
-            <Show
-              when={game.endedAt}
-              fallback={
-                <Frame
-                  board={
-                    <Board
-                      onSelectTile={(tileId) =>
-                        selectTile({
-                          tileDb: tiles(),
-                          run,
-                          game,
-                          tileId,
-                        })
-                      }
-                    />
-                  }
-                  bottom={<Bottom />}
-                  top={<Top />}
-                />
-              }
-            >
-              <GameOverSolo />
+          <GameTutorial>
+            <Show when={started(game)}>
+              <Powerups />
+              <Show
+                when={game.endedAt}
+                fallback={
+                  <Frame
+                    board={
+                      <Board
+                        onSelectTile={(tileId) =>
+                          selectTile({
+                            tileDb: tiles(),
+                            run,
+                            game,
+                            tileId,
+                          })
+                        }
+                      />
+                    }
+                    bottomLeft={<BottomLeft />}
+                    topLeft={<TopLeft />}
+                    bottomRight={<BottomRight />}
+                    topRight={<TopRight />}
+                  />
+                }
+              >
+                <GameOverSolo />
+              </Show>
             </Show>
-          </Show>
+          </GameTutorial>
         </TileStateProvider>
       </GameStateProvider>
     </RunStateProvider>
   )
 }
 
-export function Top() {
+function TopLeft() {
   return (
-    <div class={container}>
-      <Powerups />
-    </div>
+    <LinkButton href="/" hue="bam">
+      <Home />
+    </LinkButton>
   )
 }
 
-export function Bottom() {
+function TopRight() {
   const globalState = useGlobalState()
-
   return (
-    <div class={container}>
-      <Points timerPoints={0.25} />
-      <nav class={menuContainer}>
-        <LinkButton href="/" hue="bam">
-          <ArrowLeft />
-          back
-        </LinkButton>
-        <LinkButton href={`/play/${nanoid()}`} hue="crack">
-          <Rotate />
-          restart
-        </LinkButton>
-        <Button
-          type="button"
-          hue="dot"
-          title="silence"
-          onClick={() => {
-            globalState.muted = !globalState.muted
-          }}
-        >
-          <Show when={globalState.muted} fallback={<Bell />}>
-            <BellOff />
-          </Show>
-        </Button>
-      </nav>
-      <Moves />
-    </div>
+    <nav class={menuContainer}>
+      <LinkButton href={`/play/${nanoid()}`} hue="crack">
+        <Rotate />
+      </LinkButton>
+      <Button
+        type="button"
+        hue="dot"
+        title="silence"
+        onClick={() => {
+          globalState.muted = !globalState.muted
+        }}
+      >
+        <Show when={globalState.muted} fallback={<Bell />}>
+          <BellOff />
+        </Show>
+      </Button>
+    </nav>
   )
+}
+
+function BottomLeft() {
+  return <PointsAndPenalty timerPoints={0.25} />
+}
+
+function BottomRight() {
+  return <Moves />
 }

@@ -334,7 +334,6 @@ export const suits = [
   "s",
   "p",
   "r",
-  "a",
   "m",
   "w",
   "j",
@@ -669,6 +668,7 @@ export const MUTATION_RANKS = {
 
 export function cardName(card: Card) {
   const dragonCard = isDragon(card)
+
   if (dragonCard) {
     return `${suitName(getRank(dragonCard))} dragon`
   }
@@ -693,7 +693,21 @@ export function cardName(card: Card) {
     return `${suitName(mutation[0])} / ${suitName(mutation[1])} mutation`
   }
 
+  const windCard = isWind(card)
+  if (windCard) {
+    return `${getWindDirection(windCard)} wind`
+  }
+
   return `${suitName(card)} ${getRank(card)}`
+}
+
+export function getWindDirection(card: Wind) {
+  return {
+    n: "north",
+    s: "south",
+    e: "east",
+    w: "west",
+  }[getRank(card)]
 }
 
 export function getMutationRanks(card: Mutation) {

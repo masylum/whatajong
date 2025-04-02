@@ -1,4 +1,4 @@
-import { TILE_RATIO, getImageSrc, getTileSize } from "@/state/constants"
+import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
 import { mergeProps } from "solid-js"
 import type { Card } from "@/lib/game"
 
@@ -9,12 +9,12 @@ type Props = {
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const props = mergeProps(
     { width: tileSize().width, height: tileSize().height },
     iProps,
   )
-  const href = getImageSrc(props.card)
+  const href = useImageSrc(props.card)
 
   return (
     <image

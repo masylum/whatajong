@@ -6,7 +6,7 @@ import { createMemo, Show, splitProps, type JSX } from "solid-js"
 import { TileImage } from "./tileImage"
 import { strokePath } from "./tileComponent"
 import { tileClass } from "./basicTile.css"
-import { getTileSize, TILE_RATIO } from "@/state/constants"
+import { useTileSize, TILE_RATIO } from "@/state/constants"
 
 type Props = {
   card?: Card
@@ -16,7 +16,7 @@ type Props = {
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
   const [local, other] = splitProps(props, ["card", "highlighted", "material"])
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const width = createMemo(() => props.width ?? tileSize().width)
   const height = createMemo(() => width() * TILE_RATIO)
   const dPath = createMemo(() =>
@@ -42,7 +42,7 @@ export function BasicTile(props: Props) {
           <path
             d={dPath()}
             fill={
-              color() === "white" ? "white" : getHueColor(color() as any)(30)
+              color() === "white" ? "white" : getHueColor(color() as any)(60)
             }
             opacity="0.4"
             stroke="none"

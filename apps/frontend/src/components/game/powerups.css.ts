@@ -2,6 +2,7 @@ import { createVar, fallbackVar, style } from "@vanilla-extract/css"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
+import { primary } from "@/styles/fontFamily.css"
 
 const opacity = createVar()
 const backgroundColor = createVar()
@@ -93,6 +94,7 @@ export const comboRecipe = recipe({
     alignItems: "center",
     gap: 8,
     fontSize: "14px",
+    fontFamily: primary,
     fontWeight: "500",
     color: "white",
     paddingInline: 8,

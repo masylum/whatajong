@@ -2,7 +2,7 @@ import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
 import { isTransparent, type Material } from "@/lib/game"
 import { getHueColor } from "@/styles/colors"
-import { getTileSize } from "@/state/constants"
+import { useTileSize } from "@/state/constants"
 
 type Props = {
   material?: Material
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function TileBody(iProps: Props) {
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const props = mergeProps(
     {
       material: "bone",

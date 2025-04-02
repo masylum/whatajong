@@ -4,29 +4,47 @@ import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes } from "@vanilla-extract/css"
 import { mediaQuery } from "@/styles/breakpoints"
+import { primary } from "@/styles/fontFamily.css"
 
 const statItem = style({
   display: "flex",
   flexDirection: "column",
-  ...fontSize.l,
-  gap: 8,
+  fontFamily: primary,
+  userSelect: "none",
+  ...fontSize.s,
+  gap: 4,
   "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.m,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.l,
+      gap: 8,
+    },
     [mediaQuery({ p: "l", l: "m" })]: {
-      ...fontSize.h2,
+      ...fontSize.h3,
       gap: 12,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.h2,
     },
   },
 })
 
 export const pillClass = recipe({
   base: {
-    ...fontSize.h3,
+    ...fontSize.m,
     textAlign: "center",
     borderRadius: 8,
-    paddingInline: 8,
-    paddingBlock: 2,
+    paddingInline: 4,
+    paddingBlock: 0,
     color: "white",
     "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h3,
+        paddingInline: 8,
+        paddingBlock: 2,
+      },
       [mediaQuery({ p: "l", l: "m" })]: {
         ...fontSize.h2,
         paddingInline: 12,
@@ -91,11 +109,6 @@ const pulseUrgent = keyframes({
   },
 })
 
-export const pointsContainerClass = style({
-  display: "flex",
-  gap: 32,
-})
-
 export const pointsClass = style([
   statItem,
   {
@@ -158,6 +171,8 @@ export const movesClass = recipe({
   },
 })
 
-export const statLabel = style({
-  letterSpacing: "0.05em",
+export const boardClass = style({
+  background: color.bone90,
+  padding: 12,
+  borderRadius: 8,
 })

@@ -10,7 +10,7 @@ import { createPersistantMutable } from "./persistantMutable"
 import type { Deck, Game, Level } from "@/lib/game"
 import { calculateSeconds } from "./gameState"
 
-const RUN_STATE_NAMESPACE = "run-state"
+const RUN_STATE_NAMESPACE = "run-state-v2"
 
 export type RunState = {
   runId: string
@@ -21,6 +21,7 @@ export type RunState = {
   shopItems: Item[]
   items: Item[]
   difficulty?: Difficulty
+  createdAt: number
   freeze?: {
     round: number
     reroll: number
@@ -66,6 +67,7 @@ export function fetchRuns() {
   return Object.entries(localStorage)
     .filter(([key]) => key.startsWith(RUN_STATE_NAMESPACE))
     .map(([_, value]) => JSON.parse(value))
+    .sort((a, b) => b.createdAt - a.createdAt)
 }
 
 type CreateRunStateParams = { id: () => string }
@@ -81,6 +83,7 @@ export function createRunState(params: CreateRunStateParams) {
         stage: "intro",
         shopLevel: 1,
         shopItems: generateShopItems(),
+        createdAt: Date.now(),
         items: [],
       }
     },

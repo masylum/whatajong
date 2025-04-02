@@ -3,14 +3,13 @@ import { Portal } from "solid-js/web"
 import {
   tooltipClass,
   emperorContainerClass,
-  detailTermClass,
-  detailDescriptionClass,
-  detailListClass,
   detailInfoClass,
+  detailsDialogClass,
+  emperorIconClass,
 } from "./emperorHover.css"
 import type { JSX } from "solid-js"
 import { getEmperors, type Emperor } from "@/state/emperors"
-import { EmperorIcon } from "../emperor"
+import { BasicEmperor } from "../emperor"
 
 type MousePosition = { x: number; y: number }
 type EmperorHoverProps = {
@@ -18,6 +17,7 @@ type EmperorHoverProps = {
   name: string
 }
 
+// TODO: deprecate
 export function EmperorHover(props: EmperorHoverProps) {
   const emperor = createMemo(() =>
     getEmperors().find((emperor) => emperor.name === props.name),
@@ -76,27 +76,28 @@ function EmperorDetails(props: EmperorDetailsProps) {
     tooltip.style.transform = `translate3d(${newX}px, ${newY}px, 1px)`
   })
 
-  const name = createMemo(() => props.emperor.name)
-  const description = createMemo(() => props.emperor.description())
-  const level = createMemo(() => props.emperor.level)
-
   return (
     <Portal>
       <div ref={setTooltipEl} class={tooltipClass} style={initialStyle}>
-        <EmperorIcon name={name()} />
-        <div class={emperorContainerClass}>
-          <span>{name().replaceAll("_", " ")}</span>
-
-          <div class={detailInfoClass}>{description()}</div>
-
-          <Show when={level()}>
-            <dl class={detailListClass({ hue: "bone" })}>
-              <dt class={detailTermClass}>Level:</dt>
-              <dd class={detailDescriptionClass}>{level()}</dd>
-            </dl>
-          </Show>
-        </div>
+        <EmperorDetailsDialog emperor={props.emperor} />
       </div>
     </Portal>
+  )
+}
+
+export function EmperorDetailsDialog(props: {
+  emperor: Emperor
+}) {
+  const name = createMemo(() => props.emperor.name)
+  const description = createMemo(() => props.emperor.description())
+
+  return (
+    <div class={detailsDialogClass}>
+      <BasicEmperor class={emperorIconClass} name={name()} />
+      <div class={emperorContainerClass}>
+        <span>{name().replaceAll("_", " ")}</span>
+        <div class={detailInfoClass}>{description()}</div>
+      </div>
+    </div>
   )
 }

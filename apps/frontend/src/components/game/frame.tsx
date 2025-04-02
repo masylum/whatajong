@@ -5,18 +5,24 @@ import {
   onMount,
   type JSXElement,
 } from "solid-js"
-import { gameRecipe, COMBO_ANIMATION_DURATION } from "./frame.css"
+import {
+  containerClass,
+  gameRecipe,
+  COMBO_ANIMATION_DURATION,
+} from "./frame.css"
 import { DustParticles } from "./dustParticles"
 import { play, SOUNDS } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
 import { useGlobalState } from "@/state/globalState"
-import createGameTour from "@/lib/createGameTour"
+import { useLayoutSize } from "@/state/constants"
 
 type Props = {
   board: JSXElement
-  bottom: JSXElement
-  top: JSXElement
+  topLeft: JSXElement
+  topRight: JSXElement
+  bottomLeft: JSXElement
+  bottomRight: JSXElement
 }
 export function Frame(props: Props) {
   const game = useGameState()
@@ -24,6 +30,8 @@ export function Frame(props: Props) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
+  const layout = useLayoutSize()
+  const orientation = createMemo(() => layout().orientation)
 
   // TODO: Move to powerups?
   createEffect((prevCombo: number) => {
@@ -44,19 +52,45 @@ export function Frame(props: Props) {
     play(SOUNDS.GONG, globalState.muted)
   })
 
-  onMount(() => {
-    createGameTour()
-  })
-
   return (
     <div
       class={gameRecipe({
         comboAnimation: comboAnimation() as any,
       })}
     >
-      {props.top}
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "topLeft",
+        })}
+      >
+        {props.topLeft}
+      </div>
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "topRight",
+        })}
+      >
+        {props.topRight}
+      </div>
       {props.board}
-      {props.bottom}
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "bottomLeft",
+        })}
+      >
+        {props.bottomLeft}
+      </div>
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "bottomRight",
+        })}
+      >
+        {props.bottomRight}
+      </div>
       <Mountains />
       <DustParticles />
     </div>

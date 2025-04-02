@@ -1,7 +1,7 @@
 import { createMemo, mergeProps, Show } from "solid-js"
 import { useTileState } from "@/state/tileState"
 import { getFinder, type Tile } from "@/lib/game"
-import { getSideSize, getTileSize } from "@/state/constants"
+import { getSideSize, useTileSize } from "@/state/constants"
 import { shadeClass } from "./tileShades.css"
 import { SOFT_SHADE_FILTER_ID } from "./defs"
 
@@ -12,7 +12,7 @@ type Props = {
 }
 export function TileShades(iProps: Props) {
   const tiles = useTileState()
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const props = mergeProps(
     { width: tileSize().width, height: tileSize().height },
     iProps,
@@ -128,7 +128,7 @@ export function TopShade(props: SideShadeProps) {
 }
 
 export function RightShade(props: SideShadeProps) {
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const rightShadePath = createMemo(() => {
     const { topLeft, left, bottomLeft } = props.shadeVariants
 

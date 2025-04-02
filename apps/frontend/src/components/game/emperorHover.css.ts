@@ -1,8 +1,7 @@
 import { style } from "@vanilla-extract/css"
-import { alpha, color, hueVariants } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary, secondary } from "@/styles/fontFamily.css"
-import { recipe } from "@vanilla-extract/recipes"
 
 export const tooltipClass = style({
   position: "absolute",
@@ -29,47 +28,15 @@ export const emperorContainerClass = style({
   ...fontSize.h3,
 })
 
-// TODO: DRY
-export const detailListClass = recipe({
-  base: {
-    display: "grid",
-    gridGap: 12,
-    width: "100%",
-    gridTemplateColumns: "max-content 1fr",
-    padding: 8,
-    borderRadius: 4,
-    fontVariantLigatures: "none",
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
-    })),
-  },
+export const emperorIconClass = style({
+  width: 100,
+  borderRadius: 12,
 })
 
-// TODO: DRY
-export const detailTermClass = style({
-  ...fontSize.m,
-  fontFamily: primary,
-  justifySelf: "start",
-  selectors: {
-    [`${detailListClass.classNames.variants.hue.bone} &`]: {
-      color: color.bone30,
-    },
-  },
-})
-
-// TODO: DRY
-export const detailDescriptionClass = style({
-  ...fontSize.m,
-  fontFamily: primary,
-  justifySelf: "end",
-  gridColumnStart: 2,
-  selectors: {
-    [`${detailListClass.classNames.variants.hue.bone} &`]: {
-      color: color.bone10,
-    },
-  },
+export const detailsDialogClass = style({
+  display: "flex",
+  gap: 24,
+  color: color.bone10,
 })
 
 // TODO: DRY

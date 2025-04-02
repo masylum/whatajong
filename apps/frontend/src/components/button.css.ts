@@ -1,20 +1,39 @@
 import { alpha, hueVariants, mapHues } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { primary } from "@/styles/fontFamily.css"
+import { mediaQuery } from "@/styles/breakpoints"
+import { fontSize } from "@/styles/fontSize"
+import { globalStyle } from "@vanilla-extract/css"
 
 export const buttonClass = recipe({
   base: {
-    fontSize: 24,
+    ...fontSize.m,
     fontFamily: primary,
     lineHeight: 1,
     display: "flex",
     alignItems: "center",
-    paddingInline: 12,
-    paddingBlock: 8,
-    gap: 8,
+    paddingInline: 8,
+    paddingBlock: 4,
+    gap: 4,
     borderRadius: 8,
     border: "none",
     cursor: "pointer",
+    outline: "none",
+    ":focus": {
+      outlineOffset: 2,
+    },
+    ":disabled": {
+      opacity: 0.5,
+      cursor: "inherit",
+    },
+    "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        paddingInline: 12,
+        paddingBlock: 8,
+        ...fontSize.h3,
+        gap: 8,
+      },
+    },
   },
   variants: {
     kind: {
@@ -32,9 +51,14 @@ export const buttonClass = recipe({
       style: {
         backgroundColor: alpha(kolor(50), 0.2),
         color: kolor(40),
-        ":hover": {
-          backgroundColor: alpha(kolor(50), 0.3),
-          color: kolor(30),
+        ":focus": {
+          outline: `2px solid ${kolor(50)}`,
+        },
+        selectors: {
+          "&:hover:not(:disabled)": {
+            backgroundColor: alpha(kolor(50), 0.3),
+            color: kolor(30),
+          },
         },
       },
     },
@@ -46,9 +70,14 @@ export const buttonClass = recipe({
       style: {
         backgroundColor: alpha(kolor(60), 0.2),
         color: kolor(80),
-        ":hover": {
-          backgroundColor: alpha(kolor(60), 0.3),
-          color: kolor(90),
+        ":focus": {
+          outline: `2px solid ${kolor(50)}`,
+        },
+        selectors: {
+          "&:hover:not(:disabled)": {
+            backgroundColor: alpha(kolor(60), 0.3),
+            color: kolor(90),
+          },
         },
       },
     },
@@ -58,16 +87,32 @@ export const buttonClass = recipe({
   },
 })
 
+globalStyle(`${buttonClass.classNames.base} > svg`, {
+  width: 16,
+  height: 16,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      width: 20,
+      height: 20,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      width: 24,
+      height: 24,
+    },
+  },
+})
+
 export const shopButtonClass = recipe({
   base: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    paddingInline: 12,
-    paddingBlock: 8,
+    gap: 4,
+    paddingInline: 8,
+    paddingBlock: 4,
     borderRadius: 8,
     fontFamily: primary,
+    ...fontSize.l,
     whiteSpace: "nowrap",
     fontVariantLigatures: "none",
     outline: "none",
@@ -76,6 +121,14 @@ export const shopButtonClass = recipe({
       "&:not(:disabled):hover": {
         cursor: "pointer",
         filter: "brightness(1.1)",
+      },
+    },
+    "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        gap: 8,
+        paddingInline: 12,
+        paddingBlock: 8,
+        ...fontSize.h3,
       },
     },
   },

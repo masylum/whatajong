@@ -34,10 +34,10 @@ import { useDeckState } from "@/state/deckState"
 import { getRank, getSuit, type DeckTile } from "@/lib/game"
 import { splitIntoRows } from "@/lib/splitIntoRows"
 import { BasicTile } from "@/components/game/basicTile"
-import { Emperor } from "@/components/emperor"
+import { BasicEmperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
 import { captureEvent } from "@/lib/observability"
-import { getTileSize, getSideSize } from "@/state/constants"
+import { useTileSize, getSideSize } from "@/state/constants"
 
 export default function RunGameOver() {
   const run = useRunState()
@@ -195,7 +195,7 @@ function Deck() {
       minRows: 4,
     })
   })
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const sideSize = createMemo(() => getSideSize(tileSize().height))
 
   return (
@@ -255,7 +255,7 @@ function OwnedEmperors() {
         <For each={ownedEmperors()}>
           {(emperor) => (
             <div class={emperorClass}>
-              <Emperor name={emperor.name} />
+              <BasicEmperor name={emperor.name} />
             </div>
           )}
         </For>

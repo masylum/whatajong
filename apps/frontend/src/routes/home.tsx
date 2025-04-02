@@ -15,7 +15,7 @@ import { BasicTile } from "@/components/game/basicTile"
 import { getStandardPairs } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { For, createMemo } from "solid-js"
-import { getImageSrc, getTileSize } from "@/state/constants"
+import { useImageSrc, useTileSize } from "@/state/constants"
 import { nanoid } from "nanoid"
 import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
@@ -31,8 +31,8 @@ function cards() {
 export function Home() {
   const globalState = useGlobalState()
   const runs = createMemo(() => fetchRuns())
-  const db = getImageSrc("db")
-  const dc = getImageSrc("dc")
+  const db = useImageSrc("db")
+  const dc = useImageSrc("dc")
 
   function onHover() {
     play(SOUNDS.CLICK2, globalState.muted)
@@ -59,7 +59,7 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href={runs().length > 0 ? "/runs" : `/run/${nanoid()}`}
+          href={runs().length > 0 ? `/run/${runs()[0].id}` : `/run/${nanoid()}`}
           class={buttonClass({ hue: "crack" })}
         >
           <img
@@ -78,7 +78,7 @@ export function Home() {
 }
 
 function Frame() {
-  const tileSize = getTileSize()
+  const tileSize = useTileSize()
   const horizontalTiles = createMemo(() => {
     return Math.floor(window.innerWidth / tileSize().width)
   })

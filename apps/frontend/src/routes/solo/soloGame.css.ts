@@ -1,26 +1,18 @@
 import { style } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
-import { color } from "@/styles/colors"
-
-export const container = style({
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontFamily: primary,
-  gap: "1.5rem",
-  zIndex: 3,
-  padding: 12,
-  userSelect: "none",
-  color: color.base0,
-})
+import { mediaQuery } from "@/styles/breakpoints"
 
 export const menuContainer = style({
   display: "flex",
-  justifyContent: "space-between",
+  justifyContent: "flex-end",
+  flex: 1,
   alignItems: "center",
-  gap: 32,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      gap: 24,
+    },
+  },
 })

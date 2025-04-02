@@ -4,25 +4,20 @@ import { Board } from "@/components/game/board"
 import { useRound, useRunState } from "@/state/runState"
 import { Frame } from "@/components/game/frame"
 import {
-  cardBackButtonClass,
-  cardBackClass,
-  cardClass,
-  cardFrontClass,
   emperorCardClass,
   FLIP_DURATION,
   menuContainerClass,
   roundTitleClass,
   roundObjectiveClass,
-  topContainerClass,
   roundClass,
-  emperorsClass,
   roundObjectiveIconClass,
-  bottomContainerClass,
+  emperorDialogButtonsClass,
+  emperorDialogClass,
 } from "./runGame.css"
 import { Powerups } from "@/components/game/powerups"
-import { ArrowLeft, Bell, Goal, Skull } from "@/components/icon"
+import { Bell, Goal, Home, Skull } from "@/components/icon"
 import { Button, LinkButton } from "@/components/button"
-import { Moves, Points } from "@/components/game/stats"
+import { Moves, PointsAndPenalty } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
 import { useDeckState } from "@/state/deckState"
 import { getOwnedEmperors, selectTile } from "@/lib/game"
@@ -31,13 +26,18 @@ import {
   TileStateProvider,
   useTileState,
 } from "@/state/tileState"
-import { Emperor } from "@/components/emperor"
+import { BasicEmperor } from "@/components/emperor"
 import { shuffleTiles } from "@/lib/shuffleTiles"
 import Rand from "rand-seed"
 import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
 import { useGlobalState } from "@/state/globalState"
 import RunGameOver from "./runGameOver"
 import { captureEvent } from "@/lib/observability"
+import { useLayoutSize } from "@/state/constants"
+import { Dialog } from "@kobalte/core/dialog"
+import { EmperorDetailsDialog } from "@/components/game/emperorHover"
+import { getEmperors } from "@/state/emperors"
+import { Modal } from "@/components/dialog"
 
 export default function RunGame() {
   const run = useRunState()
@@ -52,6 +52,7 @@ export default function RunGame() {
     <GameStateProvider game={game}>
       <TileStateProvider tileDb={tiles()}>
         <Show when={started(game)}>
+          <Powerups />
           <Show when={!game.endCondition} fallback={<RunGameOver />}>
             <Frame
               board={
@@ -66,8 +67,10 @@ export default function RunGame() {
                   }
                 />
               }
-              bottom={<Bottom />}
-              top={<Top />}
+              bottomLeft={<BottomLeft />}
+              bottomRight={<BottomRight />}
+              topLeft={<TopLeft />}
+              topRight={<TopRight />}
             />
           </Show>
         </Show>
@@ -76,38 +79,59 @@ export default function RunGame() {
   )
 }
 
-function Top() {
+function TopLeft() {
   const run = useRunState()
   const round = useRound()
-  const items = createMemo(() =>
-    run.items.filter((item) => item.type === "emperor"),
-  )
+  const globalState = useGlobalState()
 
   return (
     <>
-      <div class={topContainerClass}>
-        <div class={roundClass}>
-          <div class={roundTitleClass}>Round {run.round}</div>
-          <div class={roundObjectiveClass}>
-            <Goal class={roundObjectiveIconClass} /> {round().pointObjective}{" "}
-            points
-          </div>
-        </div>
-        <div class={emperorsClass}>
-          <For each={items()}>{(item) => <EmperorCard item={item} />}</For>
+      <nav class={menuContainerClass}>
+        <LinkButton href="/" hue="bam">
+          <Home />
+        </LinkButton>
+        <Button
+          type="button"
+          hue="dot"
+          title="silence"
+          onClick={() => {
+            globalState.muted = !globalState.muted
+          }}
+        >
+          <Show when={globalState.muted} fallback={<Bell />}>
+            <BellOff />
+          </Show>
+        </Button>
+      </nav>
+      <div class={roundClass}>
+        <div class={roundTitleClass}>Round {run.round}</div>
+        <div class={roundObjectiveClass}>
+          <Goal class={roundObjectiveIconClass} /> {round().pointObjective}{" "}
+          points
         </div>
       </div>
-      <Powerups />
     </>
   )
 }
 
+function TopRight() {
+  const run = useRunState()
+  const items = createMemo(() =>
+    run.items.filter((item) => item.type === "emperor"),
+  )
+
+  return <For each={items()}>{(item) => <EmperorCard item={item} />}</For>
+}
+
 function EmperorCard(props: { item: EmperorItem }) {
-  const [open, setOpen] = createSignal(false)
   const [deleted, setDeleted] = createSignal(false)
   const tiles = useTileState()
   const run = useRunState()
   const deck = useDeckState()
+  const layout = useLayoutSize()
+  const emperor = createMemo(
+    () => getEmperors().find((emperor) => emperor.name === props.item.name)!,
+  )
 
   function onDiscard() {
     const rng = new Rand()
@@ -141,51 +165,38 @@ function EmperorCard(props: { item: EmperorItem }) {
   }
 
   return (
-    <div
-      class={emperorCardClass({ deleted: deleted() })}
-      onClick={() => setOpen(!open())}
-    >
-      <div data-tour="emperors" class={cardClass({ open: open() })}>
-        <div class={cardFrontClass}>
-          <Emperor name={props.item.name} />
+    <Modal
+      trigger={
+        <Dialog.Trigger
+          class={emperorCardClass({
+            deleted: deleted(),
+            orientation: layout().orientation,
+          })}
+        >
+          <BasicEmperor name={props.item.name} />
+        </Dialog.Trigger>
+      }
+      content={
+        <div class={emperorDialogClass}>
+          <EmperorDetailsDialog emperor={emperor()} />
+          <div class={emperorDialogButtonsClass}>
+            shuffle the board and
+            <Button type="button" hue="dot" onClick={onDiscard}>
+              <Skull />
+              Discard
+            </Button>
+          </div>
         </div>
-        <div class={cardBackClass}>
-          <span>shuffle</span>
-          <button class={cardBackButtonClass} type="button" onClick={onDiscard}>
-            <Skull />
-          </button>
-        </div>
-      </div>
-    </div>
+      }
+    />
   )
 }
 
-function Bottom() {
+function BottomLeft() {
   const round = useRound()
-  const globalState = useGlobalState()
+  return <PointsAndPenalty timerPoints={round().timerPoints} />
+}
 
-  return (
-    <div class={bottomContainerClass}>
-      <Points timerPoints={round().timerPoints} />
-      <nav class={menuContainerClass}>
-        <LinkButton href="/" hue="bam">
-          <ArrowLeft />
-          back
-        </LinkButton>
-        <Button
-          type="button"
-          hue="dot"
-          title="silence"
-          onClick={() => {
-            globalState.muted = !globalState.muted
-          }}
-        >
-          <Show when={globalState.muted} fallback={<Bell />}>
-            <BellOff />
-          </Show>
-        </Button>
-      </nav>
-      <Moves />
-    </div>
-  )
+function BottomRight() {
+  return <Moves />
 }

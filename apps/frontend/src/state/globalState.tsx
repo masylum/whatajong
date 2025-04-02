@@ -12,6 +12,7 @@ type Tour = SelectTiles | Board | SelectDragons | Emperor | SelectWinds | Done
 export type GlobalState = {
   muted: boolean
   tourGame: Tour
+  tutorial: number
 }
 
 export function createGlobalState() {
@@ -21,6 +22,8 @@ export function createGlobalState() {
     init: () => ({
       muted: false,
       tourGame: { state: "select-tiles" },
+      tutorial: 0,
+      runTutorial: false,
     }),
   })
 }

@@ -3,6 +3,7 @@ import { alpha, color, hueVariants } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
+import { mediaQuery } from "@/styles/breakpoints"
 
 export const tooltipClass = style({
   position: "absolute",
@@ -108,28 +109,21 @@ export const detailFreedomClass = recipe({
   base: {
     display: "flex",
     flexDirection: "column",
-    gap: 4,
     padding: 8,
     borderRadius: 4,
     fontFamily: secondary,
-    ...fontSize.m,
+    ...fontSize.s,
+    lineHeight: 1.1,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.m,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
       background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
       color: kolor(10),
-    })),
-  },
-})
-
-export const detailFreedomTitleClass = recipe({
-  base: {
-    ...fontSize.m,
-    fontFamily: primary,
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      color: kolor(30),
     })),
   },
 })

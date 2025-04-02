@@ -1,51 +1,20 @@
-import { type JSX, Show, splitProps } from "solid-js"
+import { type JSX, splitProps } from "solid-js"
 import { emperorClass } from "./emperor.css"
-import { EmperorHover } from "./game/emperorHover"
-import { useHover } from "./game/useHover"
 
-type Props = {
-  name: string
-  width?: number
-  frozen?: boolean
-  onClick?: () => void
-}
-export function Emperor(props: Props) {
-  const { isHovering, hoverProps, mousePosition } = useHover({
-    delay: 500,
-  })
-
-  return (
-    <>
-      <EmperorIcon
-        {...hoverProps}
-        onClick={props.onClick}
-        name={props.name}
-        width={props.width}
-        frozen={props.frozen}
-      />
-
-      <Show when={isHovering()}>
-        <EmperorHover mousePosition={mousePosition()} name={props.name} />
-      </Show>
-    </>
-  )
-}
-
-export function EmperorIcon(
+export function BasicEmperor(
   iProps: {
     name: string
-    width?: number
-    frozen?: boolean
   } & JSX.IntrinsicElements["img"],
 ) {
-  const [props, imgProps] = splitProps(iProps, ["name", "width", "frozen"])
-
+  const [props, imgProps] = splitProps(iProps, ["name"])
   return (
     <img
-      src={`/occupations/${props.name}.webp`}
+      srcset={`/occupations/m/${props.name}.webp 300w, /occupations/l/${props.name}.webp 514w`}
+      sizes="(min-width: 1024px) 514px, 300px"
+      src={`/occupations/m/${props.name}.webp`}
+      class={emperorClass}
       {...imgProps}
       alt={props.name}
-      class={emperorClass({ frozen: props.frozen ?? false })}
     />
   )
 }

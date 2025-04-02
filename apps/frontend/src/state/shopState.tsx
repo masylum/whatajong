@@ -1,13 +1,7 @@
 import type { RunState } from "@/state/runState"
 import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
-import {
-  batch,
-  createContext,
-  useContext,
-  type JSXElement,
-  type ParentProps,
-} from "solid-js"
+import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
   bams,
   cracks,
@@ -58,27 +52,41 @@ export type Path = keyof typeof PATHS
 
 type BaseItem = {
   id: string
-  level: Level
 }
 
 export type EmperorItem = BaseItem & {
   type: "emperor"
   name: string
-  description: () => JSXElement
+  level: Level
 }
 
 export type TileItem = BaseItem & {
   card: Card
   type: "tile"
+  level: Level
 }
+
+export type DeckTileItem = BaseItem & {
+  card: Card
+  material: Material
+  type: "deckTile"
+}
+
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
   level: Level
 }
+
 export type Item = TileItem | UpgradeItem | EmperorItem
 export type ShopState = {
   reroll: number
-  currentItem: Item | null
+  currentItem: Item | DeckTileItem | null
+}
+
+export function isTile(item: Item | DeckTileItem) {
+  if (item.type === "tile") return item
+
+  return null
 }
 
 const ShopStateContext = createContext<ShopState | undefined>()
@@ -128,7 +136,6 @@ export function generateEmperorItem(emperor: Emperor) {
     name: emperor.name,
     type: "emperor" as const,
     level: emperor.level,
-    description: emperor.description,
   }
 }
 
@@ -295,5 +302,5 @@ export function sellEmperor(
 }
 
 export function maxEmperors(run: RunState) {
-  return 2 + run.shopLevel
+  return 1 + run.shopLevel
 }
