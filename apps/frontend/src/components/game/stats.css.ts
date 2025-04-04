@@ -3,22 +3,54 @@ import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes } from "@vanilla-extract/css"
+import { mediaQuery } from "@/styles/breakpoints"
+import { primary } from "@/styles/fontFamily.css"
 
 const statItem = style({
   display: "flex",
   flexDirection: "column",
-  ...fontSize.h2,
-  gap: 12,
+  fontFamily: primary,
+  userSelect: "none",
+  ...fontSize.s,
+  gap: 4,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.m,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.l,
+      gap: 8,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h3,
+      gap: 12,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.h2,
+    },
+  },
 })
 
 export const pillClass = recipe({
   base: {
-    ...fontSize.h2,
+    ...fontSize.m,
     textAlign: "center",
-    borderRadius: 12,
-    paddingInline: 12,
-    paddingBlock: 4,
+    borderRadius: 8,
+    paddingInline: 4,
+    paddingBlock: 0,
     color: "white",
+    "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h3,
+        paddingInline: 8,
+        paddingBlock: 2,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h2,
+        paddingInline: 12,
+        paddingBlock: 4,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -75,11 +107,6 @@ const pulseUrgent = keyframes({
     transform: "scale(0.9) translate(50%, 50%)",
     boxShadow: `0 0 0 0 ${alpha(color.crack60, 0)}`,
   },
-})
-
-export const pointsContainerClass = style({
-  display: "flex",
-  gap: 32,
 })
 
 export const pointsClass = style([
@@ -142,8 +169,4 @@ export const movesClass = recipe({
       },
     },
   },
-})
-
-export const statLabel = style({
-  letterSpacing: "0.05em",
 })

@@ -7,9 +7,10 @@ import {
 } from "solid-js"
 import { generateShopItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
-import type { Deck, Level } from "@/lib/game"
+import type { Deck, Game, Level } from "@/lib/game"
+import { calculateSeconds } from "./gameState"
 
-const RUN_STATE_NAMESPACE = "run-state"
+const RUN_STATE_NAMESPACE = "run-state-v2"
 
 export type RunState = {
   runId: string
@@ -20,6 +21,7 @@ export type RunState = {
   shopItems: Item[]
   items: Item[]
   difficulty?: Difficulty
+  createdAt: number
   freeze?: {
     round: number
     reroll: number
@@ -28,7 +30,7 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-export type RoundStage = "intro" | "select" | "game" | "shop"
+type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
 export type Round = {
   id: number
   pointObjective: number
@@ -65,6 +67,7 @@ export function fetchRuns() {
   return Object.entries(localStorage)
     .filter(([key]) => key.startsWith(RUN_STATE_NAMESPACE))
     .map(([_, value]) => JSON.parse(value))
+    .sort((a, b) => b.createdAt - a.createdAt)
 }
 
 type CreateRunStateParams = { id: () => string }
@@ -80,6 +83,7 @@ export function createRunState(params: CreateRunStateParams) {
         stage: "intro",
         shopLevel: 1,
         shopItems: generateShopItems(),
+        createdAt: Date.now(),
         items: [],
       }
     },
@@ -143,4 +147,19 @@ export const DECK_CAPACITY_PER_LEVEL = {
 
 export function getIncome(deck: Deck, run: RunState) {
   return deck.size * run.shopLevel
+}
+
+function totalPoints(game: Game, round: Round) {
+  const time = calculateSeconds(game)
+  const penalty = Math.floor(time * round.timerPoints)
+  return game.points - penalty
+}
+
+export function runGameWin(game: Game, run: RunState) {
+  const round = generateRound(run.round, run)
+  if (game.endCondition !== "empty-board") return false
+  const enoughPoints = totalPoints(game, round) >= round.pointObjective
+  if (!enoughPoints) return false
+
+  return true
 }

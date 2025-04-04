@@ -5,7 +5,7 @@ import {
   Show,
   mergeProps,
 } from "solid-js"
-import { CORNER_RADIUS, TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
+import { useTileSize } from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -18,6 +18,7 @@ import {
   tileClass,
   scorePointsClass,
   scoreCoinsClass,
+  tileAnimationDelayVar,
 } from "./tileComponent.css"
 import { TileShades } from "./tileShades"
 import {
@@ -32,16 +33,17 @@ import {
   isFlower,
   isPhoenix,
   isRabbit,
+  isMutation,
 } from "@/lib/game"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import { play, SOUNDS } from "../audio"
+import { play } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
 import { useTileState } from "@/state/tileState"
 import { useGameState } from "@/state/gameState"
 import { getHueColor } from "@/styles/colors"
-import { useGlobalState } from "@/state/globalState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 type Props = {
   tile: Tile
@@ -57,8 +59,12 @@ type State = "idle" | "selected" | "deleted"
 export function TileComponent(iProps: Props) {
   const game = useGameState()
   const tiles = useTileState()
+  const tileSize = useTileSize()
 
-  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const props = mergeProps(
+    { width: tileSize().width, height: tileSize().height },
+    iProps,
+  )
   const sideSize = createMemo(() => getSideSize(props.height))
 
   const coords = createMemo(
@@ -96,7 +102,6 @@ export function TileComponent(iProps: Props) {
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
-  const globalState = useGlobalState()
 
   const selected = createMemo(() => props.tile.selected)
   const state = createMemo<State>(() => {
@@ -125,7 +130,7 @@ export function TileComponent(iProps: Props) {
 
     if (prevState === "selected" && currentState === "idle") {
       setOopsie(true)
-      play(SOUNDS.SHAKE, globalState.muted)
+      play("shake")
       setTimeout(() => {
         setOopsie(false)
       }, SHAKE_DURATION * SHAKE_REPEAT)
@@ -145,41 +150,41 @@ export function TileComponent(iProps: Props) {
       }, DELETED_DURATION)
 
       if (isDragon(props.tile.card)) {
-        play(SOUNDS.DRAGON, globalState.muted)
-      } else if (isFlower(props.tile.card) || isSeason(props.tile.card)) {
-        play(SOUNDS.GONG, globalState.muted)
-      } else if (isWind(props.tile.card)) {
-        play(SOUNDS.WIND, globalState.muted)
-      } else if (isPhoenix(props.tile.card)) {
-        play(SOUNDS.PHOENIX, globalState.muted)
-      } else if (isRabbit(props.tile.card)) {
-        play(SOUNDS.RABBIT, globalState.muted)
+        play("dragon")
       } else if (isFlower(props.tile.card)) {
-        play(SOUNDS.FLOWER, globalState.muted)
+        play("flower")
       } else if (isSeason(props.tile.card)) {
-        play(SOUNDS.SEASON, globalState.muted)
+        play("season")
+      } else if (isWind(props.tile.card)) {
+        play("wind")
+      } else if (isPhoenix(props.tile.card)) {
+        play("phoenix")
+      } else if (isRabbit(props.tile.card)) {
+        play("rabbit")
+      } else if (isMutation(props.tile.card)) {
+        play("mutation")
       } else if (
         props.tile.material === "bronze" ||
         props.tile.material === "gold"
       ) {
-        play(SOUNDS.METAL_DING, globalState.muted)
+        play("metal_ding")
       } else if (
         props.tile.material === "glass" ||
         props.tile.material === "diamond"
       ) {
-        play(SOUNDS.GLASS_DING, globalState.muted)
+        play("glass_ding")
       } else if (
         props.tile.material === "ivory" ||
         props.tile.material === "jade"
       ) {
-        play(SOUNDS.STONE_DING, globalState.muted)
+        play("stone_ding")
       } else {
-        play(SOUNDS.DING, globalState.muted)
+        play("ding")
       }
 
       if (props.tile.coins) {
         setTimeout(() => {
-          play(SOUNDS.COIN, globalState.muted)
+          play("coin")
         }, 300)
       }
 
@@ -238,12 +243,13 @@ export function TileComponent(iProps: Props) {
             top: `${coords().y}px`,
             overflow: "visible",
             "z-index": zIndex(),
-            "backdrop-filter": "blur(0.5px)",
+            ...assignInlineVars({
+              [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,
+            }),
           }}
           width={props.width}
           height={props.height}
           data-id={props.tile.id}
-          data-tile={JSON.stringify(props.tile)}
           class={tileClass}
         >
           <g class={animation()}>
@@ -262,7 +268,7 @@ export function TileComponent(iProps: Props) {
               class={clickableClass({ canBeSelected: canBeSelected() })}
               onMouseDown={() => {
                 if (!canBeSelected()) return
-                play(SOUNDS.CLICK, globalState.muted)
+                play("click")
                 props.onSelect(props.tile)
               }}
               onMouseEnter={() => {
@@ -282,19 +288,21 @@ export function strokePath({
   height,
 }: { width: number; height: number }) {
   const sideSize = getSideSize(height)
+  const tileSize = useTileSize()
+  const corner = createMemo(() => tileSize().corner)
 
   return `
-    M 0 ${CORNER_RADIUS}
-    v ${height - 3 * CORNER_RADIUS}
-    t 0 ${CORNER_RADIUS}
-    t ${sideSize} ${sideSize + CORNER_RADIUS}
-    h ${width - CORNER_RADIUS}
-    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 ${CORNER_RADIUS} -${CORNER_RADIUS}
-    v ${-height + 3 * CORNER_RADIUS}
-    t 0 ${-CORNER_RADIUS}
-    t ${-sideSize} ${-sideSize - CORNER_RADIUS}
-    h ${-width + CORNER_RADIUS}
-    a ${CORNER_RADIUS} ${CORNER_RADIUS} 0 0 0 -${CORNER_RADIUS} ${CORNER_RADIUS}
+    M 0 ${corner()}
+    v ${height - 3 * corner()}
+    t 0 ${corner()}
+    t ${sideSize} ${sideSize + corner()}
+    h ${width - corner()}
+    a ${corner()} ${corner()} 0 0 0 ${corner()} -${corner()}
+    v ${-height + 3 * corner()}
+    t 0 ${-corner()}
+    t ${-sideSize} ${-sideSize - corner()}
+    h ${-width + corner()}
+    a ${corner()} ${corner()} 0 0 0 -${corner()} ${corner()}
     Z
   `
 }

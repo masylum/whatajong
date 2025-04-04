@@ -30,9 +30,14 @@ export function persistentDatabase<T extends Database<any, any>>(
     }),
   )
 
-  createEffect(() => {
-    localStorage.setItem(key(params.id()), JSON.stringify(db().byId))
-  })
+  createEffect(
+    on(
+      () => JSON.stringify(db().byId),
+      (json) => {
+        localStorage.setItem(key(params.id()), json)
+      },
+    ),
+  )
 
   return db
 }

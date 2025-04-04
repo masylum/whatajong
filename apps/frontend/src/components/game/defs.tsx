@@ -21,7 +21,7 @@ export const MATERIALS = fromEntries(
 
 export function Defs() {
   return (
-    <svg style={{ position: "absolute" }}>
+    <svg style={{ position: "absolute", "pointer-events": "none" }}>
       <defs>
         <filter id={SOFT_SHADE_FILTER_ID}>
           <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="blur" />

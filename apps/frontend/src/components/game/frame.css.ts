@@ -1,3 +1,4 @@
+import { mediaQuery } from "@/styles/breakpoints"
 import { createVar, keyframes } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
@@ -24,13 +25,13 @@ export const gameRecipe = recipe({
       [shakeIntensity]: "7",
     },
     position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     height: "100vh",
     width: "100vw",
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     transition: "all 0.2s ease-in-out",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
     overflow: "hidden",
     ":before": {
       backgroundImage: "url(/halftone.png)",
@@ -55,6 +56,61 @@ export const gameRecipe = recipe({
       5: { vars: { [shakeIntensity]: "5" } },
       6: { vars: { [shakeIntensity]: "6" } },
       7: { vars: { [shakeIntensity]: "7" } },
+    },
+  },
+})
+
+export const containerClass = recipe({
+  base: {
+    display: "flex",
+    flexWrap: "wrap-reverse",
+    position: "absolute",
+    zIndex: 3,
+    gap: 8,
+    padding: 8,
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
+        padding: 12,
+        gap: 12,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        gap: 16,
+        padding: 16,
+      },
+      [mediaQuery({ p: "xl", l: "l" })]: {
+        padding: 24,
+        gap: 24,
+      },
+    },
+  },
+  variants: {
+    position: {
+      topLeft: {
+        left: 0,
+        top: 0,
+      },
+      topRight: {
+        right: 0,
+        top: 0,
+      },
+      bottomLeft: {
+        left: 0,
+        bottom: 0,
+      },
+      bottomRight: {
+        right: 0,
+        bottom: 0,
+      },
+    },
+    orientation: {
+      portrait: {
+        flexDirection: "column",
+        maxHeight: "50%",
+      },
+      landscape: {
+        flexDirection: "row",
+        maxWidth: "50%",
+      },
     },
   },
 })

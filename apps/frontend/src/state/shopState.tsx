@@ -1,13 +1,7 @@
 import type { RunState } from "@/state/runState"
 import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
-import {
-  batch,
-  createContext,
-  useContext,
-  type JSXElement,
-  type ParentProps,
-} from "solid-js"
+import { batch, createContext, useContext, type ParentProps } from "solid-js"
 import {
   bams,
   cracks,
@@ -29,9 +23,8 @@ import {
 import { createPersistantMutable } from "./persistantMutable"
 import { countBy, entries } from "remeda"
 import { getEmperors, type Emperor } from "./emperors"
-import { play, SOUNDS } from "@/components/audio"
+import { play } from "@/components/audio"
 import { nanoid } from "nanoid"
-import { useGlobalState, type GlobalState } from "./globalState"
 import { captureEvent } from "@/lib/observability"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
@@ -58,27 +51,41 @@ export type Path = keyof typeof PATHS
 
 type BaseItem = {
   id: string
-  level: Level
 }
 
 export type EmperorItem = BaseItem & {
   type: "emperor"
   name: string
-  description: () => JSXElement
+  level: Level
 }
 
 export type TileItem = BaseItem & {
   card: Card
   type: "tile"
+  level: Level
 }
+
+export type DeckTileItem = BaseItem & {
+  card: Card
+  material: Material
+  type: "deckTile"
+}
+
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
   level: Level
 }
+
 export type Item = TileItem | UpgradeItem | EmperorItem
-export type ShopState = {
+type ShopState = {
   reroll: number
-  currentItem: Item | null
+  currentItem: Item | DeckTileItem | null
+}
+
+export function isTile(item: Item | DeckTileItem) {
+  if (item.type === "tile") return item
+
+  return null
 }
 
 const ShopStateContext = createContext<ShopState | undefined>()
@@ -128,11 +135,10 @@ export function generateEmperorItem(emperor: Emperor) {
     name: emperor.name,
     type: "emperor" as const,
     level: emperor.level,
-    description: emperor.description,
   }
 }
 
-export function generateEmperorItems() {
+function generateEmperorItems() {
   return getEmperors().map(generateEmperorItem)
 }
 
@@ -178,7 +184,6 @@ export function buyItem(
   run: RunState,
   shop: ShopState,
   item: Item,
-  globalState: GlobalState,
   fn: () => void,
 ) {
   const cost =
@@ -194,8 +199,7 @@ export function buyItem(
   })
 
   captureEvent("item_bought", item)
-
-  play(SOUNDS.COIN2, globalState.muted)
+  play("coin2")
 }
 
 function mergeCounts(
@@ -242,7 +246,7 @@ export function getNextMaterial(tiles: DeckTile[], path: Path) {
   return materials[materials.length - 1]
 }
 
-export type MaterialTransformation = {
+type MaterialTransformation = {
   adds: boolean
   updates: Record<string, Material>
   removes: string[]
@@ -281,7 +285,6 @@ export function sellEmperor(
   shop: ShopState,
   emperor: EmperorItem,
 ) {
-  const globalState = useGlobalState()
   const cost = SELL_EMPEROR_AMOUNT
   const money = run.money
 
@@ -291,9 +294,9 @@ export function sellEmperor(
     run.items = run.items.filter((item) => item.id !== emperor.id)
   })
 
-  play(SOUNDS.COIN2, globalState.muted)
+  play("coin2")
 }
 
 export function maxEmperors(run: RunState) {
-  return 2 + run.shopLevel
+  return 1 + run.shopLevel
 }

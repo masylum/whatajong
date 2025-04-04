@@ -1,5 +1,8 @@
 import {
+  buttonAnimationDelayVar,
   buttonClass,
+  buttonIconClass,
+  cardAnimationDelayVar,
   cardClass,
   frameBottomClass,
   frameClass,
@@ -14,13 +17,13 @@ import { BasicTile } from "@/components/game/basicTile"
 import { getStandardPairs } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { For, createMemo } from "solid-js"
-import { TILE_WIDTH, TILE_HEIGHT } from "@/state/constants"
+import { useImageSrc, useTileSize } from "@/state/constants"
 import { nanoid } from "nanoid"
 import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
-import { play, SOUNDS } from "@/components/audio"
-import { useGlobalState } from "@/state/globalState"
+import { play } from "@/components/audio"
 import { fetchRuns } from "@/state/runState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 function cards() {
   const rng = new Rand()
@@ -28,11 +31,12 @@ function cards() {
 }
 
 export function Home() {
-  const globalState = useGlobalState()
   const runs = createMemo(() => fetchRuns())
+  const db = useImageSrc("db")
+  const dc = useImageSrc("dc")
 
   function onHover() {
-    play(SOUNDS.CLICK2, globalState.muted)
+    play("click2")
   }
 
   return (
@@ -44,16 +48,40 @@ export function Home() {
           onMouseEnter={onHover}
           href={`/play/${nanoid()}`}
           class={buttonClass({ hue: "bam" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "100ms",
+            }),
+          }}
         >
-          <img src="/tiles/db.webp" alt="classic" width={36} height={52} />
+          <img
+            class={buttonIconClass}
+            src={db()}
+            alt="classic"
+            width={36}
+            height={52}
+          />
           classic game
         </a>
         <a
           onMouseEnter={onHover}
-          href={runs().length > 0 ? "/runs" : `/run/${nanoid()}`}
+          href={
+            runs().length > 0 ? `/run/${runs()[0].runId}` : `/run/${nanoid()}`
+          }
           class={buttonClass({ hue: "crack" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "200ms",
+            }),
+          }}
         >
-          <img src="/tiles/dc.webp" alt="duel" width={36} height={52} />
+          <img
+            class={buttonIconClass}
+            src={dc()}
+            alt="duel"
+            width={36}
+            height={52}
+          />
           adventure game
         </a>
       </nav>
@@ -63,18 +91,19 @@ export function Home() {
 }
 
 function Frame() {
-  const horizontalTiles = createMemo(() => {
-    return Math.floor(window.innerWidth / TILE_WIDTH)
-  })
-  const horizontalGap = createMemo(() => {
-    return (window.innerWidth - horizontalTiles() * TILE_WIDTH) / 2
-  })
-  const verticalTiles = createMemo(() => {
-    return Math.floor(window.innerHeight / TILE_HEIGHT)
-  })
-  const verticalGap = createMemo(() => {
-    return (window.innerHeight - verticalTiles() * TILE_HEIGHT) / 2
-  })
+  const tileSize = useTileSize()
+  const horizontalTiles = createMemo(() =>
+    Math.floor(window.innerWidth / tileSize().width),
+  )
+  const horizontalGap = createMemo(
+    () => (window.innerWidth - horizontalTiles() * tileSize().width) / 2,
+  )
+  const verticalTiles = createMemo(() =>
+    Math.floor(window.innerHeight / tileSize().height),
+  )
+  const verticalGap = createMemo(
+    () => (window.innerHeight - verticalTiles() * tileSize().height) / 2,
+  )
 
   return (
     <div class={frameClass}>
@@ -90,7 +119,36 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${j() * 20}ms`,
+                }),
+                "z-index": j(),
+              }}
+              card={card}
+            />
+          )}
+        </For>
+      </div>
+      <div
+        class={frameRightClass}
+        style={{
+          "margin-inline": `${horizontalGap()}px`,
+          "margin-block": `${verticalGap()}px`,
+        }}
+      >
+        <For each={cards().slice(0, verticalTiles())}>
+          {(card, j) => (
+            <BasicTile
+              class={cardClass}
+              style={{
                 "z-index": horizontalTiles() + j(),
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${horizontalTiles() * 20 + j() * 20}ms`,
+                }),
+                visibility:
+                  j() === 0 || j() === verticalTiles() - 1
+                    ? "hidden"
+                    : "visible",
               }}
               card={card}
             />
@@ -110,6 +168,9 @@ function Frame() {
               class={cardClass}
               style={{
                 "z-index": horizontalTiles() + j(),
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${j() * 20}ms`,
+                }),
                 visibility:
                   j() === 0 || j() === verticalTiles() - 1
                     ? "hidden"
@@ -132,30 +193,10 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
-                "z-index": horizontalTiles() * 10 + j(),
-              }}
-              card={card}
-            />
-          )}
-        </For>
-      </div>
-      <div
-        class={frameRightClass}
-        style={{
-          "margin-inline": `${horizontalGap()}px`,
-          "margin-block": `${verticalGap()}px`,
-        }}
-      >
-        <For each={cards().slice(0, verticalTiles())}>
-          {(card, j) => (
-            <BasicTile
-              class={cardClass}
-              style={{
-                "z-index": horizontalTiles() * 10 + j(),
-                visibility:
-                  j() === 0 || j() === verticalTiles() - 1
-                    ? "hidden"
-                    : "visible",
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${verticalTiles() * 20 + j() * 20}ms`,
+                }),
+                "z-index": horizontalTiles() + verticalTiles() + j(),
               }}
               card={card}
             />

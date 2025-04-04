@@ -59,7 +59,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +3 points when matching any Crack tiles (<MiniTiles suit="c" />)
+          +3 points when clearing any Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -74,7 +74,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +1 mult when matching any Crack tiles (<MiniTiles suit="c" />)
+          +1 mult when clearing any Crack tiles (<MiniTiles suit="c" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -89,7 +89,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +3 points when matching any Bam tiles (<MiniTiles suit="b" />)
+          +3 points when clearing any Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -104,7 +104,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +1 mult when matching any Bam tiles (<MiniTiles suit="b" />)
+          +1 mult when clearing any Bam tiles (<MiniTiles suit="b" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -119,7 +119,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +3 points when matching any Dot tiles (<MiniTiles suit="o" />)
+          +3 points when clearing any Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -134,7 +134,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +1 mult when matching any Dot tiles (<MiniTiles suit="o" />)
+          +1 mult when clearing any Dot tiles (<MiniTiles suit="o" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -149,7 +149,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Bam 1" (
+          +20 points when clearing the tile "Bam 1" (
           <MiniTile size={20} card="b1" />)
         </>
       ),
@@ -165,7 +165,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Crack 1" ({" "}
+          +20 points when clearing the tile "Crack 1" ({" "}
           <MiniTile size={20} card="c1" />)
         </>
       ),
@@ -181,7 +181,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Dot 1" (
+          +20 points when clearing the tile "Dot 1" (
           <MiniTile size={20} card="o1" />)
         </>
       ),
@@ -197,7 +197,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Bam 9" (
+          +20 points when clearing the tile "Bam 9" (
           <MiniTile size={20} card="b9" />)
         </>
       ),
@@ -213,7 +213,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Crack 9" (
+          +20 points when clearing the tile "Crack 9" (
           <MiniTile size={20} card="c9" />)
         </>
       ),
@@ -229,7 +229,7 @@ export function getEmperors(): Emperor[] {
       type: "tile",
       description: () => (
         <>
-          +20 points when matching the tile "Dot 9" (
+          +20 points when clearing the tile "Dot 9" (
           <MiniTile size={20} card="o9" />)
         </>
       ),
@@ -358,7 +358,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "warrior",
-      description: () => <>+2 points when matching any tiles</>,
+      description: () => <>+2 points when clearing any tiles</>,
       getRawPoints() {
         return 1
       },
@@ -367,7 +367,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "combatant",
-      description: () => <>+0.5 mult when matching any tiles</>,
+      description: () => <>+0.5 mult when clearing any tiles</>,
       getRawMultiplier() {
         return 1 / 4
       },
@@ -376,7 +376,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "wizard",
-      description: () => <>+2 points when matching odd tiles.</>,
+      description: () => <>+2 points when clearing odd tiles.</>,
       getRawPoints({ card }) {
         if (!card) return 0
         const rank = Number.parseInt(getRank(card))
@@ -389,7 +389,7 @@ export function getEmperors(): Emperor[] {
     {
       level: 2,
       name: "sorcerer",
-      description: () => <>+2 points when matching even tiles.</>,
+      description: () => <>+2 points when clearing even tiles.</>,
       getRawPoints({ card }) {
         if (!card) return 0
         const rank = Number.parseInt(getRank(card))
@@ -404,7 +404,7 @@ export function getEmperors(): Emperor[] {
       name: "biologist",
       description: () => (
         <>
-          +1 mult when matching Flower tiles (<MiniTiles suit="f" />
+          +1 mult when clearing Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -418,7 +418,7 @@ export function getEmperors(): Emperor[] {
       name: "florist",
       description: () => (
         <>
-          +10 points when matching Flower tiles (<MiniTiles suit="f" />
+          +10 points when clearing Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -432,7 +432,7 @@ export function getEmperors(): Emperor[] {
       name: "botanist",
       description: () => (
         <>
-          +4 coins when matching Flower tiles (<MiniTiles suit="f" />
+          +4 coins when clearing Flower tiles (<MiniTiles suit="f" />
           <MiniTiles suit="s" />)
         </>
       ),
@@ -446,7 +446,7 @@ export function getEmperors(): Emperor[] {
       name: "breeder",
       description: () => (
         <>
-          +2 mult when matching Rabbit tiles (<MiniTiles suit="r" />)
+          +2 mult when clearing Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -459,7 +459,7 @@ export function getEmperors(): Emperor[] {
       name: "veterinarian",
       description: () => (
         <>
-          +10 points when matching Rabbit tiles (<MiniTiles suit="r" />)
+          +10 points when clearing Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -472,7 +472,7 @@ export function getEmperors(): Emperor[] {
       name: "butcher",
       description: () => (
         <>
-          +4 coins when matching Rabbit tiles (<MiniTiles suit="r" />)
+          +4 coins when clearing Rabbit tiles (<MiniTiles suit="r" />)
         </>
       ),
       getCoins({ tile }) {
@@ -485,7 +485,7 @@ export function getEmperors(): Emperor[] {
       name: "drakologist",
       description: () => (
         <>
-          +16 points when matching Dragon tiles (<MiniTiles suit="d" />)
+          +16 points when clearing Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -498,7 +498,7 @@ export function getEmperors(): Emperor[] {
       name: "dragon_rider",
       description: () => (
         <>
-          +2 mult when matching Dragon tiles (<MiniTiles suit="d" />)
+          +2 mult when clearing Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -511,7 +511,7 @@ export function getEmperors(): Emperor[] {
       name: "warden",
       description: () => (
         <>
-          +6 coins when matching Dragon tiles (<MiniTiles suit="d" />)
+          +6 coins when clearing Dragon tiles (<MiniTiles suit="d" />)
         </>
       ),
       getCoins({ tile }) {
@@ -524,7 +524,7 @@ export function getEmperors(): Emperor[] {
       name: "phoenixologist",
       description: () => (
         <>
-          +16 points when matching Phoenix tiles (<MiniTiles suit="p" />)
+          +16 points when clearing Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getRawPoints({ card }) {
@@ -537,7 +537,7 @@ export function getEmperors(): Emperor[] {
       name: "phoenix_rider",
       description: () => (
         <>
-          +2 mult when matching Phoenix tiles (<MiniTiles suit="p" />)
+          +2 mult when clearing Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getRawMultiplier({ card }) {
@@ -550,7 +550,7 @@ export function getEmperors(): Emperor[] {
       name: "keeper",
       description: () => (
         <>
-          +6 coins when matching Phoenix tiles (<MiniTiles suit="p" />)
+          +6 coins when clearing Phoenix tiles (<MiniTiles suit="p" />)
         </>
       ),
       getCoins({ tile }) {
@@ -563,7 +563,7 @@ export function getEmperors(): Emperor[] {
       name: "glassblower",
       description: () => (
         <>
-          +20 points when matching Glass tiles (
+          +20 points when clearing Glass tiles (
           <MiniTile size={20} material="glass" />)
         </>
       ),
@@ -577,7 +577,7 @@ export function getEmperors(): Emperor[] {
       name: "stonemason",
       description: () => (
         <>
-          +10 coins when matching ivory tiles (
+          +10 coins when clearing ivory tiles (
           <MiniTile size={20} material="ivory" />)
         </>
       ),
@@ -591,7 +591,7 @@ export function getEmperors(): Emperor[] {
       name: "smith",
       description: () => (
         <>
-          +2 mult when matching Bronze tiles (
+          +2 mult when clearing Bronze tiles (
           <MiniTile size={20} material="bronze" />)
         </>
       ),
@@ -659,7 +659,7 @@ export function getEmperors(): Emperor[] {
     //   level: 2,
     //   name: "the_dragonist",
     //   description:
-    //     "Matching a dragon converts all tiles into jade until next match.",
+    //     "Clearing a dragon converts all tiles into jade until next match.",
     // },
     // {
     //   level: 2,
@@ -679,7 +679,7 @@ export function getEmperors(): Emperor[] {
     // {
     //   level: 2,
     //   name: "the_alchemist",
-    //   description: "Matching different materials get +3 mult.",
+    //   description: "Clearing different materials get +3 mult.",
     // },
     // TODO: 10 4 level
     // TODO: 10 5 level
@@ -719,4 +719,8 @@ function changeTilesPermanently({
       }
     }
   })
+}
+
+export function emperorName(name: string) {
+  return name.replaceAll("_", " ").replaceAll("co", "c‌o")
 }

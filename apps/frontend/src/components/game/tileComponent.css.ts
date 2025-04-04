@@ -1,9 +1,13 @@
-import { keyframes, style } from "@vanilla-extract/css"
-import { TILE_HEIGHT, TILE_WIDTH } from "@/state/constants"
+import { keyframes, style, createVar } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 import { color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  tileFallingAnimation,
+} from "@/styles/animations.css"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -51,12 +55,12 @@ const floatingNumberKeyframes = keyframes({
 
 export const shakeAnimation = style({
   animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
 })
 
 export const deletedAnimationClass = style({
   animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
 })
 
 export const scoreClass = style({
@@ -69,11 +73,12 @@ export const scoreClass = style({
   fontWeight: "bold",
   userSelect: "none",
   fontFamily: primary,
-  transformOrigin: `${TILE_WIDTH / 2}px ${TILE_HEIGHT / 2}px`,
+  transformOrigin: "50% 50%",
   pointerEvents: "none",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  willChange: "transform",
   gap: 8,
 })
 
@@ -99,12 +104,20 @@ export const scorePointsClass = style({
   color: "white",
 })
 
+export const tileAnimationDelayVar = createVar()
+
 export const tileClass = style({
   pointerEvents: "none",
   transitionProperty: "top, left",
   transitionDuration: `${DELETED_DURATION}ms`,
   transitionTimingFunction: "ease-in",
   outline: "none",
+  willChange: "transform",
+  animationName: tileFallingAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_MEDIUM,
+  animationDelay: tileAnimationDelayVar,
+  animationFillMode: "backwards",
 })
 
 export const clickableClass = recipe({

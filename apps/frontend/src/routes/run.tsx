@@ -5,8 +5,9 @@ import RunSelect from "./run/runSelect"
 import { createMemo, Match, onMount, Switch } from "solid-js"
 import RunShop from "./run/runShop"
 import { createDeckState, DeckStateProvider } from "@/state/deckState"
-import RunIntro from "./run/runIntro"
+import RunIntro from "./run/runMode"
 import { captureRun } from "@/lib/observability"
+import { GameTutorial, RunTutorial } from "@/components/gameTutorial"
 
 export default function Run() {
   const params = useParams()
@@ -30,10 +31,14 @@ export default function Run() {
             <RunSelect />
           </Match>
           <Match when={run.stage === "game"}>
-            <RunGame />
+            <GameTutorial>
+              <RunGame />
+            </GameTutorial>
           </Match>
           <Match when={run.stage === "shop"}>
-            <RunShop />
+            <RunTutorial>
+              <RunShop />
+            </RunTutorial>
           </Match>
         </Switch>
       </DeckStateProvider>

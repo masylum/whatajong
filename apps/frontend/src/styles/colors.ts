@@ -1,4 +1,4 @@
-export const huesAndShades = {
+const huesAndShades = {
   base: {
     "0": "oklch(99.85% 0.002 85)",
     "1000": "oklch(12% 0.003 85)",
@@ -137,7 +137,7 @@ export const huesAndShades = {
   },
 } as const
 
-export const accentHues = [
+const accentHues = [
   "bam",
   "crack",
   "dot",
@@ -151,14 +151,14 @@ export const accentHues = [
   "diamond",
 ] as const
 
-export type Hue = keyof typeof huesAndShades
+type Hue = keyof typeof huesAndShades
 export type AccentHue = (typeof accentHues)[number]
-export type BaseHue = Exclude<Hue, AccentHue>
-export type ShadeTypes<H extends Hue> = keyof (typeof huesAndShades)[H]
+type BaseHue = Exclude<Hue, AccentHue>
+type ShadeTypes<H extends Hue> = keyof (typeof huesAndShades)[H]
 
-export type BaseColor = `${BaseHue}${ShadeTypes<BaseHue>}`
-export type AccentColor = `${AccentHue}${ShadeTypes<AccentHue>}`
-export type Color = BaseColor | AccentColor
+type BaseColor = `${BaseHue}${ShadeTypes<BaseHue>}`
+type AccentColor = `${AccentHue}${ShadeTypes<AccentHue>}`
+type Color = BaseColor | AccentColor
 
 const flatten: { [key: string]: string } = {}
 
@@ -170,22 +170,8 @@ for (const hue in huesAndShades) {
 }
 export const color = flatten as Record<Color, string>
 
-export function colorize(hue: AccentHue, shade: ShadeTypes<AccentHue>) {
+function colorize(hue: AccentHue, shade: ShadeTypes<AccentHue>) {
   return `${hue}${shade}` as AccentColor
-}
-
-export function shadeColor(hue: AccentHue) {
-  return colorize.bind(null, hue)
-}
-
-export function contrastColor(
-  hue: AccentHue,
-  shade: ShadeTypes<AccentHue>,
-  condition: boolean,
-) {
-  const finalShade = condition ? String(1000 - Number(shade)) : shade
-
-  return colorize(hue, finalShade as ShadeTypes<AccentHue>)
 }
 
 export function hueVariants<T>(map: (fn: HueShadeGetter, hue: AccentHue) => T) {
@@ -223,7 +209,7 @@ export function alpha(colorName: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }
 
-export type HueShadeGetter = (shade: ShadeTypes<AccentHue>) => string
+type HueShadeGetter = (shade: ShadeTypes<AccentHue>) => string
 
 export function getHueColor(hue: AccentHue): HueShadeGetter {
   return (shade: ShadeTypes<AccentHue>) => color[colorize(hue, shade)]

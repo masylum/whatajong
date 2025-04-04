@@ -1,19 +1,24 @@
-import { TILE_WIDTH, TILE_HEIGHT, TILE_RATIO } from "@/state/constants"
+import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
 import { mergeProps } from "solid-js"
-import type { Card, Suit } from "@/lib/game"
+import type { Card } from "@/lib/game"
 
 type Props = {
   width?: number
   height?: number
-  card: Card | Suit
+  card: Card
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
-  const props = mergeProps({ width: TILE_WIDTH, height: TILE_HEIGHT }, iProps)
+  const tileSize = useTileSize()
+  const props = mergeProps(
+    { width: tileSize().width, height: tileSize().height },
+    iProps,
+  )
+  const href = useImageSrc(props.card)
 
   return (
     <image
-      href={`/tiles/${props.card}.webp`}
+      href={href()}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

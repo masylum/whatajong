@@ -3,49 +3,84 @@ import {
   createMemo,
   createSignal,
   onMount,
+  type Accessor,
   type JSXElement,
 } from "solid-js"
-import { gameRecipe, COMBO_ANIMATION_DURATION } from "./frame.css"
+import { createShortcut } from "@solid-primitives/keyboard"
+import {
+  containerClass,
+  gameRecipe,
+  COMBO_ANIMATION_DURATION,
+} from "./frame.css"
 import { DustParticles } from "./dustParticles"
-import { play, SOUNDS } from "../audio"
+import { play, type Track } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
-import { useGlobalState } from "@/state/globalState"
-import createGameTour from "@/lib/createGameTour"
+import { useLayoutSize } from "@/state/constants"
+import { Powerups } from "./powerups"
+import { useTileState } from "@/state/tileState"
+import { getAvailablePairs, selectTile } from "@/lib/game"
+import { useRunState } from "@/state/runState"
 
 type Props = {
   board: JSXElement
-  bottom: JSXElement
-  top: JSXElement
+  topLeft: JSXElement
+  topRight: JSXElement
+  bottomLeft: JSXElement
+  bottomRight: JSXElement
 }
 export function Frame(props: Props) {
   const game = useGameState()
-  const globalState = useGlobalState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
+  const getRabbitCombo = createMemo(() => game.rabbitRun?.combo || 0)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
+  const layout = useLayoutSize()
+  const orientation = createMemo(() => layout().orientation)
 
-  // TODO: Move to powerups?
-  createEffect((prevCombo: number) => {
-    const combo = getDragonCombo()
+  function handleComboEffect(
+    getCombo: Accessor<number>,
+    soundEffect: Track,
+    resetAnimation = true,
+  ) {
+    return createEffect((prevCombo: number) => {
+      const combo = getCombo()
 
-    if (combo > prevCombo) {
-      setComboAnimation(combo)
-      play(SOUNDS.GRUNT, globalState.muted)
-      setTimeout(() => {
-        setComboAnimation(0)
-      }, COMBO_ANIMATION_DURATION)
+      if (combo > prevCombo) {
+        setComboAnimation(combo)
+        play(soundEffect)
+
+        if (resetAnimation) {
+          setTimeout(() => {
+            setComboAnimation(0)
+          }, COMBO_ANIMATION_DURATION)
+        }
+      }
+
+      return combo
+    }, getCombo())
+  }
+
+  handleComboEffect(getDragonCombo, "grunt")
+  handleComboEffect(getRabbitCombo, "grunt2")
+  handleComboEffect(getPhoenixCombo, "screech", false)
+
+  // Cheat Code!
+  const tileDb = useTileState()
+  const run = useRunState()
+  createShortcut(["Shift", "K"], () => {
+    console.log("cheat!")
+    const tiles = getAvailablePairs(tileDb, game)[0]
+    if (!tiles) return
+    for (const tile of tiles) {
+      selectTile({ tileDb, run, game, tileId: tile.id })
     }
-
-    return combo
-  }, getDragonCombo())
-
-  onMount(() => {
-    play(SOUNDS.GONG, globalState.muted)
+    game.points += 100
   })
 
   onMount(() => {
-    createGameTour()
+    play("gong")
   })
 
   return (
@@ -54,11 +89,42 @@ export function Frame(props: Props) {
         comboAnimation: comboAnimation() as any,
       })}
     >
-      {props.top}
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "topLeft",
+        })}
+      >
+        {props.topLeft}
+      </div>
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "topRight",
+        })}
+      >
+        {props.topRight}
+      </div>
       {props.board}
-      {props.bottom}
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "bottomLeft",
+        })}
+      >
+        {props.bottomLeft}
+      </div>
+      <div
+        class={containerClass({
+          orientation: orientation(),
+          position: "bottomRight",
+        })}
+      >
+        {props.bottomRight}
+      </div>
       <Mountains />
       <DustParticles />
+      <Powerups />
     </div>
   )
 }

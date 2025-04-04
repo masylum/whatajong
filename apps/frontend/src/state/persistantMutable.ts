@@ -27,10 +27,14 @@ export function createPersistantMutable<T extends Record<string, any>>(
     }),
   )
 
-  createEffect(() => {
-    console.log("setItem", key(params.id()), JSON.stringify(mutable))
-    localStorage.setItem(key(params.id()), JSON.stringify(mutable))
-  })
+  createEffect(
+    on(
+      () => JSON.stringify(mutable),
+      (json) => {
+        localStorage.setItem(key(params.id()), json)
+      },
+    ),
+  )
 
   return mutable
 }

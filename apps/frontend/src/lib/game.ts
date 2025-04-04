@@ -13,8 +13,8 @@ import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveRabbits } from "./resolveRabbits"
 import { resolveMutations } from "./resolveMutations"
 
-export const END_CONDITIONS = ["empty-board", "no-pairs"] as const
-export type EndConditions = (typeof END_CONDITIONS)[number]
+const END_CONDITIONS = ["empty-board", "no-pairs"] as const
+type EndConditions = (typeof END_CONDITIONS)[number]
 
 export type PhoenixRun = {
   card: Phoenix
@@ -182,7 +182,7 @@ export function getCoins({
   return newPoints * rabbitMultiplier + materialCoins + emperorCoins
 }
 
-export function getJokerPoints(card: Card, tileDb: TileDb) {
+function getJokerPoints(card: Card, tileDb: TileDb) {
   if (!isJoker(card)) return 0
 
   return tileDb.size
@@ -325,7 +325,7 @@ export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
   }
 }
 
-export const suits = [
+const suits = [
   "b",
   "c",
   "o",
@@ -334,7 +334,6 @@ export const suits = [
   "s",
   "p",
   "r",
-  "a",
   "m",
   "w",
   "j",
@@ -359,18 +358,18 @@ export const jokers = ["j1"] as const
 export const transports = ["tn", "tw", "ts", "te"] as const
 const dummy = ["x1"] as const
 
-export type Bam = (typeof bams)[number]
-export type Crack = (typeof cracks)[number]
-export type Dot = (typeof dots)[number]
+type Bam = (typeof bams)[number]
+type Crack = (typeof cracks)[number]
+type Dot = (typeof dots)[number]
 export type Wind = (typeof winds)[number]
-export type Flower = (typeof flowers)[number]
-export type Season = (typeof seasons)[number]
+type Flower = (typeof flowers)[number]
+type Season = (typeof seasons)[number]
 export type Dragon = (typeof dragons)[number]
-export type Rabbit = (typeof rabbits)[number]
-export type Phoenix = (typeof phoenix)[number]
-export type Joker = (typeof jokers)[number]
-export type Transport = (typeof transports)[number]
-export type Dummy = (typeof dummy)[number]
+type Rabbit = (typeof rabbits)[number]
+type Phoenix = (typeof phoenix)[number]
+type Joker = (typeof jokers)[number]
+type Transport = (typeof transports)[number]
+type Dummy = (typeof dummy)[number]
 export type Mutation = (typeof mutations)[number]
 export type Card =
   | Bam
@@ -515,7 +514,7 @@ export function getStandardDeck() {
   )
 }
 
-export type Position = {
+type Position = {
   x: number
   y: number
   z: number
@@ -530,7 +529,7 @@ export type Tile = {
   points?: number
   coins?: number
 } & Position
-export type TileById = Record<string, Tile>
+type TileById = Record<string, Tile>
 export const tileIndexes = ["x", "y", "z", "deleted", "selected"] as const
 export type TileIndexes = (typeof tileIndexes)[number]
 export type TileDb = Database<Tile, TileIndexes>
@@ -669,6 +668,7 @@ export const MUTATION_RANKS = {
 
 export function cardName(card: Card) {
   const dragonCard = isDragon(card)
+
   if (dragonCard) {
     return `${suitName(getRank(dragonCard))} dragon`
   }
@@ -693,7 +693,21 @@ export function cardName(card: Card) {
     return `${suitName(mutation[0])} / ${suitName(mutation[1])} mutation`
   }
 
+  const windCard = isWind(card)
+  if (windCard) {
+    return `${getWindDirection(windCard)} wind`
+  }
+
   return `${suitName(card)} ${getRank(card)}`
+}
+
+export function getWindDirection(card: Wind) {
+  return {
+    n: "north",
+    s: "south",
+    e: "east",
+    w: "west",
+  }[getRank(card)]
 }
 
 export function getMutationRanks(card: Mutation) {
@@ -715,7 +729,7 @@ export const materials = [
 ] as const
 export type Material = (typeof materials)[number]
 
-export function getDragonMultiplier(game: Game, card: Card) {
+function getDragonMultiplier(game: Game, card: Card) {
   const dragonRun = game.dragonRun
   if (!dragonRun) return 0
 
@@ -726,11 +740,11 @@ export function getDragonMultiplier(game: Game, card: Card) {
   return dragonRun.combo
 }
 
-export function getPhoenixRunMultiplier(game: Game) {
+function getPhoenixRunMultiplier(game: Game) {
   return game.phoenixRun?.combo ?? 0
 }
 
-export function getRabbitMultiplier(game: Game) {
+function getRabbitMultiplier(game: Game) {
   const rabbitRun = game.rabbitRun
   if (!rabbitRun) return 0
   if (!rabbitRun.score) return 0
@@ -743,7 +757,7 @@ export function resolveFlowersAndSeasons(game: Game, tile: Tile) {
   game.flowerOrSeason = flowerOrSeason ?? undefined
 }
 
-export function resolveJokers(tileDb: TileDb, tile: Tile) {
+function resolveJokers(tileDb: TileDb, tile: Tile) {
   const jokerCard = isJoker(tile.card)
   if (!jokerCard) return
 
@@ -751,7 +765,7 @@ export function resolveJokers(tileDb: TileDb, tile: Tile) {
   shuffleTiles({ rng, tileDb })
 }
 
-export type MapType = (number | null)[][][]
+type MapType = (number | null)[][][]
 
 export function mapGet(map: MapType, x: number, y: number, z: number) {
   if (x < 0 || y < 0 || z < 0) return null

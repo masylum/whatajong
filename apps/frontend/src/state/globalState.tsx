@@ -1,17 +1,17 @@
-import { createContext, useContext, type ParentProps } from "solid-js"
+import {
+  createContext,
+  createEffect,
+  useContext,
+  type ParentProps,
+} from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-type SelectTiles = { state: "select-tiles"; pair?: [string, string] }
-type Board = { state: "board" }
-type SelectDragons = { state: "select-dragons"; pair?: [string, string] }
-type Emperor = { state: "emperor" }
-type SelectWinds = { state: "select-winds"; pair?: [string, string] }
-type Done = { state: "done" }
-type Tour = SelectTiles | Board | SelectDragons | Emperor | SelectWinds | Done
-
-export type GlobalState = {
+type GlobalState = {
   muted: boolean
-  tourGame: Tour
+  tutorial: {
+    game: number
+    run: number
+  }
 }
 
 export function createGlobalState() {
@@ -20,7 +20,10 @@ export function createGlobalState() {
     id: () => "global-state",
     init: () => ({
       muted: false,
-      tourGame: { state: "select-tiles" },
+      tutorial: {
+        game: 0,
+        run: 0,
+      },
     }),
   })
 }
@@ -30,6 +33,10 @@ const GlobalStateContext = createContext<GlobalState | undefined>()
 export function GlobalStateProvider(
   props: { globalState: GlobalState } & ParentProps,
 ) {
+  createEffect(() => {
+    Howler.mute(props.globalState.muted)
+  })
+
   return (
     <GlobalStateContext.Provider value={props.globalState}>
       {props.children}

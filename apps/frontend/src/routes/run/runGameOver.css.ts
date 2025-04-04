@@ -1,104 +1,13 @@
 import { style } from "@vanilla-extract/css"
-import { alpha, color } from "@/styles/colors"
+import { color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary } from "@/styles/fontFamily.css"
-import { recipe } from "@vanilla-extract/recipes"
-import { getSideSize } from "@/state/constants"
-import { TILE_HEIGHT } from "@/state/constants"
-
-const sideSize = getSideSize(TILE_HEIGHT)
+import { mediaQuery } from "@/styles/breakpoints"
 
 export const gameOverClass = style({
   display: "flex",
   justifyContent: "space-between",
   gap: 64,
-})
-
-export const pointsContainerClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-  paddingInline: 32,
-  paddingBlock: 24,
-  borderRadius: 32,
-  gap: 16,
-})
-
-export const detailListClass = recipe({
-  base: {
-    display: "grid",
-    rowGap: 16,
-    columnGap: 64,
-    justifyContent: "space-between",
-    gridTemplateColumns: "max-content",
-    padding: 16,
-    borderRadius: 16,
-    width: "100%",
-  },
-  variants: {
-    hue: {
-      bamb: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.4)}, ${alpha(color.bam50, 0.2)})`,
-      },
-      crack: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.4)}, ${alpha(color.crack50, 0.2)})`,
-      },
-      dot: {
-        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.4)}, ${alpha(color.dot50, 0.2)})`,
-      },
-      gold: {
-        background: `linear-gradient(to bottom, ${alpha(color.gold50, 0.4)}, ${alpha(color.gold50, 0.2)})`,
-      },
-    },
-  },
-})
-export const detailTermClass = style({
-  ...fontSize.h1,
-  fontFamily: primary,
-  selectors: {
-    [`${detailListClass.classNames.variants.hue.bamb} &`]: {
-      color: color.bam60,
-    },
-    [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.crack60,
-    },
-    [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.dot60,
-      ...fontSize.hero4,
-    },
-    [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: color.gold60,
-    },
-  },
-})
-
-export const detailDescriptionClass = style({
-  ...fontSize.h1,
-  fontFamily: primary,
-  justifySelf: "start",
-  gridColumnStart: 2,
-  selectors: {
-    [`${detailListClass.classNames.variants.hue.bamb} &`]: {
-      color: color.bam80,
-    },
-    [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.crack80,
-    },
-    [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.dot80,
-      ...fontSize.hero4,
-    },
-    [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: color.gold80,
-    },
-  },
-})
-
-export const gameOverButtonsClass = style({
-  display: "flex",
-  gap: 16,
 })
 
 export const deckClass = style({
@@ -108,8 +17,19 @@ export const deckClass = style({
 })
 
 export const titleClass = style({
-  ...fontSize.h1,
+  ...fontSize.l,
   fontFamily: primary,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.h3,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "s", l: "m" })]: {
+      ...fontSize.h1,
+    },
+  },
 })
 
 export const deckRowsClass = style({
@@ -117,8 +37,6 @@ export const deckRowsClass = style({
   flexDirection: "column",
   alignItems: "flex-start",
   justifyContent: "center",
-  paddingRight: sideSize * 2,
-  paddingBottom: sideSize * 2,
   position: "relative",
   zIndex: 0,
 })
@@ -135,15 +53,11 @@ export const deckItemClass = style({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  left: 0,
-  top: 0,
 })
 
 export const pairClass = style({
   position: "absolute",
   zIndex: -1,
-  top: sideSize,
-  left: sideSize,
 })
 
 export const ownedEmperorsClass = style({
@@ -176,15 +90,23 @@ export const emperorClass = style({
 export const gameOverInfoClass = style({
   display: "flex",
   flexDirection: "column",
-  gap: 32,
+  gap: 12,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 24,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 32,
+    },
+  },
 })
 
-// TODO: DRY
 export const moneyClass = style({
   fontFamily: primary,
-  ...fontSize.h2,
-  paddingInline: 16,
-  paddingBlock: 4,
+  ...fontSize.m,
   background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
   boxShadow: `1px -1px 0px 0 inset ${color.gold90},
       0px 0px 0px 1px ${color.gold50},
@@ -195,4 +117,21 @@ export const moneyClass = style({
   fontVariantLigatures: "none",
   display: "inline-block",
   borderRadius: 999,
+  paddingInline: 8,
+  paddingBlock: 2,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.l,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h3,
+      paddingInline: 12,
+      paddingBlock: 4,
+    },
+    [mediaQuery({ p: "s", l: "m" })]: {
+      ...fontSize.h2,
+      paddingInline: 16,
+      paddingBlock: 4,
+    },
+  },
 })

@@ -5,7 +5,7 @@ import { Show, mergeProps } from "solid-js"
 export function MiniTile(props: {
   card?: Card | Suit
   material?: Material
-  size?: 20 | 24 | 48
+  size?: number
 }) {
   const mProps = mergeProps({ size: 24, material: "bone" } as const, props)
 
@@ -14,7 +14,7 @@ export function MiniTile(props: {
       <Show when={props.card}>
         {(card) => (
           <img
-            src={`/tiles/${card()}.webp`}
+            src={`/tiles/xs/${card()}.webp`}
             alt={card()}
             height={mProps.size}
           />

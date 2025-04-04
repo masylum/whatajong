@@ -21,13 +21,6 @@ export function createGameState(params: CreateGameStateParams) {
   })
 }
 
-export function fetchGameState(id: string): Game | undefined {
-  const item = localStorage.getItem(`${GAME_STATE_NAMESPACE}-${id}`)
-  if (!item) return undefined
-
-  return JSON.parse(item)
-}
-
 export function calculateSeconds(game: Game) {
   return Math.floor((game.endedAt! - game.startedAt!) / 1000)
 }
