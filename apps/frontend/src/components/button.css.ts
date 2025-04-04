@@ -36,6 +36,11 @@ export const buttonClass = recipe({
     },
   },
   variants: {
+    clickable: {
+      true: {
+        cursor: "pointer",
+      },
+    },
     kind: {
       dark: {},
       light: {},
@@ -110,18 +115,16 @@ export const shopButtonClass = recipe({
     gap: 4,
     paddingInline: 8,
     paddingBlock: 4,
-    borderRadius: 8,
+    borderRadius: 16,
     fontFamily: primary,
     ...fontSize.l,
     whiteSpace: "nowrap",
     fontVariantLigatures: "none",
     outline: "none",
     outlineOffset: 2,
-    selectors: {
-      "&:not(:disabled):hover": {
-        cursor: "pointer",
-        filter: "brightness(1.1)",
-      },
+    ":disabled": {
+      opacity: 0.5,
+      cursor: "inherit",
     },
     "@media": {
       [mediaQuery({ p: "l", l: "m" })]: {
@@ -133,18 +136,29 @@ export const shopButtonClass = recipe({
     },
   },
   variants: {
+    clickable: {
+      true: {
+        cursor: "pointer",
+        selectors: {
+          "&:not(:disabled):hover": {
+            cursor: "pointer",
+            filter: "brightness(1.1)",
+          },
+        },
+      },
+    },
     hue: hueVariants((kolor) => ({
       background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
-      border: `1px solid ${kolor(30)}`,
+      border: `1px solid ${kolor(40)}`,
       color: kolor(90),
       ":focus": {
         outline: `2px solid ${kolor(50)}`,
       },
       boxShadow: `
-          -1px -1px 1px 0 inset ${kolor(20)},
-          1px 1px 1px 0 inset ${kolor(60)},
-          0px 0px 5px -3px ${kolor(10)},
-          0px 0px 10px -5px ${kolor(10)}
+          -1px -1px 1px 0 inset ${alpha(kolor(30), 0.5)},
+          1px 1px 1px 0 inset ${alpha(kolor(60), 0.5)},
+          0px 0px 5px -3px ${alpha(kolor(20), 0.4)},
+          0px 0px 10px -5px ${alpha(kolor(20), 0.4)}
         `,
     })),
   },

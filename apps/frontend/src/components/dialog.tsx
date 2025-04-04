@@ -1,4 +1,4 @@
-import { Dialog } from "@kobalte/core/dialog"
+import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
 import type { JSXElement } from "solid-js"
 import { X } from "./icon"
 import {
@@ -11,23 +11,25 @@ import {
 type Props = {
   trigger: JSXElement
   content: JSXElement
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function Modal(props: Props) {
+export function Dialog(props: Props) {
   return (
-    <Dialog>
+    <KobalteDialog open={props.open} onOpenChange={props.onOpenChange}>
       {props.trigger}
-      <Dialog.Portal>
-        <Dialog.Overlay class={overlayClass} />
+      <KobalteDialog.Portal>
+        <KobalteDialog.Overlay class={overlayClass} />
         <div class={positionerClass}>
-          <Dialog.Content class={contentClass}>
-            <Dialog.CloseButton class={closeButtonClass}>
+          <KobalteDialog.Content class={contentClass}>
+            <KobalteDialog.CloseButton class={closeButtonClass}>
               <X />
-            </Dialog.CloseButton>
+            </KobalteDialog.CloseButton>
             {props.content}
-          </Dialog.Content>
+          </KobalteDialog.Content>
         </div>
-      </Dialog.Portal>
-    </Dialog>
+      </KobalteDialog.Portal>
+    </KobalteDialog>
   )
 }

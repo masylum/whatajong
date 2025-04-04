@@ -1,6 +1,7 @@
 import { batch, createMemo } from "solid-js"
 import {
   backButtonClass,
+  buttonAnimationDelayVar,
   buttonClass,
   buttonContainerClass,
   buttonImageClass,
@@ -15,6 +16,7 @@ import { useRunState, type Difficulty } from "@/state/runState"
 import { ArrowLeft } from "@/components/icon"
 import { LinkButton } from "@/components/button"
 import { captureEvent } from "@/lib/observability"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 export default function RunIntro() {
   const run = useRunState()
@@ -51,16 +53,19 @@ function SelectDifficulty(props: { onSelectMode: (mode: Difficulty) => void }) {
         <ModeButton
           mode="easy"
           text="Cruising Along"
+          index={0}
           onClick={props.onSelectMode}
         />
         <ModeButton
           mode="medium"
           text="Turbulent Waters"
+          index={1}
           onClick={props.onSelectMode}
         />
         <ModeButton
           mode="hard"
           text="Against the Maelstrom"
+          index={2}
           onClick={props.onSelectMode}
         />
       </div>
@@ -71,6 +76,7 @@ function SelectDifficulty(props: { onSelectMode: (mode: Difficulty) => void }) {
 function ModeButton(props: {
   mode: Difficulty
   text: string
+  index: number
   onClick: (mode: Difficulty) => void
 }) {
   const hue = createMemo(() => {
@@ -85,7 +91,15 @@ function ModeButton(props: {
   })
 
   return (
-    <button type="button" class={buttonClass({ hue: hue() })}>
+    <button
+      type="button"
+      class={buttonClass({ hue: hue() })}
+      style={{
+        ...assignInlineVars({
+          [buttonAnimationDelayVar]: `${100 + props.index * 100}ms`,
+        }),
+      }}
+    >
       <img
         srcset={`/difficulty/m/${props.mode}.webp 300w, /difficulty/l/${props.mode}.webp 514w`}
         sizes="(min-width: 1024px) 514px, 300px"

@@ -13,6 +13,7 @@ import {
 } from "@/lib/game"
 import { MiniTile } from "../miniTile"
 import { useGameState } from "@/state/gameState"
+import { useTileSize } from "@/state/constants"
 
 export function Powerups() {
   const game = useGameState()
@@ -51,6 +52,7 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
     }
   })
   const card = createMemo(() => props.dragonRun.card)
+  const tileSize = useTileSize()
   const combo = createMemo(() => props.dragonRun.combo)
 
   return (
@@ -61,9 +63,9 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
         side: "left",
       })}
     >
-      <MiniTile card={card()} size={48} />
+      <MiniTile card={card()} size={tileSize().width} />
       <span data-tour="dragon-run" class={comboRecipe({ hue: hue() })}>
-        dragon run +{combo()} mult
+        +{combo()} mult
       </span>
     </div>
   )
@@ -82,11 +84,9 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
         side: "right",
       })}
     >
-      <MiniTile card={card()} size={48} />
       <span class={phoenixComboClass}>{number() + 1}</span>
-      <span class={comboRecipe({ hue: "bronze" })}>
-        phoenix run +{combo()} mult
-      </span>
+      <span class={comboRecipe({ hue: "bronze" })}>+{combo()} mult</span>
+      <MiniTile card={card()} size={48} />
     </div>
   )
 }

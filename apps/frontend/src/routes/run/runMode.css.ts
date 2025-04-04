@@ -1,12 +1,17 @@
-import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
+import { mediaQuery } from "@/styles/breakpoints"
 import { color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { style } from "@vanilla-extract/css"
+import { createVar, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 
-export const FLIP_DURATION = 300
-export const CHOICE_MODE_WIDTH = 280
+const FLIP_DURATION = 300
+const CHOICE_MODE_WIDTH = 280
 
 export const containerClass = style({
   display: "flex",
@@ -16,31 +21,20 @@ export const containerClass = style({
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
+  gap: 32,
+  padding: 12,
   "@media": {
-    "(orientation: portrait)": {
+    [mediaQuery({ p: "m", l: "s" })]: {
       gap: 64,
       padding: 12,
     },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
+    [mediaQuery({ p: "l", l: "m" })]: {
       gap: 96,
       padding: 32,
     },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
+    [mediaQuery({ p: "xl", l: "l" })]: {
       gap: 128,
-    },
-    "(orientation: landscape)": {
-      gap: 32,
-      padding: 12,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      gap: 64,
       padding: 32,
-    },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      gap: 96,
-    },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
-      gap: 128,
     },
   },
 })
@@ -128,6 +122,8 @@ export const buttonContainerClass = recipe({
   },
 })
 
+export const buttonAnimationDelayVar = createVar()
+
 export const buttonClass = recipe({
   base: {
     borderRadius: 16,
@@ -141,6 +137,11 @@ export const buttonClass = recipe({
     backfaceVisibility: "hidden",
     cursor: "pointer",
     width: (CHOICE_MODE_WIDTH * 2) / 3,
+    animationName: fromBelowAnimation,
+    animationTimingFunction: easeBounce,
+    animationDuration: ANIMATION_MEDIUM,
+    animationDelay: buttonAnimationDelayVar,
+    animationFillMode: "backwards",
     ":hover": {
       transform: "rotateX(-20deg) rotateY(-10deg) scale(1.2)",
       filter: "brightness(1.1)",

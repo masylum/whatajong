@@ -170,9 +170,3 @@ export const movesClass = recipe({
     },
   },
 })
-
-export const boardClass = style({
-  background: color.bone90,
-  padding: 12,
-  borderRadius: 8,
-})

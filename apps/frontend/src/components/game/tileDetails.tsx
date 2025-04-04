@@ -1,25 +1,13 @@
+import { createMemo, Match, mergeProps, Show, Switch } from "solid-js"
 import {
-  createEffect,
-  createMemo,
-  createSignal,
-  Match,
-  mergeProps,
-  Show,
-  Switch,
-} from "solid-js"
-import { Portal } from "solid-js/web"
-import {
-  tooltipClass,
-  tileClass,
   detailTermClass,
   detailDescriptionClass,
   detailListClass,
   detailFreedomClass,
   detailInfoClass,
-} from "./tileHover.css"
+} from "./tileDetails.css"
 import type { Card, Material, Mutation } from "@/lib/game"
 import {
-  cardName,
   getMaterialCoins,
   getMutationRanks,
   getRank,
@@ -35,78 +23,9 @@ import {
   isWind,
   suitName,
 } from "@/lib/game"
-import type { JSX } from "solid-js"
 import { useRunState } from "@/state/runState"
-import { BasicTile } from "./basicTile"
 import { MiniTiles } from "../miniTiles"
 import type { AccentHue } from "@/styles/colors"
-
-type TileHoverProps = {
-  mousePosition: { x: number; y: number }
-  card: Card
-  material: Material
-}
-
-const VERTICAL_OFFSET = 30
-
-export function TileHover(props: TileHoverProps) {
-  const [tooltipEl, setTooltipEl] = createSignal<HTMLDivElement>()
-
-  const initialStyle: JSX.CSSProperties = {
-    position: "fixed" as const,
-    top: "0",
-    left: "0",
-    transition: "opacity 0.15s ease-out",
-  }
-
-  createEffect(() => {
-    const tooltip = tooltipEl()
-    if (!tooltip) return
-
-    const { x, y } = props.mousePosition
-
-    const rect = tooltip.getBoundingClientRect()
-    let newX = x - rect.width / 2
-    let newY = y - rect.height - VERTICAL_OFFSET
-
-    const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth
-
-    if (newX < 0) {
-      newX = 0
-    } else if (newX + rect.width > viewportWidth) {
-      newX = viewportWidth - rect.width
-    }
-
-    if (newY < 0) {
-      newY = y + VERTICAL_OFFSET
-    } else if (newY + rect.height > viewportHeight) {
-      newY = viewportHeight - rect.height
-    }
-
-    tooltip.style.transform = `translate3d(${newX}px, ${newY}px, 1px)`
-  })
-
-  return (
-    <Portal>
-      <div ref={setTooltipEl} class={tooltipClass} style={initialStyle}>
-        <BasicTile card={props.card} material={props.material} />
-        <div class={tileClass}>
-          <span>
-            {cardName(props.card)}
-            <Show when={props.material !== "bone"}>({props.material})</Show>
-          </span>
-
-          <CardPoints card={props.card} material={props.material} />
-          <CardMultiplier card={props.card} material={props.material} />
-          <MaterialFreedom material={props.material} />
-          <MaterialCoins material={props.material} />
-          <Explanation card={props.card} />
-        </div>
-      </div>
-    </Portal>
-  )
-}
 
 export function MaterialFreedom(iProps: {
   material: Material
@@ -148,46 +67,51 @@ export function Explanation(props: { card: Card }) {
       </Match>
       <Match when={isRabbit(props.card)}>
         <div class={detailInfoClass}>
-          Matching Rabbit Tiles starts a <strong>Rabbit Run</strong>.
+          Clearing Rabbit Tiles starts a <strong>Rabbit Run</strong>.
           <br />
           <br />
-          Each pair of Rabbit Tiles you match in a row increases your
-          multiplier, and when the run ends, you earn one coin for every point
-          scored.
+          Each pair of Rabbit Tiles (<MiniTiles suit="r" />) you clear in a row
+          increases your multiplier, and when the run ends, you earn one coin
+          for every point scored.
         </div>
       </Match>
       <Match when={isFlower(props.card)}>
         <div class={detailInfoClass}>
-          Flower Tiles match with any other Flower Tile, no matter the numbers.
+          Flower tiles can be cleared with other Flower tiles, regardless of
+          their numbers.
           <br />
           <br />
-          When you match them, all tiles become wooden, which only needs one
-          open side to match.
+          Clearing Flowers makes it easier to clear tiles on the next turn.
         </div>
       </Match>
       <Match when={isSeason(props.card)}>
         <div class={detailInfoClass}>
-          Season Tiles match with any other Season Tile, no matter the numbers.
+          Season tiles can be cleared with other Season tiles, regardless of
+          their numbers.
           <br />
           <br />
-          When you match them, all tiles become wooden, which only needs one
-          open side to match.
+          Clearing Seasons makes it easier to clear tiles on the next turn.
         </div>
       </Match>
       <Match when={isDragon(props.card)}>
         {(dragonCard) => (
           <div class={detailInfoClass}>
-            Matching Dragon Tiles starts a <strong>Dragon Run</strong>, where
-            you chain {suitName(getRank(dragonCard()))} (
-            <MiniTiles suit={getRank(dragonCard())} />) tile pairs in a row to
-            build your multiplier.
+            Clearing Dragon Tiles starts a <strong>Dragon Run</strong>.
+            <br />
+            <br />
+            Clear {suitName(getRank(dragonCard()))} (
+            <MiniTiles suit={getRank(dragonCard())} />) tiles to get a
+            multiplier bonus.
           </div>
         )}
       </Match>
       <Match when={isPhoenix(props.card)}>
         <div class={detailInfoClass}>
-          Phoenix Tiles begin a <strong>Phoenix Run</strong>, where you match
-          number pairs in a row starting with “1” to increase your multiplier.
+          Clearing Phoenix Tiles starts a <strong>Phoenix Run</strong>
+          <br />
+          <br />
+          Clear tiles in consecutive number order (1, 2, 3...) to get a
+          multiplier bonus.
         </div>
       </Match>
       <Match when={isMutation(props.card)}>
@@ -208,8 +132,10 @@ export function Explanation(props: { card: Card }) {
       </Match>
       <Match when={isJoker(props.card)}>
         <div class={detailInfoClass}>
-          Matching Joker Tiles shuffles your board. They score 1 point per
-          shuffled tile.
+          Clearing Joker Tiles shuffles your board.
+          <br />
+          <br />
+          Score 1 point per shuffled tile.
         </div>
       </Match>
     </Switch>

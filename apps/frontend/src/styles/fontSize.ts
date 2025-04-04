@@ -1,4 +1,4 @@
-export function rem(px: number) {
+function rem(px: number) {
   return `${px / 16}rem`
 }
 
@@ -60,5 +60,3 @@ export const fontSize = {
     lineHeight: rem(16),
   },
 } as const
-
-export type FontSize = keyof typeof fontSize

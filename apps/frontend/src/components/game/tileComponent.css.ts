@@ -1,8 +1,13 @@
-import { keyframes, style } from "@vanilla-extract/css"
+import { keyframes, style, createVar } from "@vanilla-extract/css"
 import { primary } from "@/styles/fontFamily.css"
 import { recipe } from "@vanilla-extract/recipes"
 import { color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  tileFallingAnimation,
+} from "@/styles/animations.css"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -99,6 +104,8 @@ export const scorePointsClass = style({
   color: "white",
 })
 
+export const tileAnimationDelayVar = createVar()
+
 export const tileClass = style({
   pointerEvents: "none",
   transitionProperty: "top, left",
@@ -106,6 +113,11 @@ export const tileClass = style({
   transitionTimingFunction: "ease-in",
   outline: "none",
   willChange: "transform",
+  animationName: tileFallingAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_MEDIUM,
+  animationDelay: tileAnimationDelayVar,
+  animationFillMode: "backwards",
 })
 
 export const clickableClass = recipe({

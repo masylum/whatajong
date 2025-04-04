@@ -1,44 +1,36 @@
-import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
-import { alpha, color, hueVariants } from "@/styles/colors"
+import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const FLIP_DURATION = 300
-
 export const containerClass = style({
   display: "flex",
   flexDirection: "column",
-  minHeight: "100vh",
+  justifyContent: "center",
+  height: "100vh",
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
+  gap: 12,
+  padding: 12,
   "@media": {
-    "(orientation: portrait)": {
-      gap: 64,
-      padding: 12,
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 16,
+      padding: 16,
     },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      gap: 96,
-      padding: 32,
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 24,
+      padding: 24,
     },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
-      gap: 128,
-    },
-    "(orientation: landscape)": {
+    [mediaQuery({ p: "l", l: "m" })]: {
       gap: 32,
-      padding: 12,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      gap: 64,
       padding: 32,
     },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      gap: 96,
-    },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
-      gap: 128,
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      gap: 48,
+      padding: 48,
     },
   },
 })
@@ -48,9 +40,21 @@ export const backButtonClass = style({
   top: 12,
   left: 12,
   "@media": {
-    [mediaQuery({ p: "l", l: "s" })]: {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      top: 16,
+      left: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      top: 24,
+      left: 24,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
       top: 32,
       left: 32,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      top: 48,
+      left: 48,
     },
   },
 })
@@ -62,10 +66,21 @@ export const buttonsClass = style({
   display: "flex",
   gap: 12,
   "@media": {
-    [mediaQuery({ p: "l", l: "s" })]: {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      bottom: 16,
+      right: 16,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      bottom: 24,
+      right: 24,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
       bottom: 32,
       right: 32,
-      gap: 32,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      bottom: 48,
+      right: 48,
     },
   },
 })
@@ -86,12 +101,14 @@ export const titleClass = style({
   },
 })
 
-export const descriptionsClass = style({
+export const columnsClass = style({
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "center",
   flex: 1,
   gap: 12,
+  minHeight: 0,
+  maxHeight: 500,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 16,
@@ -107,10 +124,9 @@ export const whatajongClass = style({
   color: color.crack60,
 })
 
-export const descriptionClass = style({
+export const columnClass = style({
   display: "flex",
   flexDirection: "column",
-  justifyContent: "center",
   alignItems: "center",
   gap: 24,
   color: color.dot70,
@@ -118,6 +134,8 @@ export const descriptionClass = style({
   ...fontSize.m,
   fontFamily: secondary,
   flex: 1,
+  height: "100%",
+  minHeight: 0,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.l,
@@ -168,4 +186,128 @@ export const dragonRunClass = style({
   alignItems: "center",
   gap: 12,
   background: `radial-gradient(ellipse at center, ${alpha(color.bam60, 0.5)} 0%, ${alpha(color.bam60, 0.0)} 80%)`,
+})
+
+export const boardClass = style({
+  background: color.bone90,
+  padding: 12,
+  borderRadius: 8,
+  position: "relative",
+})
+
+export const emperorContainerClass = style({
+  position: "relative",
+  height: "100%",
+  width: "100%",
+  maxWidth: 300,
+})
+
+export const emperorClass = recipe({
+  base: {
+    position: "absolute",
+    borderRadius: 12,
+    padding: 0,
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    height: "100%",
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: kolor(20),
+      border: `4px solid ${kolor(30)}`,
+    })),
+  },
+})
+
+export const emperorImageClass = style({
+  width: "100%",
+  minHeight: 0,
+  objectFit: "cover",
+  objectPosition: "top center",
+})
+
+export const emperorTextClass = style({
+  ...fontSize.m,
+  fontFamily: primary,
+  display: "flex",
+  flexDirection: "column",
+  flex: 1,
+  padding: 8,
+  gap: 8,
+  "@media": {
+    [mediaQuery({ p: "m", l: "xs" })]: {
+      padding: 12,
+      gap: 12,
+      ...fontSize.h3,
+    },
+    [mediaQuery({ p: "l", l: "s" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "xl", l: "m" })]: {
+      ...fontSize.h1,
+    },
+  },
+  selectors: {
+    ...hueSelectors(
+      (hue) => `${emperorClass.classNames.variants.hue[hue]} &`,
+      (kolor) => ({
+        color: kolor(70),
+      }),
+    ),
+  },
+})
+
+export const shopItemContainerClass = style({
+  display: "flex",
+  alignItems: "flex-start",
+  justifyContent: "center",
+  gap: 4,
+  height: "100%",
+  width: "100%",
+  maxWidth: 300,
+})
+
+export const emperorDescriptionTextClass = style({
+  ...fontSize.s,
+  fontFamily: secondary,
+  "@media": {
+    [mediaQuery({ p: "m", l: "xs" })]: {
+      ...fontSize.m,
+    },
+    [mediaQuery({ p: "xl", l: "m" })]: {
+      ...fontSize.l,
+    },
+  },
+  selectors: {
+    ...hueSelectors(
+      (hue) => `${emperorClass.classNames.variants.hue[hue]} &`,
+      (kolor) => ({
+        color: kolor(60),
+      }),
+    ),
+  },
+})
+
+export const materialListClass = style({
+  padding: 0,
+  margin: 0,
+})
+
+export const materialListItemClass = style({
+  margin: 0,
+  padding: 0,
+})
+
+export const materialNameClass = recipe({
+  base: {
+    fontFamily: primary,
+    ...fontSize.s,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      color: kolor(60),
+    })),
+  },
 })

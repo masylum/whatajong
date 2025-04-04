@@ -1,22 +1,30 @@
-import { createMemo, onMount, Show } from "solid-js"
+import { createEffect, createMemo, createSignal, Show } from "solid-js"
 import { createGameState, GameStateProvider, started } from "@/state/gameState"
 import { Board } from "@/components/game/board"
 import { useParams } from "@solidjs/router"
 import { getStandardDeck, selectTile } from "@/lib/game"
-import { GameOverSolo } from "./gameOverSolo"
+import { GameOverSolo } from "./soloGameOver"
 import { Frame } from "@/components/game/frame"
 import { LinkButton } from "@/components/button"
-import { Powerups } from "@/components/game/powerups"
 import { PointsAndPenalty, Moves } from "@/components/game/stats"
 import { Button } from "@/components/button"
-import { Bell, BellOff, Rotate, Home } from "@/components/icon"
+import { Rotate, Home, Gear, BellOff, Bell } from "@/components/icon"
 import { nanoid } from "nanoid"
-import { menuContainer } from "./soloGame.css"
 import { createTileState, TileStateProvider } from "@/state/tileState"
-import { createRunState, RunStateProvider } from "@/state/runState"
-import { useGlobalState } from "@/state/globalState"
+import { createRunState, RunStateProvider, useRunState } from "@/state/runState"
 import { captureRun } from "@/lib/observability"
 import { GameTutorial } from "@/components/gameTutorial"
+import { Dialog } from "@/components/dialog"
+import { useGlobalState } from "@/state/globalState"
+import {
+  dialogContentClass,
+  dialogTitleClass,
+  dialogItemClass,
+  dialogItemTitleClass,
+  dialogItemsClass,
+} from "@/components/dialog.css"
+
+export const TIMER_POINTS = 0.25
 
 export function Solo() {
   const params = useParams()
@@ -26,7 +34,7 @@ export function Solo() {
   const tiles = createTileState({ id, deck: getStandardDeck() })
   const game = createGameState({ id })
 
-  onMount(() => {
+  createEffect(() => {
     captureRun(id(), "solo")
   })
 
@@ -36,7 +44,6 @@ export function Solo() {
         <TileStateProvider tileDb={tiles()}>
           <GameTutorial>
             <Show when={started(game)}>
-              <Powerups />
               <Show
                 when={game.endedAt}
                 fallback={
@@ -79,30 +86,66 @@ function TopLeft() {
 }
 
 function TopRight() {
+  const [open, setOpen] = createSignal(false)
   const globalState = useGlobalState()
+  const run = useRunState()
+
+  createEffect((prevRunId: string) => {
+    if (prevRunId !== run.runId) {
+      setOpen(false)
+    }
+
+    return run.runId
+  }, run.runId)
+
   return (
-    <nav class={menuContainer}>
-      <LinkButton href={`/play/${nanoid()}`} hue="crack">
-        <Rotate />
-      </LinkButton>
-      <Button
-        type="button"
-        hue="dot"
-        title="silence"
-        onClick={() => {
-          globalState.muted = !globalState.muted
-        }}
-      >
-        <Show when={globalState.muted} fallback={<Bell />}>
-          <BellOff />
-        </Show>
-      </Button>
-    </nav>
+    <Dialog
+      open={open()}
+      onOpenChange={setOpen}
+      trigger={
+        <Button
+          type="button"
+          hue="dot"
+          title="settings"
+          onClick={() => setOpen(true)}
+        >
+          <Gear />
+        </Button>
+      }
+      content={
+        <div class={dialogContentClass}>
+          <h1 class={dialogTitleClass}>Settings</h1>
+          <div class={dialogItemsClass}>
+            <div class={dialogItemClass}>
+              <Button
+                type="button"
+                hue="dot"
+                title="silence"
+                onClick={() => {
+                  globalState.muted = !globalState.muted
+                }}
+              >
+                <Show when={globalState.muted} fallback={<Bell />}>
+                  <BellOff />
+                </Show>
+              </Button>
+              <span class={dialogItemTitleClass}>Sound effects</span>
+            </div>
+            <div class={dialogItemClass}>
+              <LinkButton href={`/play/${nanoid()}`} hue="crack">
+                <Rotate />
+              </LinkButton>
+              <span class={dialogItemTitleClass}>Restart the game</span>
+            </div>
+          </div>
+        </div>
+      }
+    />
   )
 }
 
 function BottomLeft() {
-  return <PointsAndPenalty timerPoints={0.25} />
+  return <PointsAndPenalty timerPoints={TIMER_POINTS} />
 }
 
 function BottomRight() {

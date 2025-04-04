@@ -3,23 +3,6 @@ import { alpha, color } from "@/styles/colors"
 import { fontSize } from "@/styles/fontSize"
 import { primary, secondary } from "@/styles/fontFamily.css"
 
-export const tooltipClass = style({
-  position: "absolute",
-  background: color.bone90,
-  color: color.bone10,
-  borderRadius: 12,
-  border: `1px solid ${color.bone40}`,
-  padding: 12,
-  ...fontSize.l,
-  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-  zIndex: 10_000,
-  pointerEvents: "none",
-  transformOrigin: "center bottom",
-  display: "flex",
-  width: 400,
-  gap: 24,
-})
-
 export const emperorContainerClass = style({
   display: "flex",
   flexDirection: "column",

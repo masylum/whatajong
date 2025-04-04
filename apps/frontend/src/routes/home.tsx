@@ -1,6 +1,8 @@
 import {
+  buttonAnimationDelayVar,
   buttonClass,
   buttonIconClass,
+  cardAnimationDelayVar,
   cardClass,
   frameBottomClass,
   frameClass,
@@ -19,9 +21,9 @@ import { useImageSrc, useTileSize } from "@/state/constants"
 import { nanoid } from "nanoid"
 import { Mountains } from "@/components/mountains"
 import Rand from "rand-seed"
-import { play, SOUNDS } from "@/components/audio"
-import { useGlobalState } from "@/state/globalState"
+import { play } from "@/components/audio"
 import { fetchRuns } from "@/state/runState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 function cards() {
   const rng = new Rand()
@@ -29,13 +31,12 @@ function cards() {
 }
 
 export function Home() {
-  const globalState = useGlobalState()
   const runs = createMemo(() => fetchRuns())
   const db = useImageSrc("db")
   const dc = useImageSrc("dc")
 
   function onHover() {
-    play(SOUNDS.CLICK2, globalState.muted)
+    play("click2")
   }
 
   return (
@@ -47,6 +48,11 @@ export function Home() {
           onMouseEnter={onHover}
           href={`/play/${nanoid()}`}
           class={buttonClass({ hue: "bam" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "100ms",
+            }),
+          }}
         >
           <img
             class={buttonIconClass}
@@ -59,8 +65,15 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href={runs().length > 0 ? `/run/${runs()[0].id}` : `/run/${nanoid()}`}
+          href={
+            runs().length > 0 ? `/run/${runs()[0].runId}` : `/run/${nanoid()}`
+          }
           class={buttonClass({ hue: "crack" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "200ms",
+            }),
+          }}
         >
           <img
             class={buttonIconClass}
@@ -79,18 +92,18 @@ export function Home() {
 
 function Frame() {
   const tileSize = useTileSize()
-  const horizontalTiles = createMemo(() => {
-    return Math.floor(window.innerWidth / tileSize().width)
-  })
-  const horizontalGap = createMemo(() => {
-    return (window.innerWidth - horizontalTiles() * tileSize().width) / 2
-  })
-  const verticalTiles = createMemo(() => {
-    return Math.floor(window.innerHeight / tileSize().height)
-  })
-  const verticalGap = createMemo(() => {
-    return (window.innerHeight - verticalTiles() * tileSize().height) / 2
-  })
+  const horizontalTiles = createMemo(() =>
+    Math.floor(window.innerWidth / tileSize().width),
+  )
+  const horizontalGap = createMemo(
+    () => (window.innerWidth - horizontalTiles() * tileSize().width) / 2,
+  )
+  const verticalTiles = createMemo(() =>
+    Math.floor(window.innerHeight / tileSize().height),
+  )
+  const verticalGap = createMemo(
+    () => (window.innerHeight - verticalTiles() * tileSize().height) / 2,
+  )
 
   return (
     <div class={frameClass}>
@@ -106,6 +119,9 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${j() * 20}ms`,
+                }),
                 "z-index": j(),
               }}
               card={card}
@@ -126,6 +142,9 @@ function Frame() {
               class={cardClass}
               style={{
                 "z-index": horizontalTiles() + j(),
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${horizontalTiles() * 20 + j() * 20}ms`,
+                }),
                 visibility:
                   j() === 0 || j() === verticalTiles() - 1
                     ? "hidden"
@@ -149,6 +168,9 @@ function Frame() {
               class={cardClass}
               style={{
                 "z-index": horizontalTiles() + j(),
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${j() * 20}ms`,
+                }),
                 visibility:
                   j() === 0 || j() === verticalTiles() - 1
                     ? "hidden"
@@ -171,6 +193,9 @@ function Frame() {
             <BasicTile
               class={cardClass}
               style={{
+                ...assignInlineVars({
+                  [cardAnimationDelayVar]: `${verticalTiles() * 20 + j() * 20}ms`,
+                }),
                 "z-index": horizontalTiles() + verticalTiles() + j(),
               }}
               card={card}

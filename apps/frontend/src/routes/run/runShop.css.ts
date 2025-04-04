@@ -1,38 +1,41 @@
-import { createContainer, keyframes, style } from "@vanilla-extract/css"
+import {
+  createContainer,
+  createVar,
+  keyframes,
+  style,
+} from "@vanilla-extract/css"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { heightQueries, mediaQuery } from "@/styles/breakpoints"
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 
 const MAX_WIDTH = 1000
+const MAX_HEIGHT = 600
+const FLIP_DURATION = 100
 
 const overlayShow = keyframes({
   from: { opacity: 0 },
   to: { opacity: 1 },
 })
 
-const contentShow = keyframes({
-  from: {
-    opacity: 0,
-    transform: "scale(0.96) translateY(30px)",
-  },
-  to: {
-    opacity: 1,
-    transform: "scale(1) translateY(0)",
-  },
-})
-
 export const backgroundClass = style({
   height: "100vh",
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
+  display: "flex",
+  justifyContent: "center",
 })
 
 export const shopClass = style({
   display: "flex",
   maxWidth: MAX_WIDTH,
-  margin: "0 auto",
+  maxHeight: MAX_HEIGHT,
   flexDirection: "column",
   fontFamily: secondary,
   gap: 12,
@@ -54,17 +57,9 @@ export const shopClass = style({
   },
 })
 
-export const shopHeaderClass = style({
-  width: "100%",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-})
-
 export const deckClass = style({
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
   padding: 8,
   gap: 8,
   borderRadius: 12,
@@ -79,7 +74,6 @@ export const deckClass = style({
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       padding: 20,
-      width: "100%",
     },
   },
 })
@@ -93,18 +87,18 @@ export const deckRowsClass = style({
   zIndex: 0,
 })
 
-export const deckRowClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-})
-
 export const deckItemClass = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
+  cursor: "pointer",
+  transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+  ":hover": {
+    transform: "translate(-5%, -5%)",
+    filter: "brightness(1.1)",
+  },
 })
 
 export const deckTitleClass = recipe({
@@ -168,107 +162,98 @@ export const pillClass = recipe({
   },
 })
 
-export const pairClass = style({
-  position: "absolute",
-  zIndex: -1,
-})
-
-export const itemPairClass = style({
-  position: "relative",
-  zIndex: 1,
-})
-
 export const shopItemsClass = style({
   width: "100%",
-  display: "grid",
-  gridTemplateColumns: "repeat(8, 1fr)",
-  justifyContent: "space-between",
+  display: "flex",
+  justifyContent: "center",
   background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
   padding: 8,
   borderRadius: 12,
-  gap: 8,
+  gap: 12,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 12,
+      gap: 20,
       padding: 12,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 16,
+      gap: 24,
       padding: 16,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 20,
+      gap: 28,
       padding: 20,
     },
   },
 })
 
-export const tileItemClass = recipe({
+export const rotation = createVar()
+
+export const shopItemClass = recipe({
   base: {
+    borderRadius: 8,
+    overflow: "hidden",
+    flex: 1,
+    boxShadow: `0 0 0 1px ${alpha(color.dot10, 0.2)}`,
+    padding: 0,
+    background: "none",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    padding: 0,
-    gap: 8,
-    justifyContent: "flex-end",
-    border: "none",
-    background: "none",
-    color: color.dot10,
-    transition: "all 0.2s ease-in-out",
-    "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        gap: 12,
-      },
-      [mediaQuery({ p: "m", l: "s" })]: {
-        gap: 16,
-      },
-    },
+    maxWidth: 50,
+    transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+    transform: `rotateZ(${rotation})`,
   },
   variants: {
     disabled: {
       true: {
         filter: "brightness(0.8) saturate(0.8)",
+        ":hover": {
+          transform: "rotateZ(0deg) scale(1.1)",
+        },
       },
       false: {
         cursor: "pointer",
         ":hover": {
+          transform: "rotateZ(0deg) scale(1.2)",
           filter: "brightness(1.1)",
         },
       },
     },
-    selected: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${kolor(90)}, ${kolor(80)})`,
+      border: `1px solid ${kolor(40)}`,
+      color: kolor(30),
+    })),
+    frozen: {
       true: {
-        filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
-        transform: "translate(-4px, -4px)",
-        ":hover": {
-          filter: `brightness(1.1) drop-shadow(0 0 5px ${alpha(color.dot10, 0.3)})`,
-        },
+        filter: "brightness(0.9) saturate(0.8)",
+        background: `linear-gradient(to bottom, ${color.glass90}, ${color.glass80})`,
+        border: `1px solid ${color.glass40}`,
+        color: color.glass30,
       },
     },
   },
 })
 
-export const shopExtraClass = recipe({
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    alignSelf: "flex-end",
-    gap: 8,
-    "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        gap: 12,
-      },
-      [mediaQuery({ p: "m", l: "s" })]: {
-        gap: 16,
-      },
-    },
-  },
-  variants: {
-    disabled: {
-      true: {
-        filter: "brightness(0.8) saturate(0.8)",
-      },
+export const shopItemContentClass = style({
+  padding: 2,
+  borderBottom: `1px solid ${alpha(color.dot10, 0.2)}`,
+  flex: 1,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  minHeight: 60,
+})
+
+export const shopItemCostClass = style({
+  padding: 2,
+  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
+  color: color.gold30,
+  fontWeight: 700,
+  ...fontSize.s,
+  selectors: {
+    [`${shopItemClass.classNames.variants.frozen.true} &`]: {
+      background: `linear-gradient(to bottom, ${color.glass70}, ${color.glass60})`,
+      color: color.glass30,
     },
   },
 })
@@ -279,42 +264,45 @@ export const continueClass = style({
   alignItems: "center",
 })
 
-export const detailsOverlayClass = style({
+export const dialogOverlayClass = style({
   position: "fixed",
   inset: 0,
   zIndex: 50,
-  background: `radial-gradient(
-    circle,
-    ${alpha("#000000", 0.7)},
-    ${alpha("#000000", 1)}
-  )`,
+  background: alpha(color.bone20, 0.2),
   selectors: {
     "&[data-expanded]": {
-      animation: `${overlayShow} 250ms ease`,
+      animation: `${overlayShow} ${ANIMATION_MEDIUM} ${easeBounce}`,
     },
   },
 })
 
-export const detailsPositionerClass = style({
+export const dialogPositionerClass = style({
   position: "fixed",
   inset: 0,
   zIndex: 50,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+  maxHeight: 600,
 })
 
-export const detailsContentClass = recipe({
+export const dialogContentClass = recipe({
   base: {
     zIndex: 50,
-    border: `1px solid ${color.bone10}`,
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     backgroundColor: color.bone90,
     fontFamily: primary,
     display: "flex",
     flexDirection: "column",
     gap: 12,
+    position: "relative",
+    boxShadow: `
+      0px 1px 1px 0px ${alpha(color.bone30, 0.3)},
+      0px 1px 5px -2px ${alpha(color.bone30, 0.3)},
+      0px 1px 10px -5px ${alpha(color.bone30, 0.3)},
+      0px 1px 20px -10px ${alpha(color.bone30, 0.3)}
+    `,
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         gap: 16,
@@ -325,7 +313,9 @@ export const detailsContentClass = recipe({
     },
     selectors: {
       "&[data-expanded]": {
-        animation: `${contentShow} 300ms ease-out`,
+        animationName: fromBelowAnimation,
+        animationDuration: ANIMATION_MEDIUM,
+        animationTimingFunction: easeBounce,
       },
     },
   },
@@ -350,7 +340,7 @@ export const detailsContentClass = recipe({
 export const buttonsClass = style({
   display: "flex",
   gap: 24,
-  justifyContent: "space-between",
+  justifyContent: "flex-end",
 })
 
 export const materialUpgradesClass = style({
@@ -506,56 +496,25 @@ export const upgradeDescriptionClass = style({
   },
 })
 
-export const emperorItemClass = recipe({
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 8,
-    paddingBlock: 0,
-    paddingInline: 16,
-    justifyContent: "center",
-    border: "none",
-    background: "none",
-    color: color.crack10,
-    transition: "all 0.2s ease-in-out",
-    "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        gap: 12,
-      },
-      [mediaQuery({ p: "m", l: "s" })]: {
-        gap: 16,
-      },
-    },
-  },
-  variants: {
-    disabled: {
-      true: {
-        filter: "brightness(0.8) saturate(0.8)",
-      },
-      false: {
-        cursor: "pointer",
-        ":hover": {
-          filter: "brightness(1.1)",
-        },
-      },
-    },
-    selected: {
-      true: {
-        filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
-        transform: "translate(-4px, -4px)",
-        ":hover": {
-          filter: `brightness(1.1) drop-shadow(0 0 10px ${alpha(color.crack10, 0.3)})`,
-        },
-      },
+export const modalDetailsClass = style({
+  display: "flex",
+  gap: 16,
+  minWidth: 0,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 24,
     },
   },
 })
 
-export const modalDetailsClass = style({
-  display: "grid",
-  gridTemplateColumns: "minmax(50px, 1fr) minmax(70%, max-content)",
-  gap: 24,
+export const modalEmperorClass = style({
+  aspectRatio: "2 / 3",
+  width: "100%",
+  maxWidth: 100,
+  cursor: "pointer",
+  minWidth: 0,
+  borderRadius: 8,
+  border: `1px solid ${color.bone40}`,
 })
 
 export const modalDetailsContentClass = style({
@@ -579,7 +538,8 @@ export const emperorDetailsDescriptionClass = style({
   fontFamily: secondary,
   ...fontSize.m,
 })
-export const ownedEmperorsContainer = createContainer()
+
+const ownedEmperorsContainer = createContainer()
 
 export const ownedEmperorsClass = style({
   display: "flex",
@@ -601,7 +561,6 @@ export const ownedEmperorsClass = style({
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       padding: 20,
-      width: "100%",
     },
   },
 })
@@ -635,6 +594,61 @@ export const ownedEmperorsTitleClass = recipe({
   },
 })
 
+export const ownedEmperorsListClass = style({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(30px, 1fr))",
+  minHeight: 0,
+  gap: 4,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 8,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 12,
+    },
+  },
+})
+
+export const emperorClass = style({
+  aspectRatio: "2 / 3",
+  maxHeight: "100%",
+  cursor: "pointer",
+  minHeight: 0,
+  borderRadius: 8,
+  transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+  border: `1px solid ${color.bone40}`,
+  ":hover": {
+    transform: "scale(1.1)",
+    filter: "brightness(1.1)",
+  },
+  "@container": {
+    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
+      borderRadius: 12,
+    },
+    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
+      borderRadius: 16,
+    },
+  },
+})
+
+export const emptyEmperorClass = style({
+  aspectRatio: "2 / 3",
+  maxHeight: "100%",
+  background: alpha(color.crack10, 0.1),
+  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
+  borderRadius: 8,
+  "@container": {
+    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
+      borderRadius: 12,
+    },
+    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
+      borderRadius: 16,
+    },
+  },
+})
+
+export const MINI_TILE_SIZE = 24
+
 export const fullExplanationClass = recipe({
   base: {
     ...fontSize.s,
@@ -651,55 +665,11 @@ export const fullExplanationClass = recipe({
   },
 })
 
-export const ownedEmperorsListClass = style({
+export const shopHeaderClass = style({
   display: "flex",
-  flexWrap: "wrap",
-  minHeight: 0,
-  gap: 4,
-  gridTemplateRows: "repeat(3, 1fr)",
-  gridAutoRows: "1fr",
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 8,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 12,
-    },
-  },
+  justifyContent: "space-between",
+  alignItems: "center",
 })
-
-export const emperorWrapperClass = style({
-  width: 30,
-  "@container": {
-    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
-      width: 40,
-    },
-    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
-      width: 50,
-    },
-    [`${ownedEmperorsContainer} (min-width: 700px)`]: {
-      width: 60,
-    },
-  },
-})
-
-export const emptyEmperorClass = style({
-  background: alpha(color.crack10, 0.1),
-  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
-  borderRadius: 8,
-  aspectRatio: "2 / 3",
-  flex: 1,
-  "@container": {
-    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
-      borderRadius: 12,
-    },
-    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
-      borderRadius: 16,
-    },
-  },
-})
-
-export const MINI_TILE_SIZE = 24
 
 export const shopHeaderItemsClass = style({
   display: "flex",
@@ -734,22 +704,12 @@ export const shopHeaderItemClass = recipe({
   },
 })
 
-export const emperorImageClass = recipe({
-  base: {},
-  variants: {
-    frozen: {
-      true: {
-        filter: "hue-rotate(175deg) saturate(0.7) brightness(0.8)",
-      },
-    },
-  },
-})
-
 export const propertiesClass = style({
   display: "flex",
   overflow: "hidden",
   minHeight: 0,
   gap: 12,
+  flex: 1,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       gap: 16,
@@ -759,7 +719,6 @@ export const propertiesClass = style({
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       gap: 24,
-      flexDirection: "column",
     },
   },
 })
@@ -776,4 +735,27 @@ export const shopHeaderTitleClass = style({
       ...fontSize.h1,
     },
   },
+})
+
+export const closeButtonClass = style({
+  position: "absolute",
+  display: "flex",
+  background: "none",
+  border: "none",
+  top: 8,
+  right: 8,
+  zIndex: 2002,
+  cursor: "pointer",
+  padding: 4,
+  color: color.bone10,
+  outline: "none",
+  ":hover": {
+    color: color.bone30,
+  },
+})
+
+export const upgradeCardPreviewClass = style({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 })

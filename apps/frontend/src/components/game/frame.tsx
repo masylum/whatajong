@@ -5,17 +5,21 @@ import {
   onMount,
   type JSXElement,
 } from "solid-js"
+import { createShortcut } from "@solid-primitives/keyboard"
 import {
   containerClass,
   gameRecipe,
   COMBO_ANIMATION_DURATION,
 } from "./frame.css"
 import { DustParticles } from "./dustParticles"
-import { play, SOUNDS } from "../audio"
+import { play } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
-import { useGlobalState } from "@/state/globalState"
 import { useLayoutSize } from "@/state/constants"
+import { Powerups } from "./powerups"
+import { useTileState } from "@/state/tileState"
+import { getAvailablePairs, selectTile } from "@/lib/game"
+import { useRunState } from "@/state/runState"
 
 type Props = {
   board: JSXElement
@@ -26,20 +30,19 @@ type Props = {
 }
 export function Frame(props: Props) {
   const game = useGameState()
-  const globalState = useGlobalState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
-  // TODO: Move to powerups?
+  // TODO: rabbit, phoenix, boat...
   createEffect((prevCombo: number) => {
     const combo = getDragonCombo()
 
     if (combo > prevCombo) {
       setComboAnimation(combo)
-      play(SOUNDS.GRUNT, globalState.muted)
+      play("grunt")
       setTimeout(() => {
         setComboAnimation(0)
       }, COMBO_ANIMATION_DURATION)
@@ -48,8 +51,21 @@ export function Frame(props: Props) {
     return combo
   }, getDragonCombo())
 
+  // Cheat Code!
+  const tileDb = useTileState()
+  const run = useRunState()
+  createShortcut(["Shift", "K"], () => {
+    console.log("cheat!")
+    const tiles = getAvailablePairs(tileDb, game)[0]
+    if (!tiles) return
+    for (const tile of tiles) {
+      selectTile({ tileDb, run, game, tileId: tile.id })
+    }
+    game.points += 100
+  })
+
   onMount(() => {
-    play(SOUNDS.GONG, globalState.muted)
+    play("gong")
   })
 
   return (
@@ -93,6 +109,7 @@ export function Frame(props: Props) {
       </div>
       <Mountains />
       <DustParticles />
+      <Powerups />
     </div>
   )
 }

@@ -5,7 +5,7 @@ import { Show, mergeProps } from "solid-js"
 export function MiniTile(props: {
   card?: Card | Suit
   material?: Material
-  size?: 20 | 24 | 48
+  size?: number
 }) {
   const mProps = mergeProps({ size: 24, material: "bone" } as const, props)
 

@@ -1,5 +1,6 @@
 import { type JSX, splitProps } from "solid-js"
-import { emperorClass } from "./emperor.css"
+
+export const EMPEROR_RATIO = 2 / 3
 
 export function BasicEmperor(
   iProps: {
@@ -12,7 +13,6 @@ export function BasicEmperor(
       srcset={`/occupations/m/${props.name}.webp 300w, /occupations/l/${props.name}.webp 514w`}
       sizes="(min-width: 1024px) 514px, 300px"
       src={`/occupations/m/${props.name}.webp`}
-      class={emperorClass}
       {...imgProps}
       alt={props.name}
     />

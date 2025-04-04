@@ -1,8 +1,6 @@
 import { getStandardPairs, type Card } from "@/lib/game"
 import {
   bouncingCardClass,
-  pointsClass,
-  timeClass,
   titleClass,
   startX,
   endX,
@@ -10,15 +8,18 @@ import {
   duration,
   gameOverClass,
   screenClass,
+  detailListClass,
+  detailTermClass,
+  detailDescriptionClass,
+  scoreClass,
+  buttonsClass,
 } from "./gameOver.css"
 import { shuffle } from "@/lib/rand"
 import { For, Show, createMemo, type ParentProps } from "solid-js"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { calculateSeconds, useGameState } from "@/state/gameState"
 import { BasicTile } from "./basicTile"
 import Rand from "rand-seed"
-import { formatDuration, intervalToDuration } from "date-fns"
-
+import type { AccentHue } from "@/styles/colors"
 // biome-ignore format:
 const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "Awesome!", "Winner!", "Glorious!", "Well Played!" ]
 // biome-ignore format:
@@ -73,7 +74,7 @@ export function FallingTiles() {
   return <For each={cards()}>{(card) => <FallingTile card={card} />}</For>
 }
 
-export function Title(props: { win: boolean; round?: number }) {
+function Title(props: { win: boolean; round?: number }) {
   const round = createMemo(() => (props.round ? `Round ${props.round}: ` : ""))
   return (
     <Show
@@ -93,30 +94,31 @@ export function Title(props: { win: boolean; round?: number }) {
   )
 }
 
-function Time() {
-  const gameState = useGameState()
-  const duration = createMemo(() => {
-    const seconds = calculateSeconds(gameState) * 1000
-    const duration = intervalToDuration({ start: 0, end: seconds })
-    return formatDuration(duration, {
-      format: ["hours", "minutes", "seconds"],
-      zero: true,
-      delimiter: ":",
-      locale: {
-        formatDistance: (_token, count) => String(count).padStart(2, "0"),
-      },
-    })
-  })
-
-  return <h3 class={timeClass}>time: {duration()}</h3>
+function List(props: { hue: AccentHue } & ParentProps) {
+  return <dl class={detailListClass({ hue: props.hue })}>{props.children}</dl>
 }
 
-function Points(props: { points: number }) {
-  return <h3 class={pointsClass}>points: {props.points}</h3>
+function Item(props: { label: string } & ParentProps) {
+  return (
+    <>
+      <dt class={detailTermClass}>{props.label}</dt>
+      <dd class={detailDescriptionClass}>{props.children}</dd>
+    </>
+  )
 }
 
-GameOver.Time = Time
-GameOver.Points = Points
+function Score(props: ParentProps) {
+  return <div class={scoreClass}>{props.children}</div>
+}
+
+function Buttons(props: ParentProps) {
+  return <div class={buttonsClass}>{props.children}</div>
+}
+
 GameOver.BouncingCards = FallingTiles
+GameOver.List = List
+GameOver.Item = Item
+GameOver.Score = Score
+GameOver.Buttons = Buttons
 
 export { GameOver }

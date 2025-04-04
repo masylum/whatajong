@@ -4,6 +4,7 @@ import { render } from "solid-js/web"
 import { Home } from "./routes/home"
 import { Solo } from "./routes/solo/soloGame"
 import { Layout } from "./components/layout"
+
 import Run from "./routes/run"
 
 import "@fontsource-variable/nunito"

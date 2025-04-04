@@ -68,7 +68,7 @@ type SideShadeProps = {
   }
 }
 
-export function TopShade(props: SideShadeProps) {
+function TopShade(props: SideShadeProps) {
   const topShadePath = createMemo(() => {
     const { topLeft, top, topRight } = props.shadeVariants
 
@@ -127,7 +127,7 @@ export function TopShade(props: SideShadeProps) {
   )
 }
 
-export function RightShade(props: SideShadeProps) {
+function RightShade(props: SideShadeProps) {
   const tileSize = useTileSize()
   const rightShadePath = createMemo(() => {
     const { topLeft, left, bottomLeft } = props.shadeVariants

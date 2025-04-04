@@ -1,25 +1,23 @@
 import { createSignal, createEffect, createMemo } from "solid-js"
 import type { Tile } from "@/lib/game"
-import { play, SOUNDS } from "../audio"
+import { play } from "../audio"
 import { useTileState } from "@/state/tileState"
-import { useGlobalState } from "@/state/globalState"
 
-export const EXPRESSIONS = [
-  SOUNDS.GREAT,
-  SOUNDS.NICE,
-  SOUNDS.SUPER,
-  SOUNDS.AWESOME,
-  SOUNDS.AMAZING,
-  SOUNDS.UNREAL,
-  SOUNDS.FANTASTIC,
-  SOUNDS.LEGENDARY,
-]
+const EXPRESSIONS = [
+  "great",
+  "nice",
+  "super",
+  "awesome",
+  "amazing",
+  "unreal",
+  "fantastic",
+  "legendary",
+] as const
 
-export const FAST_SELECTION_THRESHOLD = 3000
+const FAST_SELECTION_THRESHOLD = 3000
 
 export function createVoicesEffect() {
   const tiles = useTileState()
-  const globalState = useGlobalState()
 
   const [lastTileTime, setLastTileTime] = createSignal<number>(0)
   const [speedStreak, setSpeedStreak] = createSignal<number>(0)
@@ -45,7 +43,7 @@ export function createVoicesEffect() {
         const expressionIndex = newStreak - 3
         const expressionSound = EXPRESSIONS[expressionIndex]
         if (expressionSound) {
-          play(expressionSound, globalState.muted)
+          play(expressionSound)
         }
       }
     }

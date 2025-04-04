@@ -1,6 +1,7 @@
 import { createMemo, For } from "solid-js"
 import {
   backButtonClass,
+  buttonAnimationDelayVar,
   buttonClass,
   buttonContainerClass,
   buttonDescriptionTextClass,
@@ -14,12 +15,13 @@ import { useRunState } from "@/state/runState"
 import { pickFromArray } from "@/lib/rand"
 import { generateEmperorItem } from "@/state/shopState"
 import Rand from "rand-seed"
-import { getEmperors, type Emperor } from "@/state/emperors"
+import { emperorName, getEmperors, type Emperor } from "@/state/emperors"
 import type { AccentHue } from "@/styles/colors"
 import { suitName } from "@/lib/game"
 import { ArrowLeft } from "@/components/icon"
 import { LinkButton } from "@/components/button"
 import { captureEvent } from "@/lib/observability"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 export function RunPickEmperor() {
   const run = useRunState()
@@ -68,12 +70,17 @@ export function RunPickEmperor() {
       </div>
       <div class={buttonContainerClass}>
         <For each={emperors()}>
-          {(emperor) => (
+          {(emperor, index) => (
             <button
               type="button"
               class={buttonClass({
                 hue: suitName(emperor.suit!) as AccentHue,
               })}
+              style={{
+                ...assignInlineVars({
+                  [buttonAnimationDelayVar]: `${100 + index() * 100}ms`,
+                }),
+              }}
               onClick={() => onSelectEmperor(emperor)}
             >
               <img
@@ -84,7 +91,7 @@ export function RunPickEmperor() {
                 alt={emperor.name}
               />
               <div class={buttonTextClass}>
-                {emperor.name.replaceAll("_", " ")}
+                {emperorName(emperor.name)}
                 <div class={buttonDescriptionTextClass}>
                   {emperor.description()}
                 </div>

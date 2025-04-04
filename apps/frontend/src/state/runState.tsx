@@ -30,7 +30,7 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-export type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
+type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
 export type Round = {
   id: number
   pointObjective: number
@@ -149,7 +149,7 @@ export function getIncome(deck: Deck, run: RunState) {
   return deck.size * run.shopLevel
 }
 
-export function totalPoints(game: Game, round: Round) {
+function totalPoints(game: Game, round: Round) {
   const time = calculateSeconds(game)
   const penalty = Math.floor(time * round.timerPoints)
   return game.points - penalty

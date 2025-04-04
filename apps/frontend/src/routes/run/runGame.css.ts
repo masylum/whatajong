@@ -3,13 +3,12 @@ import { color } from "@/styles/colors"
 import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
-import { EMPEROR_HEIGHT, EMPEROR_WIDTH } from "@/components/emperor.css"
 import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
 import { primary } from "@/styles/fontFamily.css"
+import { EMPEROR_RATIO } from "@/components/emperor"
 
 export const FLIP_DURATION = 1000
-export const DELETED_DURATION = 300
-const EMPEROR_RATIO = EMPEROR_WIDTH / EMPEROR_HEIGHT
+const DELETED_DURATION = 300
 
 const deletedKeyframes = keyframes({
   "0%": {
@@ -30,31 +29,10 @@ const deletedKeyframes = keyframes({
   },
 })
 
-export const contentShow = keyframes({
-  from: {
-    opacity: 0,
-    transform: "scale(0.96)",
-  },
-  to: {
-    opacity: 1,
-    transform: "scale(1)",
-  },
-})
-
-export const contentHide = keyframes({
-  from: {
-    opacity: 1,
-    transform: "scale(1)",
-  },
-  to: {
-    opacity: 0,
-    transform: "scale(0.96)",
-  },
-})
-
 export const roundClass = style({
   display: "flex",
   flexDirection: "column",
+  fontFamily: primary,
   gap: 4,
   "@media": {
     [mediaQuery({ p: "l", l: "m" })]: {
@@ -109,7 +87,6 @@ export const roundObjectiveIconClass = style({
 
 export const menuContainerClass = style({
   display: "flex",
-  justifyContent: "space-between",
   alignItems: "center",
   gap: 12,
   "@media": {
@@ -202,7 +179,7 @@ export const emperorDialogClass = style({
 export const emperorDialogButtonsClass = style({
   display: "flex",
   fontFamily: primary,
-  justifyContent: "space-between",
+  justifyContent: "flex-end",
   alignItems: "center",
   color: color.bone20,
   gap: 12,

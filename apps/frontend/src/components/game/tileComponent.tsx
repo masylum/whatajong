@@ -18,6 +18,7 @@ import {
   tileClass,
   scorePointsClass,
   scoreCoinsClass,
+  tileAnimationDelayVar,
 } from "./tileComponent.css"
 import { TileShades } from "./tileShades"
 import {
@@ -32,16 +33,17 @@ import {
   isFlower,
   isPhoenix,
   isRabbit,
+  isMutation,
 } from "@/lib/game"
 import { TileBody } from "./tileBody"
 import { TileSide } from "./tileSide"
-import { play, SOUNDS } from "../audio"
+import { play } from "../audio"
 import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
 import { useTileState } from "@/state/tileState"
 import { useGameState } from "@/state/gameState"
 import { getHueColor } from "@/styles/colors"
-import { useGlobalState } from "@/state/globalState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 type Props = {
   tile: Tile
@@ -100,7 +102,6 @@ export function TileComponent(iProps: Props) {
   const [oopsie, setOopsie] = createSignal(false)
   const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
   const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
-  const globalState = useGlobalState()
 
   const selected = createMemo(() => props.tile.selected)
   const state = createMemo<State>(() => {
@@ -129,7 +130,7 @@ export function TileComponent(iProps: Props) {
 
     if (prevState === "selected" && currentState === "idle") {
       setOopsie(true)
-      play(SOUNDS.SHAKE, globalState.muted)
+      play("shake")
       setTimeout(() => {
         setOopsie(false)
       }, SHAKE_DURATION * SHAKE_REPEAT)
@@ -149,41 +150,41 @@ export function TileComponent(iProps: Props) {
       }, DELETED_DURATION)
 
       if (isDragon(props.tile.card)) {
-        play(SOUNDS.DRAGON, globalState.muted)
-      } else if (isFlower(props.tile.card) || isSeason(props.tile.card)) {
-        play(SOUNDS.GONG, globalState.muted)
-      } else if (isWind(props.tile.card)) {
-        play(SOUNDS.WIND, globalState.muted)
-      } else if (isPhoenix(props.tile.card)) {
-        play(SOUNDS.PHOENIX, globalState.muted)
-      } else if (isRabbit(props.tile.card)) {
-        play(SOUNDS.RABBIT, globalState.muted)
+        play("dragon")
       } else if (isFlower(props.tile.card)) {
-        play(SOUNDS.FLOWER, globalState.muted)
+        play("flower")
       } else if (isSeason(props.tile.card)) {
-        play(SOUNDS.SEASON, globalState.muted)
+        play("season")
+      } else if (isWind(props.tile.card)) {
+        play("wind")
+      } else if (isPhoenix(props.tile.card)) {
+        play("phoenix")
+      } else if (isRabbit(props.tile.card)) {
+        play("rabbit")
+      } else if (isMutation(props.tile.card)) {
+        play("mutation")
       } else if (
         props.tile.material === "bronze" ||
         props.tile.material === "gold"
       ) {
-        play(SOUNDS.METAL_DING, globalState.muted)
+        play("metal_ding")
       } else if (
         props.tile.material === "glass" ||
         props.tile.material === "diamond"
       ) {
-        play(SOUNDS.GLASS_DING, globalState.muted)
+        play("glass_ding")
       } else if (
         props.tile.material === "ivory" ||
         props.tile.material === "jade"
       ) {
-        play(SOUNDS.STONE_DING, globalState.muted)
+        play("stone_ding")
       } else {
-        play(SOUNDS.DING, globalState.muted)
+        play("ding")
       }
 
       if (props.tile.coins) {
         setTimeout(() => {
-          play(SOUNDS.COIN, globalState.muted)
+          play("coin")
         }, 300)
       }
 
@@ -242,6 +243,9 @@ export function TileComponent(iProps: Props) {
             top: `${coords().y}px`,
             overflow: "visible",
             "z-index": zIndex(),
+            ...assignInlineVars({
+              [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,
+            }),
           }}
           width={props.width}
           height={props.height}
@@ -264,7 +268,7 @@ export function TileComponent(iProps: Props) {
               class={clickableClass({ canBeSelected: canBeSelected() })}
               onMouseDown={() => {
                 if (!canBeSelected()) return
-                play(SOUNDS.CLICK, globalState.muted)
+                play("click")
                 props.onSelect(props.tile)
               }}
               onMouseEnter={() => {

@@ -4,8 +4,7 @@ import { makeTimer } from "@solid-primitives/timer"
 import { movesClass, pointsClass, pillClass, penaltyClass } from "./stats.css"
 import { getAvailablePairs } from "@/lib/game"
 import { useTileState } from "@/state/tileState"
-import { play, SOUNDS } from "../audio"
-import { useGlobalState } from "@/state/globalState"
+import { play } from "../audio"
 
 export function PointsAndPenalty(props: { timerPoints: number }) {
   const game = useGameState()
@@ -61,7 +60,6 @@ type Urgency = "normal" | "mild" | "moderate" | "urgent"
 
 export function Moves() {
   const tiles = useTileState()
-  const globalState = useGlobalState()
   const pairs = createMemo(() => getAvailablePairs(tiles).length)
 
   const urgencyLevel = createMemo(() => {
@@ -97,11 +95,11 @@ export function Moves() {
     }
 
     if (prevPairs > 1 && newPairs === 1) {
-      play(SOUNDS.ALARM3, globalState.muted)
+      play("alarm3")
     } else if (prevPairs > 2 && newPairs === 2) {
-      play(SOUNDS.ALARM2, globalState.muted)
+      play("alarm2")
     } else if (prevPairs > 3 && newPairs === 3) {
-      play(SOUNDS.ALARM1, globalState.muted)
+      play("alarm1")
     }
 
     return newPairs

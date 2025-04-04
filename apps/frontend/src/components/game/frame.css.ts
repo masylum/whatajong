@@ -63,6 +63,7 @@ export const gameRecipe = recipe({
 export const containerClass = recipe({
   base: {
     display: "flex",
+    flexWrap: "wrap-reverse",
     position: "absolute",
     zIndex: 3,
     gap: 8,
@@ -104,9 +105,11 @@ export const containerClass = recipe({
     orientation: {
       portrait: {
         flexDirection: "column",
+        maxHeight: "50%",
       },
       landscape: {
         flexDirection: "row",
+        maxWidth: "50%",
       },
     },
   },

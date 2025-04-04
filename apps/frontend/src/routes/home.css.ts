@@ -1,8 +1,14 @@
+import {
+  ANIMATION_FAST,
+  ANIMATION_MEDIUM,
+  easeBounce,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { color, hueVariants, alpha } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { style } from "@vanilla-extract/css"
+import { createVar, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const homeClass = style({
@@ -29,6 +35,11 @@ export const titleClass = style({
   ...fontSize.h1,
   color: color.crack50,
   textAlign: "center",
+  animationName: fromBelowAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_MEDIUM,
+  animationDelay: "100ms",
+  animationFillMode: "backwards",
   "@media": {
     [mediaQuery({ p: "xs", l: "xxs" })]: {
       ...fontSize.hero4,
@@ -51,6 +62,7 @@ export const navClass = style({
   gap: 16,
 })
 
+export const buttonAnimationDelayVar = createVar()
 export const buttonClass = recipe({
   base: {
     display: "flex",
@@ -64,6 +76,11 @@ export const buttonClass = recipe({
     paddingBlock: 4,
     borderRadius: 8,
     ...fontSize.l,
+    animationName: fromBelowAnimation,
+    animationTimingFunction: easeBounce,
+    animationDuration: ANIMATION_MEDIUM,
+    animationDelay: buttonAnimationDelayVar,
+    animationFillMode: "backwards",
     "@media": {
       [mediaQuery({ p: "s", l: "xxs" })]: {
         ...fontSize.h3,
@@ -134,6 +151,12 @@ export const frameRightClass = style({
   right: 0,
 })
 
+export const cardAnimationDelayVar = createVar()
 export const cardClass = style({
   position: "relative",
+  animationName: fromBelowAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_FAST,
+  animationDelay: cardAnimationDelayVar,
+  animationFillMode: "backwards",
 })

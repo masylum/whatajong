@@ -9,11 +9,6 @@ import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
 import { getIncome, runGameWin, useRound, useRunState } from "@/state/runState"
 import {
-  pointsContainerClass,
-  detailListClass,
-  detailDescriptionClass,
-  detailTermClass,
-  gameOverButtonsClass,
   gameOverClass,
   deckRowClass,
   deckRowsClass,
@@ -37,7 +32,7 @@ import { BasicTile } from "@/components/game/basicTile"
 import { BasicEmperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
 import { captureEvent } from "@/lib/observability"
-import { useTileSize, getSideSize } from "@/state/constants"
+import { useTileSize } from "@/state/constants"
 
 export default function RunGameOver() {
   const run = useRunState()
@@ -91,55 +86,56 @@ export default function RunGameOver() {
     <GameStateProvider game={game}>
       <GameOver win={win()} round={run.round}>
         <div class={gameOverClass}>
-          <div class={pointsContainerClass}>
+          <GameOver.Score>
             <Show when={win()}>
-              <dl class={detailListClass({ hue: "gold" })}>
-                <dt class={detailTermClass}>Deck income</dt>
-                <dd class={detailDescriptionClass}>+ ${income()}</dd>
+              <GameOver.List hue="gold">
+                <GameOver.Item label={`Deck inc‌ome (${deck.size})`}>
+                  + ${income()}
+                </GameOver.Item>
                 <Show when={tileCoins()}>
                   {(coins) => (
-                    <>
-                      <dt class={detailTermClass}>Tile coins</dt>
-                      <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                    </>
+                    <GameOver.Item label="Tile c‌oins">
+                      + ${coins()}
+                    </GameOver.Item>
                   )}
                 </Show>
                 <Show when={overAchievementCoins()}>
                   {(coins) => (
-                    <>
-                      <dt class={detailTermClass}>
-                        Over achiever ({Math.round(achievement() * 100)} %)
-                      </dt>
-                      <dd class={detailDescriptionClass}>+ ${coins()}</dd>
-                    </>
+                    <GameOver.Item
+                      label={`Over achiever (${Math.round(achievement() * 100)} %)`}
+                    >
+                      + ${coins()}
+                    </GameOver.Item>
                   )}
                 </Show>
-              </dl>
+              </GameOver.List>
             </Show>
 
-            <dl class={detailListClass({ hue: "bamb" })}>
-              <dt class={detailTermClass}>Points</dt>
-              <dd class={detailDescriptionClass}>{points()}</dd>
-            </dl>
+            <GameOver.List hue="bam">
+              <GameOver.Item label="Points">{points()}</GameOver.Item>
+            </GameOver.List>
 
             <Show when={round().timerPoints}>
-              <dl class={detailListClass({ hue: "crack" })}>
-                <dt class={detailTermClass}>Time Penalty ({time()} s)</dt>
-                <dd class={detailDescriptionClass}>{penalty()}</dd>
-              </dl>
+              <GameOver.List hue="crack">
+                <GameOver.Item label={`Time penalty (${time()} s)`}>
+                  {penalty()}
+                </GameOver.Item>
+              </GameOver.List>
             </Show>
 
-            <dl class={detailListClass({ hue: "dot" })}>
-              <dt class={detailTermClass}>Total Points</dt>
-              <dd class={detailDescriptionClass}>{totalPoints()}</dd>
-              <dt class={detailTermClass}>Objective</dt>
-              <dd class={detailDescriptionClass}>{round().pointObjective}</dd>
-            </dl>
+            <GameOver.List hue="dot">
+              <GameOver.Item label="Total Points">
+                {totalPoints()}
+              </GameOver.Item>
+              <GameOver.Item label="Objective">
+                {round().pointObjective}
+              </GameOver.Item>
+            </GameOver.List>
 
             <Show
               when={win()}
               fallback={
-                <div class={gameOverButtonsClass}>
+                <GameOver.Buttons>
                   <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
                     <Rotate />
                     Try same run
@@ -148,7 +144,7 @@ export default function RunGameOver() {
                     Start new run
                     <ArrowRight />
                   </LinkButton>
-                </div>
+                </GameOver.Buttons>
               }
             >
               <Button hue="bam" kind="dark" onClick={() => onShop()}>
@@ -156,11 +152,11 @@ export default function RunGameOver() {
                 Go to shop
               </Button>
             </Show>
-          </div>
+          </GameOver.Score>
           <Show when={!win()}>
             <div class={gameOverInfoClass}>
               <h3 class={titleClass}>
-                Your Trasure <span class={moneyClass}>${run.money}</span>
+                Your Treasure <span class={moneyClass}>${run.money}</span>
               </h3>
               <OwnedEmperors />
               <Deck />
@@ -195,8 +191,7 @@ function Deck() {
       minRows: 4,
     })
   })
-  const tileSize = useTileSize()
-  const sideSize = createMemo(() => getSideSize(tileSize().height))
+  const tileSize = useTileSize(0.7)
 
   return (
     <div class={deckClass}>
@@ -204,8 +199,8 @@ function Deck() {
       <div
         class={deckRowsClass}
         style={{
-          "padding-bottom": `${sideSize() * 2}px`,
-          "padding-right": `${sideSize() * 2}px`,
+          "padding-bottom": `${tileSize().sideSize * 2}px`,
+          "padding-right": `${tileSize().sideSize * 2}px`,
         }}
       >
         <For each={deckByRows()}>
@@ -222,13 +217,15 @@ function Deck() {
                     <BasicTile
                       card={deckTile.card}
                       material={deckTile.material}
+                      width={tileSize().width}
                     />
                     <BasicTile
                       class={pairClass}
                       style={{
-                        transform: `translate(${sideSize()}px, ${sideSize()}px)`,
+                        transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
                       }}
                       material={deckTile.material}
+                      width={tileSize().width}
                     />
                   </div>
                 )}

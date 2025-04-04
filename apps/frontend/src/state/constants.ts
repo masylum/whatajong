@@ -81,8 +81,8 @@ export function useImageSrc(card: Card) {
       s: "xs",
       m: "m",
       l: "m",
-      xl: "l",
-      xxl: "l",
+      xl: "m",
+      xxl: "m",
     }
     const size = sizes[match.key]
     return `/tiles/${size}/${card}.webp`

@@ -1,12 +1,17 @@
-import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
+import {
+  ANIMATION_SLOW,
+  easeBounce,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
+import { mediaQuery } from "@/styles/breakpoints"
 import { color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { style } from "@vanilla-extract/css"
+import { createVar, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const FLIP_DURATION = 300
-export const CHOICE_EMPEROR_WIDTH = 200
+const ANIMATION_DURATION = 300
+const CHOICE_EMPEROR_WIDTH = 200
 
 export const containerClass = style({
   display: "flex",
@@ -16,31 +21,18 @@ export const containerClass = style({
   width: "100vw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
+  gap: 32,
   padding: 12,
   "@media": {
-    "(orientation: portrait)": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
       gap: 64,
       padding: 12,
     },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
+    [mediaQuery({ p: "m", l: "s" })]: {
       gap: 96,
       padding: 32,
     },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
-      gap: 128,
-    },
-    "(orientation: landscape)": {
-      gap: 32,
-      padding: 12,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      gap: 64,
-      padding: 32,
-    },
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      gap: 96,
-    },
-    [`(orientation: portrait) and ${widthQueries.xl}`]: {
+    [mediaQuery({ p: "l", l: "m" })]: {
       gap: 128,
     },
   },
@@ -78,27 +70,17 @@ export const titleClass = style({
   color: color.dot90,
   fontVariantLigatures: "none",
   textAlign: "center",
+  animationName: fromBelowAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_SLOW,
+  animationDelay: "100ms",
+  animationFillMode: "backwards",
   "@media": {
     [mediaQuery({ p: "l", l: "m" })]: {
       ...fontSize.hero4,
     },
     [mediaQuery({ p: "xl", l: "l" })]: {
       ...fontSize.hero3,
-    },
-  },
-})
-
-export const subtitleClass = style({
-  ...fontSize.h3,
-  fontFamily: primary,
-  color: color.dot60,
-  textAlign: "center",
-  "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h2,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      ...fontSize.h1,
     },
   },
 })
@@ -118,6 +100,8 @@ export const buttonContainerClass = style({
   },
 })
 
+export const buttonAnimationDelayVar = createVar()
+
 export const buttonClass = recipe({
   base: {
     borderRadius: 12,
@@ -126,11 +110,16 @@ export const buttonClass = recipe({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+    transition: `transform ${ANIMATION_DURATION}ms, filter ${ANIMATION_DURATION}ms`,
     transformStyle: "preserve-3d",
-    backfaceVisibility: "hidden",
     cursor: "pointer",
     width: CHOICE_EMPEROR_WIDTH,
+    animationName: fromBelowAnimation,
+    animationTimingFunction: easeBounce,
+    animationDuration: ANIMATION_SLOW,
+    animationDelay: buttonAnimationDelayVar,
+    animationFillMode: "backwards",
+
     ":hover": {
       transform: "rotateX(-20deg) rotateY(-10deg) scale(1.2)",
       filter: "brightness(1.1)",

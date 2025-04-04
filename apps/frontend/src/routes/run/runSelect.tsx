@@ -1,14 +1,5 @@
 import { generateRound, type Round } from "@/state/runState"
-import {
-  batch,
-  createMemo,
-  createSelector,
-  createSignal,
-  For,
-  Match,
-  Show,
-  Switch,
-} from "solid-js"
+import { batch, createMemo, createSelector, For, Show } from "solid-js"
 import { Button } from "@/components/button"
 import { useRunState } from "@/state/runState"
 import {
@@ -22,12 +13,8 @@ import {
   detailTermClass,
   detailListClass,
   detailDescriptionClass,
-  tipsClass,
-  tipTitleClass,
-  tipClass,
 } from "./runSelect.css"
 import { Goal, Hourglass } from "@/components/icon"
-import { MiniTiles } from "@/components/miniTiles"
 
 export default function RunSelect() {
   const run = useRunState()
@@ -48,7 +35,6 @@ export default function RunSelect() {
       run.stage = "game"
     })
   }
-  const [tip, setTip] = createSignal(Math.floor(Math.random() * 3))
 
   return (
     <div class={containerClass}>
@@ -67,14 +53,12 @@ export default function RunSelect() {
                 <dd class={detailTermClass}>
                   <Goal /> Points
                 </dd>
-                <dt class={detailDescriptionClass}>
-                  {round.pointObjective} points
-                </dt>
+                <dt class={detailDescriptionClass}>{round.pointObjective}</dt>
                 <dd class={detailTermClass}>
                   <Hourglass /> Penalty
                 </dd>
                 <dt class={detailDescriptionClass}>
-                  {round.timerPoints.toFixed(2)} points / sec&#8204;ond
+                  {round.timerPoints.toFixed(2)}
                 </dt>
               </dl>
               <Show when={isCurrentRound(round.id)}>
@@ -89,49 +73,6 @@ export default function RunSelect() {
             </div>
           )}
         </For>
-      </div>
-      <div class={tipsClass} onClick={() => setTip((tip() + 1) % 3)}>
-        <Show when={run.round > 1}>
-          <div class={tipClass} onClick={() => setTip((tip() + 1) % 3)}>
-            <Switch>
-              <Match when={tip() === 0}>
-                <h3 class={tipTitleClass}>Tip: Discard crew members</h3>
-                <p>
-                  Each board is solvable, but finding the solution requires
-                  planning ahead.
-                </p>
-                <p>
-                  Sometimes you will find yourself running out of moves so
-                  remember that you can discard crew members to shuffle the
-                  tiles.
-                </p>
-              </Match>
-              <Match when={tip() === 1}>
-                <h3 class={tipTitleClass}>Tip: Master Dragon Runs</h3>
-                <p>
-                  A Dragon Run starts when you match a pair of Dragon tiles (
-                  <MiniTiles suit="d" />
-                  ).
-                </p>
-                <p>
-                  Matching tiles of the Dragon's suit grants you a multiplier
-                  bonus and keeps the Dragon Run active.
-                </p>
-              </Match>
-              <Match when={tip() === 2}>
-                <h3 class={tipTitleClass}>Tip: Go fast!</h3>
-                <p>
-                  Each game includes a time penalty that gradually reduces your
-                  score.
-                </p>
-                <p>
-                  As you progress, you'll need to play faster to clear the board
-                  while reaching the point goal.
-                </p>
-              </Match>
-            </Switch>
-          </div>
-        </Show>
       </div>
     </div>
   )

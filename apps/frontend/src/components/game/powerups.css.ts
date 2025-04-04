@@ -3,6 +3,7 @@ import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { primary } from "@/styles/fontFamily.css"
+import { mediaQuery } from "@/styles/breakpoints"
 
 const opacity = createVar()
 const backgroundColor = createVar()
@@ -10,6 +11,7 @@ const backgroundColor = createVar()
 export const playerPowerupsClass = style({
   position: "absolute",
   inset: 0,
+  zIndex: 2,
   pointerEvents: "none",
 })
 
@@ -84,22 +86,32 @@ export const powerupRecipe = recipe({
   },
 })
 
-export const lastCardClass = style({
-  ...fontSize.h2,
-})
-
 export const comboRecipe = recipe({
   base: {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    fontSize: "14px",
+    ...fontSize.xs,
     fontFamily: primary,
     fontWeight: "500",
     color: "white",
     paddingInline: 8,
     paddingBlock: 2,
     borderRadius: 8,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.s,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        ...fontSize.m,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.l,
+      },
+      [mediaQuery({ p: "xl", l: "l" })]: {
+        ...fontSize.h3,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -113,11 +125,24 @@ export const comboRecipe = recipe({
 })
 
 export const phoenixComboClass = style({
-  ...fontSize.hero1,
+  ...fontSize.hero2,
   position: "absolute",
-  top: "50%",
-  right: 100,
   transform: "translateY(-120%)",
   zIndex: -1,
   color: alpha(color.bronze40, 0.3),
+  fontFamily: primary,
+  top: "50%",
+  right: 20,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      right: 40,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      right: 60,
+      ...fontSize.hero1,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      right: 80,
+    },
+  },
 })

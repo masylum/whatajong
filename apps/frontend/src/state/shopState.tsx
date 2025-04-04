@@ -23,9 +23,8 @@ import {
 import { createPersistantMutable } from "./persistantMutable"
 import { countBy, entries } from "remeda"
 import { getEmperors, type Emperor } from "./emperors"
-import { play, SOUNDS } from "@/components/audio"
+import { play } from "@/components/audio"
 import { nanoid } from "nanoid"
-import { useGlobalState, type GlobalState } from "./globalState"
 import { captureEvent } from "@/lib/observability"
 
 const SHOP_STATE_NAMESPACE = "shop-state"
@@ -78,7 +77,7 @@ export type UpgradeItem = BaseItem & {
 }
 
 export type Item = TileItem | UpgradeItem | EmperorItem
-export type ShopState = {
+type ShopState = {
   reroll: number
   currentItem: Item | DeckTileItem | null
 }
@@ -139,7 +138,7 @@ export function generateEmperorItem(emperor: Emperor) {
   }
 }
 
-export function generateEmperorItems() {
+function generateEmperorItems() {
   return getEmperors().map(generateEmperorItem)
 }
 
@@ -185,7 +184,6 @@ export function buyItem(
   run: RunState,
   shop: ShopState,
   item: Item,
-  globalState: GlobalState,
   fn: () => void,
 ) {
   const cost =
@@ -202,7 +200,7 @@ export function buyItem(
 
   captureEvent("item_bought", item)
 
-  play(SOUNDS.COIN2, globalState.muted)
+  play("coin2")
 }
 
 function mergeCounts(
@@ -249,7 +247,7 @@ export function getNextMaterial(tiles: DeckTile[], path: Path) {
   return materials[materials.length - 1]
 }
 
-export type MaterialTransformation = {
+type MaterialTransformation = {
   adds: boolean
   updates: Record<string, Material>
   removes: string[]
@@ -288,7 +286,6 @@ export function sellEmperor(
   shop: ShopState,
   emperor: EmperorItem,
 ) {
-  const globalState = useGlobalState()
   const cost = SELL_EMPEROR_AMOUNT
   const money = run.money
 
@@ -298,7 +295,7 @@ export function sellEmperor(
     run.items = run.items.filter((item) => item.id !== emperor.id)
   })
 
-  play(SOUNDS.COIN2, globalState.muted)
+  play("coin2")
 }
 
 export function maxEmperors(run: RunState) {
