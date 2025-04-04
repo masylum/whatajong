@@ -8,9 +8,11 @@ import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 import {
   batch,
+  createEffect,
   createMemo,
   For,
   Match,
+  on,
   Show,
   Switch,
   type ParentProps,
@@ -147,6 +149,13 @@ function Shop() {
   const hasEmperor = createMemo(() => run.items.length > 0)
   const shouldPickEmperor = createMemo(() => !hasEmperor() && run.round === 1)
 
+  createEffect(
+    on(
+      () => shop.currentItem,
+      () => play("click"),
+    ),
+  )
+
   return (
     <Show when={!shouldPickEmperor()} fallback={<RunPickEmperor />}>
       <div class={backgroundClass}>
@@ -222,6 +231,7 @@ function DeckTileComponent(props: {
       style={{
         "z-index": props.zIndex,
       }}
+      onMouseEnter={() => play("click2")}
       onClick={onClick}
     >
       <BasicTile
@@ -509,7 +519,9 @@ function UpgradeItemDetails() {
       run.shopLevel = item().level
       shop.currentItem = null
     })
+    play("coin2")
   }
+
   const tileItems = createMemo(() =>
     uniqueBy(
       generateShopItems().filter(
@@ -595,7 +607,7 @@ export function RerollButton(props: {
 }) {
   return (
     <ShopItem
-      hue="bronze"
+      hue="diamond"
       cost={REROLL_COST}
       onClick={props.onClick}
       disabled={props.disabled}
@@ -819,6 +831,9 @@ function ShopItems() {
     })
 
     play("dice")
+    setTimeout(() => {
+      play("coin2")
+    }, 100)
     captureEvent("reroll", { reroll: shop.reroll })
   }
 
@@ -899,15 +914,16 @@ function ShopHeader() {
   return (
     <div class={shopHeaderClass}>
       <div class={shopHeaderItemsClass}>
-        <LinkButton hue="dot" href="/">
+        <LinkButton hue="glass" href="/">
           <Home />
         </LinkButton>
-
         <h1 class={shopHeaderTitleClass}>Shop</h1>
+      </div>
+
+      <div class={shopHeaderItemsClass}>
         <div class={shopHeaderItemClass({ hue: "bam" })}>
           <Star />
-          level
-          <span class={pillClass({ hue: "bam" })}>{shopLevel()}</span>
+          level {shopLevel()}
         </div>
         <CoinCounter money={run.money} />
       </div>
@@ -948,6 +964,7 @@ function ShopItem(
   return (
     <button
       type="button"
+      onMouseEnter={() => !props.disabled && play("click2")}
       class={shopItemClass({
         disabled: props.disabled,
         hue: props.hue,

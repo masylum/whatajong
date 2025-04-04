@@ -53,6 +53,7 @@ import {
   dialogItemsClass,
 } from "@/components/dialog.css"
 import { nanoid } from "nanoid"
+import { play } from "@/components/audio"
 
 export default function RunGame() {
   const run = useRunState()
@@ -189,6 +190,7 @@ function EmperorCard(props: { item: EmperorItem }) {
 
   function onDiscard() {
     const rng = new Rand()
+    play("discard")
     setOpen(false)
 
     batch(() => {

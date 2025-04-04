@@ -199,7 +199,6 @@ export function buyItem(
   })
 
   captureEvent("item_bought", item)
-
   play("coin2")
 }
 

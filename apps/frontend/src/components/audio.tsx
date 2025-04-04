@@ -15,6 +15,8 @@ const SoundFiles = [
   "earthquake",
   "great",
   "grunt",
+  "grunt2",
+  "screech",
   "nice",
   "super",
   "awesome",
@@ -38,18 +40,19 @@ const SoundFiles = [
   "joker",
   "dice",
 ] as const
-type Track = (typeof SoundFiles)[number]
+export type Track = (typeof SoundFiles)[number]
 
 const SOUNDS = fromEntries(
   SoundFiles.map((sound) => [
     sound,
-    new Howl({ src: [`/sounds/${sound}.mp3`], preload: true, html5: true }),
+    new Howl({ src: [`/sounds/${sound}.mp3`], preload: true }),
   ]),
 )
 
 function play(track: Track) {
   const audio = SOUNDS[track]
-  if (audio && !audio.playing()) {
+  if (audio) {
+    audio.seek(0)
     audio.play()
   }
 }

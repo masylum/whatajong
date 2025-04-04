@@ -132,26 +132,28 @@ export default function RunGameOver() {
               </GameOver.Item>
             </GameOver.List>
 
-            <Show
-              when={win()}
-              fallback={
-                <GameOver.Buttons>
-                  <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
-                    <Rotate />
-                    Try same run
-                  </LinkButton>
-                  <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
-                    Start new run
-                    <ArrowRight />
-                  </LinkButton>
-                </GameOver.Buttons>
-              }
-            >
-              <Button hue="bam" kind="dark" onClick={() => onShop()}>
-                <Shop />
-                Go to shop
-              </Button>
-            </Show>
+            <GameOver.Buttons>
+              <Show
+                when={win()}
+                fallback={
+                  <>
+                    <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
+                      <Rotate />
+                      Try same run
+                    </LinkButton>
+                    <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
+                      Start new run
+                      <ArrowRight />
+                    </LinkButton>
+                  </>
+                }
+              >
+                <Button hue="bam" kind="dark" onClick={() => onShop()}>
+                  <Shop />
+                  Go to shop
+                </Button>
+              </Show>
+            </GameOver.Buttons>
           </GameOver.Score>
           <Show when={!win()}>
             <div class={gameOverInfoClass}>

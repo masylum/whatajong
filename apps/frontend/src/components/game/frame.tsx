@@ -3,6 +3,7 @@ import {
   createMemo,
   createSignal,
   onMount,
+  type Accessor,
   type JSXElement,
 } from "solid-js"
 import { createShortcut } from "@solid-primitives/keyboard"
@@ -12,7 +13,7 @@ import {
   COMBO_ANIMATION_DURATION,
 } from "./frame.css"
 import { DustParticles } from "./dustParticles"
-import { play } from "../audio"
+import { play, type Track } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
 import { useLayoutSize } from "@/state/constants"
@@ -33,23 +34,37 @@ export function Frame(props: Props) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
+  const getRabbitCombo = createMemo(() => game.rabbitRun?.combo || 0)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
-  // TODO: rabbit, phoenix, boat...
-  createEffect((prevCombo: number) => {
-    const combo = getDragonCombo()
+  function handleComboEffect(
+    getCombo: Accessor<number>,
+    soundEffect: Track,
+    resetAnimation = true,
+  ) {
+    return createEffect((prevCombo: number) => {
+      const combo = getCombo()
 
-    if (combo > prevCombo) {
-      setComboAnimation(combo)
-      play("grunt")
-      setTimeout(() => {
-        setComboAnimation(0)
-      }, COMBO_ANIMATION_DURATION)
-    }
+      if (combo > prevCombo) {
+        setComboAnimation(combo)
+        play(soundEffect)
 
-    return combo
-  }, getDragonCombo())
+        if (resetAnimation) {
+          setTimeout(() => {
+            setComboAnimation(0)
+          }, COMBO_ANIMATION_DURATION)
+        }
+      }
+
+      return combo
+    }, getCombo())
+  }
+
+  handleComboEffect(getDragonCombo, "grunt")
+  handleComboEffect(getRabbitCombo, "grunt2")
+  handleComboEffect(getPhoenixCombo, "screech", false)
 
   // Cheat Code!
   const tileDb = useTileState()

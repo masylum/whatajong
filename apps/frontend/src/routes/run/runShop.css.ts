@@ -10,9 +10,11 @@ import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
 import { heightQueries, mediaQuery } from "@/styles/breakpoints"
 import {
+  ANIMATION_FAST,
   ANIMATION_MEDIUM,
   easeBounce,
   fromBelowAnimation,
+  fromLeftAnimation,
 } from "@/styles/animations.css"
 
 const MAX_WIDTH = 1000
@@ -64,7 +66,7 @@ export const deckClass = style({
   gap: 8,
   borderRadius: 12,
   width: "70%",
-  background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       padding: 12,
@@ -120,10 +122,10 @@ export const deckTitleClass = recipe({
   variants: {
     full: {
       true: {
-        color: color.bam40,
+        color: color.dot40,
       },
       false: {
-        color: color.bam30,
+        color: color.dot30,
       },
     },
   },
@@ -166,7 +168,7 @@ export const shopItemsClass = style({
   width: "100%",
   display: "flex",
   justifyContent: "center",
-  background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
   padding: 8,
   borderRadius: 12,
   gap: 12,
@@ -201,6 +203,21 @@ export const shopItemClass = recipe({
     maxWidth: 50,
     transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
     transform: `rotateZ(${rotation})`,
+    animationName: fromLeftAnimation,
+    animationDuration: ANIMATION_FAST,
+    animationFillMode: "backwards",
+    animationDelay: "500ms",
+    outline: "none",
+    outlineOffset: 2,
+    selectors: {
+      "&:first-child": { animationDelay: "0ms" },
+      "&:nth-child(2)": { animationDelay: "50ms" },
+      "&:nth-child(3)": { animationDelay: "100ms" },
+      "&:nth-child(4)": { animationDelay: "150ms" },
+      "&:nth-child(5)": { animationDelay: "200ms" },
+      "&:nth-child(6)": { animationDelay: "250ms" },
+      "&:nth-child(7)": { animationDelay: "300ms" },
+    },
   },
   variants: {
     disabled: {
@@ -218,11 +235,40 @@ export const shopItemClass = recipe({
         },
       },
     },
-    hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(90)}, ${kolor(80)})`,
-      border: `1px solid ${kolor(40)}`,
-      color: kolor(30),
-    })),
+    hue: {
+      ...hueVariants((kolor) => ({
+        background: `linear-gradient(to bottom, ${kolor(90)}, ${kolor(80)})`,
+        border: `1px solid ${kolor(40)}`,
+        color: kolor(30),
+        ":focus": {
+          outline: `2px solid ${kolor(40)}`,
+        },
+      })),
+      glass: {
+        background: `linear-gradient(to bottom, ${color.dot80}, ${color.dot70})`,
+        border: `1px solid ${color.dot40}`,
+        color: color.dot30,
+        ":focus": {
+          outline: `2px solid ${color.dot40}`,
+        },
+      },
+      diamond: {
+        background: `linear-gradient(to bottom, ${color.diamond70}, ${color.diamond60})`,
+        border: `1px solid ${color.diamond40}`,
+        color: color.diamond30,
+        ":focus": {
+          outline: `2px solid ${color.diamond40}`,
+        },
+      },
+      bam: {
+        background: `linear-gradient(to bottom, ${color.bam70}, ${color.bam60})`,
+        border: `1px solid ${color.bam40}`,
+        color: color.bam30,
+        ":focus": {
+          outline: `2px solid ${color.bam40}`,
+        },
+      },
+    },
     frozen: {
       true: {
         filter: "brightness(0.9) saturate(0.8)",

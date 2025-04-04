@@ -18,6 +18,17 @@ export const fromBelowAnimation = keyframes({
   },
 })
 
+export const fromLeftAnimation = keyframes({
+  from: {
+    transform: "translateX(-200%) scale(0.8)",
+    opacity: 0,
+  },
+  to: {
+    transform: "translateX(0) scale(1)",
+    opacity: 1,
+  },
+})
+
 export const tileFallingAnimation = keyframes({
   from: {
     transform: "translateY(-65%) translateX(-45%) scale(1.3)",

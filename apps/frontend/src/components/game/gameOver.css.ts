@@ -5,6 +5,11 @@ import { recipe } from "@vanilla-extract/recipes"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes } from "@vanilla-extract/css"
 import { mediaQuery } from "@/styles/breakpoints"
+import {
+  ANIMATION_MEDIUM,
+  ANIMATION_SLOW,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 
 export const startX = createVar()
 export const endX = createVar()
@@ -84,6 +89,9 @@ export const screenClass = recipe({
 export const titleClass = style({
   ...fontSize.h2,
   textAlign: "center",
+  animationName: fromBelowAnimation,
+  animationDuration: ANIMATION_SLOW,
+  animationFillMode: "backwards",
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h1,
@@ -115,6 +123,23 @@ export const detailListClass = recipe({
     columnGap: 32,
     padding: 8,
     borderRadius: 8,
+    animationName: fromBelowAnimation,
+    animationDuration: ANIMATION_MEDIUM,
+    animationFillMode: "backwards",
+    selectors: {
+      "&:first-child": {
+        animationDelay: "100ms",
+      },
+      "&:nth-child(2)": {
+        animationDelay: "200ms",
+      },
+      "&:nth-child(3)": {
+        animationDelay: "300ms",
+      },
+      "&:nth-child(4)": {
+        animationDelay: "400ms",
+      },
+    },
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
         rowGap: 12,
@@ -210,4 +235,8 @@ export const scoreClass = style({
 export const buttonsClass = style({
   display: "flex",
   gap: 16,
+  animationName: fromBelowAnimation,
+  animationDuration: ANIMATION_MEDIUM,
+  animationFillMode: "backwards",
+  animationDelay: "500ms",
 })
