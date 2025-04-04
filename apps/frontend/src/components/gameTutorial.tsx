@@ -60,6 +60,7 @@ import {
   CoinCounter,
   DeckTitle,
 } from "@/routes/run/runShop"
+import { BasicEmperor } from "./emperor"
 
 const STEPS = [
   "tiles",
@@ -746,7 +747,6 @@ function useTileSize() {
   })
 }
 
-// TODO: DRY image
 function EmperorExplanation(props: {
   index: number
   name: string
@@ -763,13 +763,7 @@ function EmperorExplanation(props: {
         transform: `scale(0.8) translateX(${-20 + props.index * 20}px) rotate(${-10 + props.index * 10}deg)`,
       }}
     >
-      <img
-        srcset={`/occupations/m/${props.name}.webp 300w, /occupations/l/${props.name}.webp 514w`}
-        sizes="(min-width: 1024px) 514px, 300px"
-        src={`/occupations/m/${props.name}.webp`}
-        class={emperorImageClass}
-        alt={props.name}
-      />
+      <BasicEmperor name={props.name} class={emperorImageClass} />
       <div class={emperorTextClass}>
         {emperorName(props.name)}
         <div class={emperorDescriptionTextClass}>

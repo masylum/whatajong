@@ -22,6 +22,7 @@ import { ArrowLeft } from "@/components/icon"
 import { LinkButton } from "@/components/button"
 import { captureEvent } from "@/lib/observability"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { BasicEmperor } from "@/components/emperor"
 
 export function RunPickEmperor() {
   const run = useRunState()
@@ -83,13 +84,7 @@ export function RunPickEmperor() {
               }}
               onClick={() => onSelectEmperor(emperor)}
             >
-              <img
-                srcset={`/occupations/m/${emperor.name}.webp 300w, /occupations/l/${emperor.name}.webp 514w`}
-                sizes="(min-width: 1024px) 514px, 300px"
-                src={`/occupations/m/${emperor.name}.webp`}
-                class={buttonImageClass}
-                alt={emperor.name}
-              />
+              <BasicEmperor name={emperor.name} class={buttonImageClass} />
               <div class={buttonTextClass}>
                 {emperorName(emperor.name)}
                 <div class={buttonDescriptionTextClass}>

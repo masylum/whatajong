@@ -128,6 +128,7 @@ import { emperorName, getEmperors } from "@/state/emperors"
 import { RunPickEmperor } from "./runPickEmperor"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
+import { BasicEmperor } from "@/components/emperor"
 
 const REROLL_COST = 10
 const MAX_COLS = 12
@@ -462,13 +463,7 @@ function EmperorItemDetails() {
     <Dialog.Content class={dialogContentClass({ type: "emperor" })}>
       <CloseButton />
       <div class={modalDetailsClass}>
-        <img
-          srcset={`/occupations/m/${item().name}.webp 300w, /occupations/l/${item().name}.webp 514w`}
-          sizes="(min-width: 1024px) 514px, 300px"
-          src={`/occupations/m/${item().name}.webp`}
-          class={modalEmperorClass}
-          alt={item().name}
-        />
+        <BasicEmperor name={item().name} class={modalEmperorClass} />
         <div class={modalDetailsContentClass}>
           <div class={emperorDetailsTitleClass}>{emperorName(item().name)}</div>
 
@@ -745,12 +740,9 @@ function OwnedEmperors() {
       <div class={ownedEmperorsListClass}>
         <For each={ownedEmperors()}>
           {(emperor) => (
-            <img
-              srcset={`/occupations/m/${emperor.name}.webp 300w, /occupations/l/${emperor.name}.webp 514w`}
-              sizes="(min-width: 1024px) 514px, 300px"
-              src={`/occupations/m/${emperor.name}.webp`}
+            <BasicEmperor
+              name={emperor.name}
               class={emperorClass}
-              alt={emperor.name}
               onClick={() => selectEmperor(emperor)}
             />
           )}
