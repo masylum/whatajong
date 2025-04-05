@@ -7,7 +7,7 @@ import {
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-const GAME_STATE_NAMESPACE = "game-state"
+const GAME_STATE_NAMESPACE = "game-state-v2"
 
 type CreateGameStateParams = { id: () => string }
 export function createGameState(params: CreateGameStateParams) {

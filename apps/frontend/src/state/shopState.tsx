@@ -27,7 +27,7 @@ import { play } from "@/components/audio"
 import { nanoid } from "nanoid"
 import { captureEvent } from "@/lib/observability"
 
-const SHOP_STATE_NAMESPACE = "shop-state"
+const SHOP_STATE_NAMESPACE = "shop-state-v2"
 
 const ITEM_COST = 20
 const EMPEROR_COST = 60
