@@ -5,7 +5,6 @@ import {
   cardAnimationDelayVar,
   cardClass,
   frameBottomClass,
-  frameClass,
   frameLeftClass,
   frameRightClass,
   frameTopClass,
@@ -106,7 +105,7 @@ function Frame() {
   )
 
   return (
-    <div class={frameClass}>
+    <>
       <div
         class={frameTopClass}
         style={{
@@ -203,6 +202,6 @@ function Frame() {
           )}
         </For>
       </div>
-    </div>
+    </>
   )
 }

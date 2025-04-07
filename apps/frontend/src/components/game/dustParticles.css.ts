@@ -141,8 +141,8 @@ export const windGustClass = recipe({
     animation: `${animation} 1000ms ease-in`,
     mixBlendMode: "screen",
     backdropFilter: "blur(3px)",
-    width: "100vw",
-    height: "100vh",
+    width: "100%",
+    height: "100%",
     zIndex: 9001,
     background:
       "radial-gradient(ellipse at 50% 50%,rgba(255, 255, 255, 0.6), transparent 70%)",

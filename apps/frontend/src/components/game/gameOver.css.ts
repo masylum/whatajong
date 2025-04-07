@@ -25,7 +25,7 @@ const bounce = keyframes({
     opacity: 1,
   },
   "100%": {
-    transform: `translate(${endX}, 100vh) rotate(${rotation})`,
+    transform: `translate(${endX}, 110vh) rotate(${rotation})`,
     opacity: 1,
   },
 })
@@ -45,8 +45,8 @@ export const gameOverClass = style({
 
 export const screenClass = recipe({
   base: {
-    width: "100vw",
-    minHeight: "100vh",
+    width: "100%",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",

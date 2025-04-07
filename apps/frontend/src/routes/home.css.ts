@@ -19,7 +19,7 @@ export const homeClass = style({
   padding: 32,
   paddingTop: 0,
   gap: 32,
-  height: "100vh",
+  height: "100%",
   fontFamily: primary,
   backgroundImage: "url(/halftone.png)",
   "@media": {
@@ -118,8 +118,6 @@ export const buttonIconClass = style({
     },
   },
 })
-
-export const frameClass = style({})
 
 export const frameTopClass = style({
   display: "flex",

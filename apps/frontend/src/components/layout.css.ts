@@ -8,7 +8,7 @@ import { style } from "@vanilla-extract/css"
 export const landscapeClass = style({
   display: "flex",
   background: `linear-gradient(to bottom, ${color.crack20}, black)`,
-  height: "100vh",
+  height: "100%",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
