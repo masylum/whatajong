@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, resolve } from "node:url"
 import { defineConfig } from "vite"
 import solid from "vite-plugin-solid"
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
@@ -10,12 +10,16 @@ const legacyPluginOptions = {
   renderLegacyChunks: false,
 } as const
 
+const rootPath = fileURLToPath(new URL("./src/renderer", import.meta.url))
+
 export default defineConfig(() => {
   return {
     build: { target: "modules" },
+    root: rootPath,
+    publicDir: `${rootPath}/public`,
     resolve: {
       alias: {
-        "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@": rootPath,
       },
     },
     plugins: [solid(), vanillaExtractPlugin(), legacy(legacyPluginOptions)],

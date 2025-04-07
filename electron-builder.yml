@@ -1,0 +1,43 @@
+appId: com.electron.app
+productName: whatajong
+directories:
+  buildResources: build
+files:
+  - '!**/.cursor/*'
+  - '!src/*'
+  - '!gitignore'
+  - '!biome.json'
+  - '!electron.vite.config.js'
+  - '!vite.config.js'
+  - '!wrangler.json'
+  - '!{CHANGELOG.md,README.md,LICENSE}'
+  - '!pnpm-lock.yaml'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+asarUnpack:
+  - resources/**
+afterSign: build/notarize.js
+win:
+  executableName: whatajong
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
+mac:
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+dmg:
+  artifactName: ${name}-${version}.${ext}
+linux:
+  target:
+    - AppImage
+    - snap
+    - deb
+  maintainer: Ramensoft SL
+  category: Game
+appImage:
+  artifactName: ${name}-${version}.${ext}
+npmRebuild: false
+publish:
+  provider: generic
+  url: https://example.com/auto-updates

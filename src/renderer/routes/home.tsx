@@ -23,6 +23,7 @@ import Rand from "rand-seed"
 import { play } from "@/components/audio"
 import { fetchRuns } from "@/state/runState"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { useWindowSize } from "@solid-primitives/resize-observer"
 
 function cards() {
   const rng = new Rand()
@@ -91,17 +92,19 @@ export function Home() {
 
 function Frame() {
   const tileSize = useTileSize()
+  const size = useWindowSize()
+  const padding = 0.95
   const horizontalTiles = createMemo(() =>
-    Math.floor(window.innerWidth / tileSize().width),
+    Math.floor((size.width * padding) / tileSize().width),
   )
   const horizontalGap = createMemo(
-    () => (window.innerWidth - horizontalTiles() * tileSize().width) / 2,
+    () => (size.width - horizontalTiles() * tileSize().width) / 2,
   )
   const verticalTiles = createMemo(() =>
-    Math.floor(window.innerHeight / tileSize().height),
+    Math.floor((size.height * padding) / tileSize().height),
   )
   const verticalGap = createMemo(
-    () => (window.innerHeight - verticalTiles() * tileSize().height) / 2,
+    () => (size.height - verticalTiles() * tileSize().height) / 2,
   )
 
   return (

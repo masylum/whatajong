@@ -4,8 +4,5 @@
   "compatibility_date": "2025-02-28",
   "placement": {
     "mode": "smart"
-  },
-  "vars": {
-    "VITE_API_URL": "wss://api.whatajong.com"
   }
 }
