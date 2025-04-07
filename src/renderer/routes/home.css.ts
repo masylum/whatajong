@@ -19,7 +19,7 @@ export const homeClass = style({
   padding: 32,
   paddingTop: 0,
   gap: 32,
-  height: "100%",
+  height: "100dvh",
   fontFamily: primary,
   backgroundImage: "url(/halftone.png)",
   "@media": {

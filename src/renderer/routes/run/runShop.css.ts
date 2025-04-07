@@ -27,7 +27,7 @@ const overlayShow = keyframes({
 })
 
 export const backgroundClass = style({
-  height: "100%",
+  height: "100dvh",
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
   display: "flex",

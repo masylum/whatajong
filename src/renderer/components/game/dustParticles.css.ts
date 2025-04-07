@@ -16,70 +16,70 @@ export const animationRepeat = createVar()
 
 const defaultDust = keyframes({
   "0%": {
-    transform: `translate(${startX}, -10vh)`,
+    transform: `translate(${startX}, -10dvh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    transform: `translate(${startX}, 110vh)`,
+    transform: `translate(${startX}, 110dvh)`,
     opacity: 0,
   },
 })
 
 const northDust = keyframes({
   "0%": {
-    transform: `translate(${startX}, 110vh)`,
+    transform: `translate(${startX}, 110dvh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    transform: `translate(${startX}, -10vh)`,
+    transform: `translate(${startX}, -10dvh)`,
     opacity: 0,
   },
 })
 
 const southDust = keyframes({
   "0%": {
-    transform: `translate(${startX}, -10vh)`,
+    transform: `translate(${startX}, -10dvh)`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    transform: `translate(${startX}, 110vh)`,
+    transform: `translate(${startX}, 110dvh)`,
     opacity: 0,
   },
 })
 
 const eastDust = keyframes({
   "0%": {
-    transform: `translate(-10vw, ${startY})`,
+    transform: `translate(-10dvw, ${startY})`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    transform: `translate(110vw, ${startY})`,
+    transform: `translate(110dvw, ${startY})`,
     opacity: 0,
   },
 })
 
 const westDust = keyframes({
   "0%": {
-    transform: `translate(110vw, ${startY})`,
+    transform: `translate(110dvw, ${startY})`,
     opacity: 0,
   },
   "10%": {
     opacity: opacity,
   },
   "100%": {
-    transform: `translate(-10vw, ${startY})`,
+    transform: `translate(-10dvw, ${startY})`,
     opacity: 0,
   },
 })
@@ -141,8 +141,8 @@ export const windGustClass = recipe({
     animation: `${animation} 1000ms ease-in`,
     mixBlendMode: "screen",
     backdropFilter: "blur(3px)",
-    width: "100%",
-    height: "100%",
+    width: "100dvh",
+    height: "100dvh",
     zIndex: 9001,
     background:
       "radial-gradient(ellipse at 50% 50%,rgba(255, 255, 255, 0.6), transparent 70%)",

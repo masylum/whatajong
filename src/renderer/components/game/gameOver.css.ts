@@ -18,14 +18,14 @@ export const duration = createVar()
 
 const bounce = keyframes({
   "0%": {
-    transform: `translate(${startX}, 0vh) rotate(0deg)`,
+    transform: `translate(${startX}, 0dvh) rotate(0deg)`,
     opacity: 0,
   },
   "50%": {
     opacity: 1,
   },
   "100%": {
-    transform: `translate(${endX}, 110vh) rotate(${rotation})`,
+    transform: `translate(${endX}, 110dvh) rotate(${rotation})`,
     opacity: 1,
   },
 })
@@ -45,8 +45,8 @@ export const gameOverClass = style({
 
 export const screenClass = recipe({
   base: {
-    width: "100%",
-    height: "100%",
+    width: "100dvh",
+    height: "100dvh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
