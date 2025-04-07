@@ -10,7 +10,7 @@ export const containerClass = style({
   flexDirection: "column",
   justifyContent: "center",
   height: "100dvh",
-  width: "100dvh",
+  width: "100dvw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
   gap: 12,

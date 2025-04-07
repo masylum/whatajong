@@ -45,7 +45,7 @@ export const gameOverClass = style({
 
 export const screenClass = recipe({
   base: {
-    width: "100dvh",
+    width: "100dvw",
     height: "100dvh",
     display: "flex",
     flexDirection: "column",

@@ -8,6 +8,7 @@ import { useBreakpoint } from "@/state/constants"
 import { Link, MetaProvider } from "@solidjs/meta"
 import nunito from "@fontsource-variable/nunito?url"
 import { primaryUrl } from "@/styles/fontFamily.css"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function Layout(props: ParentProps) {
   const globalState = createGlobalState()
@@ -41,16 +42,22 @@ export function Layout(props: ParentProps) {
         />
         <Defs />
         <Show when={forceLandscape()} fallback={props.children}>
-          <div class={landscapeClass}>
-            <h1 class={titleClass}>Whatajong</h1>
-            <h1 class={subtitleClass}>
-              Please rotate your device to play on your phone
-            </h1>
-            <img src="/rotate.webp" alt="rotate your device" width={300} />
-            <FallingTiles />
-          </div>
+          <Landscape />
         </Show>
       </GlobalStateProvider>
     </MetaProvider>
+  )
+}
+
+function Landscape() {
+  const t = useTranslation()
+
+  return (
+    <div class={landscapeClass}>
+      <h1 class={titleClass}>Whatajong</h1>
+      <h1 class={subtitleClass}>{t.layout.rotate()}</h1>
+      <img src="/rotate.webp" alt={t.layout.rotate()} width={300} />
+      <FallingTiles />
+    </div>
   )
 }

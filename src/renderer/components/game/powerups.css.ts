@@ -28,7 +28,7 @@ export const powerupRecipe = recipe({
       content: '""',
       mixBlendMode: "color",
       position: "absolute",
-      width: "100dvh",
+      width: "100dvw",
       height: "100dvh",
       pointerEvents: "none",
       zIndex: -1,

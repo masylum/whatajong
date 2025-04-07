@@ -141,7 +141,7 @@ export const windGustClass = recipe({
     animation: `${animation} 1000ms ease-in`,
     mixBlendMode: "screen",
     backdropFilter: "blur(3px)",
-    width: "100dvh",
+    width: "100dvw",
     height: "100dvh",
     zIndex: 9001,
     background:

@@ -4,7 +4,7 @@ export const mountainsClass = style({
   position: "fixed",
   bottom: 0,
   left: 0,
-  width: "100dvh",
+  width: "100dvw",
   height: "100dvh",
   background: "url(/mountains.webp)",
   backgroundPosition: "bottom",

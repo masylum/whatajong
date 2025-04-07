@@ -20,6 +20,9 @@ importers:
       '@kobalte/core':
         specifier: ^0.13.9
         version: 0.13.9(solid-js@1.9.4)
+      '@solid-primitives/i18n':
+        specifier: ^2.2.0
+        version: 2.2.0(solid-js@1.9.4)
       '@solid-primitives/keyboard':
         specifier: ^1.3.0
         version: 1.3.0(solid-js@1.9.4)
@@ -1791,6 +1794,11 @@ packages:
 
   '@solid-primitives/event-listener@2.4.0':
     resolution: {integrity: sha512-TSfR1PNTfojFEYGSxSMCnUhXsaYWBo4p+cm73QmWODa9YnaQAk6PB7VjzG2bOT2D817VlvuOqTj0Qdq+MZrdGg==}
+    peerDependencies:
+      solid-js: ^1.6.12
+
+  '@solid-primitives/i18n@2.2.0':
+    resolution: {integrity: sha512-OY1IvGNefg4espiv3JL7gi38rcOaDdgRsderms6cHboDfHdye6HGI1mLkdrQxonN9TrsOBHeWtP/ptLBgSevfQ==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -5497,6 +5505,10 @@ snapshots:
   '@solid-primitives/event-listener@2.4.0(solid-js@1.9.4)':
     dependencies:
       '@solid-primitives/utils': 6.3.0(solid-js@1.9.4)
+      solid-js: 1.9.4
+
+  '@solid-primitives/i18n@2.2.0(solid-js@1.9.4)':
+    dependencies:
       solid-js: 1.9.4
 
   '@solid-primitives/keyboard@1.3.0(solid-js@1.9.4)':

@@ -24,6 +24,7 @@ import { play } from "@/components/audio"
 import { fetchRuns } from "@/state/runState"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { useWindowSize } from "@solid-primitives/resize-observer"
+import { useTranslation } from "@/i18n/useTranslation"
 
 function cards() {
   const rng = new Rand()
@@ -31,6 +32,7 @@ function cards() {
 }
 
 export function Home() {
+  const t = useTranslation()
   const runs = createMemo(() => fetchRuns())
   const db = useImageSrc("db")
   const dc = useImageSrc("dc")
@@ -61,7 +63,7 @@ export function Home() {
             width={36}
             height={52}
           />
-          classic game
+          {t.home.classicGame()}
         </a>
         <a
           onMouseEnter={onHover}
@@ -82,7 +84,7 @@ export function Home() {
             width={36}
             height={52}
           />
-          adventure game
+          {t.home.adventureGame()}
         </a>
       </nav>
       <Mountains />
