@@ -129,6 +129,7 @@ import { RunPickEmperor } from "./runPickEmperor"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
 import { BasicEmperor } from "@/components/emperor"
+import { useTranslation } from "@/i18n/useTranslation"
 
 const REROLL_COST = 10
 const MAX_COLS = 12
@@ -268,7 +269,7 @@ export function ItemTile(props: {
       frozen={frozen()}
       cost={itemCost(props.item.level)}
       disabled={disabled()}
-      onClick={() => props.onClick?.(props.item)}
+      onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
     >
       <img src={`/tiles/xs/${props.item.card}.webp`} alt={props.item.card} />
     </ShopItem>
@@ -297,12 +298,9 @@ export function EmperorItemComponent(props: {
       frozen={frozen()}
       cost={emperorCost(props.item.level)}
       disabled={disabled()}
-      onClick={() => props.onClick?.(props.item)}
+      onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
     >
-      <img
-        src={`/occupations/m/${props.item.name}.webp`}
-        alt={props.item.name}
-      />
+      <BasicEmperor name={props.item.name} />
     </ShopItem>
   )
 }
@@ -315,6 +313,7 @@ function CardDetails(props: {
   const shop = useShopState()
   const run = useRunState()
   const deck = useDeckState()
+  const t = useTranslation()
 
   function buyTile(item: TileItem) {
     buyItem(run, shop, item, () => {
@@ -330,8 +329,10 @@ function CardDetails(props: {
         <BasicTile card={card()} material={props.material} />
         <div class={modalDetailsContentClass}>
           <div class={detailTitleClass}>
-            {cardName(card())}{" "}
-            <Show when={props.material !== "bone"}>({props.material})</Show>
+            {cardName(t, card())}{" "}
+            <Show when={props.material !== "bone"}>
+              ({t.material[props.material]()})
+            </Show>
           </div>
           <CardPoints card={card()} material={props.material} />
           <CardMultiplier card={card()} material={props.material} />
@@ -352,7 +353,7 @@ function CardDetails(props: {
               }}
             >
               <Buy />
-              buy ${itemCost(item().level)}
+              {t.common.buy()} ${itemCost(item().level)}
             </ShopButton>
           )}
         </Show>
@@ -363,6 +364,7 @@ function CardDetails(props: {
 
 function TileItemDetails(props: { item: TileItem }) {
   const deck = useDeckState()
+  const t = useTranslation()
 
   const item = createMemo(() => props.item)
   const tilesWithSameCard = createMemo(() =>
@@ -393,9 +395,8 @@ function TileItemDetails(props: { item: TileItem }) {
         <CloseButton />
         <div class={modalDetailsContentClass}>
           <div class={upgradeDescriptionClass}>
-            <h2 class={upgradeTitleClass}>Upgrade available!</h2>
-            Collecting 3 identical pairs of tiles lets you upgrade them into a
-            stronger version.
+            <h2 class={upgradeTitleClass}>{t.shop.upgrade.title()}</h2>
+            {t.shop.upgrade.description()}
           </div>
           <div class={materialUpgradesClass}>
             <Show when={freedomUpgrade()}>
@@ -433,6 +434,7 @@ function TileItemDetails(props: { item: TileItem }) {
 }
 
 function EmperorItemDetails() {
+  const t = useTranslation()
   const shop = useShopState()
   const run = useRunState()
   const item = createMemo(() => shop.currentItem as EmperorItem)
@@ -484,13 +486,13 @@ function EmperorItemDetails() {
               onClick={buyEmperor}
             >
               <Buy />
-              recruit
+              {t.common.recruit()}
             </ShopButton>
           }
         >
           <ShopButton type="button" hue="dot" onClick={sellCurrentEmperor}>
             <Buy />
-            sell (${SELL_EMPEROR_AMOUNT})
+            {t.common.sell()} (${SELL_EMPEROR_AMOUNT})
           </ShopButton>
         </Show>
       </div>
@@ -527,35 +529,38 @@ function UpgradeItemDetails() {
   )
   const tileSize = useTileSize()
   const sideSize = createMemo(() => getSideSize(tileSize().height))
+  const t = useTranslation()
 
   return (
     <Dialog.Content class={dialogContentClass({ type: "upgrade" })}>
       <CloseButton />
       <div class={modalDetailsContentClass}>
-        <div class={detailTitleClass}>Shop level {item().level}</div>
+        <div class={detailTitleClass}>
+          {t.shop.shopLevel({ num: item().level })}
+        </div>
         <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>yield per tiles:</dt>
+          <dt class={detailTermClass}>{t.shop.yieldPerTiles()}</dt>
           <dd class={detailDescriptionClass}>
             <span class={pillClass()}>${item().level}</span>{" "}
           </dd>
         </dl>
         <dl class={detailListClass({ type: "dot" })}>
-          <dt class={detailTermClass}>deck capacity:</dt>
+          <dt class={detailTermClass}>{t.shop.deckCapacity()}</dt>
           <dd class={detailDescriptionClass}>
             {
               DECK_CAPACITY_PER_LEVEL[
                 item().level as keyof typeof DECK_CAPACITY_PER_LEVEL
               ]
             }{" "}
-            pairs
+            {t.common.pairs()}
           </dd>
         </dl>
         <dl class={detailListClass({ type: "crack" })}>
-          <dt class={detailTermClass}>crew capacity:</dt>
+          <dt class={detailTermClass}>{t.shop.crewCapacity()}</dt>
           <dd class={detailDescriptionClass}>{1 + item().level}</dd>
         </dl>
         <div class={detailListClass({ type: "bam" })}>
-          <span class={detailTermClass}>new tiles:</span>
+          <span class={detailTermClass}>{t.shop.newTiles()}</span>
           <div
             class={deckRowsClass}
             style={{
@@ -589,7 +594,7 @@ function UpgradeItemDetails() {
           onClick={buyUpgrade}
         >
           <Buy />
-          buy (${cost()})
+          {t.common.buy()} (${cost()})
         </ShopButton>
       </div>
     </Dialog.Content>
@@ -645,6 +650,7 @@ function MaterialUpgradeButton(props: {
   const run = useRunState()
   const shop = useShopState()
   const deck = useDeckState()
+  const t = useTranslation()
 
   const tilesWithSameCard = createMemo(() =>
     deck.filterBy({ card: props.item.card }),
@@ -680,22 +686,22 @@ function MaterialUpgradeButton(props: {
           material={props.material}
           width={30}
         />
-        {props.material}
+        {t.material[props.material]()}
       </span>
       <dl class={detailListClass({ type: props.material })}>
-        <dt class={detailTermClass}>Points</dt>
+        <dt class={detailTermClass}>{t.common.points()}</dt>
         <dd class={detailDescriptionClass}>
           +{getMaterialPoints(props.material) * 2}
         </dd>
         <Show when={getMaterialMultiplier(props.material)}>
           {(multiplier) => (
             <>
-              <dt class={detailTermClass}>Multiplier</dt>
+              <dt class={detailTermClass}>{t.common.multiplier()}</dt>
               <dd class={detailDescriptionClass}>+{multiplier() * 2}</dd>
             </>
           )}
         </Show>
-        <dt class={detailTermClass}>Coins</dt>
+        <dt class={detailTermClass}>{t.common.coins()}</dt>
         <dd class={detailDescriptionClass}>
           +{getMaterialCoins(props.material) * 2}
         </dd>
@@ -711,7 +717,7 @@ function MaterialUpgradeButton(props: {
         }}
       >
         <Buy />
-        upgrade
+        {t.common.upgrade()}
       </ShopButton>
     </div>
   )
@@ -720,6 +726,7 @@ function MaterialUpgradeButton(props: {
 function OwnedEmperors() {
   const run = useRunState()
   const shop = useShopState()
+  const t = useTranslation()
 
   const ownedEmperors = createMemo(
     () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
@@ -734,8 +741,8 @@ function OwnedEmperors() {
   return (
     <div class={ownedEmperorsClass}>
       <div class={ownedEmperorsTitleClass({ full: full() })}>
-        Crew <Show when={full()}>is full</Show> ({ownedEmperors().length} /{" "}
-        {capacity()})
+        {t.common.crew()} <Show when={full()}>{t.common.isFull()}</Show> (
+        {ownedEmperors().length} / {capacity()})
       </div>
       <div class={ownedEmperorsListClass}>
         <For each={ownedEmperors()}>
@@ -894,14 +901,16 @@ function ShopItems() {
 
 function ShopHeader() {
   const run = useRunState()
+  const t = useTranslation()
+  const nextRound = createMemo(() => generateRound(run.round + 1, run))
+  const shopLevel = createMemo(() => run.shopLevel)
+
   function continueRun() {
     batch(() => {
       run.round = run.round + 1
       run.stage = "select"
     })
   }
-  const nextRound = createMemo(() => generateRound(run.round + 1, run))
-  const shopLevel = createMemo(() => run.shopLevel)
 
   return (
     <div class={shopHeaderClass}>
@@ -909,19 +918,19 @@ function ShopHeader() {
         <LinkButton hue="glass" href="/">
           <Home />
         </LinkButton>
-        <h1 class={shopHeaderTitleClass}>Shop</h1>
+        <h1 class={shopHeaderTitleClass}>{t.common.shop()}</h1>
       </div>
 
       <div class={shopHeaderItemsClass}>
         <div class={shopHeaderItemClass({ hue: "bam" })}>
           <Star />
-          level {shopLevel()}
+          {t.common.levelN({ level: shopLevel() })}
         </div>
         <CoinCounter money={run.money} />
       </div>
       <div class={continueClass}>
         <ShopButton hue="bone" onClick={continueRun}>
-          Round {nextRound().id}
+          {t.common.roundN({ round: nextRound().id })}
           <ArrowRight />
         </ShopButton>
       </div>
@@ -956,10 +965,11 @@ function ShopItem(
   return (
     <button
       type="button"
-      onMouseEnter={() => !props.disabled && play("click2")}
+      onMouseEnter={() => !props.disabled && props.onClick && play("click2")}
       class={shopItemClass({
         disabled: props.disabled,
         hue: props.hue,
+        hoverable: !!props.onClick,
         frozen: props.frozen,
       })}
       onClick={props.onClick}
@@ -974,10 +984,12 @@ function ShopItem(
 }
 
 export function CoinCounter(props: { money: number }) {
+  const t = useTranslation()
+
   return (
     <div class={shopHeaderItemClass({ hue: "gold" })}>
       <Coins />
-      c&zwnj;oins
+      {t.common.coins()}
       <span class={pillClass()}>${props.money}</span>
     </div>
   )
@@ -985,16 +997,17 @@ export function CoinCounter(props: { money: number }) {
 
 export function DeckTitle(props: { pairs: number; capacity: number }) {
   const full = createMemo(() => props.pairs === props.capacity)
+  const t = useTranslation()
 
   return (
     <div class={deckTitleClass({ full: full() })}>
-      Deck
-      <Show when={full()}> is full</Show> ({props.pairs}
+      {t.common.deck()}
+      <Show when={full()}> {t.common.isFull()}</Show> ({props.pairs}
       {" / "}
       {props.capacity})
       <Show when={full()}>
         <span class={fullExplanationClass({ hue: "bam" })}>
-          Upgrade your shop to buy more tiles
+          {t.shop.fullDeck()}
         </span>
       </Show>
     </div>

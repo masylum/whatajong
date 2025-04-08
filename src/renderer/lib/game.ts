@@ -12,6 +12,7 @@ import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
 import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveRabbits } from "./resolveRabbits"
 import { resolveMutations } from "./resolveMutations"
+import type { Translator } from "@/i18n/useTranslation"
 
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 type EndConditions = (typeof END_CONDITIONS)[number]
@@ -657,7 +658,7 @@ export function suitName(card: Card | Suit) {
   if (isMutation(card)) return "mutation"
   if (isTransport(card)) return "transport"
 
-  return "unknown"
+  throw Error("Unknown suit")
 }
 
 export const MUTATION_RANKS = {
@@ -666,48 +667,48 @@ export const MUTATION_RANKS = {
   3: ["b", "c"],
 } as const
 
-export function cardName(card: Card) {
+export function cardName(t: Translator, card: Card) {
   const dragonCard = isDragon(card)
 
   if (dragonCard) {
-    return `${suitName(getRank(dragonCard))} dragon`
+    return t.cardName[dragonCard]()
   }
 
   const phoenixCard = isPhoenix(card)
   if (phoenixCard) {
-    return `${suitName(getRank(phoenixCard))} phoenix`
+    return t.cardName[phoenixCard]()
   }
 
   const mutationCard = isMutation(card)
   if (mutationCard) {
     const rank = getRank(mutationCard)
     if (rank === "4") {
-      return "mutation +1"
+      return t.cardName.m4()
     }
 
     if (rank === "5") {
-      return "mutation -1"
+      return t.cardName.m5()
     }
 
     const mutation = MUTATION_RANKS[rank]
-    return `${suitName(mutation[0])} / ${suitName(mutation[1])} mutation`
+    return t.cardName.mutation({
+      from: suitName(mutation[0]),
+      to: suitName(mutation[1]),
+    })
   }
 
   const windCard = isWind(card)
   if (windCard) {
-    return `${getWindDirection(windCard)} wind`
+    const direction = getWindDirection(t, windCard)
+    return t.cardName.wind({ direction })
   }
 
-  return `${suitName(card)} ${getRank(card)}`
+  return `${t.suit[getSuit(card)]()} ${getRank(card)}`
 }
 
-export function getWindDirection(card: Wind) {
-  return {
-    n: "north",
-    s: "south",
-    e: "east",
-    w: "west",
-  }[getRank(card)]
+export function getWindDirection(t: Translator, card: Wind) {
+  const direction = getRank(card)
+  return t.windDirections[direction]()
 }
 
 export function getMutationRanks(card: Mutation) {

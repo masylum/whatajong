@@ -23,8 +23,10 @@ import { LinkButton } from "@/components/button"
 import { captureEvent } from "@/lib/observability"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { BasicEmperor } from "@/components/emperor"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function RunPickEmperor() {
+  const t = useTranslation()
   const run = useRunState()
   const emperors = createMemo(() => {
     const rng = new Rand(`emperors-choice-${run.runId}`)
@@ -67,7 +69,7 @@ export function RunPickEmperor() {
         </LinkButton>
       </div>
       <div class={titleContainerClass}>
-        <h1 class={titleClass}>Pick your first crew member</h1>
+        <h1 class={titleClass}>{t.pickEmperor.title()}</h1>
       </div>
       <div class={buttonContainerClass}>
         <For each={emperors()}>

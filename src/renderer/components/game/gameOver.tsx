@@ -20,13 +20,15 @@ import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { BasicTile } from "./basicTile"
 import Rand from "rand-seed"
 import type { AccentHue } from "@/styles/colors"
-// biome-ignore format:
-const WIN_TITLES = [ "Victory!", "Success!", "Champion!", "Awesome!", "Winner!", "Glorious!", "Well Played!" ]
-// biome-ignore format:
-const DEFEAT_TITLES = [ "Defeat!", "Game Over", "Oooops...", "You Failed", "Crushed!", "Wasted!" ]
+import { useTranslation } from "@/i18n/useTranslation"
 
-function pick(arr: string[]) {
-  return arr[Math.floor(Math.random() * arr.length)]
+// biome-ignore format:
+const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const
+// biome-ignore format:
+const DEFEAT_TITLES = [ "defeat", "gameOver", "oops", "failed", "crushed", "wasted" ] as const
+
+function pick<T>(arr: readonly T[]) {
+  return arr[Math.floor(Math.random() * arr.length)]!
 }
 
 function GameOver(props: { win: boolean; round?: number } & ParentProps) {
@@ -75,20 +77,24 @@ export function FallingTiles() {
 }
 
 function Title(props: { win: boolean; round?: number }) {
-  const round = createMemo(() => (props.round ? `Round ${props.round}: ` : ""))
+  const t = useTranslation()
+  const round = createMemo(() =>
+    props.round ? t.common.roundN({ round: props.round }) : "",
+  )
+
   return (
     <Show
       when={props.win}
       fallback={
         <h1 class={titleClass}>
           {round()}
-          {pick(DEFEAT_TITLES)}
+          {t.gameOver.defeat[pick(DEFEAT_TITLES)]()}
         </h1>
       }
     >
       <h1 class={titleClass}>
         {round()}
-        {pick(WIN_TITLES)}
+        {t.gameOver.win[pick(WIN_TITLES)]()}
       </h1>
     </Show>
   )

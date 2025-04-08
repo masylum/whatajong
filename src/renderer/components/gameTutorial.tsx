@@ -41,6 +41,7 @@ import {
   type Wind,
   getWindDirection,
   type Material,
+  cardName,
 } from "@/lib/game"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight, Home, Play, Skull } from "@/components/icon"
@@ -61,12 +62,13 @@ import {
   DeckTitle,
 } from "@/routes/run/runShop"
 import { BasicEmperor } from "./emperor"
+import { useTranslation } from "@/i18n/useTranslation"
 
 const STEPS = [
   "tiles",
   "clearing",
   "dragons",
-  "winds & flowers",
+  "seasonsAndFlowers",
   "board",
 ] as const
 const RUN_STEPS = ["crew", "shop", "upgrade", "materials"] as const
@@ -86,7 +88,7 @@ export function GameTutorial(props: ParentProps) {
             <Dragons />
           </Match>
           <Match when={step() === 3}>
-            <WindsAndFlowers />
+            <SeasonsAndFlowers />
           </Match>
           <Match when={step() === 4}>
             <Board />
@@ -128,9 +130,12 @@ type TutorialProps<T> = {
 }
 
 function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
+  const t = useTranslation()
   const globalState = useGlobalState()
   const step = createMemo(() => globalState.tutorial[props.tutorial])
-  const stage = createMemo(() => props.steps[step()]!)
+  const stage = createMemo(() =>
+    t.tutorial.stages[props.steps[step()]! as keyof typeof t.tutorial.stages](),
+  )
   const [play, setPlay] = createSignal(false)
   const [upperBound, setUpperBound] = createSignal(0)
 
@@ -149,6 +154,10 @@ function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
     globalState.tutorial[props.tutorial] -= 1
   }
 
+  function onNext() {
+    globalState.tutorial[props.tutorial] += 1
+  }
+
   return (
     <Show when={!play()} fallback={props.fallback}>
       <div class={containerClass}>
@@ -165,24 +174,30 @@ function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
             disabled={step() === 0}
           >
             <ArrowLeft />
-            prev
+            {t.common.prev()}
           </Button>
+          <Show when={step() < upperBound()}>
+            <Button hue="dot" kind="dark" onClick={onNext}>
+              {t.common.next()}
+              <ArrowRight />
+            </Button>
+          </Show>
           <Button hue="bam" kind="dark" onClick={onSkip}>
             <Show
               when={props.tutorial === "game"}
               fallback={
                 <>
-                  go to shop
+                  {t.common.goToShop()}
                   <ArrowRight />
                 </>
               }
             >
               <Play />
-              play
+              {t.common.play()}
             </Show>
           </Button>
         </div>
-        <h1 class={titleClass}>Tutorial: {stage()}</h1>
+        <h1 class={titleClass}>{t.tutorial.title({ stage: stage() })}</h1>
         {props.children(step)}
       </div>
     </Show>
@@ -190,18 +205,16 @@ function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
 }
 
 function Tiles() {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>
-          The goal of <span class={whatajongClass}>Whatajong</span> is to clear
-          all the tiles from the board, scoring as many points as possible.
-        </p>
+        <p innerHTML={t.tutorial.tiles1({ whatajongClass })} />
       </div>
       <div class={columnClass}>
-        Your deck contains tiles of three suits:
+        {t.tutorial.tiles2()}
         <div class={cardRowsClass}>
           <SuitExplanation suit="b" />
           <SuitExplanation suit="c" />
@@ -209,7 +222,7 @@ function Tiles() {
         </div>
       </div>
       <div class={columnClass}>
-        To clear tiles, you need to match a pair of identical tiles.
+        {t.tutorial.tiles3()}
         <div class={cardRowClass}>
           <BasicTile
             width={tileWidth()}
@@ -228,17 +241,15 @@ function Tiles() {
 }
 
 function Clearing() {
+  const t = useTranslation()
   const tileWidth = useTileSize()
   const tileSide = createMemo(() => getSideSize(tileWidth()))
 
   return (
     <div class={columnsClass}>
+      <div class={columnClass}>{t.tutorial.clearing1()}</div>
       <div class={columnClass}>
-        A tile can be selected if it has no other tile on top of it and has at
-        least one free side (left or right).
-      </div>
-      <div class={columnClass}>
-        Example of free tiles highlighted in green.
+        {t.tutorial.clearing2()}
         <div class={rowsClass}>
           <div class={rowClass}>
             <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
@@ -273,7 +284,7 @@ function Clearing() {
         </div>
       </div>
       <div class={columnClass}>
-        When clearing a pair of tiles, you score points.
+        {t.tutorial.clearing3()}
         <div class={cardRowClass}>
           <BasicTile
             width={tileWidth()}
@@ -291,7 +302,7 @@ function Clearing() {
             hue: suitName("o") as any,
           })}
         >
-          2 points!
+          {t.tutorial.clearing4()}
         </h3>
       </div>
     </div>
@@ -299,12 +310,13 @@ function Clearing() {
 }
 
 function Dragons() {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>There are 3 dragons, one for each suit.</p>
+        <p>{t.tutorial.dragons1()}</p>
         <div class={cardRowsClass}>
           <DragonExplanation suit="b" />
           <DragonExplanation suit="c" />
@@ -312,23 +324,17 @@ function Dragons() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          Clear dragon tiles to start a <strong>Dragon Run</strong>.
-        </p>
+        <p innerHTML={t.tutorial.dragons2()} />
         <div class={dragonRunClass}>
           <BasicTile width={tileWidth()} card="db" />
-          <span class={comboRecipe({ hue: "bam" })}>Dragon Run</span>
+          <span class={comboRecipe({ hue: "bam" })}>
+            {t.common.dragonRun()}
+          </span>
         </div>
-        <p>
-          Clearing tiles from another suit will break the{" "}
-          <strong>Dragon Run</strong>.
-        </p>
+        <p innerHTML={t.tutorial.dragons3()} />
       </div>
       <div class={columnClass}>
-        <p>
-          When a <strong>Dragon Run</strong> is active, clearing tiles from the
-          dragon's suit will multiply your score.
-        </p>
+        <p innerHTML={t.tutorial.dragons4()} />
         <div class={cardRowsClass}>
           <div class={cardRowClass}>
             <BasicTile
@@ -362,13 +368,14 @@ function Dragons() {
   )
 }
 
-function WindsAndFlowers() {
+function SeasonsAndFlowers() {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>Winds move the tiles on the board towards a direction:</p>
+        <p>{t.tutorial.seasonsAndFlowers1()}</p>
         <div class={rowsClass}>
           <WindExplanation wind="ww" />
           <WindExplanation wind="we" />
@@ -377,10 +384,7 @@ function WindsAndFlowers() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          Flowers & Seasons can be matched among themselves, regardless of their
-          number.
-        </p>
+        <p>{t.tutorial.seasonsAndFlowers2()}</p>
         <div class={rowsClass}>
           <div class={cardRowClass}>
             <BasicTile
@@ -393,7 +397,7 @@ function WindsAndFlowers() {
               card="f2"
               style={{ transform: "rotate(-7deg)" }}
             />
-            <span class={comboRecipe({ hue: "bam" })}>yes</span>
+            <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
           </div>
           <div class={cardRowClass}>
             <BasicTile
@@ -406,7 +410,7 @@ function WindsAndFlowers() {
               card="s2"
               style={{ transform: "rotate(-7deg)" }}
             />
-            <span class={comboRecipe({ hue: "bam" })}>yes</span>
+            <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
           </div>
           <div class={cardRowClass}>
             <BasicTile
@@ -419,15 +423,12 @@ function WindsAndFlowers() {
               card="f1"
               style={{ transform: "rotate(-7deg)" }}
             />
-            <span class={comboRecipe({ hue: "crack" })}>no</span>
+            <span class={comboRecipe({ hue: "crack" })}>{t.common.no()}</span>
           </div>
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          Clearing Flowers & Seasons makes it easier to clear tiles on the next
-          turn.
-        </p>
+        <p>{t.tutorial.seasonsAndFlowers3()}</p>
         <div class={rowsClass}>
           <div class={rowClass}>
             <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
@@ -451,47 +452,40 @@ function WindsAndFlowers() {
 }
 
 function Board() {
+  const t = useTranslation()
+
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
         <div class={boardClass}>
           <Points points={100} />
         </div>
-        <p>
-          The points indicator shows you how many points have you scored so far.
-        </p>
+        <p>{t.tutorial.board1()}</p>
       </div>
       <div class={columnClass}>
         <div class={boardClass}>
           <Penalty points={100} />
         </div>
-        <p>
-          The penalty indicator shows you how many points have you lost due to
-          time passing by.
-        </p>
+        <p>{t.tutorial.board2()}</p>
       </div>
       <div class={columnClass}>
         <div class={boardClass}>
           <MovesIndicator urgency="moderate" pairs={2} />
         </div>
-        <p>
-          The moves indicator, shows you how many moves you have left. If it
-          reaches to 0, the board is unsolvable and you have lost the game.
-        </p>
+        <p>{t.tutorial.board3()}</p>
       </div>
     </div>
   )
 }
 
 function Crew() {
+  const t = useTranslation()
+
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>To help you on this journey, you can recruit crew members.</p>
-        <p>
-          Each crew member has a unique ability. Be creative and combine them to
-          unlock powerful combinations.
-        </p>
+        <p>{t.tutorial.crew1()}</p>
+        <p>{t.tutorial.crew2()}</p>
       </div>
       <div class={columnClass}>
         <div class={emperorContainerClass}>
@@ -501,16 +495,13 @@ function Crew() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          During a game, if you are running out of moves, discard a crew member
-          to shuffle the board.
-        </p>
+        <p>{t.tutorial.crew3()}</p>
         <div class={boardClass}>
           <MovesIndicator urgency="urgent" pairs={1} />
         </div>
         <ShopButton hue="dot">
           <Skull />
-          Discard and shuffle
+          {t.common.discardAndShuffle()}
         </ShopButton>
       </div>
     </div>
@@ -518,13 +509,12 @@ function Crew() {
 }
 
 function Shop() {
+  const t = useTranslation()
+
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>
-          Every round you yield 1 coin per tile on your deck. Spend them on the
-          shop to buy new tiles and crew members.
-        </p>
+        <p>{t.tutorial.shop1()}</p>
         <div class={shopItemContainerClass}>
           <ItemTile
             item={{
@@ -553,16 +543,13 @@ function Shop() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>Refresh the shop to get new items.</p>
+        <p>{t.tutorial.shop2()}</p>
         <div class={shopItemContainerClass}>
           <RerollButton disabled={false} />
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          If there is something you like, but you can't afford it, freeze the
-          items until next round.
-        </p>
+        <p>{t.tutorial.shop3()}</p>
         <div class={shopItemContainerClass}>
           <FreezeButton />
         </div>
@@ -572,23 +559,19 @@ function Shop() {
 }
 
 function Upgrade() {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>
-          You can upgrade your shop level to unlock new items and crew members.
-        </p>
+        <p>{t.tutorial.upgrade1()}</p>
         <div class={shopItemContainerClass}>
           <UpgradeButton cost={100} disabled={false} />
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          Each shop level increases your crew and deck capacity. More tiles,
-          more points!
-        </p>
+        <p>{t.tutorial.upgrade2()}</p>
         <div class={boardClass}>
           <div class={rowsClass}>
             <DeckTitle pairs={70} capacity={72} />
@@ -603,10 +586,7 @@ function Upgrade() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>
-          Upgrading your shop also increases your yield, so you can earn more
-          coins each round.
-        </p>
+        <p>{t.tutorial.upgrade3()}</p>
         <div class={boardClass}>
           <CoinCounter money={100} />
         </div>
@@ -616,10 +596,12 @@ function Upgrade() {
 }
 
 function Materials() {
+  const t = useTranslation()
+
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>Buy three of the same tile to upgrade the material.</p>
+        <p>{t.tutorial.material1()}</p>
         <div class={cardRowsClass}>
           <MaterialExplanation material="glass" />
           <MaterialExplanation material="ivory" />
@@ -627,7 +609,7 @@ function Materials() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>Buy three upgraded tiles to upgrade the material.</p>
+        <p>{t.tutorial.material2()}</p>
         <div class={cardRowsClass}>
           <MaterialExplanation material="diamond" />
           <MaterialExplanation material="jade" />
@@ -635,27 +617,37 @@ function Materials() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>Different materials have different characteristics:</p>
+        <p>{t.tutorial.material3()}</p>
         <ul class={materialListClass}>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "glass" })}>glass</strong>
+            <strong class={materialNameClass({ hue: "glass" })}>
+              {t.material.glass()}
+            </strong>
             {" / "}
             <strong class={materialNameClass({ hue: "diamond" })}>
-              diamond
+              {t.material.diamond()}
             </strong>{" "}
-            easier to clear
+            {t.tutorial.materialGlass()}
           </li>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "ivory" })}>ivory</strong>
+            <strong class={materialNameClass({ hue: "ivory" })}>
+              {t.material.ivory()}
+            </strong>
             {" / "}
-            <strong class={materialNameClass({ hue: "jade" })}>jade</strong>{" "}
-            give more points.
+            <strong class={materialNameClass({ hue: "jade" })}>
+              {t.material.jade()}
+            </strong>{" "}
+            {t.tutorial.materialIvory()}
           </li>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "bronze" })}>bronze</strong>
+            <strong class={materialNameClass({ hue: "bronze" })}>
+              {t.material.bronze()}
+            </strong>
             {" / "}
-            <strong class={materialNameClass({ hue: "gold" })}>gold</strong>{" "}
-            give coins.
+            <strong class={materialNameClass({ hue: "gold" })}>
+              {t.material.gold()}
+            </strong>{" "}
+            {t.tutorial.materialBronze()}
           </li>
         </ul>
       </div>
@@ -664,12 +656,13 @@ function Materials() {
 }
 
 function SuitExplanation(props: { suit: Suit }) {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
       <h3 class={cardTitleClass({ hue: suitName(props.suit) as any })}>
-        {suitName(props.suit)}
+        {t.suit[props.suit]()}
       </h3>
       <BasicTile
         width={tileWidth()}
@@ -690,38 +683,43 @@ function SuitExplanation(props: { suit: Suit }) {
   )
 }
 
-function DragonExplanation(props: { suit: Suit }) {
+function DragonExplanation(props: { suit: "b" | "c" | "o" }) {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
-      <BasicTile width={tileWidth()} card={`d${props.suit}` as Card} />
+      <BasicTile width={tileWidth()} card={`d${props.suit}`} />
       <h3 class={cardTitleClass({ hue: suitName(props.suit) as any })}>
-        {suitName(props.suit)} Dragon
+        {cardName(t, `d${props.suit}`)}
       </h3>
     </div>
   )
 }
 
 function WindExplanation(props: { wind: Wind }) {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
       <BasicTile width={tileWidth()} card={props.wind} />
       <h3 class={cardTitleClass({ hue: "dot" })}>
-        {getWindDirection(props.wind)}
+        {getWindDirection(t, props.wind)}
       </h3>
     </div>
   )
 }
 
 function MaterialExplanation(props: { material: Material }) {
+  const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
-      <h3 class={cardTitleClass({ hue: props.material })}>{props.material}</h3>
+      <h3 class={cardTitleClass({ hue: props.material })}>
+        {t.material[props.material]()}
+      </h3>
       <BasicTile
         width={tileWidth()}
         card="b1"

@@ -23,6 +23,7 @@ import {
   dialogItemTitleClass,
   dialogItemsClass,
 } from "@/components/dialog.css"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export const TIMER_POINTS = 0.25
 
@@ -86,6 +87,7 @@ function TopLeft() {
 }
 
 function TopRight() {
+  const t = useTranslation()
   const [open, setOpen] = createSignal(false)
   const globalState = useGlobalState()
   const run = useRunState()
@@ -114,7 +116,7 @@ function TopRight() {
       }
       content={
         <div class={dialogContentClass}>
-          <h1 class={dialogTitleClass}>Settings</h1>
+          <h1 class={dialogTitleClass}>{t.settings.soundEffects()}</h1>
           <div class={dialogItemsClass}>
             <div class={dialogItemClass}>
               <Button
@@ -129,13 +131,15 @@ function TopRight() {
                   <BellOff />
                 </Show>
               </Button>
-              <span class={dialogItemTitleClass}>Sound effects</span>
+              <span class={dialogItemTitleClass}>
+                {t.settings.soundEffects()}
+              </span>
             </div>
             <div class={dialogItemClass}>
               <LinkButton href={`/play/${nanoid()}`} hue="crack">
                 <Rotate />
               </LinkButton>
-              <span class={dialogItemTitleClass}>Restart the game</span>
+              <span class={dialogItemTitleClass}>{t.settings.restart()}</span>
             </div>
           </div>
         </div>

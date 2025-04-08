@@ -220,20 +220,12 @@ export const shopItemClass = recipe({
     },
   },
   variants: {
+    hoverable: { true: {}, false: {} },
     disabled: {
       true: {
         filter: "brightness(0.8) saturate(0.8)",
-        ":hover": {
-          transform: "rotateZ(0deg) scale(1.1)",
-        },
       },
-      false: {
-        cursor: "pointer",
-        ":hover": {
-          transform: "rotateZ(0deg) scale(1.2)",
-          filter: "brightness(1.1)",
-        },
-      },
+      false: {},
     },
     hue: {
       ...hueVariants((kolor) => ({
@@ -278,6 +270,32 @@ export const shopItemClass = recipe({
       },
     },
   },
+  compoundVariants: [
+    {
+      variants: {
+        hoverable: true,
+        disabled: true,
+      },
+      style: {
+        ":hover": {
+          transform: "rotateZ(0deg) scale(1.1)",
+        },
+      },
+    },
+    {
+      variants: {
+        hoverable: true,
+        disabled: false,
+      },
+      style: {
+        cursor: "pointer",
+        ":hover": {
+          transform: "rotateZ(0deg) scale(1.2)",
+          filter: "brightness(1.1)",
+        },
+      },
+    },
+  ],
 })
 
 export const shopItemContentClass = style({

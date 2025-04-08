@@ -54,6 +54,7 @@ import {
 } from "@/components/dialog.css"
 import { nanoid } from "nanoid"
 import { play } from "@/components/audio"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunGame() {
   const run = useRunState()
@@ -99,6 +100,7 @@ function TopLeft() {
   const round = useRound()
   const globalState = useGlobalState()
   const [open, setOpen] = createSignal(false)
+  const t = useTranslation()
 
   createEffect((prevRunId: string) => {
     if (prevRunId !== run.runId) {
@@ -129,7 +131,7 @@ function TopLeft() {
           }
           content={
             <div class={dialogContentClass}>
-              <h1 class={dialogTitleClass}>Settings</h1>
+              <h1 class={dialogTitleClass}>{t.settings.title()}</h1>
               <div class={dialogItemsClass}>
                 <div class={dialogItemClass}>
                   <Button
@@ -144,13 +146,17 @@ function TopLeft() {
                       <BellOff />
                     </Show>
                   </Button>
-                  <span class={dialogItemTitleClass}>Sound effects</span>
+                  <span class={dialogItemTitleClass}>
+                    {t.settings.soundEffects()}
+                  </span>
                 </div>
                 <div class={dialogItemClass}>
                   <LinkButton href={`/run/${nanoid()}`} hue="crack">
                     <Rotate />
                   </LinkButton>
-                  <span class={dialogItemTitleClass}>Restart the run</span>
+                  <span class={dialogItemTitleClass}>
+                    {t.settings.restartRun()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -158,10 +164,12 @@ function TopLeft() {
         />
       </nav>
       <div class={roundClass}>
-        <div class={roundTitleClass}>Round {run.round}</div>
+        <div class={roundTitleClass}>
+          {t.common.roundN({ round: run.round })}
+        </div>
         <div class={roundObjectiveClass}>
-          <Goal class={roundObjectiveIconClass} /> {round().pointObjective}{" "}
-          points
+          <Goal class={roundObjectiveIconClass} />
+          {t.common.pointsN({ points: round().pointObjective })}
         </div>
       </div>
     </>

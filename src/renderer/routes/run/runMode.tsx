@@ -17,6 +17,7 @@ import { ArrowLeft } from "@/components/icon"
 import { LinkButton } from "@/components/button"
 import { captureEvent } from "@/lib/observability"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunIntro() {
   const run = useRunState()
@@ -43,31 +44,18 @@ export default function RunIntro() {
 }
 
 function SelectDifficulty(props: { onSelectMode: (mode: Difficulty) => void }) {
+  const t = useTranslation()
+
   return (
     <>
       <div class={titleContainerClass}>
-        <h1 class={titleClass}>Welcome to the adventure!</h1>
-        <h2 class={subtitleClass}>Select a difficulty mode</h2>
+        <h1 class={titleClass}>{t.mode.title()}</h1>
+        <h2 class={subtitleClass}>{t.mode.subtitle()}</h2>
       </div>
       <div class={buttonContainerClass({ size: "mode" })}>
-        <ModeButton
-          mode="easy"
-          text="Cruising Along"
-          index={0}
-          onClick={props.onSelectMode}
-        />
-        <ModeButton
-          mode="medium"
-          text="Turbulent Waters"
-          index={1}
-          onClick={props.onSelectMode}
-        />
-        <ModeButton
-          mode="hard"
-          text="Against the Maelstrom"
-          index={2}
-          onClick={props.onSelectMode}
-        />
+        <ModeButton mode="easy" index={0} onClick={props.onSelectMode} />
+        <ModeButton mode="medium" index={1} onClick={props.onSelectMode} />
+        <ModeButton mode="hard" index={2} onClick={props.onSelectMode} />
       </div>
     </>
   )
@@ -75,10 +63,12 @@ function SelectDifficulty(props: { onSelectMode: (mode: Difficulty) => void }) {
 
 function ModeButton(props: {
   mode: Difficulty
-  text: string
   index: number
   onClick: (mode: Difficulty) => void
 }) {
+  const t = useTranslation()
+  const tMode = createMemo(() => t.mode[props.mode].tag())
+  const text = createMemo(() => t.mode[props.mode].title())
   const hue = createMemo(() => {
     switch (props.mode) {
       case "easy":
@@ -104,13 +94,13 @@ function ModeButton(props: {
         srcset={`/difficulty/m/${props.mode}.webp 300w, /difficulty/l/${props.mode}.webp 514w`}
         sizes="(min-width: 1024px) 514px, 300px"
         src={`/difficulty/m/${props.mode}.webp`}
-        alt={props.mode}
+        alt={tMode()}
         class={buttonImageClass}
         onClick={() => props.onClick(props.mode)}
       />
       <div class={buttonTextClass}>
-        {props.text}
-        <span class={buttonSmallTextClass}>({props.mode})</span>
+        {text()}
+        <span class={buttonSmallTextClass}>({tMode()})</span>
       </div>
     </button>
   )

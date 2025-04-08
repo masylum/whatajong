@@ -5,6 +5,7 @@ import { movesClass, pointsClass, pillClass, penaltyClass } from "./stats.css"
 import { getAvailablePairs } from "@/lib/game"
 import { useTileState } from "@/state/tileState"
 import { play } from "../audio"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function PointsAndPenalty(props: { timerPoints: number }) {
   const game = useGameState()
@@ -18,18 +19,22 @@ export function PointsAndPenalty(props: { timerPoints: number }) {
 }
 
 export function Points(props: { points: number }) {
+  const t = useTranslation()
+
   return (
     <div data-tour="points" class={pointsClass}>
-      <span>Points</span>
+      <span>{t.common.points()}</span>
       <div class={pillClass({ hue: "bam" })}>{props.points}</div>
     </div>
   )
 }
 
 export function Penalty(props: { points: number }) {
+  const t = useTranslation()
+
   return (
     <div data-tour="penalty" class={penaltyClass}>
-      <span>Penalty</span>
+      <span>{t.common.penalty()}</span>
       <div class={pillClass({ hue: "crack" })}>{props.points}</div>
     </div>
   )
@@ -112,6 +117,7 @@ export function MovesIndicator(props: {
   urgency: Urgency
   pairs: number
 }) {
+  const t = useTranslation()
   const hueForUrgency = createMemo(() => {
     switch (props.urgency) {
       case "mild":
@@ -127,7 +133,7 @@ export function MovesIndicator(props: {
 
   return (
     <div data-tour="moves" class={movesClass({ urgency: props.urgency })}>
-      <span>Moves</span>
+      <span>{t.common.moves()}</span>
       <div class={pillClass({ hue: hueForUrgency() })}>{props.pairs}</div>
     </div>
   )

@@ -33,6 +33,7 @@ import { BasicEmperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
 import { captureEvent } from "@/lib/observability"
 import { useTileSize } from "@/state/constants"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunGameOver() {
   const run = useRunState()
@@ -48,6 +49,7 @@ export default function RunGameOver() {
   const totalPoints = createMemo(() => points() - penalty())
   const win = createMemo(() => runGameWin(game, run))
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
+  const t = useTranslation()
 
   const tileCoins = createMemo(() =>
     sumBy(tiles().filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
@@ -89,12 +91,14 @@ export default function RunGameOver() {
           <GameOver.Score>
             <Show when={win()}>
               <GameOver.List hue="gold">
-                <GameOver.Item label={`Deck inc‌ome (${deck.size})`}>
+                <GameOver.Item
+                  label={t.gameOver.deckIncome({ deckSize: deck.size })}
+                >
                   + ${income()}
                 </GameOver.Item>
                 <Show when={tileCoins()}>
                   {(coins) => (
-                    <GameOver.Item label="Tile c‌oins">
+                    <GameOver.Item label={t.gameOver.tileCoins()}>
                       + ${coins()}
                     </GameOver.Item>
                   )}
@@ -102,7 +106,9 @@ export default function RunGameOver() {
                 <Show when={overAchievementCoins()}>
                   {(coins) => (
                     <GameOver.Item
-                      label={`Over achiever (${Math.round(achievement() * 100)} %)`}
+                      label={t.gameOver.overachiever({
+                        percent: Math.round(achievement() * 100),
+                      })}
                     >
                       + ${coins()}
                     </GameOver.Item>
@@ -112,22 +118,24 @@ export default function RunGameOver() {
             </Show>
 
             <GameOver.List hue="bam">
-              <GameOver.Item label="Points">{points()}</GameOver.Item>
+              <GameOver.Item label={t.common.points()}>
+                {points()}
+              </GameOver.Item>
             </GameOver.List>
 
             <Show when={round().timerPoints}>
               <GameOver.List hue="crack">
-                <GameOver.Item label={`Time penalty (${time()} s)`}>
+                <GameOver.Item label={t.gameOver.timePenalty({ time: time() })}>
                   {penalty()}
                 </GameOver.Item>
               </GameOver.List>
             </Show>
 
             <GameOver.List hue="dot">
-              <GameOver.Item label="Total Points">
+              <GameOver.Item label={t.gameOver.totalPoints()}>
                 {totalPoints()}
               </GameOver.Item>
-              <GameOver.Item label="Objective">
+              <GameOver.Item label={t.common.objective()}>
                 {round().pointObjective}
               </GameOver.Item>
             </GameOver.List>
@@ -139,10 +147,10 @@ export default function RunGameOver() {
                   <>
                     <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
                       <Rotate />
-                      Try same run
+                      {t.gameOver.trySameRun()}
                     </LinkButton>
                     <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
-                      Start new run
+                      {t.gameOver.startNewRun()}
                       <ArrowRight />
                     </LinkButton>
                   </>
@@ -150,7 +158,7 @@ export default function RunGameOver() {
               >
                 <Button hue="bam" kind="dark" onClick={() => onShop()}>
                   <Shop />
-                  Go to shop
+                  {t.common.goToShop()}
                 </Button>
               </Show>
             </GameOver.Buttons>
@@ -158,7 +166,10 @@ export default function RunGameOver() {
           <Show when={!win()}>
             <div class={gameOverInfoClass}>
               <h3 class={titleClass}>
-                Your Treasure <span class={moneyClass}>${run.money}</span>
+                {t.gameOver.yourTreasure({
+                  moneyClass: moneyClass,
+                  money: run.money,
+                })}
               </h3>
               <OwnedEmperors />
               <Deck />
@@ -194,10 +205,11 @@ function Deck() {
     })
   })
   const tileSize = useTileSize(0.7)
+  const t = useTranslation()
 
   return (
     <div class={deckClass}>
-      <div class={titleClass}>Your Deck</div>
+      <div class={titleClass}>{t.common.yourDeck()}</div>
       <div
         class={deckRowsClass}
         style={{
@@ -242,6 +254,7 @@ function Deck() {
 
 function OwnedEmperors() {
   const run = useRunState()
+  const t = useTranslation()
 
   const ownedEmperors = createMemo(
     () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
@@ -249,7 +262,7 @@ function OwnedEmperors() {
 
   return (
     <div class={ownedEmperorsClass}>
-      <div class={titleClass}>Your Crew</div>
+      <div class={titleClass}>{t.common.yourCrew()}</div>
       <div class={ownedEmperorsListClass}>
         <For each={ownedEmperors()}>
           {(emperor) => (

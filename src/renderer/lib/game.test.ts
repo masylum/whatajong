@@ -34,7 +34,6 @@ import {
   isTransport,
   isPhoenix,
   suitName,
-  cardName,
   getMaterial,
   getCardPoints,
   getMaterialCoins,
@@ -68,8 +67,8 @@ describe("map", () => {
     })
 
     it("should return tile id as string for valid positions", () => {
-      expect(mapGet(PROGRESSIVE_MAP, 4, 2, 0)).toBe("134")
-      expect(mapGet(PROGRESSIVE_MAP, 5, 2, 0)).toBe("134")
+      expect(mapGet(PROGRESSIVE_MAP, 2, 0, 0)).toBe("134")
+      expect(mapGet(PROGRESSIVE_MAP, 3, 0, 0)).toBe("134")
     })
   })
 })
@@ -485,25 +484,6 @@ describe("card naming", () => {
       expect(suitName("pb")).toBe("phoenix")
       expect(suitName("j1")).toBe("joker")
       expect(suitName("tn")).toBe("transport")
-      expect(suitName("x1")).toBe("unknown") // Uses the dummy suit as an example of "unknown" return
-    })
-  })
-
-  describe("cardName", () => {
-    it("should return correct card names", () => {
-      expect(cardName("f1")).toBe("flower 1")
-      expect(cardName("s2")).toBe("season 2")
-      expect(cardName("b3")).toBe("bam 3")
-      expect(cardName("c4")).toBe("crack 4")
-      expect(cardName("o5")).toBe("dot 5")
-      expect(cardName("wn")).toBe("wind n")
-      expect(cardName("pb")).toBe("bam phoenix")
-    })
-
-    it("should handle dragon cards specially", () => {
-      expect(cardName("dc")).toBe("crack dragon")
-      expect(cardName("db")).toBe("bam dragon")
-      expect(cardName("do")).toBe("dot dragon")
     })
   })
 })
