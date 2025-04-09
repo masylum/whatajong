@@ -9,7 +9,7 @@ import RunIntro from "./run/runMode"
 import { captureRun } from "@/lib/observability"
 import { GameTutorial, RunTutorial } from "@/components/gameTutorial"
 
-export default function Run() {
+export function Run() {
   const params = useParams()
   const id = createMemo(() => params.id!)
 

@@ -60,7 +60,6 @@
     "@vanilla-extract/recipes": "^0.5.5",
     "@vanilla-extract/vite-plugin": "^5.0.1",
     "@vitejs/plugin-legacy": "^6.0.2",
-    "add": "^2.0.6",
     "howler": "^2.2.4",
     "nanoid": "^5.0.9",
     "pnpm": "^10.8.0",
@@ -71,9 +70,6 @@
     "wrangler": "^3.101.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": [
-      "electron",
-      "esbuild"
-    ]
+    "onlyBuiltDependencies": ["electron", "esbuild"]
   }
 }

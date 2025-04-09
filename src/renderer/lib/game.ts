@@ -94,7 +94,7 @@ export function getCardPoints(card: Card) {
   return 1
 }
 
-export function getMaterialPoints(material: Material) {
+function getMaterialPoints(material: Material) {
   switch (material) {
     case "wood":
       return 2
@@ -113,7 +113,7 @@ export function getMaterialPoints(material: Material) {
   }
 }
 
-export function getMaterialMultiplier(material: Material) {
+function getMaterialMultiplier(material: Material) {
   switch (material) {
     case "bronze":
     case "glass":
