@@ -11,10 +11,11 @@ const legacyPluginOptions = {
 } as const
 
 const rootPath = fileURLToPath(new URL("./src/renderer", import.meta.url))
+const outDir = fileURLToPath(new URL("./dist", import.meta.url))
 
 export default defineConfig(() => {
   return {
-    build: { target: "modules" },
+    build: { target: "modules", outDir, emptyOutDir: true },
     root: rootPath,
     publicDir: `${rootPath}/public`,
     resolve: {
