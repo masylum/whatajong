@@ -11,8 +11,8 @@ const statItem = style({
   flexDirection: "column",
   fontFamily: primary,
   userSelect: "none",
-  ...fontSize.s,
   gap: 4,
+  ...fontSize.s,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.m,
@@ -60,7 +60,8 @@ export const pillClass = recipe({
         0px 0px 0px 1px ${kolor(30)},
         0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
         0px 0px 5px -3px ${kolor(10)},
-        0px 0px 10px -5px ${kolor(10)}`,
+        0px 0px 10px -5px ${kolor(10)}
+      `,
     })),
   },
 })

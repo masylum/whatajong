@@ -21,6 +21,7 @@ import { BasicTile } from "./basicTile"
 import Rand from "rand-seed"
 import type { AccentHue } from "@/styles/colors"
 import { useTranslation } from "@/i18n/useTranslation"
+import { useTileSize } from "@/state/constants"
 
 // biome-ignore format:
 const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const
@@ -48,6 +49,7 @@ function FallingTile(props: { card: Card }) {
   const cardRotation = createMemo(() => (Math.random() - 0.5) * 720)
   const cardDuration = createMemo(() => 2 + Math.random() * 15)
   const delay = createMemo(() => Math.random() * 10)
+  const tileSize = useTileSize(0.8)
 
   return (
     <BasicTile
@@ -60,6 +62,7 @@ function FallingTile(props: { card: Card }) {
         }),
         "animation-delay": `${delay()}s`,
       }}
+      width={tileSize().width}
       class={bouncingCardClass}
       card={props.card}
     />
@@ -79,7 +82,7 @@ export function FallingTiles() {
 function Title(props: { win: boolean; round?: number }) {
   const t = useTranslation()
   const round = createMemo(() =>
-    props.round ? t.common.roundN({ round: props.round }) : "",
+    props.round ? `${t.common.roundN({ round: props.round })}: ` : "",
   )
 
   return (
@@ -87,8 +90,7 @@ function Title(props: { win: boolean; round?: number }) {
       when={props.win}
       fallback={
         <h1 class={titleClass}>
-          {round()}
-          {t.gameOver.defeat[pick(DEFEAT_TITLES)]()}
+          {round()} {t.gameOver.defeat[pick(DEFEAT_TITLES)]()}
         </h1>
       }
     >

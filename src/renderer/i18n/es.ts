@@ -14,7 +14,9 @@ export const es = {
     prev: "atrás",
     next: "siguiente",
     goToShop: "ir a la tienda",
-    dragonRun: "Combo Dragón",
+    dragonRun: "C‌ombo Dragón",
+    phoenixRun: "C‌ombo Fénix",
+    rabbitRun: "C‌ombo C‌onejo",
     discardAndShuffle: "Descartar y barajar",
     yes: "si",
     no: "no",
@@ -26,7 +28,7 @@ export const es = {
     yourDeck: "Tu Mazo",
     yourCrew: "Tu Tripulación",
     coins: "Monedas",
-    buy: "comprar",
+    buy: "c‌omprar",
     recruit: "reclutar",
     sell: "vender",
     pairs: "parejas",
@@ -47,7 +49,7 @@ export const es = {
     diamond: "diamante",
     jade: "jade",
     ivory: "marfil",
-    bronze: "bronze",
+    bronze: "bronce",
     gold: "oro",
     bone: "hueso",
     wood: "madera",
@@ -60,7 +62,7 @@ export const es = {
     o: "rueda",
     d: "dragón",
     w: "viento",
-    r: "conejo",
+    r: "c‌onejo",
     p: "fénix",
     j: "joker",
     m: "mutación",
@@ -99,7 +101,7 @@ export const es = {
     },
     tiles1:
       "El objetivo de <span class='{{whatajongClass}}'>Whatajong</span> es despejar todas las fichas del tablero, anotando la mayor cantidad de puntos posible.",
-    tiles2: "Tu mazo contiene fichas de tres palos:",
+    tiles2: "Tu mazo c‌ontiene fichas de tres palos:",
     tiles3: "Para despejar fichas, necesitas emparejar dos fichas idénticas.",
     clearing1:
       "Una ficha se puede seleccionar si no tiene otra ficha encima y al menos uno de sus lados (izquierdo o derecho) está libre.",
@@ -108,11 +110,11 @@ export const es = {
     clearing4: "¡2 puntos!",
     dragons1: "Hay 3 dragones, uno para cada palo.",
     dragons2:
-      "Despeja fichas de dragón para iniciar un <strong>Combo Dragón</strong>.",
+      "Despeja fichas de dragón para iniciar un <strong>C‌ombo Dragón</strong>.",
     dragons3:
-      "Despejar fichas de otro palo interrumpe el <strong>Combo Dragón</strong>.",
+      "Despejar fichas de otro palo interrumpe el <strong>C‌ombo Dragón</strong>.",
     dragons4:
-      "Cuando un <strong>Combo Dragón</strong> está activo, despejar fichas del palo del dragón multiplicará tu puntuación.",
+      "Cuando un <strong>C‌ombo Dragón</strong> está activo, despejar fichas del palo del dragón multiplicará tu puntuación.",
     seasonsAndFlowers1:
       "Los vientos mueven las fichas del tablero hacia una dirección:",
     seasonsAndFlowers2:
@@ -127,24 +129,24 @@ export const es = {
       "El indicador de jugadas muestra cuántas jugadas te quedan. Si llega a 0, el tablero no se puede resolver y has perdido la partida.",
     crew1: "Para ayudarte en esta aventura, puedes reclutar tripulantes.",
     crew2:
-      "Cada miembro tiene una habilidad única. Sé creativo y combínalos para desbloquear combinaciones poderosas.",
+      "Cada miembro tiene una habilidad única. Sé creativo y c‌ombínalos para desbloquear c‌ombinaciones poderosas.",
     crew3:
       "Durante una partida, si te quedas sin jugadas, descarta un tripulante para barajar el tablero.",
     shop1:
-      "Cada ronda obtienes 1 moneda por cada ficha en tu mazo. Gástalas en la tienda para comprar nuevas fichas y tripulantes.",
+      "Cada ronda obtienes 1 moneda por cada ficha en tu mazo. Gástalas en la tienda para c‌omprar nuevas fichas y tripulantes.",
     shop2: "Refresca la tienda para obtener nuevos artículos.",
     shop3:
-      "Si hay algo que te gusta pero no puedes pagarlo, congela los artículos hasta la siguiente ronda.",
+      "Si hay algo que te gusta pero no puedes pagarlo, c‌ongela los artículos hasta la siguiente ronda.",
     upgrade1:
       "Puedes mejorar el nivel de la tienda para desbloquear nuevos artículos y tripulantes.",
     upgrade2:
       "Cada nivel de tienda incrementa tu capacidad de mazo y tripulación. ¡Más fichas, más puntos!",
     upgrade3:
       "Mejorar tu tienda también incrementa tus ingresos, así puedes ganar más monedas en cada ronda.",
-    material1: "Compra tres fichas iguales para mejorar su material.",
-    material2: "Compra tres fichas mejoradas para mejorar aún más su material.",
+    material1: "C‌ompra tres fichas iguales para mejorar su material.",
+    material2: "C‌ompra tres fichas mejoradas para mejorar aún más su material.",
     material3: "Los distintos materiales tienen características diferentes:",
-    materialGlass: "más fáciles de despejar",
+    materialGlass: "son más fáciles de despejar",
     materialIvory: "dan más puntos.",
     materialBronze: "dan monedas.",
   },
@@ -160,7 +162,7 @@ export const es = {
       tag: "medio",
     },
     hard: {
-      title: "Contra el torbellino",
+      title: "C‌ontra el torbellino",
       tag: "difícil",
     },
   },
@@ -191,21 +193,241 @@ export const es = {
     deckIncome: "Ingresos del mazo ({{deckSize}})",
     tileCoins: "Monedas por fichas",
     overachiever: "Sobresaliente ({{percent}} %)",
-    trySameRun: "Intentar misma partida",
-    startNewRun: "Empezar nueva partida",
-    yourTreasure: "Tu tesoro <span class='{{moneyClass}}'>${{money}}</span>",
+    trySameRun: "Intentar otra vez",
+    startNewRun: "Nueva partida",
   },
   shop: {
     upgrade: {
       title: "¡Mejora disponible!",
       description:
-        "Al coleccionar 3 pares idénticos de fichas puedes mejorarlas a una versión más poderosa.",
+        "Al c‌oleccionar 3 pares idéntic‌os de fichas puedes mejorarlas a una versión más poderosa.",
+      button: "mejorar",
+      easierToMatch: "más fácil de despejar",
+      morePoints: "más puntos",
+      getCoins: "obtener monedas",
     },
     shopLevel: "Nivel de tienda {{num}}",
     yieldPerTiles: "rendimiento por fichas:",
     deckCapacity: "capacidad del mazo:",
     crewCapacity: "capacidad de tripulación:",
     newTiles: "nuevas fichas:",
-    fullDeck: "Mejora tu tienda para comprar más fichas",
+    fullDeck: "Mejora tu tienda para c‌omprar más fichas",
+  },
+  emperors: {
+    astronomer: {
+      name: "Astrónomo",
+      description: "Añade 3 puntos al despejar fichas de Letras (::c::)",
+    },
+    mathematician: {
+      name: "Matemátic‌o",
+      description: "Añade 1 multiplicador al despejar fichas de Letras (::c::)",
+    },
+    gardener: {
+      name: "Jardinero",
+      description: "Añade 3 puntos al despejar fichas de Bambú (::b::)",
+    },
+    herbolist: {
+      name: "Herborista",
+      description: "Añade 1 multiplicador al despejar fichas de Bambú (::b::)",
+    },
+    wheelwright: {
+      name: "Carretero",
+      description: "Añade 3 puntos al despejar fichas de Rueda (::o::)",
+    },
+    treasurer: {
+      name: "Tesorero",
+      description: "Añade 1 multiplicador al despejar fichas de Rueda (::o::)",
+    },
+    birdwatcher: {
+      name: "Observador de aves",
+      description: "Añade 20 puntos al despejar la ficha 'Bambú 1' (::b1::)",
+    },
+    caligrapher: {
+      name: "Calígrafo",
+      description: "Añade 20 puntos al despejar la ficha 'Letra 1' (::c1::)",
+    },
+    numismatic: {
+      name: "Numismátic‌o",
+      description: "Añade 20 puntos al despejar la ficha 'Rueda 1' (::o1::)",
+    },
+    woodworker: {
+      name: "Carpintero",
+      description: "Añade 20 puntos al despejar la ficha 'Bambú 9' (::b9::)",
+    },
+    librarian: {
+      name: "Bibliotecario",
+      description: "Añade 20 puntos al despejar la ficha 'Letra 9' (::c9::)",
+    },
+    cooper: {
+      name: "Tonelero",
+      description: "Añade 20 puntos al despejar la ficha 'Rueda 9' (::o9::)",
+    },
+    barterer: {
+      name: "Trocador",
+      description: "Añade 100 monedas al descartarse",
+    },
+    food_vendor: {
+      name: "Vendedor de c‌omida",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Bambú (::b::) aleatorias en fichas de Rueda (::o::)",
+    },
+    retailer: {
+      name: "Minorista",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Bambú (::b::) aleatorias en fichas de Letras (::c::)",
+    },
+    fisherwoman: {
+      name: "Pescadora",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Rueda (::o::) aleatorias en fichas de Letras (::c::)",
+    },
+    shopkeeper: {
+      name: "Tendero",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Rueda (::o::) aleatorias en fichas de Bambú (::b::)",
+    },
+    trader: {
+      name: "C‌omerciante",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Letras (::c::) aleatorias en fichas de Bambú (::b::)",
+    },
+    fishmonger: {
+      name: "Pescadero",
+      description:
+        "Al descartarse, transforma permanentemente 3 fichas de Letras (::c::) aleatorias en fichas de Rueda (::o::)",
+    },
+    martyr: {
+      name: "Mártir",
+      description: "Añade 300 puntos al descartarse",
+    },
+    warrior: {
+      name: "Guerrero",
+      description: "Añade 2 puntos al despejar cualquier ficha",
+    },
+    combatant: {
+      name: "C‌ombatiente",
+      description: "Añade 0.5 multiplicador al despejar cualquier ficha",
+    },
+    wizard: {
+      name: "Mago",
+      description: "Añade 2 puntos al despejar fichas impares",
+    },
+    sorcerer: {
+      name: "Hechicero",
+      description: "Añade 3 puntos al despejar fichas pares",
+    },
+    biologist: {
+      name: "Biólogo",
+      description: "Añade 1 multiplicador al despejar fichas Flor (::f::)",
+    },
+    florist: {
+      name: "Florista",
+      description: "Añade 10 puntos al despejar fichas Flor (::f::)",
+    },
+    botanist: {
+      name: "Botánic‌o",
+      description: "Añade 4 monedas al despejar fichas Flor (::f::)",
+    },
+    breeder: {
+      name: "Criador",
+      description: "Añade 1 multiplicador al despejar fichas C‌onejo (::r::)",
+    },
+    veterinarian: {
+      name: "Veterinario",
+      description: "Añade 10 puntos al despejar fichas C‌onejo (::r::)",
+    },
+    butcher: {
+      name: "Carnicero",
+      description: "Añade 4 monedas al despejar fichas C‌onejo (::r::)",
+    },
+    drakologist: {
+      name: "Dracólogo",
+      description: "Añade 16 puntos al despejar fichas Dragón (::d::)",
+    },
+    dragon_rider: {
+      name: "Jinete de dragones",
+      description: "Añade 2 multiplicador al despejar fichas Dragón (::d::)",
+    },
+    warden: {
+      name: "Guardián",
+      description: "Añade 6 monedas al despejar fichas Dragón (::d::)",
+    },
+    phoenixologist: {
+      name: "Fénixologo",
+      description: "Añade 16 puntos al despejar fichas Fénix (::p::)",
+    },
+    phoenix_rider: {
+      name: "Jinete de fénix",
+      description: "Añade 2 multiplicador al despejar fichas Fénix (::p::)",
+    },
+    keeper: {
+      name: "Cuidador",
+      description: "Añade 6 monedas al despejar fichas Fénix (::p::)",
+    },
+    glassblower: {
+      name: "Soplador de vidrio",
+      description: "Añade 20 puntos al despejar fichas de Vidrio (::g::)",
+    },
+    stonemason: {
+      name: "Cantero",
+      description: "Añade 10 monedas al despejar fichas de Marfil (::i::)",
+    },
+    smith: {
+      name: "Herrero",
+      description: "Añade 2 multiplicador al despejar fichas de Bronce (::b::)",
+    },
+    sailor: {
+      name: "Marinero",
+      description: "Añade 3 multiplicador al despejar fichas Viento (::w::)",
+    },
+    skipper: {
+      name: "Patrón",
+      description: "Añade 24 puntos al despejar fichas Viento (::w::)",
+    },
+    captain: {
+      name: "Capitán",
+      description: "Añade 10 monedas al despejar fichas Viento (::w::)",
+    },
+  },
+  tileDetails: {
+    freedom: {
+      relaxed: "Libre si al menos 1 lado está abierto.",
+      diamond: "Siempre libre.",
+      standard: "Libre si el lado izquierdo o derecho está abierto.",
+      gold: "Libre si al menos 3 lados están abiertos.",
+    },
+    explanation: {
+      wind: "Las fichas de Viento mueven las piezas en la dirección del viento.",
+      rabbit1:
+        "Despejar fichas de C‌onejo inicia un <strong>C‌ombo C‌onejo</strong>.",
+      rabbit2:
+        "Cada par de fichas de C‌onejo (::r::) que despejes c‌oonsecutivamente aumenta tu multiplicador, y al terminar la racha, ganas una moneda por cada punto obtenido.",
+      flower1:
+        "Las fichas de Flor se pueden despejar c‌on otras fichas de Flor, sin importar su número.",
+      flower2:
+        "Despejar flores facilita despejar fichas en el siguiente turno.",
+      season1:
+        "Las fichas de Estación se pueden despejar c‌on otras fichas de Estación, sin importar su número.",
+      season2:
+        "Despejar estaciones facilita despejar fichas en el siguiente turno.",
+      dragon1:
+        "Despejar fichas de Dragón inicia un <strong>C‌ombo Dragón</strong>.",
+      dragon2:
+        "Despeja fichas de {{suitName}} (::{{suit}}::) para obtener un bono de multiplicador.",
+      phoenix1:
+        "Despejar fichas de Fénix inicia un <strong>C‌ombo Fénix</strong>.",
+      phoenix2:
+        "Despeja fichas en orden numéric‌o c‌onsecutivo (1, 2, 3...) para obtener un bono de multiplicador.",
+      mutation1: "Aumenta la cantidad de fichas bam/crack/dot en tu tablero.",
+      mutation2: "Disminuye la cantidad de fichas bam/crack/dot en tu tablero.",
+      mutation3:
+        "Intercambia todas las fichas de {{fromSuitName}} (::{{fromSuit}}::) por fichas de {{toSuitName}} (::{{toSuit}}::) en tu tablero.",
+      joker1: "Despejar fichas C‌omodín baraja tu tablero.",
+      joker2: "Gana 1 punto por cada ficha barajada.",
+    },
+  },
+  runSelect: {
+    title: "¡Listo!",
+    subtitle: "Gana la ronda actual para desbloquear las siguientes.",
   },
 }

@@ -9,22 +9,20 @@ export const containerClass = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  height: "100%",
-  width: "100%",
+  height: "100dvh",
+  width: "100dvw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   padding: 24,
-  gap: 24,
+  gap: 48,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       padding: 32,
-      gap: 32,
+      gap: 64,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 48,
-      gap: 48,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 64,
       padding: 64,
     },
   },
@@ -32,6 +30,7 @@ export const containerClass = style({
 
 export const gamesClass = style({
   display: "flex",
+  flexDirection: "column",
   justifyContent: "space-between",
   gap: 16,
   "@media": {
@@ -40,6 +39,7 @@ export const gamesClass = style({
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 24,
+      flexDirection: "row",
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       gap: 32,
@@ -51,7 +51,6 @@ export const gameClass = recipe({
   base: {
     borderRadius: 8,
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     flex: 1,
     padding: 12,
@@ -63,6 +62,7 @@ export const gameClass = recipe({
       },
       [mediaQuery({ p: "m", l: "s" })]: {
         padding: 20,
+        flexDirection: "column",
         gap: 24,
       },
       [mediaQuery({ p: "l", l: "m" })]: {
@@ -92,6 +92,7 @@ export const gameClass = recipe({
 export const gameTitleClass = style({
   ...fontSize.l,
   fontFamily: primary,
+  flexShrink: 0,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h3,

@@ -1,5 +1,5 @@
 import { style } from "@vanilla-extract/css"
-import { color } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { keyframes } from "@vanilla-extract/css"
 import { fontSize } from "@/styles/fontSize"
 import { recipe } from "@vanilla-extract/recipes"
@@ -33,60 +33,52 @@ export const roundClass = style({
   display: "flex",
   flexDirection: "column",
   fontFamily: primary,
-  gap: 4,
+  borderRadius: 8,
+  overflow: "hidden",
+  border: `2px solid ${color.dot30}`,
+  backgroundColor: color.dot30,
+  boxShadow: `
+    0px 0px 0px 1px ${color.dot30},
+    0px 0px 0px 3px ${alpha(color.dot30, 0.1)},
+    0px 0px 5px -3px ${color.dot10},
+    0px 0px 10px -5px ${color.dot10}
+  `,
+  ...fontSize.s,
   "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.m,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.l,
+    },
     [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 8,
+      ...fontSize.h3,
     },
     [mediaQuery({ p: "xl", l: "l" })]: {
-      gap: 12,
+      ...fontSize.h2,
     },
   },
 })
 
 export const roundTitleClass = style({
-  color: color.dot10,
-  ...fontSize.h3,
-  "@media": {
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      ...fontSize.h1,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      ...fontSize.h1,
-    },
-  },
+  color: color.dot90,
+  textAlign: "center",
+  paddingInline: 4,
+  padding: 2,
 })
 
 export const roundObjectiveClass = style({
   color: color.dot30,
-  ...fontSize.l,
-  "@media": {
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      ...fontSize.h3,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      ...fontSize.h3,
-    },
-  },
-})
-
-export const roundObjectiveIconClass = style({
-  width: 18,
-  height: 18,
-  "@media": {
-    [`(orientation: portrait) and ${widthQueries.l}`]: {
-      width: 24,
-      height: 24,
-    },
-    [`(orientation: landscape) and ${heightQueries.s}`]: {
-      width: 24,
-      height: 24,
-    },
-  },
+  background: color.dot90,
+  textAlign: "center",
+  paddingInline: 4,
+  padding: 2,
+  flex: 1,
 })
 
 export const menuContainerClass = style({
   display: "flex",
+  flexDirection: "column",
   alignItems: "center",
   gap: 12,
   "@media": {

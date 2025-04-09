@@ -16,11 +16,11 @@ import { DustParticles } from "./dustParticles"
 import { play, type Track } from "../audio"
 import { Mountains } from "../mountains"
 import { useGameState } from "@/state/gameState"
-import { useLayoutSize } from "@/state/constants"
 import { Powerups } from "./powerups"
 import { useTileState } from "@/state/tileState"
 import { getAvailablePairs, selectTile } from "@/lib/game"
 import { useRunState } from "@/state/runState"
+import { useLayoutSize } from "@/state/constants"
 
 type Props = {
   board: JSXElement
@@ -91,16 +91,16 @@ export function Frame(props: Props) {
     >
       <div
         class={containerClass({
-          orientation: orientation(),
           position: "topLeft",
+          orientation: orientation(),
         })}
       >
         {props.topLeft}
       </div>
       <div
         class={containerClass({
-          orientation: orientation(),
           position: "topRight",
+          orientation: orientation(),
         })}
       >
         {props.topRight}
@@ -108,16 +108,16 @@ export function Frame(props: Props) {
       {props.board}
       <div
         class={containerClass({
-          orientation: orientation(),
           position: "bottomLeft",
+          orientation: orientation(),
         })}
       >
         {props.bottomLeft}
       </div>
       <div
         class={containerClass({
-          orientation: orientation(),
           position: "bottomRight",
+          orientation: orientation(),
         })}
       >
         {props.bottomRight}

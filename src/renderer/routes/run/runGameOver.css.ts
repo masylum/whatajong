@@ -6,8 +6,15 @@ import { mediaQuery } from "@/styles/breakpoints"
 
 export const gameOverClass = style({
   display: "flex",
+  flexDirection: "column",
   justifyContent: "space-between",
-  gap: 64,
+  gap: 32,
+  "@media": {
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      flexDirection: "row",
+      gap: 64,
+    },
+  },
 })
 
 export const deckClass = style({
@@ -16,35 +23,13 @@ export const deckClass = style({
   gap: 16,
 })
 
-export const titleClass = style({
-  ...fontSize.l,
-  fontFamily: primary,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.h3,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h2,
-    },
-    [mediaQuery({ p: "s", l: "m" })]: {
-      ...fontSize.h1,
-    },
-  },
-})
-
 export const deckRowsClass = style({
   display: "flex",
-  flexDirection: "column",
   alignItems: "flex-start",
-  justifyContent: "center",
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
   position: "relative",
   zIndex: 0,
-})
-
-export const deckRowClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 })
 
 export const deckItemClass = style({
@@ -78,18 +63,16 @@ export const emperorClass = style({
   alignItems: "center",
   gap: 16,
   justifyContent: "center",
-  border: "none",
-  background: "none",
   padding: 0,
-  color: color.crack10,
-  position: "relative",
-  left: 0,
-  top: 0,
+  maxWidth: 40,
+  borderRadius: 12,
+  overflow: "hidden",
 })
 
 export const gameOverInfoClass = style({
   display: "flex",
   flexDirection: "column",
+  flex: 1,
   gap: 12,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
@@ -105,6 +88,7 @@ export const gameOverInfoClass = style({
 })
 
 export const moneyClass = style({
+  alignSelf: "flex-start",
   fontFamily: primary,
   ...fontSize.m,
   background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,

@@ -21,6 +21,7 @@ export function Board(props: BoardProps) {
         position: "relative",
         width: `${layout().width}px`,
         height: `${layout().height}px`,
+        "z-index": 3,
       }}
     >
       <For each={tiles.all}>

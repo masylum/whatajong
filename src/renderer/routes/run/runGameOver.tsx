@@ -10,9 +10,7 @@ import { GameOver } from "@/components/game/gameOver"
 import { getIncome, runGameWin, useRound, useRunState } from "@/state/runState"
 import {
   gameOverClass,
-  deckRowClass,
   deckRowsClass,
-  titleClass,
   deckClass,
   pairClass,
   deckItemClass,
@@ -26,8 +24,7 @@ import { nanoid } from "nanoid"
 import { createTileState } from "@/state/tileState"
 import { sumBy } from "remeda"
 import { useDeckState } from "@/state/deckState"
-import { getRank, getSuit, type DeckTile } from "@/lib/game"
-import { splitIntoRows } from "@/lib/splitIntoRows"
+import { getRank, getSuit } from "@/lib/game"
 import { BasicTile } from "@/components/game/basicTile"
 import { BasicEmperor } from "@/components/emperor"
 import type { EmperorItem } from "@/state/shopState"
@@ -165,12 +162,7 @@ export default function RunGameOver() {
           </GameOver.Score>
           <Show when={!win()}>
             <div class={gameOverInfoClass}>
-              <h3 class={titleClass}>
-                {t.gameOver.yourTreasure({
-                  moneyClass: moneyClass,
-                  money: run.money,
-                })}
-              </h3>
+              <span class={moneyClass}>${run.money}</span>
               <OwnedEmperors />
               <Deck />
             </div>
@@ -185,31 +177,21 @@ export default function RunGameOver() {
 function Deck() {
   const deck = useDeckState()
 
-  const deckByRows = createMemo(() => {
-    function sortDeckTiles(tiles: DeckTile[]) {
-      return tiles.sort((a, b) => {
-        const suitA = getSuit(a.card)
-        const suitB = getSuit(b.card)
-        if (suitA !== suitB) {
-          const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
-          return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
-        }
-        return getRank(a.card).localeCompare(getRank(b.card))
-      })
-    }
-
-    return splitIntoRows(sortDeckTiles(deck.all), {
-      minCols: 9,
-      maxCols: 12,
-      minRows: 4,
-    })
-  })
-  const tileSize = useTileSize(0.7)
-  const t = useTranslation()
+  const sortedDeck = createMemo(() =>
+    deck.all.sort((a, b) => {
+      const suitA = getSuit(a.card)
+      const suitB = getSuit(b.card)
+      if (suitA !== suitB) {
+        const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
+        return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
+      }
+      return getRank(a.card).localeCompare(getRank(b.card))
+    }),
+  )
+  const tileSize = useTileSize(0.5)
 
   return (
     <div class={deckClass}>
-      <div class={titleClass}>{t.common.yourDeck()}</div>
       <div
         class={deckRowsClass}
         style={{
@@ -217,33 +199,27 @@ function Deck() {
           "padding-right": `${tileSize().sideSize * 2}px`,
         }}
       >
-        <For each={deckByRows()}>
-          {(deckTiles, i) => (
-            <div class={deckRowClass}>
-              <For each={deckTiles}>
-                {(deckTile, j) => (
-                  <div
-                    class={deckItemClass}
-                    style={{
-                      "z-index": i() * 9 + j(),
-                    }}
-                  >
-                    <BasicTile
-                      card={deckTile.card}
-                      material={deckTile.material}
-                      width={tileSize().width}
-                    />
-                    <BasicTile
-                      class={pairClass}
-                      style={{
-                        transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
-                      }}
-                      material={deckTile.material}
-                      width={tileSize().width}
-                    />
-                  </div>
-                )}
-              </For>
+        <For each={sortedDeck()}>
+          {(deckTile, i) => (
+            <div
+              class={deckItemClass}
+              style={{
+                "z-index": i(),
+              }}
+            >
+              <BasicTile
+                card={deckTile.card}
+                material={deckTile.material}
+                width={tileSize().width}
+              />
+              <BasicTile
+                class={pairClass}
+                style={{
+                  transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
+                }}
+                material={deckTile.material}
+                width={tileSize().width}
+              />
             </div>
           )}
         </For>
@@ -254,7 +230,6 @@ function Deck() {
 
 function OwnedEmperors() {
   const run = useRunState()
-  const t = useTranslation()
 
   const ownedEmperors = createMemo(
     () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
@@ -262,7 +237,6 @@ function OwnedEmperors() {
 
   return (
     <div class={ownedEmperorsClass}>
-      <div class={titleClass}>{t.common.yourCrew()}</div>
       <div class={ownedEmperorsListClass}>
         <For each={ownedEmperors()}>
           {(emperor) => (

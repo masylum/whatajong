@@ -1,10 +1,9 @@
-import { resolveWinds } from "./resolveWinds"
 import { batch } from "solid-js"
 import { nanoid } from "nanoid"
 import { initDatabase, type Database } from "./in-memoriam"
-import { PROGRESSIVE_MAP } from "./maps/progressive"
+import { RESPONSIVE_MAP } from "./maps/responsive"
 import type { RunState } from "@/state/runState"
-import { getEmperors } from "@/state/emperors"
+import { EMPERORS } from "@/state/emperors"
 import { sumBy } from "remeda"
 import { shuffleTiles } from "./shuffleTiles"
 import Rand from "rand-seed"
@@ -13,6 +12,7 @@ import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveRabbits } from "./resolveRabbits"
 import { resolveMutations } from "./resolveMutations"
 import type { Translator } from "@/i18n/useTranslation"
+import { resolveWinds } from "./resolveWinds"
 
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 type EndConditions = (typeof END_CONDITIONS)[number]
@@ -775,15 +775,15 @@ export function mapGet(map: MapType, x: number, y: number, z: number) {
 }
 
 export function mapGetWidth() {
-  return PROGRESSIVE_MAP[0]![0]!.length
+  return RESPONSIVE_MAP[0]![0]!.length
 }
 
 export function mapGetHeight() {
-  return PROGRESSIVE_MAP[0]!.length
+  return RESPONSIVE_MAP[0]!.length
 }
 
 export function mapGetLevels() {
-  return PROGRESSIVE_MAP.length
+  return RESPONSIVE_MAP.length
 }
 
 export function isTransparent(material: Material) {
@@ -791,7 +791,7 @@ export function isTransparent(material: Material) {
 }
 
 export function getMap(tiles: number) {
-  const limitedMap = JSON.parse(JSON.stringify(PROGRESSIVE_MAP))
+  const limitedMap = JSON.parse(JSON.stringify(RESPONSIVE_MAP))
 
   return limitedMap.map((level: (number | null)[][]) =>
     level.map((row: (number | null)[]) =>
@@ -812,7 +812,7 @@ export function getOwnedEmperors(run?: RunState) {
   )
   if (!names.size) return []
 
-  return getEmperors().filter((emperor) => names.has(emperor.name))
+  return EMPERORS.filter((emperor) => names.has(emperor.name))
 }
 
 export type Level = 1 | 2 | 3 | 4 | 5

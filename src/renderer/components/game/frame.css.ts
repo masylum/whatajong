@@ -66,12 +66,12 @@ export const containerClass = recipe({
     flexWrap: "wrap-reverse",
     position: "absolute",
     zIndex: 3,
-    gap: 8,
+    gap: 12,
     padding: 8,
+    flexDirection: "row",
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
         padding: 12,
-        gap: 12,
       },
       [mediaQuery({ p: "l", l: "m" })]: {
         gap: 16,
@@ -84,6 +84,14 @@ export const containerClass = recipe({
     },
   },
   variants: {
+    orientation: {
+      portrait: {
+        flexDirection: "column",
+      },
+      landscape: {
+        flexDirection: "row",
+      },
+    },
     position: {
       topLeft: {
         left: 0,
@@ -100,16 +108,6 @@ export const containerClass = recipe({
       bottomRight: {
         right: 0,
         bottom: 0,
-      },
-    },
-    orientation: {
-      portrait: {
-        flexDirection: "column",
-        maxHeight: "50%",
-      },
-      landscape: {
-        flexDirection: "row",
-        maxWidth: "50%",
       },
     },
   },

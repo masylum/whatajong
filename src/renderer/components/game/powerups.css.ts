@@ -112,6 +112,16 @@ export const comboRecipe = recipe({
         ...fontSize.h3,
       },
     },
+    selectors: {
+      [`${powerupRecipe.classNames.variants.side.left} &`]: {
+        transform: "rotate(-90deg) translateX(-50%) translateY(20%)",
+        transformOrigin: "center left",
+      },
+      [`${powerupRecipe.classNames.variants.side.right} &`]: {
+        transform: "rotate(-90deg) translateX(-50%) translateY(20%)",
+        transformOrigin: "center right",
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({

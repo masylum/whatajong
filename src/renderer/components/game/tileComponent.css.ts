@@ -78,7 +78,6 @@ export const scoreClass = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  willChange: "transform",
   gap: 8,
 })
 
@@ -112,7 +111,6 @@ export const tileClass = style({
   transitionDuration: `${DELETED_DURATION}ms`,
   transitionTimingFunction: "ease-in",
   outline: "none",
-  willChange: "transform",
   animationName: tileFallingAnimation,
   animationTimingFunction: easeBounce,
   animationDuration: ANIMATION_MEDIUM,

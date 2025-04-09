@@ -93,7 +93,7 @@ export function Home() {
 }
 
 function Frame() {
-  const tileSize = useTileSize()
+  const tileSize = useTileSize(0.7)
   const size = useWindowSize()
   const padding = 0.95
   const horizontalTiles = createMemo(() =>
@@ -122,6 +122,7 @@ function Frame() {
           {(card, j) => (
             <BasicTile
               class={cardClass}
+              width={tileSize().width}
               style={{
                 ...assignInlineVars({
                   [cardAnimationDelayVar]: `${j() * 20}ms`,
@@ -144,6 +145,7 @@ function Frame() {
           {(card, j) => (
             <BasicTile
               class={cardClass}
+              width={tileSize().width}
               style={{
                 "z-index": horizontalTiles() + j(),
                 ...assignInlineVars({
@@ -170,6 +172,7 @@ function Frame() {
           {(card, j) => (
             <BasicTile
               class={cardClass}
+              width={tileSize().width}
               style={{
                 "z-index": horizontalTiles() + j(),
                 ...assignInlineVars({
@@ -196,6 +199,7 @@ function Frame() {
           {(card, j) => (
             <BasicTile
               class={cardClass}
+              width={tileSize().width}
               style={{
                 ...assignInlineVars({
                   [cardAnimationDelayVar]: `${verticalTiles() * 20 + j() * 20}ms`,

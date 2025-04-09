@@ -1,63 +1,69 @@
-import { mapGetWidth, type Card } from "@/lib/game"
+import { mapGetHeight, mapGetWidth, type Card } from "@/lib/game"
 import { breakpoints } from "@/styles/breakpoints"
 import { createBreakpoints } from "@solid-primitives/media"
-import { createMemo, type Accessor } from "solid-js"
+import { createMemo } from "solid-js"
 import { useWindowSize } from "@solid-primitives/resize-observer"
+import { createSingletonRoot } from "@solid-primitives/rootless"
 
-const BOARD_RATIO = (45 * 15) / (65 * 8)
-
+const BOARD_RATIO = (45 * mapGetWidth()) / (65 * mapGetHeight())
 export const TILE_RATIO = 13 / 9
 
 export function getSideSize(height: number) {
   return Math.floor(height / 10)
 }
 
-export function useBreakpoint() {
-  return createBreakpoints(breakpoints)
-}
-
 type Layout = {
   width: number
   height: number
-  orientation: "portrait" | "landscape"
+  orientation: "landscape" | "portrait"
 }
 
-export function useLayoutSize(): Accessor<Layout> {
+export const useLayoutSize = createSingletonRoot(() => {
   const size = useWindowSize()
 
-  return createMemo(() => {
-    const uiPadding = 0.7
-    const normalPadding = 0.9
-    const maxWidth = 900
-    const screenRatio = size.width / size.height
+  return createMemo<Layout>(() => {
+    const uiPadding = 0.8 // 50% padding
+    const uiPaddingFixed = 90 * 2
+    const mainPadding = 0.9
+    const maxHeight = 600
 
-    if (screenRatio > BOARD_RATIO) {
-      const desiredWidth = Math.min(size.width * uiPadding, maxWidth)
-      const height = Math.min(
-        desiredWidth / BOARD_RATIO,
-        size.height * normalPadding,
-      )
+    const widthConstraint1 = Math.min(
+      size.width * uiPadding,
+      size.width - uiPaddingFixed,
+    )
+    const heightConstraint1 = Math.min(size.height * mainPadding, maxHeight)
+    const option1Height = Math.min(
+      heightConstraint1,
+      widthConstraint1 / BOARD_RATIO,
+    )
+    const option1Width = option1Height * BOARD_RATIO
 
+    const widthConstraint2 = size.width * mainPadding
+    const heightConstraint2 = Math.min(
+      size.height * uiPadding,
+      size.height - uiPaddingFixed,
+      maxHeight,
+    )
+    const option2Height = Math.min(
+      heightConstraint2,
+      widthConstraint2 / BOARD_RATIO,
+    )
+    const option2Width = option2Height * BOARD_RATIO
+
+    if (option1Width * option1Height > option2Width * option2Height) {
       return {
-        width: height * BOARD_RATIO,
-        height,
-        orientation: "portrait" as const,
+        width: option1Width,
+        height: option1Height,
+        orientation: "portrait",
       }
     }
-
-    const desiredHeight = size.height * uiPadding
-    const width = Math.min(
-      desiredHeight * BOARD_RATIO,
-      size.width * normalPadding,
-      maxWidth,
-    )
     return {
-      width,
-      height: width / BOARD_RATIO,
-      orientation: "landscape" as const,
+      width: option2Width,
+      height: option2Height,
+      orientation: "landscape",
     }
   })
-}
+})
 
 export function useTileSize(ratio = 1) {
   return createMemo(() => {
@@ -72,7 +78,7 @@ export function useTileSize(ratio = 1) {
 }
 
 export function useImageSrc(card: Card) {
-  const match = useBreakpoint()
+  const match = createBreakpoints(breakpoints)
 
   return createMemo(() => {
     const sizes = {

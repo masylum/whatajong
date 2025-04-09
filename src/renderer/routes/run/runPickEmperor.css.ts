@@ -90,8 +90,13 @@ export const buttonContainerClass = style({
   justifyContent: "center",
   position: "relative",
   gap: 12,
+  flexDirection: "column",
+  flex: 1,
+  minHeight: 0,
   "@media": {
     [mediaQuery({ p: "l", l: "m" })]: {
+      flexDirection: "row",
+      flex: "inherit",
       gap: 24,
     },
     [mediaQuery({ p: "xl", l: "l" })]: {
@@ -108,12 +113,10 @@ export const buttonClass = recipe({
     padding: 0,
     overflow: "hidden",
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     transition: `transform ${ANIMATION_DURATION}ms, filter ${ANIMATION_DURATION}ms`,
     transformStyle: "preserve-3d",
     cursor: "pointer",
-    width: CHOICE_EMPEROR_WIDTH,
     animationName: fromBelowAnimation,
     animationTimingFunction: easeBounce,
     animationDuration: ANIMATION_SLOW,
@@ -124,12 +127,13 @@ export const buttonClass = recipe({
       transform: "rotateX(-20deg) rotateY(-10deg) scale(1.2)",
       filter: "brightness(1.1)",
     },
+
     "@media": {
       [mediaQuery({ p: "m", l: "xs" })]: {
-        width: CHOICE_EMPEROR_WIDTH * 1.2,
         borderRadius: 16,
       },
       [mediaQuery({ p: "l", l: "s" })]: {
+        flexDirection: "column",
         width: CHOICE_EMPEROR_WIDTH * 1.3,
       },
       [mediaQuery({ p: "xl", l: "m" })]: {
@@ -146,19 +150,17 @@ export const buttonClass = recipe({
 })
 
 export const buttonImageClass = style({
-  width: "100%",
   objectFit: "cover",
   objectPosition: "top center",
-  maxHeight: 120,
+  height: "100%",
+  maxHeight: 180,
   "@media": {
-    [mediaQuery({ p: "m", l: "xs" })]: {
-      maxHeight: 160,
-    },
-    [mediaQuery({ p: "l", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
+      width: "100%",
       maxHeight: 200,
     },
-    [mediaQuery({ p: "xl", l: "m" })]: {
-      maxHeight: 300,
+    [mediaQuery({ p: "l", l: "l" })]: {
+      maxHeight: 250,
     },
   },
 })

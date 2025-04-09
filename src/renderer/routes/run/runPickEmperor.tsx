@@ -15,7 +15,12 @@ import { useRunState } from "@/state/runState"
 import { pickFromArray } from "@/lib/rand"
 import { generateEmperorItem } from "@/state/shopState"
 import Rand from "rand-seed"
-import { emperorName, getEmperors, type Emperor } from "@/state/emperors"
+import {
+  EmperorDescription,
+  EMPERORS,
+  EmperorTitle,
+  type Emperor,
+} from "@/state/emperors"
 import type { AccentHue } from "@/styles/colors"
 import { suitName } from "@/lib/game"
 import { ArrowLeft } from "@/components/icon"
@@ -30,7 +35,7 @@ export function RunPickEmperor() {
   const run = useRunState()
   const emperors = createMemo(() => {
     const rng = new Rand(`emperors-choice-${run.runId}`)
-    const candidates = getEmperors().filter((emperor) => emperor.level === 1)
+    const candidates = EMPERORS.filter((emperor) => emperor.level === 1)
     const first = pickFromArray(
       candidates.filter(
         (emperor) => emperor.type === "discard" && emperor.suit,
@@ -88,9 +93,9 @@ export function RunPickEmperor() {
             >
               <BasicEmperor name={emperor.name} class={buttonImageClass} />
               <div class={buttonTextClass}>
-                {emperorName(emperor.name)}
+                <EmperorTitle name={emperor.name} />
                 <div class={buttonDescriptionTextClass}>
-                  {emperor.description()}
+                  <EmperorDescription name={emperor.name} />
                 </div>
               </div>
             </button>

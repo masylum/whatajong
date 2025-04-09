@@ -15,8 +15,10 @@ import {
   detailDescriptionClass,
 } from "./runSelect.css"
 import { Goal, Hourglass } from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunSelect() {
+  const t = useTranslation()
   const run = useRunState()
   const isCurrentRound = createSelector(() => run.round)
   const nextRounds = createMemo(() => {
@@ -39,23 +41,23 @@ export default function RunSelect() {
   return (
     <div class={containerClass}>
       <div class={titleContainerClass}>
-        <h1 class={titleClass}>Get ready!</h1>
-        <h2 class={subtitleClass}>
-          Win the current round to unlock the next ones.
-        </h2>
+        <h1 class={titleClass}>{t.runSelect.title()}</h1>
+        <h2 class={subtitleClass}>{t.runSelect.subtitle()}</h2>
       </div>
       <div class={gamesClass}>
         <For each={nextRounds()}>
           {(round) => (
             <div class={gameClass({ current: isCurrentRound(round.id) })}>
-              <h2 class={gameTitleClass}>Round {round.id}</h2>
+              <h2 class={gameTitleClass}>
+                {t.common.roundN({ round: round.id })}
+              </h2>
               <dl class={detailListClass}>
                 <dd class={detailTermClass}>
-                  <Goal /> Points
+                  <Goal /> {t.common.points()}
                 </dd>
                 <dt class={detailDescriptionClass}>{round.pointObjective}</dt>
                 <dd class={detailTermClass}>
-                  <Hourglass /> Penalty
+                  <Hourglass /> {t.common.penalty()}
                 </dd>
                 <dt class={detailDescriptionClass}>
                   {round.timerPoints.toFixed(2)}
@@ -67,7 +69,7 @@ export default function RunSelect() {
                   kind="dark"
                   onClick={() => selectRound(round)}
                 >
-                  Play
+                  {t.common.play()}
                 </Button>
               </Show>
             </div>

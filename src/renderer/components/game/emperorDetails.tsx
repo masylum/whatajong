@@ -5,21 +5,28 @@ import {
   detailsDialogClass,
   emperorIconClass,
 } from "./emperorDetails.css"
-import type { Emperor } from "@/state/emperors"
+import {
+  EmperorDescription,
+  EmperorTitle,
+  type Emperor,
+} from "@/state/emperors"
 import { BasicEmperor } from "../emperor"
 
 export function EmperorDetailsDialog(props: {
   emperor: Emperor
 }) {
   const name = createMemo(() => props.emperor.name)
-  const description = createMemo(() => props.emperor.description())
 
   return (
     <div class={detailsDialogClass}>
       <BasicEmperor class={emperorIconClass} name={name()} />
       <div class={emperorContainerClass}>
-        <span>{name().replaceAll("_", " ")}</span>
-        <div class={detailInfoClass}>{description()}</div>
+        <span>
+          <EmperorTitle name={name()} />
+        </span>
+        <div class={detailInfoClass}>
+          <EmperorDescription name={name()} />
+        </div>
       </div>
     </div>
   )

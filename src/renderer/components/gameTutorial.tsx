@@ -50,7 +50,11 @@ import { useGlobalState } from "@/state/globalState"
 import { getSideSize, useLayoutSize } from "@/state/constants"
 import { comboRecipe } from "./game/powerups.css"
 import { MovesIndicator, Penalty, Points } from "./game/stats"
-import { emperorName, getEmperors } from "@/state/emperors"
+import {
+  EmperorDescription,
+  EmperorTitle,
+  type EmperorName,
+} from "@/state/emperors"
 import type { AccentHue } from "@/styles/colors"
 import {
   ItemTile,
@@ -738,22 +742,14 @@ function MaterialExplanation(props: { material: Material }) {
 
 function useTileSize() {
   const layout = useLayoutSize()
-  return createMemo(() => {
-    return layout().orientation === "portrait"
-      ? layout().width / 16
-      : layout().height / 16
-  })
+  return createMemo(() => layout().width / 16)
 }
 
 function EmperorExplanation(props: {
   index: number
-  name: string
+  name: EmperorName
   hue: AccentHue
 }) {
-  const emperor = createMemo(() =>
-    getEmperors().find((e) => e.name === props.name),
-  )
-
   return (
     <div
       class={emperorClass({ hue: props.hue })}
@@ -763,9 +759,9 @@ function EmperorExplanation(props: {
     >
       <BasicEmperor name={props.name} class={emperorImageClass} />
       <div class={emperorTextClass}>
-        {emperorName(props.name)}
+        <EmperorTitle name={props.name} />
         <div class={emperorDescriptionTextClass}>
-          {emperor()?.description()}
+          <EmperorDescription name={props.name} />
         </div>
       </div>
     </div>

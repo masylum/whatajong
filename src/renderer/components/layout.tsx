@@ -2,23 +2,25 @@ import { Defs } from "./game/defs"
 import { createMemo, Show, type ParentProps } from "solid-js"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { createGlobalState, GlobalStateProvider } from "@/state/globalState"
-import { landscapeClass, titleClass, subtitleClass } from "./layout.css"
+import { portraitClass, titleClass, subtitleClass } from "./layout.css"
 import { FallingTiles } from "./game/gameOver"
-import { useBreakpoint } from "@/state/constants"
 import { Link, MetaProvider } from "@solidjs/meta"
 import nunito from "@fontsource-variable/nunito?url"
 import { primaryUrl } from "@/styles/fontFamily.css"
 import { useTranslation } from "@/i18n/useTranslation"
+import { breakpoints } from "@/styles/breakpoints"
+import { createBreakpoints } from "@solid-primitives/media"
 
 export function Layout(props: ParentProps) {
   const globalState = createGlobalState()
   const size = useWindowSize()
-  const isLandscape = createMemo(() => size.width > size.height)
-  const match = useBreakpoint()
-  const forceLandscape = createMemo(() => {
+  const isPortrait = createMemo(() => size.width > size.height)
+  const match = createBreakpoints(breakpoints, { mediaFeature: "min-height" })
+  const forcePortrait = createMemo(() => {
     const key = match.key
+    console.log(key, isPortrait())
     if (key === "xxs" || key === "xs" || key === "s") {
-      return !isLandscape()
+      return isPortrait()
     }
     return false
   })
@@ -41,22 +43,22 @@ export function Layout(props: ParentProps) {
           crossorigin="anonymous"
         />
         <Defs />
-        <Show when={forceLandscape()} fallback={props.children}>
-          <Landscape />
+        <Show when={forcePortrait()} fallback={props.children}>
+          <Portrait />
         </Show>
       </GlobalStateProvider>
     </MetaProvider>
   )
 }
 
-function Landscape() {
+function Portrait() {
   const t = useTranslation()
 
   return (
-    <div class={landscapeClass}>
+    <div class={portraitClass}>
       <h1 class={titleClass}>Whatajong</h1>
       <h1 class={subtitleClass}>{t.layout.rotate()}</h1>
-      <img src="/rotate.webp" alt={t.layout.rotate()} width={300} />
+      <img src="/rotate.webp" alt={t.layout.rotate()} height={150} />
       <FallingTiles />
     </div>
   )

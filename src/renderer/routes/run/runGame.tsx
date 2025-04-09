@@ -18,11 +18,10 @@ import {
   roundTitleClass,
   roundObjectiveClass,
   roundClass,
-  roundObjectiveIconClass,
   emperorDialogButtonsClass,
   emperorDialogClass,
 } from "./runGame.css"
-import { Bell, Gear, Goal, Home, Rotate, Skull } from "@/components/icon"
+import { Bell, Gear, Home, Rotate, Skull } from "@/components/icon"
 import { Button, LinkButton, ShopButton } from "@/components/button"
 import { Moves, PointsAndPenalty } from "@/components/game/stats"
 import { BellOff } from "@/components/icon"
@@ -40,10 +39,9 @@ import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
 import { useGlobalState } from "@/state/globalState"
 import RunGameOver from "./runGameOver"
 import { captureEvent } from "@/lib/observability"
-import { useLayoutSize } from "@/state/constants"
 import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
 import { EmperorDetailsDialog } from "@/components/game/emperorDetails"
-import { getEmperors } from "@/state/emperors"
+import { EMPERORS } from "@/state/emperors"
 import { Dialog } from "@/components/dialog"
 import {
   dialogContentClass,
@@ -55,6 +53,7 @@ import {
 import { nanoid } from "nanoid"
 import { play } from "@/components/audio"
 import { useTranslation } from "@/i18n/useTranslation"
+import { useLayoutSize } from "@/state/constants"
 
 export default function RunGame() {
   const run = useRunState()
@@ -97,7 +96,6 @@ export default function RunGame() {
 
 function TopLeft() {
   const run = useRunState()
-  const round = useRound()
   const globalState = useGlobalState()
   const [open, setOpen] = createSignal(false)
   const t = useTranslation()
@@ -163,15 +161,6 @@ function TopLeft() {
           }
         />
       </nav>
-      <div class={roundClass}>
-        <div class={roundTitleClass}>
-          {t.common.roundN({ round: run.round })}
-        </div>
-        <div class={roundObjectiveClass}>
-          <Goal class={roundObjectiveIconClass} />
-          {t.common.pointsN({ points: round().pointObjective })}
-        </div>
-      </div>
     </>
   )
 }
@@ -192,7 +181,7 @@ function EmperorCard(props: { item: EmperorItem }) {
   const deck = useDeckState()
   const layout = useLayoutSize()
   const emperor = createMemo(
-    () => getEmperors().find((emperor) => emperor.name === props.item.name)!,
+    () => EMPERORS.find((emperor) => emperor.name === props.item.name)!,
   )
   const [open, setOpen] = createSignal(false)
 
@@ -260,7 +249,20 @@ function EmperorCard(props: { item: EmperorItem }) {
 
 function BottomLeft() {
   const round = useRound()
-  return <PointsAndPenalty timerPoints={round().timerPoints} />
+  const run = useRunState()
+  const t = useTranslation()
+
+  return (
+    <>
+      <div class={roundClass}>
+        <div class={roundTitleClass}>
+          {t.common.roundN({ round: run.round })}
+        </div>
+        <div class={roundObjectiveClass}>{round().pointObjective}</div>
+      </div>
+      <PointsAndPenalty timerPoints={round().timerPoints} />
+    </>
+  )
 }
 
 function BottomRight() {

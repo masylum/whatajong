@@ -22,7 +22,7 @@ import {
 } from "@/lib/game"
 import { createPersistantMutable } from "./persistantMutable"
 import { countBy, entries } from "remeda"
-import { getEmperors, type Emperor } from "./emperors"
+import { EMPERORS, type Emperor, type EmperorName } from "./emperors"
 import { play } from "@/components/audio"
 import { nanoid } from "nanoid"
 import { captureEvent } from "@/lib/observability"
@@ -55,7 +55,7 @@ type BaseItem = {
 
 export type EmperorItem = BaseItem & {
   type: "emperor"
-  name: string
+  name: EmperorName
   level: Level
 }
 
@@ -139,7 +139,7 @@ export function generateEmperorItem(emperor: Emperor) {
 }
 
 function generateEmperorItems() {
-  return getEmperors().map(generateEmperorItem)
+  return EMPERORS.map(generateEmperorItem)
 }
 
 export function generateShopItems(): Item[] {

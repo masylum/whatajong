@@ -5,7 +5,7 @@ import {
   Show,
   mergeProps,
 } from "solid-js"
-import { useTileSize } from "@/state/constants"
+import { getSideSize, useTileSize } from "@/state/constants"
 import {
   shakeAnimation,
   SHAKE_DURATION,
@@ -305,8 +305,4 @@ export function strokePath({
     a ${corner()} ${corner()} 0 0 0 -${corner()} ${corner()}
     Z
   `
-}
-
-function getSideSize(height: number) {
-  return Math.floor(height / 10)
 }

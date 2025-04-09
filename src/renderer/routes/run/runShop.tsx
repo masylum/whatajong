@@ -19,7 +19,6 @@ import {
 } from "solid-js"
 import {
   continueClass,
-  deckClass,
   deckItemClass,
   deckRowsClass,
   shopItemsClass,
@@ -28,7 +27,7 @@ import {
   detailTermClass,
   detailDescriptionClass,
   detailListClass,
-  deckTitleClass,
+  areaTitleClass,
   pillClass,
   buttonsClass,
   dialogContentClass,
@@ -37,8 +36,6 @@ import {
   modalDetailsClass,
   emperorDetailsTitleClass,
   emperorDetailsDescriptionClass,
-  ownedEmperorsClass,
-  ownedEmperorsTitleClass,
   ownedEmperorsListClass,
   MINI_TILE_SIZE,
   emptyEmperorClass,
@@ -51,9 +48,7 @@ import {
   materialUpgradesClass,
   shopHeaderItemsClass,
   shopHeaderItemClass,
-  propertiesClass,
   backgroundClass,
-  shopHeaderTitleClass,
   closeButtonClass,
   shopItemClass,
   shopItemContentClass,
@@ -63,6 +58,10 @@ import {
   modalEmperorClass,
   upgradeCardPreviewClass,
   shopHeaderClass,
+  shopContainerClass,
+  areaClass,
+  materialUpgradeBlockClass,
+  materialUpgradeTextClass,
 } from "./runShop.css"
 import {
   generateItems,
@@ -94,9 +93,6 @@ import {
   type DeckTile,
   getSuit,
   getRank,
-  getMaterialMultiplier,
-  getMaterialPoints,
-  getMaterialCoins,
   type Level,
 } from "@/lib/game"
 import { ShopButton } from "@/components/button"
@@ -108,7 +104,6 @@ import {
   Buy,
   Freeze,
   Coins,
-  Star,
   Home,
 } from "@/components/icon"
 import { nanoid } from "nanoid"
@@ -124,7 +119,7 @@ import {
 import { play } from "@/components/audio"
 import { captureEvent } from "@/lib/observability"
 import { getSideSize, useTileSize } from "@/state/constants"
-import { emperorName, getEmperors } from "@/state/emperors"
+import { EmperorDescription, EmperorTitle } from "@/state/emperors"
 import { RunPickEmperor } from "./runPickEmperor"
 import type { AccentHue } from "@/styles/colors"
 import { LinkButton } from "@/components/button"
@@ -162,13 +157,10 @@ function Shop() {
     <Show when={!shouldPickEmperor()} fallback={<RunPickEmperor />}>
       <div class={backgroundClass}>
         <div class={shopClass}>
-          <ShopHeader />
-          <ShopItems />
-          <div class={propertiesClass}>
-            <OwnedEmperors />
-            <Deck />
-          </div>
-
+          <Header />
+          <Items />
+          <Crew />
+          <Deck />
           <Show when={shop.currentItem}>
             {(currentItem) => (
               <Dialog
@@ -336,8 +328,8 @@ function CardDetails(props: {
           </div>
           <CardPoints card={card()} material={props.material} />
           <CardMultiplier card={card()} material={props.material} />
-          <MaterialFreedom material={props.material} />
           <MaterialCoins material={props.material} />
+          <MaterialFreedom material={props.material} />
           <Explanation card={card()} />
         </div>
       </div>
@@ -438,9 +430,6 @@ function EmperorItemDetails() {
   const shop = useShopState()
   const run = useRunState()
   const item = createMemo(() => shop.currentItem as EmperorItem)
-  const emperor = createMemo(
-    () => getEmperors().find((emperor) => emperor.name === item().name)!,
-  )
   const emperorCount = createMemo(
     () => run.items.filter((item) => item.type === "emperor").length,
   )
@@ -467,10 +456,12 @@ function EmperorItemDetails() {
       <div class={modalDetailsClass}>
         <BasicEmperor name={item().name} class={modalEmperorClass} />
         <div class={modalDetailsContentClass}>
-          <div class={emperorDetailsTitleClass}>{emperorName(item().name)}</div>
+          <div class={emperorDetailsTitleClass}>
+            <EmperorTitle name={item().name} />
+          </div>
 
           <div class={emperorDetailsDescriptionClass}>
-            {emperor().description()}
+            <EmperorDescription name={item().name} />
           </div>
         </div>
       </div>
@@ -680,34 +671,35 @@ function MaterialUpgradeButton(props: {
 
   return (
     <div class={materialUpgradeClass({ hue: props.material })}>
-      <span class={materialUpgradeTitleClass({ material: props.material })}>
+      <div class={materialUpgradeBlockClass}>
         <BasicTile
           card={props.item.card}
           material={props.material}
           width={30}
         />
-        {t.material[props.material]()}
-      </span>
-      <dl class={detailListClass({ type: props.material })}>
-        <dt class={detailTermClass}>{t.common.points()}</dt>
-        <dd class={detailDescriptionClass}>
-          +{getMaterialPoints(props.material) * 2}
-        </dd>
-        <Show when={getMaterialMultiplier(props.material)}>
-          {(multiplier) => (
-            <>
-              <dt class={detailTermClass}>{t.common.multiplier()}</dt>
-              <dd class={detailDescriptionClass}>+{multiplier() * 2}</dd>
-            </>
-          )}
-        </Show>
-        <dt class={detailTermClass}>{t.common.coins()}</dt>
-        <dd class={detailDescriptionClass}>
-          +{getMaterialCoins(props.material) * 2}
-        </dd>
-      </dl>
-
-      <MaterialFreedom material={props.material} hue={props.material} />
+        <div class={materialUpgradeTextClass({ hue: props.material })}>
+          <span class={materialUpgradeTitleClass({ hue: props.material })}>
+            {t.material[props.material]()}
+          </span>
+          <Switch>
+            <Match
+              when={props.material === "glass" || props.material === "diamond"}
+            >
+              {t.shop.upgrade.easierToMatch()}
+            </Match>
+            <Match
+              when={props.material === "ivory" || props.material === "jade"}
+            >
+              {t.shop.upgrade.morePoints()}
+            </Match>
+            <Match
+              when={props.material === "bronze" || props.material === "gold"}
+            >
+              {t.shop.upgrade.getCoins()}
+            </Match>
+          </Switch>
+        </div>
+      </div>
       <ShopButton
         type="button"
         hue={props.material}
@@ -717,13 +709,13 @@ function MaterialUpgradeButton(props: {
         }}
       >
         <Buy />
-        {t.common.upgrade()}
+        {t.shop.upgrade.button()}
       </ShopButton>
     </div>
   )
 }
 
-function OwnedEmperors() {
+function Crew() {
   const run = useRunState()
   const shop = useShopState()
   const t = useTranslation()
@@ -733,14 +725,16 @@ function OwnedEmperors() {
   )
   const capacity = createMemo(() => maxEmperors(run))
   const full = createMemo(() => ownedEmperors().length === capacity())
+  const empty = createMemo(() => maxEmperors(run) - ownedEmperors().length)
+  const ghost = createMemo(() => 7 - empty())
 
   function selectEmperor(emperor: EmperorItem) {
     shop.currentItem = emperor
   }
 
   return (
-    <div class={ownedEmperorsClass}>
-      <div class={ownedEmperorsTitleClass({ full: full() })}>
+    <div class={areaClass({ hue: "crack" })}>
+      <div class={areaTitleClass({ hue: "crack" })}>
         {t.common.crew()} <Show when={full()}>{t.common.isFull()}</Show> (
         {ownedEmperors().length} / {capacity()})
       </div>
@@ -754,13 +748,10 @@ function OwnedEmperors() {
             />
           )}
         </For>
-        <For
-          each={Array.from({
-            length: maxEmperors(run) - ownedEmperors().length,
-          })}
-        >
+        <For each={Array.from({ length: empty() })}>
           {() => <div class={emptyEmperorClass} />}
         </For>
+        <For each={Array.from({ length: ghost() })}>{() => <div />}</For>
       </div>
     </div>
   )
@@ -786,7 +777,7 @@ function Deck() {
   const capacity = createMemo(() => DECK_CAPACITY_PER_LEVEL[shopLevel()])
 
   return (
-    <div class={deckClass}>
+    <div class={areaClass({ hue: "dot" })}>
       <DeckTitle pairs={totalPairs()} capacity={capacity()} />
       <div class={deckRowsClass}>
         <For each={sortedDeck()}>
@@ -799,7 +790,7 @@ function Deck() {
   )
 }
 
-function ShopItems() {
+function Items() {
   const run = useRunState()
   const shop = useShopState()
   const shopLevel = createMemo(() => run.shopLevel)
@@ -864,46 +855,51 @@ function ShopItems() {
   const upgradeCost = createMemo(() => shopUpgradeCost(run))
   const upgradeDisabled = createMemo(() => upgradeCost() > run.money)
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
+  const t = useTranslation()
 
   return (
-    <div class={shopItemsClass}>
-      <Show when={shopLevel() < 5}>
-        <UpgradeButton
-          onClick={() => selectUpgrade((shopLevel() + 1) as Level)}
-          cost={upgradeCost()}
-          disabled={upgradeDisabled()}
-        />
-      </Show>
-      <For each={items()}>
-        {(item) => (
-          <Switch>
-            <Match when={item.type === "tile" && item}>
-              {(tileItem) => (
-                <ItemTile item={tileItem()} onClick={selectItem} />
-              )}
-            </Match>
-            <Match when={item.type === "emperor" && item}>
-              {(emperorItem) => (
-                <EmperorItemComponent
-                  item={emperorItem()}
-                  onClick={selectItem}
-                />
-              )}
-            </Match>
-          </Switch>
-        )}
-      </For>
-      <RerollButton onClick={reroll} disabled={rerollDisabled()} />
-      <FreezeButton onClick={freeze} />
+    <div class={shopContainerClass}>
+      <div class={areaTitleClass({ hue: "bam" })}>
+        {t.common.shop()} {t.common.levelN({ level: shopLevel() })}
+      </div>
+      <div class={shopItemsClass}>
+        <Show when={shopLevel() < 5}>
+          <UpgradeButton
+            onClick={() => selectUpgrade((shopLevel() + 1) as Level)}
+            cost={upgradeCost()}
+            disabled={upgradeDisabled()}
+          />
+        </Show>
+        <For each={items()}>
+          {(item) => (
+            <Switch>
+              <Match when={item.type === "tile" && item}>
+                {(tileItem) => (
+                  <ItemTile item={tileItem()} onClick={selectItem} />
+                )}
+              </Match>
+              <Match when={item.type === "emperor" && item}>
+                {(emperorItem) => (
+                  <EmperorItemComponent
+                    item={emperorItem()}
+                    onClick={selectItem}
+                  />
+                )}
+              </Match>
+            </Switch>
+          )}
+        </For>
+        <RerollButton onClick={reroll} disabled={rerollDisabled()} />
+        <FreezeButton onClick={freeze} />
+      </div>
     </div>
   )
 }
 
-function ShopHeader() {
+function Header() {
   const run = useRunState()
   const t = useTranslation()
   const nextRound = createMemo(() => generateRound(run.round + 1, run))
-  const shopLevel = createMemo(() => run.shopLevel)
 
   function continueRun() {
     batch(() => {
@@ -918,14 +914,9 @@ function ShopHeader() {
         <LinkButton hue="glass" href="/">
           <Home />
         </LinkButton>
-        <h1 class={shopHeaderTitleClass}>{t.common.shop()}</h1>
       </div>
 
       <div class={shopHeaderItemsClass}>
-        <div class={shopHeaderItemClass({ hue: "bam" })}>
-          <Star />
-          {t.common.levelN({ level: shopLevel() })}
-        </div>
         <CoinCounter money={run.money} />
       </div>
       <div class={continueClass}>
@@ -1000,7 +991,7 @@ export function DeckTitle(props: { pairs: number; capacity: number }) {
   const t = useTranslation()
 
   return (
-    <div class={deckTitleClass({ full: full() })}>
+    <div class={areaTitleClass({ hue: "dot" })}>
       {t.common.deck()}
       <Show when={full()}> {t.common.isFull()}</Show> ({props.pairs}
       {" / "}

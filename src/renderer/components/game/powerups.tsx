@@ -11,9 +11,8 @@ import {
   type PhoenixRun,
   type RabbitRun,
 } from "@/lib/game"
-import { MiniTile } from "../miniTile"
 import { useGameState } from "@/state/gameState"
-import { useTileSize } from "@/state/constants"
+import { useTranslation } from "@/i18n/useTranslation"
 
 export function Powerups() {
   const game = useGameState()
@@ -38,9 +37,9 @@ export function Powerups() {
 }
 
 function DragonRunComponent(props: { dragonRun: DragonRun }) {
+  const rank = createMemo(() => getRank(props.dragonRun.card))
   const hue = createMemo(() => {
-    const rank = getRank(props.dragonRun.card)
-    switch (rank) {
+    switch (rank()) {
       case "c":
         return "crack"
       case "b":
@@ -51,9 +50,8 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
         return undefined
     }
   })
-  const card = createMemo(() => props.dragonRun.card)
-  const tileSize = useTileSize()
   const combo = createMemo(() => props.dragonRun.combo)
+  const t = useTranslation()
 
   return (
     <div
@@ -63,9 +61,8 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
         side: "left",
       })}
     >
-      <MiniTile card={card()} size={tileSize().width} />
-      <span data-tour="dragon-run" class={comboRecipe({ hue: hue() })}>
-        +{combo()} mult
+      <span class={comboRecipe({ hue: hue() })}>
+        {t.common.dragonRun()} +{combo()} mult
       </span>
     </div>
   )
@@ -73,8 +70,8 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
 
 function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
   const combo = createMemo(() => props.phoenixRun.combo)
-  const card = createMemo(() => props.phoenixRun.card)
   const number = createMemo(() => props.phoenixRun.number ?? 0)
+  const t = useTranslation()
 
   return (
     <div
@@ -85,14 +82,16 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
       })}
     >
       <span class={phoenixComboClass}>{number() + 1}</span>
-      <span class={comboRecipe({ hue: "bronze" })}>+{combo()} mult</span>
-      <MiniTile card={card()} size={48} />
+      <span class={comboRecipe({ hue: "bronze" })}>
+        {t.common.phoenixRun()} +{combo()} mult
+      </span>
     </div>
   )
 }
 
 function RabbitRunComponent(props: { rabbitRun: RabbitRun }) {
   const combo = createMemo(() => props.rabbitRun.combo)
+  const t = useTranslation()
 
   return (
     <div
@@ -102,9 +101,8 @@ function RabbitRunComponent(props: { rabbitRun: RabbitRun }) {
         side: "top",
       })}
     >
-      <MiniTile card={props.rabbitRun.card} size={48} />
       <span class={comboRecipe({ hue: "gold" })}>
-        rabbit run +{combo()} mult
+        {t.common.rabbitRun()} +{combo()} mult
       </span>
     </div>
   )

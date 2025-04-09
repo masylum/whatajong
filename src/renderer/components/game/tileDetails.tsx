@@ -24,22 +24,26 @@ import {
   suitName,
 } from "@/lib/game"
 import { useRunState } from "@/state/runState"
-import { MiniTiles } from "../miniTiles"
 import type { AccentHue } from "@/styles/colors"
+import { useTranslation } from "@/i18n/useTranslation"
+import { Description } from "../description"
 
 export function MaterialFreedom(iProps: {
   material: Material
   hue?: AccentHue
 }) {
   const props = mergeProps({ hue: "bronze" as const }, iProps)
+  const t = useTranslation()
 
   return (
     <div class={detailFreedomClass({ hue: props.hue })}>
       <Switch>
         <Match when={props.material === "glass" || props.material === "wood"}>
-          Free if at least 1 side is open.
+          {t.tileDetails.freedom.relaxed()}
         </Match>
-        <Match when={props.material === "diamond"}>Always free.</Match>
+        <Match when={props.material === "diamond"}>
+          {t.tileDetails.freedom.diamond()}
+        </Match>
         <Match
           when={
             props.material === "bone" ||
@@ -47,10 +51,10 @@ export function MaterialFreedom(iProps: {
             props.material === "bronze"
           }
         >
-          Free if the left or right side is open.
+          {t.tileDetails.freedom.standard()}
         </Match>
         <Match when={props.material === "gold" || props.material === "jade"}>
-          Free if at least 3 sides are open.
+          {t.tileDetails.freedom.gold()}
         </Match>
       </Switch>
     </div>
@@ -58,60 +62,54 @@ export function MaterialFreedom(iProps: {
 }
 
 export function Explanation(props: { card: Card }) {
+  const t = useTranslation()
+
   return (
     <Switch>
       <Match when={isWind(props.card)}>
         <div class={detailInfoClass}>
-          Wind tiles move the pieces in the direction of the wind.
+          <p>{t.tileDetails.explanation.wind()}</p>
         </div>
       </Match>
       <Match when={isRabbit(props.card)}>
         <div class={detailInfoClass}>
-          Clearing Rabbit Tiles starts a <strong>Rabbit Run</strong>.
-          <br />
-          <br />
-          Each pair of Rabbit Tiles (<MiniTiles suit="r" />) you clear in a row
-          increases your multiplier, and when the run ends, you earn one coin
-          for every point scored.
+          <p innerHTML={t.tileDetails.explanation.rabbit1()} />
+          <p>
+            <Description str={t.tileDetails.explanation.rabbit2()} />
+          </p>
         </div>
       </Match>
       <Match when={isFlower(props.card)}>
         <div class={detailInfoClass}>
-          Flower tiles can be cleared with other Flower tiles, regardless of
-          their numbers.
-          <br />
-          <br />
-          Clearing Flowers makes it easier to clear tiles on the next turn.
+          <p>{t.tileDetails.explanation.flower1()}</p>
+          <p>{t.tileDetails.explanation.flower2()}</p>
         </div>
       </Match>
       <Match when={isSeason(props.card)}>
         <div class={detailInfoClass}>
-          Season tiles can be cleared with other Season tiles, regardless of
-          their numbers.
-          <br />
-          <br />
-          Clearing Seasons makes it easier to clear tiles on the next turn.
+          <p>{t.tileDetails.explanation.season1()}</p>
+          <p>{t.tileDetails.explanation.season2()}</p>
         </div>
       </Match>
       <Match when={isDragon(props.card)}>
         {(dragonCard) => (
           <div class={detailInfoClass}>
-            Clearing Dragon Tiles starts a <strong>Dragon Run</strong>.
-            <br />
-            <br />
-            Clear {suitName(getRank(dragonCard()))} (
-            <MiniTiles suit={getRank(dragonCard())} />) tiles to get a
-            multiplier bonus.
+            <p innerHTML={t.tileDetails.explanation.dragon1()} />
+            <p>
+              <Description
+                str={t.tileDetails.explanation.dragon2({
+                  suitName: t.suit[getRank(dragonCard())](),
+                  suit: getRank(dragonCard()),
+                })}
+              />
+            </p>
           </div>
         )}
       </Match>
       <Match when={isPhoenix(props.card)}>
         <div class={detailInfoClass}>
-          Clearing Phoenix Tiles starts a <strong>Phoenix Run</strong>
-          <br />
-          <br />
-          Clear tiles in consecutive number order (1, 2, 3...) to get a
-          multiplier bonus.
+          <p innerHTML={t.tileDetails.explanation.phoenix1()} />
+          <p>{t.tileDetails.explanation.phoenix2()}</p>
         </div>
       </Match>
       <Match when={isMutation(props.card)}>
@@ -119,12 +117,10 @@ export function Explanation(props: { card: Card }) {
           <div class={detailInfoClass}>
             <Switch fallback={<MutationExplanation card={mutationCard()} />}>
               <Match when={getRank(props.card) === "4"}>
-                Increase the number of all the bam/crack/dot cards on your
-                board.
+                <p>{t.tileDetails.explanation.mutation1()}</p>
               </Match>
               <Match when={getRank(props.card) === "5"}>
-                Decrease the number of all the bam/crack/dot cards on your
-                board.
+                <p>{t.tileDetails.explanation.mutation2()}</p>
               </Match>
             </Switch>
           </div>
@@ -132,10 +128,8 @@ export function Explanation(props: { card: Card }) {
       </Match>
       <Match when={isJoker(props.card)}>
         <div class={detailInfoClass}>
-          Clearing Joker Tiles shuffles your board.
-          <br />
-          <br />
-          Score 1 point per shuffled tile.
+          <p>{t.tileDetails.explanation.joker1()}</p>
+          <p>{t.tileDetails.explanation.joker2()}</p>
         </div>
       </Match>
     </Switch>
@@ -143,11 +137,13 @@ export function Explanation(props: { card: Card }) {
 }
 
 export function MaterialCoins(props: { material: Material }) {
+  const t = useTranslation()
+
   return (
     <Show when={getMaterialCoins(props.material)}>
       {(coins) => (
         <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>{props.material} coins:</dt>{" "}
+          <dt class={detailTermClass}>{t.common.coins()}:</dt>
           <dd class={detailDescriptionClass}>{coins()}</dd>
         </dl>
       )}
@@ -157,6 +153,7 @@ export function MaterialCoins(props: { material: Material }) {
 
 export function CardMultiplier(props: { material: Material; card: Card }) {
   const run = useRunState()
+  const t = useTranslation()
 
   return (
     <Show
@@ -170,7 +167,7 @@ export function CardMultiplier(props: { material: Material; card: Card }) {
     >
       {(mult) => (
         <dl class={detailListClass({ type: "crack" })}>
-          <dt class={detailTermClass}>Mult:</dt>
+          <dt class={detailTermClass}>{t.common.multiplier()}:</dt>
           <dd class={detailDescriptionClass}>{mult()}</dd>
         </dl>
       )}
@@ -180,10 +177,11 @@ export function CardMultiplier(props: { material: Material; card: Card }) {
 
 export function CardPoints(props: { card: Card; material: Material }) {
   const run = useRunState()
+  const t = useTranslation()
 
   return (
     <dl class={detailListClass({ type: "bam" })}>
-      <dt class={detailTermClass}>Points:</dt>
+      <dt class={detailTermClass}>{t.common.points()}:</dt>
       <dd class={detailDescriptionClass}>
         {getRawPoints({ card: props.card, material: props.material, run }) * 2}
       </dd>
@@ -195,12 +193,18 @@ function MutationExplanation(props: { card: Mutation }) {
   const ranks = createMemo(() => getMutationRanks(props.card)!)
   const from = createMemo(() => ranks()[0]!)
   const to = createMemo(() => ranks()[1]!)
+  const t = useTranslation()
 
   return (
     <p>
-      Swap all the {suitName(from())} (<MiniTiles suit={from()} />) and{" "}
-      {suitName(to())} (
-      <MiniTiles suit={to()} />) cards on your board.
+      <Description
+        str={t.tileDetails.explanation.mutation3({
+          fromSuitName: suitName(from()),
+          fromSuit: from(),
+          toSuitName: suitName(to()),
+          toSuit: to(),
+        })}
+      />
     </p>
   )
 }

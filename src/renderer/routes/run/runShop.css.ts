@@ -18,7 +18,7 @@ import {
 } from "@/styles/animations.css"
 
 const MAX_WIDTH = 1000
-const MAX_HEIGHT = 600
+const MAX_HEIGHT = 1000
 const FLIP_DURATION = 100
 
 const overlayShow = keyframes({
@@ -30,8 +30,6 @@ export const backgroundClass = style({
   height: "100dvh",
   background: `url(/halftone.png) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
-  display: "flex",
-  justifyContent: "center",
 })
 
 export const shopClass = style({
@@ -59,27 +57,6 @@ export const shopClass = style({
   },
 })
 
-export const deckClass = style({
-  display: "flex",
-  flexDirection: "column",
-  padding: 8,
-  gap: 8,
-  borderRadius: 12,
-  width: "70%",
-  background: `linear-gradient(to bottom, ${alpha(color.dot70, 0.2)}, ${alpha(color.dot70, 0.3)})`,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      padding: 12,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      padding: 16,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      padding: 20,
-    },
-  },
-})
-
 export const deckRowsClass = style({
   display: "flex",
   alignItems: "flex-start",
@@ -103,7 +80,7 @@ export const deckItemClass = style({
   },
 })
 
-export const deckTitleClass = recipe({
+export const areaTitleClass = recipe({
   base: {
     ...fontSize.s,
     fontFamily: primary,
@@ -120,14 +97,9 @@ export const deckTitleClass = recipe({
     },
   },
   variants: {
-    full: {
-      true: {
-        color: color.dot40,
-      },
-      false: {
-        color: color.dot30,
-      },
-    },
+    hue: hueVariants((kolor) => ({
+      color: kolor(30),
+    })),
   },
 })
 
@@ -164,10 +136,10 @@ export const pillClass = recipe({
   },
 })
 
-export const shopItemsClass = style({
+export const shopContainerClass = style({
   width: "100%",
   display: "flex",
-  justifyContent: "center",
+  flexDirection: "column",
   background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
   padding: 8,
   borderRadius: 12,
@@ -184,6 +156,26 @@ export const shopItemsClass = style({
     [mediaQuery({ p: "l", l: "m" })]: {
       gap: 28,
       padding: 20,
+    },
+  },
+})
+
+export const shopItemsClass = style({
+  display: "flex",
+  justifyContent: "center",
+  gap: 4,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      gap: 8,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      gap: 12,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      gap: 16,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      gap: 20,
     },
   },
 })
@@ -305,7 +297,7 @@ export const shopItemContentClass = style({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  minHeight: 60,
+  minHeight: 50,
 })
 
 export const shopItemCostClass = style({
@@ -355,6 +347,7 @@ export const dialogContentClass = recipe({
     zIndex: 50,
     borderRadius: 12,
     padding: 16,
+    margin: 16,
     backgroundColor: color.bone90,
     fontFamily: primary,
     display: "flex",
@@ -386,16 +379,16 @@ export const dialogContentClass = recipe({
   variants: {
     type: {
       tile: {
-        width: 400,
+        maxWidth: 400,
       },
       upgrade: {
-        width: 500,
+        maxWidth: 500,
       },
       emperor: {
-        width: 450,
+        maxWidth: 450,
       },
       tileUpgrade: {
-        width: 700,
+        maxWidth: 700,
       },
     },
   },
@@ -409,6 +402,7 @@ export const buttonsClass = style({
 
 export const materialUpgradesClass = style({
   display: "flex",
+  flexDirection: "column",
   gap: 12,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
@@ -416,24 +410,50 @@ export const materialUpgradesClass = style({
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 20,
+      flexDirection: "row",
     },
   },
 })
+
 export const materialUpgradeClass = recipe({
   base: {
     border: "none",
     background: "none",
-    transition: "all 0.2s ease-in-out",
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     gap: 12,
     padding: 12,
     borderRadius: 8,
+    flex: 1,
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
+        flexDirection: "column",
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
       background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.2)}, ${alpha(kolor(50), 0.3)})`,
+    })),
+  },
+})
+
+export const materialUpgradeBlockClass = style({
+  display: "flex",
+  gap: 24,
+})
+
+export const materialUpgradeTextClass = recipe({
+  base: {
+    ...fontSize.m,
+    lineHeight: 1,
+    fontFamily: secondary,
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      color: kolor(30),
     })),
   },
 })
@@ -447,7 +467,7 @@ export const materialUpgradeTitleClass = recipe({
     gap: 12,
   },
   variants: {
-    material: hueVariants((kolor) => ({
+    hue: hueVariants((kolor) => ({
       color: kolor(20),
     })),
   },
@@ -605,56 +625,30 @@ export const emperorDetailsDescriptionClass = style({
 
 const ownedEmperorsContainer = createContainer()
 
-export const ownedEmperorsClass = style({
-  display: "flex",
-  flexDirection: "column",
-  containerName: ownedEmperorsContainer,
-  containerType: "inline-size",
-  padding: 8,
-  gap: 8,
-  borderRadius: 12,
-  width: "30%",
-  minHeight: 0,
-  background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      padding: 12,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      padding: 16,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      padding: 20,
-    },
-  },
-})
-
-export const ownedEmperorsTitleClass = recipe({
+export const areaClass = recipe({
   base: {
-    ...fontSize.s,
-    fontFamily: primary,
     display: "flex",
-    alignItems: "center",
-    gap: 12,
-    whiteSpace: "nowrap",
+    flexDirection: "column",
+    padding: 8,
+    gap: 8,
+    flex: 1,
+    borderRadius: 12,
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
-        ...fontSize.m,
+        padding: 12,
       },
       [mediaQuery({ p: "m", l: "s" })]: {
-        ...fontSize.l,
+        padding: 16,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        padding: 20,
       },
     },
   },
   variants: {
-    full: {
-      true: {
-        color: color.crack40,
-      },
-      false: {
-        color: color.crack30,
-      },
-    },
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(70), 0.2)}, ${alpha(kolor(70), 0.3)})`,
+    })),
   },
 })
 
@@ -758,46 +752,22 @@ export const shopHeaderItemClass = recipe({
     borderRadius: 8,
     alignItems: "center",
     fontFamily: primary,
+    ...fontSize.s,
     gap: 12,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.m,
+      },
+      [mediaQuery({ p: "m", l: "s" })]: {
+        ...fontSize.l,
+      },
+    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
       background: `linear-gradient(to bottom, ${alpha(kolor(70), 0.2)}, ${alpha(kolor(70), 0.3)})`,
       color: kolor(30),
     })),
-  },
-})
-
-export const propertiesClass = style({
-  display: "flex",
-  overflow: "hidden",
-  minHeight: 0,
-  gap: 12,
-  flex: 1,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 16,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 20,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 24,
-    },
-  },
-})
-
-export const shopHeaderTitleClass = style({
-  ...fontSize.h3,
-  fontFamily: primary,
-  color: color.bone10,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.h2,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h1,
-    },
   },
 })
 

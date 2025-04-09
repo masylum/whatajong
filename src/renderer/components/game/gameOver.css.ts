@@ -22,11 +22,11 @@ const bounce = keyframes({
     opacity: 0,
   },
   "50%": {
-    opacity: 1,
+    opacity: 0.7,
   },
   "100%": {
     transform: `translate(${endX}, 110dvh) rotate(${rotation})`,
-    opacity: 1,
+    opacity: 0.7,
   },
 })
 
@@ -36,7 +36,6 @@ export const bouncingCardClass = style({
   animationFillMode: "backwards",
   top: 0,
   left: 0,
-  willChange: "transform",
 })
 
 export const gameOverClass = style({
