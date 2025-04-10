@@ -1,5 +1,5 @@
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { recipe } from "@vanilla-extract/recipes"
-import { color, alpha, hueVariants } from "@/styles/colors"
 
 export const miniTileClass = recipe({
   base: {

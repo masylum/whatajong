@@ -1,7 +1,7 @@
-import { createMemo, For, Show } from "solid-js"
-import { MiniTiles } from "@/components/miniTiles"
 import { MiniTile } from "@/components/miniTile"
+import { MiniTiles } from "@/components/miniTiles"
 import type { Card, Suit } from "@/lib/game"
+import { For, Show, createMemo } from "solid-js"
 
 export function Description(props: { str: string }) {
   const parts = createMemo(() => props.str.split(/(::.{1,2}::)/))

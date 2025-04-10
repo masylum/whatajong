@@ -1,6 +1,6 @@
+import type { Material } from "@/lib/game"
 import { describe, expect, it } from "vitest"
 import { getNextMaterials, getTransformation } from "./shopState"
-import type { Material } from "@/lib/game"
 
 describe("getNextMaterials", () => {
   function createDeckTiles(materials: Material[]) {

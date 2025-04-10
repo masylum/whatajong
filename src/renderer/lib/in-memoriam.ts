@@ -1,13 +1,13 @@
 import { ReactiveMap as RMap } from "@solid-primitives/map"
 import { ReactiveSet as RSet } from "@solid-primitives/set"
+import { batch } from "solid-js"
 import {
+  type SetStoreFunction,
   createStore,
   produce,
   reconcile,
-  type SetStoreFunction,
 } from "solid-js/store"
-import { batch } from "solid-js"
-import { intersection, difference } from "./setMethods"
+import { difference, intersection } from "./setMethods"
 
 type Id = string
 type Indexes<Type, Attr extends keyof Type> = Map<

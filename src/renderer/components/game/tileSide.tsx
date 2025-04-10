@@ -1,6 +1,6 @@
-import { MATERIALS } from "./defs"
+import { type Material, isTransparent } from "@/lib/game"
 import { createMemo, mergeProps } from "solid-js"
-import { isTransparent, type Material } from "@/lib/game"
+import { MATERIALS } from "./defs"
 
 type Props = {
   material?: Material

@@ -1,11 +1,11 @@
-import { style } from "@vanilla-extract/css"
-import { alpha, color } from "@/styles/colors"
-import { keyframes } from "@vanilla-extract/css"
-import { fontSize } from "@/styles/fontSize"
-import { recipe } from "@vanilla-extract/recipes"
-import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
-import { primary } from "@/styles/fontFamily.css"
 import { EMPEROR_RATIO } from "@/components/emperor"
+import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
+import { alpha, color } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
+import { keyframes } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const FLIP_DURATION = 1000
 const DELETED_DURATION = 300

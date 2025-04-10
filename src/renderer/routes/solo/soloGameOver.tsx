@@ -1,11 +1,11 @@
-import { calculateSeconds, useGameState } from "@/state/gameState"
-import { createMemo } from "solid-js"
 import { LinkButton } from "@/components/button"
-import { ArrowLeft, Rotate } from "@/components/icon"
 import { GameOver } from "@/components/game/gameOver"
-import { nanoid } from "nanoid"
-import { TIMER_POINTS } from "./soloGame"
+import { ArrowLeft, Rotate } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
+import { calculateSeconds, useGameState } from "@/state/gameState"
+import { nanoid } from "nanoid"
+import { createMemo } from "solid-js"
+import { TIMER_POINTS } from "./soloGame"
 
 export function GameOverSolo() {
   const game = useGameState()

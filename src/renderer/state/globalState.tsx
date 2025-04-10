@@ -1,8 +1,8 @@
 import {
+  type ParentProps,
   createContext,
   createEffect,
   useContext,
-  type ParentProps,
 } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 

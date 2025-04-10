@@ -1,8 +1,8 @@
-import { createSelector, createSignal, For } from "solid-js"
-import { TileComponent } from "./tileComponent"
-import { createVoicesEffect } from "./createVoicesEffect"
-import { useTileState } from "@/state/tileState"
 import { useLayoutSize } from "@/state/constants"
+import { useTileState } from "@/state/tileState"
+import { For, createSelector, createSignal } from "solid-js"
+import { createVoicesEffect } from "./createVoicesEffect"
+import { TileComponent } from "./tileComponent"
 
 type BoardProps = {
   onSelectTile: (tileId: string) => void

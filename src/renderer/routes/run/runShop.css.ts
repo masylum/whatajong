@@ -1,21 +1,21 @@
 import {
-  createContainer,
-  createVar,
-  keyframes,
-  style,
-} from "@vanilla-extract/css"
-import { primary, secondary } from "@/styles/fontFamily.css"
-import { fontSize } from "@/styles/fontSize"
-import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
-import { recipe } from "@vanilla-extract/recipes"
-import { heightQueries, mediaQuery } from "@/styles/breakpoints"
-import {
   ANIMATION_FAST,
   ANIMATION_MEDIUM,
   easeBounce,
   fromBelowAnimation,
   fromLeftAnimation,
 } from "@/styles/animations.css"
+import { heightQueries, mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
+import { primary, secondary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import {
+  createContainer,
+  createVar,
+  keyframes,
+  style,
+} from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 const MAX_WIDTH = 1000
 const MAX_HEIGHT = 1000

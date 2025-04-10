@@ -1,6 +1,6 @@
+import type { Card } from "@/lib/game"
 import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
 import { mergeProps } from "solid-js"
-import type { Card } from "@/lib/game"
 
 type Props = {
   width?: number

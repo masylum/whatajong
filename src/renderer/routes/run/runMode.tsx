@@ -1,3 +1,9 @@
+import { LinkButton } from "@/components/button"
+import { ArrowLeft } from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
+import { captureEvent } from "@/lib/observability"
+import { type Difficulty, useRunState } from "@/state/runState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { batch, createMemo } from "solid-js"
 import {
   backButtonClass,
@@ -12,12 +18,6 @@ import {
   titleClass,
   titleContainerClass,
 } from "./runMode.css"
-import { useRunState, type Difficulty } from "@/state/runState"
-import { ArrowLeft } from "@/components/icon"
-import { LinkButton } from "@/components/button"
-import { captureEvent } from "@/lib/observability"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunIntro() {
   const run = useRunState()

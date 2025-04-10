@@ -1,9 +1,9 @@
-import { mapGetHeight, mapGetWidth, type Card } from "@/lib/game"
+import { type Card, mapGetHeight, mapGetWidth } from "@/lib/game"
 import { breakpoints } from "@/styles/breakpoints"
 import { createBreakpoints } from "@solid-primitives/media"
-import { createMemo } from "solid-js"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { createSingletonRoot } from "@solid-primitives/rootless"
+import { createMemo } from "solid-js"
 
 const BOARD_RATIO = (45 * mapGetWidth()) / (65 * mapGetHeight())
 export const TILE_RATIO = 13 / 9

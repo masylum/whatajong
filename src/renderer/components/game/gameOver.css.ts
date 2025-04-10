@@ -1,15 +1,15 @@
-import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
-import { style, createVar } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
-import { recipe } from "@vanilla-extract/recipes"
-import { fontSize } from "@/styles/fontSize"
-import { keyframes } from "@vanilla-extract/css"
-import { mediaQuery } from "@/styles/breakpoints"
 import {
   ANIMATION_MEDIUM,
   ANIMATION_SLOW,
   fromBelowAnimation,
 } from "@/styles/animations.css"
+import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { createVar, style } from "@vanilla-extract/css"
+import { keyframes } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const startX = createVar()
 export const endX = createVar()

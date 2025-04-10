@@ -1,72 +1,72 @@
-import {
-  createSignal,
-  Show,
-  type ParentProps,
-  Switch,
-  Match,
-  createMemo,
-  type JSXElement,
-  type Accessor,
-  onMount,
-} from "solid-js"
-import {
-  backButtonClass,
-  buttonsClass,
-  containerClass,
-  columnClass,
-  columnsClass,
-  rowClass,
-  rowsClass,
-  dragonRunClass,
-  cardRowsClass,
-  cardRowClass,
-  cardTitleClass,
-  titleClass,
-  whatajongClass,
-  emperorClass,
-  emperorImageClass,
-  emperorDescriptionTextClass,
-  emperorTextClass,
-  emperorContainerClass,
-  boardClass,
-  shopItemContainerClass,
-  materialNameClass,
-  materialListItemClass,
-  materialListClass,
-} from "./gameTutorial.css"
-import {
-  suitName,
-  type Suit,
-  type Card,
-  type Wind,
-  getWindDirection,
-  type Material,
-  cardName,
-} from "@/lib/game"
+import { Button, LinkButton, ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight, Home, Play, Skull } from "@/components/icon"
-import { Button, LinkButton, ShopButton } from "@/components/button"
-import { useGlobalState } from "@/state/globalState"
+import { useTranslation } from "@/i18n/useTranslation"
+import {
+  type Card,
+  type Material,
+  type Suit,
+  type Wind,
+  cardName,
+  getWindDirection,
+  suitName,
+} from "@/lib/game"
+import {
+  CoinCounter,
+  DeckTitle,
+  EmperorItemComponent,
+  FreezeButton,
+  ItemTile,
+  RerollButton,
+  UpgradeButton,
+} from "@/routes/run/runShop"
 import { getSideSize, useLayoutSize } from "@/state/constants"
+import {
+  EmperorDescription,
+  type EmperorName,
+  EmperorTitle,
+} from "@/state/emperors"
+import { useGlobalState } from "@/state/globalState"
+import type { AccentHue } from "@/styles/colors"
+import {
+  type Accessor,
+  type JSXElement,
+  Match,
+  type ParentProps,
+  Show,
+  Switch,
+  createMemo,
+  createSignal,
+  onMount,
+} from "solid-js"
+import { BasicEmperor } from "./emperor"
 import { comboRecipe } from "./game/powerups.css"
 import { MovesIndicator, Penalty, Points } from "./game/stats"
 import {
-  EmperorDescription,
-  EmperorTitle,
-  type EmperorName,
-} from "@/state/emperors"
-import type { AccentHue } from "@/styles/colors"
-import {
-  ItemTile,
-  EmperorItemComponent,
-  RerollButton,
-  FreezeButton,
-  UpgradeButton,
-  CoinCounter,
-  DeckTitle,
-} from "@/routes/run/runShop"
-import { BasicEmperor } from "./emperor"
-import { useTranslation } from "@/i18n/useTranslation"
+  backButtonClass,
+  boardClass,
+  buttonsClass,
+  cardRowClass,
+  cardRowsClass,
+  cardTitleClass,
+  columnClass,
+  columnsClass,
+  containerClass,
+  dragonRunClass,
+  emperorClass,
+  emperorContainerClass,
+  emperorDescriptionTextClass,
+  emperorImageClass,
+  emperorTextClass,
+  materialListClass,
+  materialListItemClass,
+  materialNameClass,
+  rowClass,
+  rowsClass,
+  shopItemContainerClass,
+  titleClass,
+  whatajongClass,
+} from "./gameTutorial.css"
 
 const STEPS = [
   "tiles",

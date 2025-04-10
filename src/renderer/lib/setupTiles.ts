@@ -1,7 +1,7 @@
-import { type DeckTile, type Tile, getMap, initTileDb, mapGet } from "./game"
-import { shuffle } from "./rand"
-import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
+import { type DeckTile, type Tile, getMap, initTileDb, mapGet } from "./game"
+import { getFreeTiles } from "./game"
+import { shuffle } from "./rand"
 
 // From paper: https://iivq.net/scriptie/scriptie-bsc.pdf
 export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {

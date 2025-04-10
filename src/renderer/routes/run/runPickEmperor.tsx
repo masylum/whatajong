@@ -1,4 +1,22 @@
-import { createMemo, For } from "solid-js"
+import { LinkButton } from "@/components/button"
+import { BasicEmperor } from "@/components/emperor"
+import { ArrowLeft } from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
+import { suitName } from "@/lib/game"
+import { captureEvent } from "@/lib/observability"
+import { pickFromArray } from "@/lib/rand"
+import {
+  EMPERORS,
+  type Emperor,
+  EmperorDescription,
+  EmperorTitle,
+} from "@/state/emperors"
+import { useRunState } from "@/state/runState"
+import { generateEmperorItem } from "@/state/shopState"
+import type { AccentHue } from "@/styles/colors"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import Rand from "rand-seed"
+import { For, createMemo } from "solid-js"
 import {
   backButtonClass,
   buttonAnimationDelayVar,
@@ -11,24 +29,6 @@ import {
   titleClass,
   titleContainerClass,
 } from "./runPickEmperor.css"
-import { useRunState } from "@/state/runState"
-import { pickFromArray } from "@/lib/rand"
-import { generateEmperorItem } from "@/state/shopState"
-import Rand from "rand-seed"
-import {
-  EmperorDescription,
-  EMPERORS,
-  EmperorTitle,
-  type Emperor,
-} from "@/state/emperors"
-import type { AccentHue } from "@/styles/colors"
-import { suitName } from "@/lib/game"
-import { ArrowLeft } from "@/components/icon"
-import { LinkButton } from "@/components/button"
-import { captureEvent } from "@/lib/observability"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { BasicEmperor } from "@/components/emperor"
-import { useTranslation } from "@/i18n/useTranslation"
 
 export function RunPickEmperor() {
   const t = useTranslation()

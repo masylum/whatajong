@@ -1,8 +1,8 @@
 import { fileURLToPath, resolve } from "node:url"
-import { defineConfig } from "vite"
-import solid from "vite-plugin-solid"
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
 import legacy from "@vitejs/plugin-legacy"
+import { defineConfig } from "vite"
+import solid from "vite-plugin-solid"
 
 const legacyPluginOptions = {
   modernTargets: "since 2020-01-01, not dead",

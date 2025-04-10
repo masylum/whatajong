@@ -1,13 +1,13 @@
 import {
+  type Card,
   type Game,
   type Tile,
   getRank,
+  isDragon,
+  isJoker,
+  isMutation,
   isPhoenix,
   isRabbit,
-  isDragon,
-  isMutation,
-  type Card,
-  isJoker,
   isSuit,
 } from "./game"
 import { captureEvent } from "./observability"

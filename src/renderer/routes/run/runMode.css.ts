@@ -1,14 +1,14 @@
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
-import {
-  ANIMATION_MEDIUM,
-  easeBounce,
-  fromBelowAnimation,
-} from "@/styles/animations.css"
 
 const FLIP_DURATION = 300
 const CHOICE_MODE_WIDTH = 280

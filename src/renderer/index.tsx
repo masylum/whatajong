@@ -1,10 +1,10 @@
 /* @refresh reload */
 import { Route, Router } from "@solidjs/router"
 import { render } from "solid-js/web"
-import { Home } from "./routes/home"
-import { Solo } from "./routes/solo/soloGame"
 import { Layout } from "./components/layout"
+import { Home } from "./routes/home"
 import { Run } from "./routes/run"
+import { Solo } from "./routes/solo/soloGame"
 
 import "@fontsource-variable/nunito"
 import "./styles/reset.css"

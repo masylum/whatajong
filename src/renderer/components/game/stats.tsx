@@ -1,11 +1,11 @@
-import { createEffect, createMemo, createSignal } from "solid-js"
-import { useGameState } from "@/state/gameState"
-import { makeTimer } from "@solid-primitives/timer"
-import { movesClass, pointsClass, pillClass, penaltyClass } from "./stats.css"
-import { getAvailablePairs } from "@/lib/game"
-import { useTileState } from "@/state/tileState"
-import { play } from "../audio"
 import { useTranslation } from "@/i18n/useTranslation"
+import { getAvailablePairs } from "@/lib/game"
+import { useGameState } from "@/state/gameState"
+import { useTileState } from "@/state/tileState"
+import { makeTimer } from "@solid-primitives/timer"
+import { createEffect, createMemo, createSignal } from "solid-js"
+import { play } from "../audio"
+import { movesClass, penaltyClass, pillClass, pointsClass } from "./stats.css"
 
 export function PointsAndPenalty(props: { timerPoints: number }) {
   const game = useGameState()

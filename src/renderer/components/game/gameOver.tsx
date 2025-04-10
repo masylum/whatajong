@@ -1,27 +1,27 @@
-import { getStandardPairs, type Card } from "@/lib/game"
+import { useTranslation } from "@/i18n/useTranslation"
+import { type Card, getStandardPairs } from "@/lib/game"
+import { shuffle } from "@/lib/rand"
+import { useTileSize } from "@/state/constants"
+import type { AccentHue } from "@/styles/colors"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import Rand from "rand-seed"
+import { For, type ParentProps, Show, createMemo } from "solid-js"
+import { BasicTile } from "./basicTile"
 import {
   bouncingCardClass,
-  titleClass,
-  startX,
-  endX,
-  rotation,
-  duration,
-  gameOverClass,
-  screenClass,
+  buttonsClass,
+  detailDescriptionClass,
   detailListClass,
   detailTermClass,
-  detailDescriptionClass,
+  duration,
+  endX,
+  gameOverClass,
+  rotation,
   scoreClass,
-  buttonsClass,
+  screenClass,
+  startX,
+  titleClass,
 } from "./gameOver.css"
-import { shuffle } from "@/lib/rand"
-import { For, Show, createMemo, type ParentProps } from "solid-js"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { BasicTile } from "./basicTile"
-import Rand from "rand-seed"
-import type { AccentHue } from "@/styles/colors"
-import { useTranslation } from "@/i18n/useTranslation"
-import { useTileSize } from "@/state/constants"
 
 // biome-ignore format:
 const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const

@@ -1,13 +1,13 @@
-import { style } from "@vanilla-extract/css"
-import { alpha, color } from "@/styles/colors"
-import { keyframes } from "@vanilla-extract/css"
 import {
   ANIMATION_MEDIUM,
   easeBounce,
   fromBelowAnimation,
 } from "@/styles/animations.css"
-import { fontSize } from "@/styles/fontSize"
+import { alpha, color } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
+import { keyframes } from "@vanilla-extract/css"
 
 const overlayShow = keyframes({
   from: { opacity: 0 },

@@ -1,13 +1,13 @@
 import {
-  getRunPairs,
+  type Deck,
   type DeckTile,
   type DeckTileIndexes,
   deckTileIndexes,
-  type Deck,
+  getRunPairs,
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
 import { nanoid } from "nanoid"
-import { useContext, type ParentProps } from "solid-js"
+import { type ParentProps, useContext } from "solid-js"
 import { createContext } from "solid-js"
 import { persistentDatabase } from "./persistentDatabase"
 

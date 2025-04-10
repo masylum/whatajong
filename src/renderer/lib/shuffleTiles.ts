@@ -1,8 +1,8 @@
-import { type Tile, type TileDb, cardsMatch, initTileDb } from "./game"
-import { shuffle } from "./rand"
-import { getFreeTiles } from "./game"
 import type Rand from "rand-seed"
 import { batch } from "solid-js"
+import { type Tile, type TileDb, cardsMatch, initTileDb } from "./game"
+import { getFreeTiles } from "./game"
+import { shuffle } from "./rand"
 
 type ResolveJokerArgs = {
   rng: Rand

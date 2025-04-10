@@ -1,7 +1,7 @@
-import { style } from "@vanilla-extract/css"
 import { alpha, color } from "@/styles/colors"
-import { fontSize } from "@/styles/fontSize"
 import { primary, secondary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
 
 export const emperorContainerClass = style({
   display: "flex",

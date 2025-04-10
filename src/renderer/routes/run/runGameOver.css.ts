@@ -1,8 +1,8 @@
-import { style } from "@vanilla-extract/css"
-import { color } from "@/styles/colors"
-import { fontSize } from "@/styles/fontSize"
-import { primary } from "@/styles/fontFamily.css"
 import { mediaQuery } from "@/styles/breakpoints"
+import { color } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
 
 export const gameOverClass = style({
   display: "flex",

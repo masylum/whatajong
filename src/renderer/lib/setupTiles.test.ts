@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest"
-import { setupTiles } from "./setupTiles"
-import Rand from "rand-seed"
 import { getStandardDeck } from "@/lib/game"
+import Rand from "rand-seed"
+import { describe, expect, it } from "vitest"
+import { setupTiles } from "./setupTiles"
 
 describe("setup", () => {
   describe("initializeGame", () => {

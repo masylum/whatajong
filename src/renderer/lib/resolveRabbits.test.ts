@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
+import type { Game } from "./game"
 import { resolveRabbits } from "./resolveRabbits"
 import { createTile } from "./test/utils"
-import type { Game } from "./game"
 
 describe("resolveRabbits", () => {
   it("initializes rabbit run when rabbit card is played with no active run", () => {

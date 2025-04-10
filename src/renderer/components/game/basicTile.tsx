@@ -1,12 +1,12 @@
-import { getHueColor, type AccentHue } from "@/styles/colors"
-import { TileBody } from "./tileBody"
-import { TileSide } from "./tileSide"
 import type { Card, Material } from "@/lib/game"
-import { createMemo, Show, splitProps, type JSX } from "solid-js"
-import { TileImage } from "./tileImage"
-import { strokePath } from "./tileComponent"
+import { TILE_RATIO, useTileSize } from "@/state/constants"
+import { type AccentHue, getHueColor } from "@/styles/colors"
+import { type JSX, Show, createMemo, splitProps } from "solid-js"
 import { tileClass } from "./basicTile.css"
-import { useTileSize, TILE_RATIO } from "@/state/constants"
+import { TileBody } from "./tileBody"
+import { strokePath } from "./tileComponent"
+import { TileImage } from "./tileImage"
+import { TileSide } from "./tileSide"
 
 type Props = {
   card?: Card

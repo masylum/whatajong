@@ -1,12 +1,12 @@
 import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
 import type { JSXElement } from "solid-js"
-import { X } from "./icon"
 import {
   closeButtonClass,
   contentClass,
   overlayClass,
   positionerClass,
 } from "./dialog.css"
+import { X } from "./icon"
 
 type Props = {
   trigger: JSXElement

@@ -1,11 +1,4 @@
-import { createMemo, Match, mergeProps, Show, Switch } from "solid-js"
-import {
-  detailTermClass,
-  detailDescriptionClass,
-  detailListClass,
-  detailFreedomClass,
-  detailInfoClass,
-} from "./tileDetails.css"
+import { useTranslation } from "@/i18n/useTranslation"
 import type { Card, Material, Mutation } from "@/lib/game"
 import {
   getMaterialCoins,
@@ -25,8 +18,15 @@ import {
 } from "@/lib/game"
 import { useRunState } from "@/state/runState"
 import type { AccentHue } from "@/styles/colors"
-import { useTranslation } from "@/i18n/useTranslation"
+import { Match, Show, Switch, createMemo, mergeProps } from "solid-js"
 import { Description } from "../description"
+import {
+  detailDescriptionClass,
+  detailFreedomClass,
+  detailInfoClass,
+  detailListClass,
+  detailTermClass,
+} from "./tileDetails.css"
 
 export function MaterialFreedom(iProps: {
   material: Material

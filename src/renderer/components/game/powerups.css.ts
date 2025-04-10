@@ -1,9 +1,9 @@
-import { createVar, fallbackVar, style } from "@vanilla-extract/css"
-import { alpha, color, hueVariants } from "@/styles/colors"
-import { recipe } from "@vanilla-extract/recipes"
-import { fontSize } from "@/styles/fontSize"
-import { primary } from "@/styles/fontFamily.css"
 import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueVariants } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { createVar, fallbackVar, style } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 const opacity = createVar()
 const backgroundColor = createVar()

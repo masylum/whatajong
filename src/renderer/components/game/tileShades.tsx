@@ -1,9 +1,9 @@
-import { createMemo, mergeProps, Show } from "solid-js"
-import { useTileState } from "@/state/tileState"
-import { getFinder, type Tile } from "@/lib/game"
+import { type Tile, getFinder } from "@/lib/game"
 import { getSideSize, useTileSize } from "@/state/constants"
-import { shadeClass } from "./tileShades.css"
+import { useTileState } from "@/state/tileState"
+import { Show, createMemo, mergeProps } from "solid-js"
 import { SOFT_SHADE_FILTER_ID } from "./defs"
+import { shadeClass } from "./tileShades.css"
 
 type Props = {
   tile: Tile

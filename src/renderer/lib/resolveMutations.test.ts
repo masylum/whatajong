@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
+import { type TileDb, initTileDb } from "./game"
 import { resolveMutations } from "./resolveMutations"
 import { createTile } from "./test/utils"
-import { initTileDb, type TileDb } from "./game"
 
 describe("resolveMutations", () => {
   let tileDb: TileDb

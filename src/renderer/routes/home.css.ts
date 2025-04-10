@@ -5,7 +5,7 @@ import {
   fromBelowAnimation,
 } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
-import { color, hueVariants, alpha } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, style } from "@vanilla-extract/css"

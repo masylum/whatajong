@@ -1,31 +1,31 @@
+import { type Tile, type WindDirection, getRank, isWind } from "@/lib/game"
+import { difference } from "@/lib/setMethods"
+import { useTileState } from "@/state/tileState"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
 import {
   For,
+  Show,
   createEffect,
   createMemo,
   createSignal,
   onCleanup,
-  Show,
 } from "solid-js"
 import {
   animationDelay,
+  animationRepeat,
   blur,
   drift,
   duration,
   dustParticle,
   lightRaysContainer,
   opacity,
+  scale,
   size,
   startX,
   startY,
-  scale,
-  zIndex,
-  animationRepeat,
   windGustClass,
+  zIndex,
 } from "./dustParticles.css"
-import { getRank, isWind, type WindDirection, type Tile } from "@/lib/game"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { difference } from "@/lib/setMethods"
-import { useTileState } from "@/state/tileState"
 
 export function DustParticles() {
   const tiles = useTileState()

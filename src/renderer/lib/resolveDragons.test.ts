@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest"
-import { resolveDragons, cardMatchesDragon } from "./resolveDragons"
-import { createTile } from "./test/utils"
+import { describe, expect, it } from "vitest"
 import type { Game } from "./game"
+import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
+import { createTile } from "./test/utils"
 
 describe("resolveDragons", () => {
   describe("cardMatchesDragon", () => {

@@ -1,7 +1,7 @@
 import { materials } from "@/lib/game"
+import { getHueColor } from "@/styles/colors"
 import { entries, fromEntries, map } from "remeda"
 import { For } from "solid-js"
-import { getHueColor } from "@/styles/colors"
 
 export const SOFT_SHADE_FILTER_ID = "soft-shade"
 

@@ -1,13 +1,13 @@
-import { keyframes, style, createVar } from "@vanilla-extract/css"
-import { primary } from "@/styles/fontFamily.css"
-import { recipe } from "@vanilla-extract/recipes"
-import { color } from "@/styles/colors"
-import { fontSize } from "@/styles/fontSize"
 import {
   ANIMATION_MEDIUM,
   easeBounce,
   tileFallingAnimation,
 } from "@/styles/animations.css"
+import { color } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3

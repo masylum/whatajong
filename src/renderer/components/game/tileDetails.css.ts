@@ -1,9 +1,9 @@
-import { style } from "@vanilla-extract/css"
-import { alpha, color, hueVariants } from "@/styles/colors"
-import { fontSize } from "@/styles/fontSize"
-import { primary, secondary } from "@/styles/fontFamily.css"
-import { recipe } from "@vanilla-extract/recipes"
 import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueVariants } from "@/styles/colors"
+import { primary, secondary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const detailListClass = recipe({
   base: {

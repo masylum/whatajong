@@ -1,8 +1,8 @@
+import { useGlobalState } from "@/state/globalState"
 import * as i18n from "@solid-primitives/i18n"
+import { createMemo } from "solid-js"
 import { en } from "./en"
 import { es } from "./es"
-import { createMemo } from "solid-js"
-import { useGlobalState } from "@/state/globalState"
 
 const DICTIONARIES = { en, es } as const
 type Locale = keyof typeof DICTIONARIES

@@ -1,9 +1,9 @@
-import { alpha, hueVariants, mapHues } from "@/styles/colors"
-import { recipe } from "@vanilla-extract/recipes"
-import { primary } from "@/styles/fontFamily.css"
 import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, hueVariants, mapHues } from "@/styles/colors"
+import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { globalStyle } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const buttonClass = recipe({
   base: {

@@ -1,21 +1,21 @@
-import { generateRound, type Round } from "@/state/runState"
-import { batch, createMemo, createSelector, For, Show } from "solid-js"
 import { Button } from "@/components/button"
+import { Goal, Hourglass } from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
+import { type Round, generateRound } from "@/state/runState"
 import { useRunState } from "@/state/runState"
+import { For, Show, batch, createMemo, createSelector } from "solid-js"
 import {
-  gamesClass,
   containerClass,
+  detailDescriptionClass,
+  detailListClass,
+  detailTermClass,
   gameClass,
+  gameTitleClass,
+  gamesClass,
   subtitleClass,
   titleClass,
   titleContainerClass,
-  gameTitleClass,
-  detailTermClass,
-  detailListClass,
-  detailDescriptionClass,
 } from "./runSelect.css"
-import { Goal, Hourglass } from "@/components/icon"
-import { useTranslation } from "@/i18n/useTranslation"
 
 export default function RunSelect() {
   const t = useTranslation()

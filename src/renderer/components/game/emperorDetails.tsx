@@ -1,16 +1,16 @@
-import { createMemo } from "solid-js"
 import {
-  emperorContainerClass,
-  detailInfoClass,
-  detailsDialogClass,
-  emperorIconClass,
-} from "./emperorDetails.css"
-import {
+  type Emperor,
   EmperorDescription,
   EmperorTitle,
-  type Emperor,
 } from "@/state/emperors"
+import { createMemo } from "solid-js"
 import { BasicEmperor } from "../emperor"
+import {
+  detailInfoClass,
+  detailsDialogClass,
+  emperorContainerClass,
+  emperorIconClass,
+} from "./emperorDetails.css"
 
 export function EmperorDetailsDialog(props: {
   emperor: Emperor

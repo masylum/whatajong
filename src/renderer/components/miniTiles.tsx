@@ -1,4 +1,5 @@
 import {
+  type Suit,
   bams,
   cracks,
   dots,
@@ -8,9 +9,8 @@ import {
   rabbits,
   seasons,
   winds,
-  type Suit,
 } from "@/lib/game"
-import { createMemo, For, Show } from "solid-js"
+import { For, Show, createMemo } from "solid-js"
 import { MiniTile } from "./miniTile"
 
 export function MiniTiles(props: { suit: Suit }) {

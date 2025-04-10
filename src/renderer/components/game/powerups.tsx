@@ -1,18 +1,18 @@
-import { createMemo, Show } from "solid-js"
+import { useTranslation } from "@/i18n/useTranslation"
+import {
+  type DragonRun,
+  type PhoenixRun,
+  type RabbitRun,
+  getRank,
+} from "@/lib/game"
+import { useGameState } from "@/state/gameState"
+import { Show, createMemo } from "solid-js"
 import {
   comboRecipe,
   phoenixComboClass,
   playerPowerupsClass,
   powerupRecipe,
 } from "./powerups.css"
-import {
-  getRank,
-  type DragonRun,
-  type PhoenixRun,
-  type RabbitRun,
-} from "@/lib/game"
-import { useGameState } from "@/state/gameState"
-import { useTranslation } from "@/i18n/useTranslation"
 
 export function Powerups() {
   const game = useGameState()

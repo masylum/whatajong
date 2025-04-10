@@ -1,7 +1,7 @@
-import { splitProps, type JSX } from "solid-js"
-import { buttonClass, shopButtonClass } from "./button.css"
 import type { AccentHue } from "@/styles/colors"
+import { type JSX, splitProps } from "solid-js"
 import { play } from "./audio"
+import { buttonClass, shopButtonClass } from "./button.css"
 
 type Kind = "light" | "dark"
 type Props = {

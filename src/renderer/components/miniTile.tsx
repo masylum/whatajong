@@ -1,6 +1,6 @@
-import { miniTileClass } from "./miniTile.css"
-import type { Card, Suit, Material } from "@/lib/game"
+import type { Card, Material, Suit } from "@/lib/game"
 import { Show, mergeProps } from "solid-js"
+import { miniTileClass } from "./miniTile.css"
 
 export function MiniTile(props: {
   card?: Card | Suit

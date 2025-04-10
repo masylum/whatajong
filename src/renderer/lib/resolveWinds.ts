@@ -1,13 +1,13 @@
+import { mapGetHeight, mapGetWidth } from "@/lib/game"
 import {
-  getRank,
-  fullyOverlaps,
-  overlaps,
   type Tile,
   type TileDb,
-  isWind,
+  fullyOverlaps,
+  getRank,
   isTransport,
+  isWind,
+  overlaps,
 } from "./game"
-import { mapGetHeight, mapGetWidth } from "@/lib/game"
 
 function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
   const value = tile[axis]

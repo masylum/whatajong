@@ -1,8 +1,8 @@
+import { type Material, isTransparent } from "@/lib/game"
+import { useTileSize } from "@/state/constants"
+import { getHueColor } from "@/styles/colors"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
-import { isTransparent, type Material } from "@/lib/game"
-import { getHueColor } from "@/styles/colors"
-import { useTileSize } from "@/state/constants"
 
 type Props = {
   material?: Material

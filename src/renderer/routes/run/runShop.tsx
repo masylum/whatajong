@@ -1,111 +1,16 @@
 import {
+  DECK_CAPACITY_PER_LEVEL,
   generateRound,
   useRunState,
-  DECK_CAPACITY_PER_LEVEL,
 } from "@/state/runState"
 import { Dialog } from "@kobalte/core/dialog"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 
-import {
-  batch,
-  createEffect,
-  createMemo,
-  For,
-  Match,
-  on,
-  Show,
-  Switch,
-  type ParentProps,
-} from "solid-js"
-import {
-  continueClass,
-  deckItemClass,
-  deckRowsClass,
-  shopItemsClass,
-  shopClass,
-  detailTitleClass,
-  detailTermClass,
-  detailDescriptionClass,
-  detailListClass,
-  areaTitleClass,
-  pillClass,
-  buttonsClass,
-  dialogContentClass,
-  materialUpgradeClass,
-  materialUpgradeTitleClass,
-  modalDetailsClass,
-  emperorDetailsTitleClass,
-  emperorDetailsDescriptionClass,
-  ownedEmperorsListClass,
-  MINI_TILE_SIZE,
-  emptyEmperorClass,
-  dialogOverlayClass,
-  dialogPositionerClass,
-  modalDetailsContentClass,
-  upgradeTitleClass,
-  upgradeDescriptionClass,
-  fullExplanationClass,
-  materialUpgradesClass,
-  shopHeaderItemsClass,
-  shopHeaderItemClass,
-  backgroundClass,
-  closeButtonClass,
-  shopItemClass,
-  shopItemContentClass,
-  shopItemCostClass,
-  rotation,
-  emperorClass,
-  modalEmperorClass,
-  upgradeCardPreviewClass,
-  shopHeaderClass,
-  shopContainerClass,
-  areaClass,
-  materialUpgradeBlockClass,
-  materialUpgradeTextClass,
-} from "./runShop.css"
-import {
-  generateItems,
-  type Item,
-  type TileItem,
-  ShopStateProvider,
-  createShopState,
-  useShopState,
-  itemCost,
-  buyItem,
-  type UpgradeItem,
-  getNextMaterial,
-  getTransformation,
-  type EmperorItem,
-  sellEmperor,
-  generateShopItems,
-  maxEmperors,
-  type Path,
-  type DeckTileItem,
-  isTile,
-} from "@/state/shopState"
-import { BasicTile } from "@/components/game/basicTile"
-import { useDeckState } from "@/state/deckState"
-import {
-  cardName,
-  type Material,
-  type DeckTile,
-  getSuit,
-  getRank,
-  type Level,
-} from "@/lib/game"
+import { play } from "@/components/audio"
 import { ShopButton } from "@/components/button"
-import {
-  ArrowRight,
-  Dices,
-  Upgrade,
-  X,
-  Buy,
-  Freeze,
-  Coins,
-  Home,
-} from "@/components/icon"
-import { nanoid } from "nanoid"
-import { chunk, entries, uniqueBy } from "remeda"
+import { LinkButton } from "@/components/button"
+import { BasicEmperor } from "@/components/emperor"
+import { BasicTile } from "@/components/game/basicTile"
 import {
   CardMultiplier,
   CardPoints,
@@ -113,15 +18,110 @@ import {
   MaterialCoins,
   MaterialFreedom,
 } from "@/components/game/tileDetails"
-import { play } from "@/components/audio"
+import {
+  ArrowRight,
+  Buy,
+  Coins,
+  Dices,
+  Freeze,
+  Home,
+  Upgrade,
+  X,
+} from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
+import {
+  type DeckTile,
+  type Level,
+  type Material,
+  cardName,
+  getRank,
+  getSuit,
+} from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { getSideSize, useTileSize } from "@/state/constants"
+import { useDeckState } from "@/state/deckState"
 import { EmperorDescription, EmperorTitle } from "@/state/emperors"
-import { RunPickEmperor } from "./runPickEmperor"
+import {
+  type DeckTileItem,
+  type EmperorItem,
+  type Item,
+  type Path,
+  ShopStateProvider,
+  type TileItem,
+  type UpgradeItem,
+  buyItem,
+  createShopState,
+  generateItems,
+  generateShopItems,
+  getNextMaterial,
+  getTransformation,
+  isTile,
+  itemCost,
+  maxEmperors,
+  sellEmperor,
+  useShopState,
+} from "@/state/shopState"
 import type { AccentHue } from "@/styles/colors"
-import { LinkButton } from "@/components/button"
-import { BasicEmperor } from "@/components/emperor"
-import { useTranslation } from "@/i18n/useTranslation"
+import { nanoid } from "nanoid"
+import { chunk, entries, uniqueBy } from "remeda"
+import {
+  For,
+  Match,
+  type ParentProps,
+  Show,
+  Switch,
+  batch,
+  createEffect,
+  createMemo,
+  on,
+} from "solid-js"
+import { RunPickEmperor } from "./runPickEmperor"
+import {
+  MINI_TILE_SIZE,
+  areaClass,
+  areaTitleClass,
+  backgroundClass,
+  buttonsClass,
+  closeButtonClass,
+  continueClass,
+  deckItemClass,
+  deckRowsClass,
+  detailDescriptionClass,
+  detailListClass,
+  detailTermClass,
+  detailTitleClass,
+  dialogContentClass,
+  dialogOverlayClass,
+  dialogPositionerClass,
+  emperorClass,
+  emperorDetailsDescriptionClass,
+  emperorDetailsTitleClass,
+  emptyEmperorClass,
+  fullExplanationClass,
+  materialUpgradeBlockClass,
+  materialUpgradeClass,
+  materialUpgradeTextClass,
+  materialUpgradeTitleClass,
+  materialUpgradesClass,
+  modalDetailsClass,
+  modalDetailsContentClass,
+  modalEmperorClass,
+  ownedEmperorsListClass,
+  pillClass,
+  rotation,
+  shopClass,
+  shopContainerClass,
+  shopHeaderClass,
+  shopHeaderItemClass,
+  shopHeaderItemsClass,
+  shopItemClass,
+  shopItemContentClass,
+  shopItemCostClass,
+  shopItemsClass,
+  upgradeCardPreviewClass,
+  upgradeDescriptionClass,
+  upgradeTitleClass,
+} from "./runShop.css"
 
 const MAX_COLS = 12
 

@@ -1,15 +1,15 @@
-import { createContext, useContext, type ParentProps } from "solid-js"
 import {
-  tileIndexes,
+  type DeckTile,
   type Tile,
   type TileDb,
   type TileIndexes,
-  type DeckTile,
+  tileIndexes,
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
-import { persistentDatabase } from "./persistentDatabase"
 import { setupTiles } from "@/lib/setupTiles"
 import Rand from "rand-seed"
+import { type ParentProps, createContext, useContext } from "solid-js"
+import { persistentDatabase } from "./persistentDatabase"
 
 const TileStateContext = createContext<TileDb | undefined>()
 

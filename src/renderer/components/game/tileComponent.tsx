@@ -1,49 +1,49 @@
 import {
+  type Tile,
+  getMaterial,
+  isDragon,
+  isFlower,
+  isFree,
+  isMutation,
+  isPhoenix,
+  isRabbit,
+  isSeason,
+  isWind,
+  mapGetHeight,
+  mapGetWidth,
+} from "@/lib/game"
+import { getSideSize, useTileSize } from "@/state/constants"
+import { useGameState } from "@/state/gameState"
+import { useTileState } from "@/state/tileState"
+import { getHueColor } from "@/styles/colors"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { isDeepEqual } from "remeda"
+import {
+  Show,
   createEffect,
   createMemo,
   createSignal,
-  Show,
   mergeProps,
 } from "solid-js"
-import { getSideSize, useTileSize } from "@/state/constants"
+import { play } from "../audio"
+import { TileBody } from "./tileBody"
 import {
-  shakeAnimation,
+  DELETED_DURATION,
+  FLOATING_NUMBER_DURATION,
   SHAKE_DURATION,
   SHAKE_REPEAT,
-  DELETED_DURATION,
-  scoreClass,
-  FLOATING_NUMBER_DURATION,
-  deletedAnimationClass,
   clickableClass,
-  tileClass,
-  scorePointsClass,
+  deletedAnimationClass,
+  scoreClass,
   scoreCoinsClass,
+  scorePointsClass,
+  shakeAnimation,
   tileAnimationDelayVar,
+  tileClass,
 } from "./tileComponent.css"
-import { TileShades } from "./tileShades"
-import {
-  mapGetHeight,
-  mapGetWidth,
-  getMaterial,
-  isFree,
-  isDragon,
-  isWind,
-  type Tile,
-  isSeason,
-  isFlower,
-  isPhoenix,
-  isRabbit,
-  isMutation,
-} from "@/lib/game"
-import { TileBody } from "./tileBody"
-import { TileSide } from "./tileSide"
-import { play } from "../audio"
-import { isDeepEqual } from "remeda"
 import { TileImage } from "./tileImage"
-import { useTileState } from "@/state/tileState"
-import { useGameState } from "@/state/gameState"
-import { getHueColor } from "@/styles/colors"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { TileShades } from "./tileShades"
+import { TileSide } from "./tileSide"
 
 type Props = {
   tile: Tile

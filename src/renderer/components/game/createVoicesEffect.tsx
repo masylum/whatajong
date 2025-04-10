@@ -1,7 +1,7 @@
-import { createSignal, createEffect, createMemo } from "solid-js"
 import type { Tile } from "@/lib/game"
-import { play } from "../audio"
 import { useTileState } from "@/state/tileState"
+import { createEffect, createMemo, createSignal } from "solid-js"
+import { play } from "../audio"
 
 const EXPRESSIONS = [
   "great",

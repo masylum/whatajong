@@ -1,3 +1,16 @@
+import { play } from "@/components/audio"
+import { BasicTile } from "@/components/game/basicTile"
+import { Mountains } from "@/components/mountains"
+import { useTranslation } from "@/i18n/useTranslation"
+import { getStandardPairs } from "@/lib/game"
+import { shuffle } from "@/lib/rand"
+import { useImageSrc, useTileSize } from "@/state/constants"
+import { fetchRuns } from "@/state/runState"
+import { useWindowSize } from "@solid-primitives/resize-observer"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { nanoid } from "nanoid"
+import Rand from "rand-seed"
+import { For, createMemo } from "solid-js"
 import {
   buttonAnimationDelayVar,
   buttonClass,
@@ -12,19 +25,6 @@ import {
   navClass,
   titleClass,
 } from "./home.css"
-import { BasicTile } from "@/components/game/basicTile"
-import { getStandardPairs } from "@/lib/game"
-import { shuffle } from "@/lib/rand"
-import { For, createMemo } from "solid-js"
-import { useImageSrc, useTileSize } from "@/state/constants"
-import { nanoid } from "nanoid"
-import { Mountains } from "@/components/mountains"
-import Rand from "rand-seed"
-import { play } from "@/components/audio"
-import { fetchRuns } from "@/state/runState"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { useWindowSize } from "@solid-primitives/resize-observer"
-import { useTranslation } from "@/i18n/useTranslation"
 
 function cards() {
   const rng = new Rand()

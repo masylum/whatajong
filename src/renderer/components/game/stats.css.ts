@@ -1,10 +1,10 @@
-import { style } from "@vanilla-extract/css"
-import { alpha, color, hueVariants } from "@/styles/colors"
-import { recipe } from "@vanilla-extract/recipes"
-import { fontSize } from "@/styles/fontSize"
-import { keyframes } from "@vanilla-extract/css"
 import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
+import { fontSize } from "@/styles/fontSize"
+import { style } from "@vanilla-extract/css"
+import { keyframes } from "@vanilla-extract/css"
+import { recipe } from "@vanilla-extract/recipes"
 
 const statItem = style({
   display: "flex",

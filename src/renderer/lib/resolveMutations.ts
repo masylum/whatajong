@@ -1,12 +1,12 @@
 import {
-  type TileDb,
-  type Tile,
   type Card,
-  isMutation,
+  MUTATION_RANKS,
+  type Tile,
+  type TileDb,
   getRank,
   getSuit,
+  isMutation,
   isSuit,
-  MUTATION_RANKS,
 } from "./game"
 
 function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {

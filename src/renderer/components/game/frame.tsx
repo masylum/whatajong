@@ -1,26 +1,26 @@
+import { getAvailablePairs, selectTile } from "@/lib/game"
+import { useLayoutSize } from "@/state/constants"
+import { useGameState } from "@/state/gameState"
+import { useRunState } from "@/state/runState"
+import { useTileState } from "@/state/tileState"
+import { createShortcut } from "@solid-primitives/keyboard"
 import {
+  type Accessor,
+  type JSXElement,
   createEffect,
   createMemo,
   createSignal,
   onMount,
-  type Accessor,
-  type JSXElement,
 } from "solid-js"
-import { createShortcut } from "@solid-primitives/keyboard"
+import { type Track, play } from "../audio"
+import { Mountains } from "../mountains"
+import { DustParticles } from "./dustParticles"
 import {
+  COMBO_ANIMATION_DURATION,
   containerClass,
   gameRecipe,
-  COMBO_ANIMATION_DURATION,
 } from "./frame.css"
-import { DustParticles } from "./dustParticles"
-import { play, type Track } from "../audio"
-import { Mountains } from "../mountains"
-import { useGameState } from "@/state/gameState"
 import { Powerups } from "./powerups"
-import { useTileState } from "@/state/tileState"
-import { getAvailablePairs, selectTile } from "@/lib/game"
-import { useRunState } from "@/state/runState"
-import { useLayoutSize } from "@/state/constants"
 
 type Props = {
   board: JSXElement
