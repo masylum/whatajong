@@ -297,7 +297,7 @@ export const en = {
     },
     martyr: {
       name: "Martyr",
-      description: "Add 300 points when discarded",
+      description: "Double your points when discarded",
     },
     warrior: {
       name: "Warrior",
@@ -317,11 +317,11 @@ export const en = {
     },
     wizard: {
       name: "Wizard",
-      description: "Add 2 points when clearing odd tiles",
+      description: "Add 6 points when clearing odd tiles",
     },
     sorcerer: {
       name: "Sorcerer",
-      description: "Add 3 points when clearing even tiles",
+      description: "Add 8 points when clearing even tiles",
     },
     biologist: {
       name: "Biologist",
@@ -387,16 +387,16 @@ export const en = {
       name: "Recruiter",
       description: "Reduce the cost of crew members by 33%",
     },
-    sailor: {
-      name: "Sailor",
+    climatologist: {
+      name: "Climatologist",
       description: "Add 3 mult when clearing Wind tiles (::w::)",
     },
-    skipper: {
-      name: "Skipper",
+    millwright: {
+      name: "Millwright",
       description: "Add 24 points when clearing Wind tiles (::w::)",
     },
-    captain: {
-      name: "Captain",
+    aerologist: {
+      name: "Aerologist",
       description: "Add 10 coins when clearing Wind tiles (::w::)",
     },
     jeweler: {
@@ -410,6 +410,61 @@ export const en = {
     miner: {
       name: "Miner",
       description: "Add 6 mult when clearing Gold tiles",
+    },
+    kamikaze: {
+      name: "Kamikaze",
+      description: "Add 3 multiplier when there is only 1 pair left",
+    },
+    prepper: {
+      name: "Prepper",
+      description: "Add 10 points when there are less than 3 pairs left",
+    },
+    insurer: {
+      name: "Insurer",
+      description: "Add 2 coins when there are more than 10 pairs left",
+    },
+    timekeeper: {
+      name: "Timekeeper",
+      description: "When discarded, reset the time penalty to 0",
+    },
+    alchemist: {
+      name: "Alchemist",
+      description:
+        "When cleared, convert all tiles to gold until the next clearing",
+    },
+    meteorologist: {
+      name: "Meteorologist",
+      description:
+        "When cleared, convert all tiles to diamond until the next clearing",
+    },
+    clown: {
+      name: "Clown",
+      description:
+        "When cleared, convert all tiles to jade until the next clearing",
+    },
+    sailor: {
+      name: "Sailor",
+      description:
+        "When clearing a boat, convert all wind tiles to glass for the rest of the game",
+    },
+    buffon: {
+      name: "Buffon",
+      description: "When clearing a joker, add 1 mult for each available move",
+    },
+    horologist: {
+      name: "Horologist",
+      description:
+        "When clearing any tile, remove 2 seconds from the time penalty",
+    },
+    occultist: {
+      name: "Occultist",
+      description:
+        "Add 30 points when clearing tiles that are not Bam, Cracks or Dots",
+    },
+    governor: {
+      name: "Governor",
+      description:
+        "Add 10 points when clearing tiles that are Bam, Cracks or Dots",
     },
   },
   tileDetails: {

@@ -1,10 +1,5 @@
 import type { Game } from "@/lib/game"
-import {
-  createContext,
-  createMemo,
-  useContext,
-  type ParentProps,
-} from "solid-js"
+import { type ParentProps, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
 const GAME_STATE_NAMESPACE = "game-state-v2"
@@ -23,15 +18,6 @@ export function createGameState(params: CreateGameStateParams) {
 
 export function calculateSeconds(game: Game) {
   return Math.floor((game.endedAt! - game.startedAt!) / 1000)
-}
-
-export function started(game: Game) {
-  return createMemo(() => {
-    const time = game.startedAt
-    if (!time) return false
-
-    return time <= Date.now()
-  })
 }
 
 const GameStateContext = createContext<Game | undefined>()

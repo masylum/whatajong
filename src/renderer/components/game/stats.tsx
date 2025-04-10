@@ -65,7 +65,8 @@ type Urgency = "normal" | "mild" | "moderate" | "urgent"
 
 export function Moves() {
   const tiles = useTileState()
-  const pairs = createMemo(() => getAvailablePairs(tiles).length)
+  const game = useGameState()
+  const pairs = createMemo(() => getAvailablePairs(tiles, game).length)
 
   const urgencyLevel = createMemo(() => {
     const pairsCount = pairs()

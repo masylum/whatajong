@@ -298,7 +298,7 @@ export const es = {
     },
     martyr: {
       name: "Mártir",
-      description: "Añade 300 puntos al descartarse",
+      description: "Dobla tus puntos al descartarse",
     },
     warrior: {
       name: "Guerrero",
@@ -318,11 +318,11 @@ export const es = {
     },
     wizard: {
       name: "Mago",
-      description: "Añade 2 puntos al despejar fichas impares",
+      description: "Añade 6 puntos al despejar fichas impares",
     },
     sorcerer: {
       name: "Hechicero",
-      description: "Añade 3 puntos al despejar fichas pares",
+      description: "Añade 8 puntos al despejar fichas pares",
     },
     biologist: {
       name: "Biólogo",
@@ -388,16 +388,16 @@ export const es = {
       name: "Reclutador",
       description: "33% de descuento en cartas tripulación",
     },
-    sailor: {
-      name: "Marinero",
+    climatologist: {
+      name: "Climatólogo",
       description: "Añade 3 multiplicador al despejar fichas Viento (::w::)",
     },
-    skipper: {
-      name: "Patrón",
+    millwright: {
+      name: "Molinero",
       description: "Añade 24 puntos al despejar fichas Viento (::w::)",
     },
-    captain: {
-      name: "Capitán",
+    aerologist: {
+      name: "Aerólogo",
       description: "Añade 10 monedas al despejar fichas Viento (::w::)",
     },
     jeweler: {
@@ -411,6 +411,62 @@ export const es = {
     miner: {
       name: "Minero",
       description: "Añade 6 multiplicador al despejar fichas de Oro",
+    },
+    kamikaze: {
+      name: "Kamikaze",
+      description: "Añade 3 multiplicador cuando hay 1 par",
+    },
+    prepper: {
+      name: "Preparador",
+      description: "Añade 10 puntos cuando hay menos de 3 pares",
+    },
+    insurer: {
+      name: "Asegurador",
+      description: "Añade 2 monedas cuando hay más de 10 pares",
+    },
+    timekeeper: {
+      name: "Cronógrafo",
+      description: "Cuando se descarta, reinicia el castigo a 0",
+    },
+    alchemist: {
+      name: "Alquimista",
+      description:
+        "Cuando se despeja, convierte todas las fichas a oro hasta el siguiente despeje",
+    },
+    meteorologist: {
+      name: "Meteorólogo",
+      description:
+        "Cuando se despeja, convierte todas las fichas a diamante hasta el siguiente despeje",
+    },
+    clown: {
+      name: "Payaso",
+      description:
+        "Cuando se despeja, convierte todas las fichas a jade hasta el siguiente despeje",
+    },
+    sailor: {
+      name: "Marinero",
+      description:
+        "Cuando se despeja una barca, convierte todas las fichas de viento a vidrio para el resto del juego",
+    },
+    buffon: {
+      name: "Bufón",
+      description:
+        "Cuando se despeja un comodín, añade 1 multiplicador por cada jugada disponible",
+    },
+    horologist: {
+      name: "Relojero",
+      description:
+        "Cuando se despeja cualquier ficha, disminuye en 2 segundos el castigo por tiempo",
+    },
+    occultist: {
+      name: "Occultista",
+      description:
+        "Añade 30 puntos al despejar fichas que no sean Bambú, Letras o Ruedas",
+    },
+    governor: {
+      name: "Gobernador",
+      description:
+        "Añade 10 puntos al despejar fichas que sean Bambú, Letras o Ruedas",
     },
   },
   tileDetails: {

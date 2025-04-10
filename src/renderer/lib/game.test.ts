@@ -1,74 +1,74 @@
-import { describe, it, expect, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import {
+  type Card,
+  type Dragon,
+  type Game,
+  type Tile,
+  type TileDb,
   cardsMatch,
   deleteTiles,
+  fullyOverlaps,
   gameOverCondition,
   getAvailablePairs,
+  getCardPoints,
+  getCoins,
   getFreeTiles,
+  getMap,
+  getMaterial,
+  getMaterialCoins,
   getPoints,
   getRank,
+  getRunPairs,
   getStandardDeck,
   getSuit,
   initTileDb,
+  isBam,
+  isCrack,
+  isDot,
+  isDragon,
+  isFlower,
   isFree,
+  isJoker,
+  isPhoenix,
+  isRabbit,
+  isSeason,
+  isTransparent,
+  isTransport,
+  isWind,
   mapGet,
   mapGetHeight,
   mapGetLevels,
   mapGetWidth,
   matchesSuit,
   overlaps,
-  type Card,
-  type Dragon,
-  type Game,
-  type Tile,
-  type TileDb,
-  isFlower,
-  isSeason,
-  isDragon,
-  isWind,
-  isBam,
-  isCrack,
-  isDot,
-  isRabbit,
-  isJoker,
-  isTransport,
-  isPhoenix,
-  suitName,
-  getMaterial,
-  getCardPoints,
-  getMaterialCoins,
-  resolveFlowersAndSeasons,
-  isTransparent,
-  getRunPairs,
-  fullyOverlaps,
-  getMap,
+  resolveTemporaryMaterial,
   selectTile,
-  getCoins,
+  suitName,
 } from "./game"
+import { RESPONSIVE_MAP } from "./maps/responsive"
 import { createTile } from "./test/utils"
-import { PROGRESSIVE_MAP } from "./maps/progressive"
 
 describe("map", () => {
   describe("mapGet", () => {
     it("should return null for negative coordinates", () => {
-      expect(mapGet(PROGRESSIVE_MAP, -1, 0, 0)).toBeNull()
-      expect(mapGet(PROGRESSIVE_MAP, 0, -1, 0)).toBeNull()
-      expect(mapGet(PROGRESSIVE_MAP, 0, 0, -1)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, -1, 0, 0)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, 0, -1, 0)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, 0, 0, -1)).toBeNull()
     })
 
     it("should return null for out of bounds coordinates", () => {
-      expect(mapGet(PROGRESSIVE_MAP, mapGetWidth(), 0, 0)).toBeNull()
-      expect(mapGet(PROGRESSIVE_MAP, 0, mapGetHeight(), 0)).toBeNull()
-      expect(mapGet(PROGRESSIVE_MAP, 0, 0, mapGetLevels())).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, mapGetWidth(), 0, 0)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, 0, mapGetHeight(), 0)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, 0, 0, mapGetLevels())).toBeNull()
     })
 
     it("should return null for empty spaces", () => {
-      expect(mapGet(PROGRESSIVE_MAP, 0, 0, 0)).toBeNull()
+      expect(mapGet(RESPONSIVE_MAP, 0, 2, 0)).toBeNull()
     })
 
     it("should return tile id as string for valid positions", () => {
-      expect(mapGet(PROGRESSIVE_MAP, 2, 0, 0)).toBe("134")
-      expect(mapGet(PROGRESSIVE_MAP, 3, 0, 0)).toBe("134")
+      expect(mapGet(RESPONSIVE_MAP, 2, 0, 0)).toBe("2")
+      expect(mapGet(RESPONSIVE_MAP, 3, 0, 0)).toBe("2")
     })
   })
 })
@@ -501,7 +501,7 @@ describe("getMaterial", () => {
   it("should return wood when flower or season powerup is active and the tile is free", () => {
     const boneTile = createTile({ id: "1", card: "b1", material: "bone", x: 0 })
     const jadeTile = createTile({ id: "2", card: "b1", material: "jade", x: 2 })
-    const game: Game = { points: 0, flowerOrSeason: "f1" }
+    const game: Game = { points: 0, temporaryMaterial: "wood" }
     const tileDb = initTileDb({ "1": boneTile, "2": jadeTile })
 
     expect(getMaterial(tileDb, boneTile, game)).toBe("wood")
@@ -557,33 +557,21 @@ describe("getCoins and getMaterialCoins", () => {
 })
 
 describe("special card resolution functions", () => {
-  describe("resolveFlowersAndSeasons", () => {
-    it("should toggle flowerOrSeason flag when a flower is played", () => {
+  describe("resolveTemporaryMaterial", () => {
+    it("toggles temporaryMaterial flag when a flower or season is played", () => {
       const game: Game = { points: 0 }
 
       const flowerTile = createTile({ card: "f1" })
-      resolveFlowersAndSeasons(game, flowerTile)
-      expect(game.flowerOrSeason).toBe("f1")
+      resolveTemporaryMaterial(game, flowerTile)
+      expect(game.temporaryMaterial).toBe("wood")
 
       const seasonTile = createTile({ card: "s1" })
-      resolveFlowersAndSeasons(game, seasonTile)
-      expect(game.flowerOrSeason).toBe("s1")
-    })
-
-    it("should toggle flowerOrSeason flag when a season is played", () => {
-      const game: Game = { points: 0 }
-
-      const seasonTile = createTile({ card: "s1" })
-      resolveFlowersAndSeasons(game, seasonTile)
-      expect(game.flowerOrSeason).toBe("s1")
-    })
-
-    it("should not change the flag for other card types", () => {
-      const game: Game = { points: 0 }
+      resolveTemporaryMaterial(game, seasonTile)
+      expect(game.temporaryMaterial).toBe("wood")
 
       const bambooTile = createTile({ card: "b1" })
-      resolveFlowersAndSeasons(game, bambooTile)
-      expect(game.flowerOrSeason).toBeUndefined()
+      resolveTemporaryMaterial(game, bambooTile)
+      expect(game.temporaryMaterial).toBeUndefined()
     })
   })
 })
@@ -702,7 +690,7 @@ describe("selectTile", () => {
     expect(tileDb.get("6")!.deleted).toBe(true)
 
     // Flower power should be activated
-    expect(game.flowerOrSeason).toBeDefined()
+    expect(game.temporaryMaterial).toBe("wood")
   })
 
   it("does not match different tiles", () => {

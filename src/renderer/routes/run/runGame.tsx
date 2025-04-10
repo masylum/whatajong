@@ -1,59 +1,63 @@
+import { play } from "@/components/audio"
+import { Button, LinkButton, ShopButton } from "@/components/button"
+import { Dialog } from "@/components/dialog"
 import {
+  dialogContentClass,
+  dialogItemClass,
+  dialogItemTitleClass,
+  dialogItemsClass,
+  dialogTitleClass,
+} from "@/components/dialog.css"
+import { BasicEmperor } from "@/components/emperor"
+import { Board } from "@/components/game/board"
+import { EmperorDetailsDialog } from "@/components/game/emperorDetails"
+import { Frame } from "@/components/game/frame"
+import { Moves, PointsAndPenalty } from "@/components/game/stats"
+import { Bell, Gear, Home, Rotate, Skull } from "@/components/icon"
+import { BellOff } from "@/components/icon"
+import { useTranslation } from "@/i18n/useTranslation"
+import { selectTile } from "@/lib/game"
+import { captureEvent } from "@/lib/observability"
+import { shuffleTiles } from "@/lib/shuffleTiles"
+import { useLayoutSize } from "@/state/constants"
+import { useDeckState } from "@/state/deckState"
+import { EMPERORS } from "@/state/emperors"
+import {
+  GameStateProvider,
+  createGameState,
+  useGameState,
+} from "@/state/gameState"
+import { useGlobalState } from "@/state/globalState"
+import { useRound, useRunState } from "@/state/runState"
+import { type EmperorItem, itemCost } from "@/state/shopState"
+import {
+  TileStateProvider,
+  createTileState,
+  useTileState,
+} from "@/state/tileState"
+import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
+import { nanoid } from "nanoid"
+import Rand from "rand-seed"
+import {
+  For,
+  Show,
   batch,
   createEffect,
   createMemo,
   createSignal,
-  For,
   onCleanup,
-  Show,
 } from "solid-js"
-import { GameStateProvider, createGameState, started } from "@/state/gameState"
-import { Board } from "@/components/game/board"
-import { useRound, useRunState } from "@/state/runState"
-import { Frame } from "@/components/game/frame"
 import {
-  emperorCardClass,
   FLIP_DURATION,
-  menuContainerClass,
-  roundTitleClass,
-  roundObjectiveClass,
-  roundClass,
+  emperorCardClass,
   emperorDialogButtonsClass,
   emperorDialogClass,
+  menuContainerClass,
+  roundClass,
+  roundObjectiveClass,
+  roundTitleClass,
 } from "./runGame.css"
-import { Bell, Gear, Home, Rotate, Skull } from "@/components/icon"
-import { Button, LinkButton, ShopButton } from "@/components/button"
-import { Moves, PointsAndPenalty } from "@/components/game/stats"
-import { BellOff } from "@/components/icon"
-import { useDeckState } from "@/state/deckState"
-import { getOwnedEmperors, selectTile } from "@/lib/game"
-import {
-  createTileState,
-  TileStateProvider,
-  useTileState,
-} from "@/state/tileState"
-import { BasicEmperor } from "@/components/emperor"
-import { shuffleTiles } from "@/lib/shuffleTiles"
-import Rand from "rand-seed"
-import { itemCost, type EmperorItem } from "@/state/shopState"
-import { useGlobalState } from "@/state/globalState"
 import RunGameOver from "./runGameOver"
-import { captureEvent } from "@/lib/observability"
-import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
-import { EmperorDetailsDialog } from "@/components/game/emperorDetails"
-import { EMPERORS } from "@/state/emperors"
-import { Dialog } from "@/components/dialog"
-import {
-  dialogContentClass,
-  dialogTitleClass,
-  dialogItemClass,
-  dialogItemTitleClass,
-  dialogItemsClass,
-} from "@/components/dialog.css"
-import { nanoid } from "nanoid"
-import { play } from "@/components/audio"
-import { useTranslation } from "@/i18n/useTranslation"
-import { useLayoutSize } from "@/state/constants"
 
 export default function RunGame() {
   const run = useRunState()
@@ -67,7 +71,7 @@ export default function RunGame() {
   return (
     <GameStateProvider game={game}>
       <TileStateProvider tileDb={tiles()}>
-        <Show when={started(game)}>
+        <Show when={game.startedAt}>
           <Show when={!game.endCondition} fallback={<RunGameOver />}>
             <Frame
               board={
@@ -179,6 +183,7 @@ function EmperorCard(props: { item: EmperorItem }) {
   const tiles = useTileState()
   const run = useRunState()
   const deck = useDeckState()
+  const game = useGameState()
   const layout = useLayoutSize()
   const emperor = createMemo(
     () => EMPERORS.find((emperor) => emperor.name === props.item.name)!,
@@ -194,8 +199,8 @@ function EmperorCard(props: { item: EmperorItem }) {
     batch(() => {
       shuffleTiles({ rng, tileDb: tiles })
 
-      for (const emperor of getOwnedEmperors(run)) {
-        emperor.whenDiscarded?.({ run, deck, tiles })
+      for (const emperor of run.ownedEmperors) {
+        emperor.whenDiscarded?.({ run, deck, game, tileDb: tiles })
       }
     })
 

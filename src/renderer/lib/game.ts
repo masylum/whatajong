@@ -1,18 +1,17 @@
-import { batch } from "solid-js"
-import { nanoid } from "nanoid"
-import { initDatabase, type Database } from "./in-memoriam"
-import { RESPONSIVE_MAP } from "./maps/responsive"
+import type { Translator } from "@/i18n/useTranslation"
 import type { RunState } from "@/state/runState"
-import { EMPERORS } from "@/state/emperors"
-import { sumBy } from "remeda"
-import { shuffleTiles } from "./shuffleTiles"
+import { nanoid } from "nanoid"
 import Rand from "rand-seed"
+import { sumBy } from "remeda"
+import { batch } from "solid-js"
+import { type Database, initDatabase } from "./in-memoriam"
+import { RESPONSIVE_MAP } from "./maps/responsive"
 import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
+import { resolveMutations } from "./resolveMutations"
 import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveRabbits } from "./resolveRabbits"
-import { resolveMutations } from "./resolveMutations"
-import type { Translator } from "@/i18n/useTranslation"
 import { resolveWinds } from "./resolveWinds"
+import { shuffleTiles } from "./shuffleTiles"
 
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 type EndConditions = (typeof END_CONDITIONS)[number]
@@ -40,7 +39,7 @@ export type Game = {
   points: number
   endCondition?: EndConditions
   transport?: Transport
-  flowerOrSeason?: Flower | Season
+  temporaryMaterial?: Material
   dragonRun?: DragonRun
   phoenixRun?: PhoenixRun
   rabbitRun?: RabbitRun
@@ -52,8 +51,8 @@ export function gameOverCondition(tileDb: TileDb, game?: Game) {
     return "empty-board"
   }
 
-  const availablePairs = getAvailablePairs(tileDb, game)
-  if (availablePairs.length === 0) {
+  const availableTiles = getAvailablePairs(tileDb, game)
+  if (availableTiles.length === 0) {
     return "no-pairs"
   }
 
@@ -143,12 +142,14 @@ export function getPoints({
       material: tile.material,
       run,
       tileDb,
+      game,
     })
     multiplier += getRawMultiplier({
       game,
       card: tile.card,
       material: tile.material,
       run,
+      tileDb,
     })
   }
 
@@ -173,11 +174,27 @@ export function getCoins({
   run,
   game,
   newPoints,
-}: { tiles: Tile[]; run?: RunState; game: Game; newPoints: number }): number {
+  tileDb,
+}: {
+  tiles: Tile[]
+  run?: RunState
+  game: Game
+  newPoints: number
+  tileDb?: TileDb
+}): number {
   const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
   const rabbitMultiplier = getRabbitMultiplier(game)
-  const emperorCoins = sumBy(getOwnedEmperors(run), (emperor) =>
-    sumBy(tiles, (tile) => emperor.getCoins?.({ tile }) ?? 0),
+  const emperorCoins = sumBy(run?.ownedEmperors ?? [], (emperor) =>
+    sumBy(
+      tiles,
+      (tile) =>
+        emperor.getCoins?.({
+          card: tile.card,
+          material: tile.material,
+          tileDb,
+          game,
+        }) ?? 0,
+    ),
   )
 
   return newPoints * rabbitMultiplier + materialCoins + emperorCoins
@@ -191,15 +208,22 @@ function getJokerPoints(card: Card, tileDb: TileDb) {
 
 export function getRawPoints({
   card,
-  run,
   material,
+  run,
   tileDb,
-}: { card: Card; run?: RunState; material: Material; tileDb?: TileDb }) {
+  game,
+}: {
+  card: Card
+  material: Material
+  run?: RunState
+  tileDb?: TileDb
+  game?: Game
+}) {
   const cardPoints = getCardPoints(card)
   const materialPoints = getMaterialPoints(material)
   const emperorPoints = sumBy(
-    getOwnedEmperors(run),
-    (emperor) => emperor.getRawPoints?.({ card, material }) ?? 0,
+    run?.ownedEmperors ?? [],
+    (emperor) => emperor.getRawPoints?.({ card, material, tileDb, game }) ?? 0,
   )
   let jokerPoints = 0
 
@@ -215,30 +239,34 @@ export function getRawMultiplier({
   card,
   material,
   run,
+  tileDb,
 }: {
   game?: Game
-  card?: Card
-  material?: Material
+  card: Card
+  material: Material
   run?: RunState
+  tileDb?: TileDb
 }) {
-  let materialMultiplier = 0
+  const materialMultiplier = getMaterialMultiplier(material)
   let dragonRunMultiplier = 0
-  let phoenixRunMultiplier = 0
   let rabbitMultiplier = 0
+  let phoenixRunMultiplier = 0
 
-  if (material) {
-    materialMultiplier = getMaterialMultiplier(material)
-  }
-
-  if (game && card) {
+  if (game) {
     dragonRunMultiplier = getDragonMultiplier(game, card)
     rabbitMultiplier = getRabbitMultiplier(game)
     phoenixRunMultiplier = getPhoenixRunMultiplier(game)
   }
 
   const emperorMultiplier = sumBy(
-    getOwnedEmperors(run),
-    (emperor) => emperor.getRawMultiplier?.({ card, material }) ?? 0,
+    run?.ownedEmperors ?? [],
+    (emperor) =>
+      emperor.getRawMultiplier?.({
+        card,
+        material,
+        tileDb,
+        game,
+      }) ?? 0,
   )
 
   return (
@@ -298,16 +326,23 @@ export function selectTile({
       resolveWinds(tileDb, tile)
       resolveDragons(game, tile)
       resolvePhoenixRun(game, tile)
-      resolveFlowersAndSeasons(game, tile)
       resolveRabbits(game, tile)
       resolveMutations(tileDb, tile)
       resolveJokers(tileDb, tile)
 
       const newPoints = getPoints({ game, run, tiles, tileDb })
-      const newCoins = getCoins({ tiles, run, game, newPoints })
+      const newCoins = getCoins({ tiles, run, game, newPoints, tileDb })
 
       game.points = game.points + newPoints
       tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
+
+      resolveTemporaryMaterial(game, tile)
+
+      if (run) {
+        for (const emperor of run.ownedEmperors) {
+          emperor.whenMatched?.({ run, tile, tileDb, game })
+        }
+      }
     }
 
     const condition = gameOverCondition(tileDb, game)
@@ -634,14 +669,14 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
 }
 
 export function getMaterial(tileDb: TileDb, tile: Tile, game?: Game): Material {
-  if (game?.flowerOrSeason) {
-    const freedoms = getFreedoms(tileDb, tile)
-    const isCovered = overlaps(tileDb, tile, 1)
-    const countFreedoms = Object.values(freedoms).filter((v) => v).length
-    return countFreedoms >= 1 && !isCovered ? "wood" : "bone"
+  const tempMaterial = game?.temporaryMaterial
+  if (!tempMaterial) return tile.material
+  if (tile.material === tempMaterial) return tile.material
+  if (isFree(tileDb, { ...tile, material: tempMaterial }, game)) {
+    return tempMaterial
   }
 
-  return tile.material
+  return game?.temporaryMaterial ?? tile.material
 }
 
 export function suitName(card: Card | Suit) {
@@ -753,9 +788,12 @@ function getRabbitMultiplier(game: Game) {
   return rabbitRun.combo
 }
 
-export function resolveFlowersAndSeasons(game: Game, tile: Tile) {
-  const flowerOrSeason = isFlower(tile.card) || isSeason(tile.card)
-  game.flowerOrSeason = flowerOrSeason ?? undefined
+export function resolveTemporaryMaterial(game: Game, tile: Tile) {
+  if (isFlower(tile.card) || isSeason(tile.card)) {
+    game.temporaryMaterial = "wood"
+  } else {
+    game.temporaryMaterial = undefined
+  }
 }
 
 function resolveJokers(tileDb: TileDb, tile: Tile) {
@@ -800,20 +838,6 @@ export function getMap(tiles: number) {
       ),
     ),
   )
-}
-
-// TODO: move elsewhere
-export function getOwnedEmperors(run?: RunState) {
-  if (!run) return []
-
-  const names = new Set(
-    run.items
-      .filter((item) => item.type === "emperor")
-      .map((item) => item.name),
-  )
-  if (!names.size) return []
-
-  return EMPERORS.filter((emperor) => names.has(emperor.name))
 }
 
 export type Level = 1 | 2 | 3 | 4 | 5

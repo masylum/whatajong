@@ -9,6 +9,8 @@ import { generateShopItems, type Item } from "./shopState"
 import { createPersistantMutable } from "./persistantMutable"
 import type { Deck, Game, Level } from "@/lib/game"
 import { calculateSeconds } from "./gameState"
+import { EMPERORS } from "./emperors"
+import type { Emperor } from "./emperors"
 
 const RUN_STATE_NAMESPACE = "run-state-v2"
 
@@ -27,6 +29,7 @@ export type RunState = {
     reroll: number
     active: boolean
   }
+  get ownedEmperors(): Emperor[]
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
@@ -85,6 +88,16 @@ export function createRunState(params: CreateRunStateParams) {
         shopItems: generateShopItems(),
         createdAt: Date.now(),
         items: [],
+        get ownedEmperors() {
+          const names = new Set(
+            (this.items as Item[])
+              .filter((item) => item.type === "emperor")
+              .map((item) => item.name),
+          )
+          if (!names.size) return []
+
+          return EMPERORS.filter((emperor) => names.has(emperor.name))
+        },
       }
     },
   })

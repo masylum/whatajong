@@ -1,31 +1,37 @@
+import { Description } from "@/components/description"
+import { useTranslation } from "@/i18n/useTranslation"
 import {
+  type Card,
+  type Deck,
+  type Game,
+  type Level,
+  type Material,
+  type Suit,
+  type Tile,
+  type TileDb,
+  getAvailablePairs,
   getRank,
   isBam,
   isCrack,
   isDot,
   isDragon,
   isFlower,
+  isJoker,
+  isMutation,
   isPhoenix,
   isRabbit,
   isSeason,
+  isSuit,
+  isTransport,
   isWind,
   matchesSuit,
   toPairs,
-  type Card,
-  type Deck,
-  type Level,
-  type Material,
-  type Suit,
-  type Tile,
-  type TileDb,
 } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import Rand from "rand-seed"
 import { batch, createMemo } from "solid-js"
 import { useGameState } from "./gameState"
 import type { RunState } from "./runState"
-import { useTranslation } from "@/i18n/useTranslation"
-import { Description } from "@/components/description"
 import type { Item } from "./shopState"
 
 export type EmperorName =
@@ -69,35 +75,74 @@ export type EmperorName =
   | "stonemason"
   | "smith"
   | "sailor"
-  | "skipper"
-  | "captain"
   | "wizard"
   | "sorcerer"
   | "recruiter"
   | "jeweler"
   | "lapidarist"
   | "miner"
+  // new
+  | "aerologist"
+  | "climatologist"
+  | "millwright"
+  | "kamikaze"
+  | "prepper"
+  | "insurer"
+  | "timekeeper"
+  | "alchemist"
+  | "meteorologist"
+  | "buffon"
+  | "clown"
+  | "occultist"
+  | "governor"
+  | "horologist"
 
 export type Emperor = {
   level: Level
   name: EmperorName
   suit?: Suit
   type?: "discard" | "tile"
-  getCoins?: ({ tile }: { tile: Tile }) => number
+  getCoins?: ({
+    card,
+    material,
+    tileDb,
+    game,
+  }: { card: Card; material: Material; tileDb?: TileDb; game?: Game }) => number
   getRawPoints?: ({
     card,
     material,
-  }: { card?: Card; material?: Material }) => number
+    tileDb,
+    game,
+  }: {
+    card: Card
+    material: Material
+    tileDb?: TileDb
+    game?: Game
+  }) => number
   getRawMultiplier?: ({
     card,
     material,
-  }: { card?: Card; material?: Material }) => number
+    tileDb,
+    game,
+  }: {
+    card: Card
+    material: Material
+    tileDb?: TileDb
+    game?: Game
+  }) => number
   getDiscount?: ({ item }: { item: Item }) => number
   whenDiscarded?: ({
     run,
     deck,
-    tiles,
-  }: { run: RunState; deck: Deck; tiles: TileDb }) => void
+    game,
+    tileDb,
+  }: { run: RunState; deck: Deck; game: Game; tileDb: TileDb }) => void
+  whenMatched?: ({
+    game,
+    run,
+    tileDb,
+    tile,
+  }: { game: Game; run: RunState; tileDb: TileDb; tile: Tile }) => void
 }
 
 export const EMPERORS: Emperor[] = [
@@ -108,7 +153,7 @@ export const EMPERORS: Emperor[] = [
     suit: "c",
     type: "tile",
     getRawPoints({ card }) {
-      return card && isCrack(card) ? 3 / 2 : 0
+      return isCrack(card) ? 3 / 2 : 0
     },
   },
   // 2-DONE
@@ -118,7 +163,7 @@ export const EMPERORS: Emperor[] = [
     suit: "c",
     type: "tile",
     getRawMultiplier({ card }) {
-      return card && isCrack(card) ? 1 / 2 : 0
+      return isCrack(card) ? 1 / 2 : 0
     },
   },
   // 3-DONE
@@ -128,7 +173,7 @@ export const EMPERORS: Emperor[] = [
     suit: "b",
     type: "tile",
     getRawPoints({ card }) {
-      return card && isBam(card) ? 3 / 2 : 0
+      return isBam(card) ? 3 / 2 : 0
     },
   },
   // 4-DONE
@@ -138,7 +183,7 @@ export const EMPERORS: Emperor[] = [
     suit: "b",
     type: "tile",
     getRawMultiplier({ card }) {
-      return card && isBam(card) ? 1 / 2 : 0
+      return isBam(card) ? 1 / 2 : 0
     },
   },
   // 5-DONE
@@ -148,7 +193,7 @@ export const EMPERORS: Emperor[] = [
     suit: "o",
     type: "tile",
     getRawPoints({ card }) {
-      return card && isDot(card) ? 3 / 2 : 0
+      return isDot(card) ? 3 / 2 : 0
     },
   },
   // 6-DONE
@@ -158,7 +203,7 @@ export const EMPERORS: Emperor[] = [
     suit: "o",
     type: "tile",
     getRawMultiplier({ card }) {
-      return card && isDot(card) ? 1 / 2 : 0
+      return isDot(card) ? 1 / 2 : 0
     },
   },
   // 7-DONE
@@ -236,8 +281,8 @@ export const EMPERORS: Emperor[] = [
     name: "food_vendor",
     suit: "o",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "b", to: "o", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "b", to: "o", deck, tileDb })
     },
   },
   // 15-DONE
@@ -246,8 +291,8 @@ export const EMPERORS: Emperor[] = [
     name: "retailer",
     suit: "c",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "b", to: "c", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "b", to: "c", deck, tileDb })
     },
   },
   // 16-DONE
@@ -256,8 +301,8 @@ export const EMPERORS: Emperor[] = [
     name: "fisherwoman",
     suit: "c",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "o", to: "c", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "o", to: "c", deck, tileDb })
     },
   },
   // 17-DONE
@@ -266,8 +311,8 @@ export const EMPERORS: Emperor[] = [
     name: "shopkeeper",
     suit: "b",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "o", to: "b", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "o", to: "b", deck, tileDb })
     },
   },
   // 18-DONE
@@ -276,8 +321,8 @@ export const EMPERORS: Emperor[] = [
     name: "trader",
     suit: "b",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "c", to: "b", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "c", to: "b", deck, tileDb })
     },
   },
   // 19-DONE
@@ -286,8 +331,8 @@ export const EMPERORS: Emperor[] = [
     name: "fishmonger",
     suit: "o",
     type: "discard",
-    whenDiscarded({ deck, tiles }) {
-      changeTilesPermanently({ from: "c", to: "o", deck, tiles })
+    whenDiscarded({ deck, tileDb }) {
+      changeTilesPermanently({ from: "c", to: "o", deck, tileDb })
     },
   },
   // 20-DONE
@@ -297,7 +342,7 @@ export const EMPERORS: Emperor[] = [
     type: "discard",
     whenDiscarded() {
       const game = useGameState()
-      game.points = game.points + 300
+      game.points *= 2
     },
   },
   // 21-DONE
@@ -337,7 +382,7 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "biologist",
     getRawMultiplier({ card }) {
-      return card && (isFlower(card) || isSeason(card)) ? 1 / 2 : 0
+      return isFlower(card) || isSeason(card) ? 1 / 2 : 0
     },
   },
   // 26-DONE
@@ -345,15 +390,15 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "florist",
     getRawPoints({ card }) {
-      return card && (isFlower(card) || isSeason(card)) ? 10 / 2 : 0
+      return isFlower(card) || isSeason(card) ? 10 / 2 : 0
     },
   },
   // 27-DONE
   {
     level: 2,
     name: "botanist",
-    getCoins({ tile }) {
-      return isFlower(tile.card) || isSeason(tile.card) ? 4 / 2 : 0
+    getCoins({ card }) {
+      return isFlower(card) || isSeason(card) ? 4 / 2 : 0
     },
   },
   // 28-DONE
@@ -361,7 +406,7 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "breeder",
     getRawMultiplier({ card }) {
-      return card && isRabbit(card) ? 1 / 2 : 0
+      return isRabbit(card) ? 1 / 2 : 0
     },
   },
   // 29-DONE
@@ -369,15 +414,15 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "veterinarian",
     getRawPoints({ card }) {
-      return card && isRabbit(card) ? 10 / 2 : 0
+      return isRabbit(card) ? 10 / 2 : 0
     },
   },
   // 30-DONE
   {
     level: 2,
     name: "butcher",
-    getCoins({ tile }) {
-      return isRabbit(tile.card) ? 4 / 2 : 0
+    getCoins({ card }) {
+      return isRabbit(card) ? 4 / 2 : 0
     },
   },
   // 31-DONE
@@ -385,7 +430,7 @@ export const EMPERORS: Emperor[] = [
     level: 3,
     name: "drakologist",
     getRawPoints({ card }) {
-      return card && isDragon(card) ? 16 / 2 : 0
+      return isDragon(card) ? 16 / 2 : 0
     },
   },
   // 32-DONE
@@ -393,15 +438,15 @@ export const EMPERORS: Emperor[] = [
     level: 3,
     name: "dragon_rider",
     getRawMultiplier({ card }) {
-      return card && isDragon(card) ? 2 / 2 : 0
+      return isDragon(card) ? 2 / 2 : 0
     },
   },
   // 33-DONE
   {
     level: 3,
     name: "warden",
-    getCoins({ tile }) {
-      return isDragon(tile.card) ? 6 / 2 : 0
+    getCoins({ card }) {
+      return isDragon(card) ? 6 / 2 : 0
     },
   },
   // 34-DONE
@@ -409,7 +454,7 @@ export const EMPERORS: Emperor[] = [
     level: 3,
     name: "phoenixologist",
     getRawPoints({ card }) {
-      return card && isPhoenix(card) ? 16 / 2 : 0
+      return isPhoenix(card) ? 16 / 2 : 0
     },
   },
   // 35-DONE
@@ -417,15 +462,15 @@ export const EMPERORS: Emperor[] = [
     level: 3,
     name: "phoenix_rider",
     getRawMultiplier({ card }) {
-      return card && isPhoenix(card) ? 2 / 2 : 0
+      return isPhoenix(card) ? 2 / 2 : 0
     },
   },
   // 36-DONE
   {
     level: 3,
     name: "keeper",
-    getCoins({ tile }) {
-      return isPhoenix(tile.card) ? 6 / 2 : 0
+    getCoins({ card }) {
+      return isPhoenix(card) ? 6 / 2 : 0
     },
   },
   // 37-DONE
@@ -440,8 +485,8 @@ export const EMPERORS: Emperor[] = [
   {
     level: 3,
     name: "stonemason",
-    getCoins({ tile }) {
-      return tile.material === "ivory" ? 10 / 2 : 0
+    getCoins({ material }) {
+      return material === "ivory" ? 10 / 2 : 0
     },
   },
   // 39-DONE
@@ -460,114 +505,216 @@ export const EMPERORS: Emperor[] = [
       return item.type === "emperor" ? 2 / 3 : 1
     },
   },
-  // 41-DONE
+  // 41-PENDING
   {
     level: 4,
-    name: "sailor",
+    name: "climatologist",
     getRawMultiplier({ card }) {
-      return card && isWind(card) ? 3 / 2 : 0
+      return isWind(card) ? 3 / 2 : 0
     },
   },
   // 42-DONE
   {
     level: 4,
-    name: "skipper",
+    name: "millwright",
     getRawPoints({ card }) {
-      return card && isWind(card) ? 24 / 2 : 0
+      return isWind(card) ? 24 / 2 : 0
     },
   },
-  // 43-DONE
+  // 43-PENDING
   {
     level: 4,
-    name: "captain",
-    getCoins({ tile }) {
-      return isWind(tile.card) ? 10 / 2 : 0
+    name: "aerologist",
+    getCoins({ card }) {
+      return isWind(card) ? 10 / 2 : 0
     },
   },
   // 44-DONE
   {
-    level: 2,
+    level: 4,
     name: "wizard",
     getRawPoints({ card }) {
-      if (!card) return 0
       const rank = Number.parseInt(getRank(card))
       if (Number.isNaN(rank)) return 0
 
-      return rank % 2 === 1 ? 1 : 0
+      return rank % 2 === 1 ? 6 / 2 : 0
     },
   },
   // 45-DONE
   {
-    level: 2,
+    level: 4,
     name: "sorcerer",
     getRawPoints({ card }) {
-      if (!card) return 0
       const rank = Number.parseInt(getRank(card))
       if (Number.isNaN(rank)) return 0
 
-      return rank % 2 === 0 ? 3 / 2 : 0
+      return rank % 2 === 0 ? 8 / 2 : 0
     },
   },
-  // 46-NOT_IMPLEMENTED
-  // {
-  //   level: 2,
-  //   name: "kamikaze",
-  //   description: "+3 multiplier if only 1 move is available.",
-  // },
-  // 47-NOT_IMPLEMENTED
-  // {
-  //   level: 2,
-  //   name: "prepper",
-  //   description: "+30 points if less than 3 moves are available.",
-  // },
-  // 48-NOT_IMPLEMENTED
-  // {
-  //   level: 2,
-  //   name: "investor",
-  //   description: "+2 coins if more than 10 moves are available.",
-  // },
-  // 49-NOT_IMPLEMENTED
-  // 50-DONE
+  // 46-PENDING
   {
-    level: 3,
+    level: 4,
+    name: "kamikaze",
+    getRawMultiplier({ tileDb, game }) {
+      if (!tileDb || !game) return 0
+      const pairs = getAvailablePairs(tileDb, game)
+      if (pairs.length === 1) {
+        return 3 / 2
+      }
+
+      return 0
+    },
+  },
+  // 47-PENDING
+  {
+    level: 4,
+    name: "prepper",
+    getRawPoints({ tileDb, game }) {
+      if (!tileDb || !game) return 0
+      const pairs = getAvailablePairs(tileDb, game)
+      if (pairs.length < 3) {
+        return 10 / 2
+      }
+      return 0
+    },
+  },
+  // 48-PENDING
+  {
+    level: 4,
+    name: "insurer",
+    getCoins({ tileDb, game }) {
+      if (!tileDb || !game) return 0
+      const pairs = getAvailablePairs(tileDb, game)
+      if (pairs.length > 10) {
+        return 2 / 2
+      }
+
+      return 0
+    },
+  },
+  // 49-PENDING
+  {
+    level: 4,
+    name: "horologist",
+    whenMatched({ game }) {
+      if (!game.startedAt) return
+
+      const time = Math.min(game.startedAt + 2 * 1000, Date.now())
+      game.startedAt = time
+    },
+  },
+  // 50-PENDING
+  {
+    level: 4,
+    name: "timekeeper",
+    whenDiscarded({ game }) {
+      game.startedAt = Date.now()
+    },
+  },
+  // 51-DONE
+  {
+    level: 5,
     name: "jeweler",
     getRawPoints({ material }) {
       return material === "diamond" ? 100 / 2 : 0
     },
   },
-  // 51-DONE
-  {
-    level: 3,
-    name: "lapidarist",
-    getCoins({ tile }) {
-      return tile.material === "jade" ? 40 / 2 : 0
-    },
-  },
   // 52-DONE
   {
-    level: 3,
+    level: 5,
+    name: "lapidarist",
+    getCoins({ material }) {
+      return material === "jade" ? 40 / 2 : 0
+    },
+  },
+  // 53-DONE
+  {
+    level: 5,
     name: "miner",
     getRawMultiplier({ material }) {
       return material === "gold" ? 6 / 2 : 0
     },
   },
-  // 53-PENDING
   // 54-PENDING
+  {
+    level: 5,
+    name: "alchemist",
+    whenMatched({ game, tile }) {
+      if (isMutation(tile.card)) {
+        game.temporaryMaterial = "gold"
+      }
+    },
+  },
   // 55-PENDING
+  {
+    level: 5,
+    name: "meteorologist",
+    whenMatched({ game, tile }) {
+      if (isWind(tile.card)) {
+        game.temporaryMaterial = "diamond"
+      }
+    },
+  },
   // 56-PENDING
+  {
+    level: 5,
+    name: "clown",
+    whenMatched({ game, tile }) {
+      if (isJoker(tile.card)) {
+        game.temporaryMaterial = "jade"
+      }
+    },
+  },
   // 57-PENDING
+  {
+    level: 5,
+    name: "sailor",
+    whenMatched({ tile, tileDb }) {
+      if (isTransport(tile.card)) {
+        for (const tile of tileDb.filterBy({ deleted: false })) {
+          tile.material = "glass"
+        }
+      }
+    },
+  },
   // 58-PENDING
+  {
+    level: 5,
+    name: "occultist",
+    getRawPoints({ card }) {
+      return !isSuit(card) ? 30 / 2 : 0
+    },
+  },
   // 59-PENDING
+  {
+    level: 5,
+    name: "governor",
+    getRawPoints({ card }) {
+      return isSuit(card) ? 10 / 2 : 0
+    },
+  },
   // 60-PENDING
+  {
+    level: 5,
+    name: "buffon",
+    getRawMultiplier({ tileDb, game, card }) {
+      if (!tileDb || !game) return 0
+      if (isJoker(card)) {
+        return getAvailablePairs(tileDb, game).length / 2
+      }
+
+      return 0
+    },
+  },
 ] as const
 
 function changeTilesPermanently({
   from,
   to,
   deck,
-  tiles,
-}: { from: Suit; to: Suit; deck: Deck; tiles: TileDb }) {
-  const fromTiles = tiles
+  tileDb,
+}: { from: Suit; to: Suit; deck: Deck; tileDb: TileDb }) {
+  const fromTiles = tileDb
     .filterBy({ deleted: false })
     .filter((tile) => matchesSuit(tile.card, from))
   const rng = new Rand()
@@ -579,7 +726,7 @@ function changeTilesPermanently({
       for (const tile of pair) {
         const oldCard = tile.card
         const newCard = oldCard.replace(from, to) as Card
-        tiles.set(tile.id, {
+        tileDb.set(tile.id, {
           ...tile,
           card: newCard,
         })

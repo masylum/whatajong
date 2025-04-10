@@ -8,7 +8,6 @@ import {
   dots,
   dragons,
   flowers,
-  getOwnedEmperors,
   jokers,
   mutations,
   phoenix,
@@ -52,7 +51,7 @@ function itemRawCost(item: Item) {
 export function itemCost(item: Item, run?: RunState) {
   const raw = itemRawCost(item)
   if (!run) return raw
-  const emperors = getOwnedEmperors(run)
+  const emperors = run.ownedEmperors
 
   let cost = raw
   for (const emperor of emperors) {
