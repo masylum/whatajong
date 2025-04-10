@@ -19,8 +19,5 @@ export function createTile({
     z,
     deleted,
     selected,
-    get coords() {
-      return `${x},${y},${z}`
-    },
   }
 }

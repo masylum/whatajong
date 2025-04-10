@@ -28,9 +28,6 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
             z,
             deleted: false,
             selected: false,
-            get coords() {
-              return `${this.x},${this.y},${this.z}`
-            },
           })
         }
       }
@@ -94,9 +91,6 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       z: tile1.z,
       deleted: false,
       selected: false,
-      get coords() {
-        return `${this.x},${this.y},${this.z}`
-      },
     })
 
     tileDb.set(id2, {
@@ -108,9 +102,6 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       z: tile2.z,
       deleted: false,
       selected: false,
-      get coords() {
-        return `${this.x},${this.y},${this.z}`
-      },
     })
   }
 

@@ -132,7 +132,6 @@ type TutorialProps<T> = {
   children: (step: Accessor<number>) => JSXElement
   tutorial: "game" | "run"
 }
-
 function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
   const t = useTranslation()
   const globalState = useGlobalState()

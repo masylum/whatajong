@@ -564,17 +564,9 @@ export type Tile = {
   material: Material
   points?: number
   coins?: number
-  get coords(): string
 } & Position
 type TileById = Record<string, Tile>
-export const tileIndexes = [
-  "x",
-  "y",
-  "z",
-  "deleted",
-  "selected",
-  "coords",
-] as const
+export const tileIndexes = ["x", "y", "z", "deleted", "selected"] as const
 export type TileIndexes = (typeof tileIndexes)[number]
 export type TileDb = Database<Tile, TileIndexes>
 
@@ -645,7 +637,9 @@ function getFreedoms(tileDb: TileDb, position: Position) {
 export function getFinder(tileDb: TileDb, position: Position) {
   return (x = 0, y = 0, z = 0) => {
     const tile = tileDb.findBy({
-      coords: `${position.x + x},${position.y + y},${position.z + z}`,
+      x: position.x + x,
+      y: position.y + y,
+      z: position.z + z,
     })
     if (!tile) return null
     if (tile.deleted) return null
