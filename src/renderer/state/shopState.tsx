@@ -91,12 +91,12 @@ export type DeckTileItem = BaseItem & {
   type: "deckTile"
 }
 
-export type FreezeItem = BaseItem & {
+type FreezeItem = BaseItem & {
   type: "freeze"
   level: Level
 }
 
-export type RerollItem = BaseItem & {
+type RerollItem = BaseItem & {
   type: "reroll"
   level: Level
 }
