@@ -7,6 +7,7 @@ import {
   isFlower,
   isPhoenix,
   isRabbit,
+  isSeason,
   isWind,
   matchesSuit,
   toPairs,
@@ -25,6 +26,7 @@ import { useGameState } from "./gameState"
 import type { RunState } from "./runState"
 import { useTranslation } from "@/i18n/useTranslation"
 import { Description } from "@/components/description"
+import type { Item } from "./shopState"
 
 export type EmperorName =
   | "astronomer"
@@ -49,8 +51,8 @@ export type EmperorName =
   | "martyr"
   | "warrior"
   | "combatant"
-  | "wizard"
-  | "sorcerer"
+  | "gambler"
+  | "builder"
   | "biologist"
   | "florist"
   | "botanist"
@@ -69,6 +71,12 @@ export type EmperorName =
   | "sailor"
   | "skipper"
   | "captain"
+  | "wizard"
+  | "sorcerer"
+  | "recruiter"
+  | "jeweler"
+  | "lapidarist"
+  | "miner"
 
 export type Emperor = {
   level: Level
@@ -84,6 +92,7 @@ export type Emperor = {
     card,
     material,
   }: { card?: Card; material?: Material }) => number
+  getDiscount?: ({ item }: { item: Item }) => number
   whenDiscarded?: ({
     run,
     deck,
@@ -91,7 +100,6 @@ export type Emperor = {
   }: { run: RunState; deck: Deck; tiles: TileDb }) => void
 }
 
-// TODO: index them by name
 export const EMPERORS: Emperor[] = [
   // 1-DONE
   {
@@ -189,8 +197,8 @@ export const EMPERORS: Emperor[] = [
     name: "woodworker",
     suit: "b",
     type: "tile",
-    getRawPoints({ card }) {
-      return card === "b9" ? 10 : 0
+    getDiscount({ item }) {
+      return item.type === "tile" && isBam(item.card) ? 0.75 : 1
     },
   },
   // 11-DONE
@@ -199,8 +207,8 @@ export const EMPERORS: Emperor[] = [
     name: "librarian",
     suit: "c",
     type: "tile",
-    getRawPoints({ card }) {
-      return card === "c9" ? 10 : 0
+    getDiscount({ item }) {
+      return item.type === "tile" && isCrack(item.card) ? 0.75 : 1
     },
   },
   // 12-DONE
@@ -209,8 +217,8 @@ export const EMPERORS: Emperor[] = [
     name: "cooper",
     suit: "o",
     type: "tile",
-    getRawPoints({ card }) {
-      return card === "o9" ? 10 : 0
+    getDiscount({ item }) {
+      return item.type === "tile" && isDot(item.card) ? 0.75 : 1
     },
   },
   // 13-DONE
@@ -311,25 +319,17 @@ export const EMPERORS: Emperor[] = [
   // 23-DONE
   {
     level: 2,
-    name: "wizard",
-    getRawPoints({ card }) {
-      if (!card) return 0
-      const rank = Number.parseInt(getRank(card))
-      if (Number.isNaN(rank)) return 0
-
-      return rank % 2 === 1 ? 1 : 0
+    name: "gambler",
+    getDiscount({ item }) {
+      return item.type === "reroll" ? 0.5 : 1
     },
   },
   // 24-DONE
   {
     level: 2,
-    name: "sorcerer",
-    getRawPoints({ card }) {
-      if (!card) return 0
-      const rank = Number.parseInt(getRank(card))
-      if (Number.isNaN(rank)) return 0
-
-      return rank % 2 === 0 ? 3 / 2 : 0
+    name: "builder",
+    getDiscount({ item }) {
+      return item.type === "upgrade" ? 0.75 : 1
     },
   },
   // 25-DONE
@@ -337,7 +337,7 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "biologist",
     getRawMultiplier({ card }) {
-      return card && isFlower(card) ? 1 / 2 : 0
+      return card && (isFlower(card) || isSeason(card)) ? 1 / 2 : 0
     },
   },
   // 26-DONE
@@ -345,7 +345,7 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "florist",
     getRawPoints({ card }) {
-      return card && isFlower(card) ? 10 / 2 : 0
+      return card && (isFlower(card) || isSeason(card)) ? 10 / 2 : 0
     },
   },
   // 27-DONE
@@ -353,7 +353,7 @@ export const EMPERORS: Emperor[] = [
     level: 2,
     name: "botanist",
     getCoins({ tile }) {
-      return isFlower(tile.card) ? 4 / 2 : 0
+      return isFlower(tile.card) || isSeason(tile.card) ? 4 / 2 : 0
     },
   },
   // 28-DONE
@@ -440,8 +440,8 @@ export const EMPERORS: Emperor[] = [
   {
     level: 3,
     name: "stonemason",
-    getRawPoints({ material }) {
-      return material === "ivory" ? 10 / 2 : 0
+    getCoins({ tile }) {
+      return tile.material === "ivory" ? 10 / 2 : 0
     },
   },
   // 39-DONE
@@ -452,14 +452,15 @@ export const EMPERORS: Emperor[] = [
       return material === "bronze" ? 2 / 2 : 0
     },
   },
-  // 40-NOT_IMPLEMENTED
-  // {
-  //   level: 2,
-  //   name: "the_kamikaze",
-  //   description: "+5 multiplier if only 1 move is available.",
-  // },
-
-  // 41-PENDING
+  // 40-DONE
+  {
+    level: 2,
+    name: "recruiter",
+    getDiscount({ item }) {
+      return item.type === "emperor" ? 2 / 3 : 1
+    },
+  },
+  // 41-DONE
   {
     level: 4,
     name: "sailor",
@@ -483,44 +484,81 @@ export const EMPERORS: Emperor[] = [
       return isWind(tile.card) ? 10 / 2 : 0
     },
   },
+  // 44-DONE
+  {
+    level: 2,
+    name: "wizard",
+    getRawPoints({ card }) {
+      if (!card) return 0
+      const rank = Number.parseInt(getRank(card))
+      if (Number.isNaN(rank)) return 0
 
-  // XX-NOT_IMPLEMENTED
-  // {
-  //   level: 4,
-  //   name: "the_jadeist",
-  //   description: "+2 mult for jade tiles.",
-  //   getRawMultiplier({ material }) {
-  //     return material === "jade" ? 1 : 0
-  //   },
-  // },
-  // {
-  //   level: 2,
-  //   name: "the_dragonist",
-  //   description:
-  //     "Clearing a dragon converts all tiles into jade until next match.",
-  // },
-  // {
-  //   level: 2,
-  //   name: "confucius",
-  //   description: "Shuffles the board after a 4+ dragon run.",
-  // },
+      return rank % 2 === 1 ? 1 : 0
+    },
+  },
+  // 45-DONE
+  {
+    level: 2,
+    name: "sorcerer",
+    getRawPoints({ card }) {
+      if (!card) return 0
+      const rank = Number.parseInt(getRank(card))
+      if (Number.isNaN(rank)) return 0
+
+      return rank % 2 === 0 ? 3 / 2 : 0
+    },
+  },
+  // 46-NOT_IMPLEMENTED
   // {
   //   level: 2,
-  //   name: "the_tactician",
-  //   description: "+1 mult your dragon runs.",
+  //   name: "kamikaze",
+  //   description: "+3 multiplier if only 1 move is available.",
   // },
+  // 47-NOT_IMPLEMENTED
   // {
   //   level: 2,
-  //   name: "the_trader",
-  //   description: "Gold tiles have 2 freedom.",
+  //   name: "prepper",
+  //   description: "+30 points if less than 3 moves are available.",
   // },
+  // 48-NOT_IMPLEMENTED
   // {
   //   level: 2,
-  //   name: "the_alchemist",
-  //   description: "Clearing different materials get +3 mult.",
+  //   name: "investor",
+  //   description: "+2 coins if more than 10 moves are available.",
   // },
-  // TODO: 10 4 level
-  // TODO: 10 5 level
+  // 49-NOT_IMPLEMENTED
+  // 50-DONE
+  {
+    level: 3,
+    name: "jeweler",
+    getRawPoints({ material }) {
+      return material === "diamond" ? 100 / 2 : 0
+    },
+  },
+  // 51-DONE
+  {
+    level: 3,
+    name: "lapidarist",
+    getCoins({ tile }) {
+      return tile.material === "jade" ? 40 / 2 : 0
+    },
+  },
+  // 52-DONE
+  {
+    level: 3,
+    name: "miner",
+    getRawMultiplier({ material }) {
+      return material === "gold" ? 6 / 2 : 0
+    },
+  },
+  // 53-PENDING
+  // 54-PENDING
+  // 55-PENDING
+  // 56-PENDING
+  // 57-PENDING
+  // 58-PENDING
+  // 59-PENDING
+  // 60-PENDING
 ] as const
 
 function changeTilesPermanently({

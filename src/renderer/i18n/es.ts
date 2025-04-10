@@ -134,7 +134,7 @@ export const es = {
       "Durante una partida, si te quedas sin jugadas, descarta un tripulante para barajar el tablero.",
     shop1:
       "Cada ronda obtienes 1 moneda por cada ficha en tu mazo. Gástalas en la tienda para c‌omprar nuevas fichas y tripulantes.",
-    shop2: "Refresca la tienda para obtener nuevos artículos.",
+    shop2: "Vuelve a tirar para obtener nuevos artículos en la tienda.",
     shop3:
       "Si hay algo que te gusta pero no puedes pagarlo, c‌ongela los artículos hasta la siguiente ronda.",
     upgrade1:
@@ -193,7 +193,7 @@ export const es = {
     deckIncome: "Ingresos del mazo ({{deckSize}})",
     tileCoins: "Monedas por fichas",
     overachiever: "Sobresaliente ({{percent}} %)",
-    trySameRun: "Intentar otra vez",
+    trySameRun: "Reintentar",
     startNewRun: "Nueva partida",
   },
   shop: {
@@ -252,15 +252,15 @@ export const es = {
     },
     woodworker: {
       name: "Carpintero",
-      description: "Añade 20 puntos al despejar la ficha 'Bambú 9' (::b9::)",
+      description: "Reduce el coste de las fichas de Bambú (::b::) un 25%",
     },
     librarian: {
       name: "Bibliotecario",
-      description: "Añade 20 puntos al despejar la ficha 'Letra 9' (::c9::)",
+      description: "Reduce el coste de las fichas de Letra (::c::) un 25%",
     },
     cooper: {
       name: "Tonelero",
-      description: "Añade 20 puntos al despejar la ficha 'Rueda 9' (::o9::)",
+      description: "Reduce el coste de las fichas de Rueda (::o::) un 25%",
     },
     barterer: {
       name: "Trocador",
@@ -307,6 +307,14 @@ export const es = {
     combatant: {
       name: "C‌ombatiente",
       description: "Añade 0.5 multiplicador al despejar cualquier ficha",
+    },
+    gambler: {
+      name: "Jugador",
+      description: "Reduce el coste de volver a tirar en un 50%",
+    },
+    builder: {
+      name: "Constructor",
+      description: "Reduce el coste de mejorar la tienda en un 25%",
     },
     wizard: {
       name: "Mago",
@@ -376,6 +384,10 @@ export const es = {
       name: "Herrero",
       description: "Añade 2 multiplicador al despejar fichas de Bronce (::b::)",
     },
+    recruiter: {
+      name: "Reclutador",
+      description: "33% de descuento en cartas tripulación",
+    },
     sailor: {
       name: "Marinero",
       description: "Añade 3 multiplicador al despejar fichas Viento (::w::)",
@@ -387,6 +399,18 @@ export const es = {
     captain: {
       name: "Capitán",
       description: "Añade 10 monedas al despejar fichas Viento (::w::)",
+    },
+    jeweler: {
+      name: "Joyero",
+      description: "Añade 100 puntos al despejar fichas de Diamante",
+    },
+    lapidarist: {
+      name: "Lapidario",
+      description: "Añade 40 monedas al despejar fichas de Jade",
+    },
+    miner: {
+      name: "Minero",
+      description: "Añade 6 multiplicador al despejar fichas de Oro",
     },
   },
   tileDetails: {

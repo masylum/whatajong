@@ -17,7 +17,7 @@ export const containerClass = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  minHeight: "100dvh",
+  height: "100dvh",
   width: "100dvw",
   background: `linear-gradient(to bottom, ${color.dot10}, black)`,
   position: "relative",
@@ -101,6 +101,7 @@ export const buttonContainerClass = recipe({
     display: "flex",
     justifyContent: "center",
     position: "relative",
+    minHeight: 0,
   },
   variants: {
     size: {
@@ -166,6 +167,7 @@ export const buttonClass = recipe({
 
 export const buttonImageClass = style({
   width: "100%",
+  minHeight: 0,
   objectFit: "cover",
   maxHeight: 120,
   "@media": {

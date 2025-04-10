@@ -77,10 +77,8 @@ import {
   getTransformation,
   type EmperorItem,
   sellEmperor,
-  SELL_EMPEROR_AMOUNT,
   generateShopItems,
   maxEmperors,
-  emperorCost,
   type Path,
   type DeckTileItem,
   isTile,
@@ -107,7 +105,6 @@ import {
   Home,
 } from "@/components/icon"
 import { nanoid } from "nanoid"
-import { shopUpgradeCost } from "@/state/runState"
 import { chunk, entries, uniqueBy } from "remeda"
 import {
   CardMultiplier,
@@ -126,7 +123,6 @@ import { LinkButton } from "@/components/button"
 import { BasicEmperor } from "@/components/emperor"
 import { useTranslation } from "@/i18n/useTranslation"
 
-const REROLL_COST = 10
 const MAX_COLS = 12
 
 export default function RunShop() {
@@ -244,11 +240,12 @@ export function ItemTile(props: {
   const run = useRunState()
   const deck = useDeckState()
   const frozen = createMemo(() => run.freeze?.active)
+  const cost = createMemo(() => itemCost(props.item, run))
 
   const disabled = createMemo(
     () =>
       frozen() ||
-      itemCost(props.item.level) > run.money ||
+      cost() > run.money ||
       deck.size >=
         DECK_CAPACITY_PER_LEVEL[
           run.shopLevel as keyof typeof DECK_CAPACITY_PER_LEVEL
@@ -259,7 +256,7 @@ export function ItemTile(props: {
     <ShopItem
       hue="bone"
       frozen={frozen()}
-      cost={itemCost(props.item.level)}
+      cost={cost()}
       disabled={disabled()}
       onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
     >
@@ -277,18 +274,16 @@ export function EmperorItemComponent(props: {
   const emperorCount = createMemo(
     () => run.items.filter((item) => item.type === "emperor").length,
   )
+  const cost = createMemo(() => itemCost(props.item, run))
   const disabled = createMemo(
-    () =>
-      frozen() ||
-      emperorCost(props.item.level) > run.money ||
-      emperorCount() >= maxEmperors(run),
+    () => frozen() || cost() > run.money || emperorCount() >= maxEmperors(run),
   )
 
   return (
     <ShopItem
       hue="wood"
       frozen={frozen()}
-      cost={emperorCost(props.item.level)}
+      cost={cost()}
       disabled={disabled()}
       onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
     >
@@ -339,13 +334,13 @@ function CardDetails(props: {
             <ShopButton
               type="button"
               hue="bam"
-              disabled={itemCost(item().level) > run.money}
+              disabled={itemCost(item(), run) > run.money}
               onClick={() => {
                 buyTile(item())
               }}
             >
               <Buy />
-              {t.common.buy()} ${itemCost(item().level)}
+              {t.common.buy()} ${itemCost(item(), run)}
             </ShopButton>
           )}
         </Show>
@@ -430,13 +425,12 @@ function EmperorItemDetails() {
   const shop = useShopState()
   const run = useRunState()
   const item = createMemo(() => shop.currentItem as EmperorItem)
+  const cost = createMemo(() => itemCost(item(), run))
   const emperorCount = createMemo(
     () => run.items.filter((item) => item.type === "emperor").length,
   )
   const disabled = createMemo(
-    () =>
-      emperorCost(item().level) > run.money ||
-      emperorCount() >= maxEmperors(run),
+    () => cost() > run.money || emperorCount() >= maxEmperors(run),
   )
   const isOwned = createMemo(() =>
     run.items.some((i) => i.id === item().id && i.type === "emperor"),
@@ -483,7 +477,7 @@ function EmperorItemDetails() {
         >
           <ShopButton type="button" hue="dot" onClick={sellCurrentEmperor}>
             <Buy />
-            {t.common.sell()} (${SELL_EMPEROR_AMOUNT})
+            {t.common.sell()} (${cost()})
           </ShopButton>
         </Show>
       </div>
@@ -495,7 +489,7 @@ function UpgradeItemDetails() {
   const run = useRunState()
   const shop = useShopState()
   const item = createMemo(() => shop.currentItem as UpgradeItem)
-  const cost = createMemo(() => shopUpgradeCost(run))
+  const cost = createMemo(() => itemCost(item(), run))
   const disabled = createMemo(() => cost() > run.money)
 
   function buyUpgrade() {
@@ -594,12 +588,13 @@ function UpgradeItemDetails() {
 
 export function RerollButton(props: {
   onClick?: () => void
+  cost: number
   disabled: boolean
 }) {
   return (
     <ShopItem
       hue="diamond"
-      cost={REROLL_COST}
+      cost={props.cost}
       onClick={props.onClick}
       disabled={props.disabled}
     >
@@ -793,8 +788,24 @@ function Deck() {
 function Items() {
   const run = useRunState()
   const shop = useShopState()
-  const shopLevel = createMemo(() => run.shopLevel)
+  const t = useTranslation()
   const items = createMemo(() => generateItems(run, shop))
+  const rerollCost = createMemo(() =>
+    itemCost({ type: "reroll", id: "reroll", level: 1 }, run),
+  )
+  const rerollDisabled = createMemo(() => rerollCost() > run.money)
+  const shopLevel = createMemo(() => run.shopLevel)
+  const upgradeCost = createMemo(() =>
+    itemCost(
+      {
+        type: "upgrade",
+        level: shopLevel(),
+        id: `upgrade-${shopLevel()}`,
+      },
+      run,
+    ),
+  )
+  const upgradeDisabled = createMemo(() => upgradeCost() > run.money)
 
   function selectItem(item: Item | null) {
     if (item?.id === shop.currentItem?.id) {
@@ -805,9 +816,8 @@ function Items() {
   }
 
   function reroll() {
-    const cost = REROLL_COST
     const money = run.money
-    if (cost > money) throw Error("You don't have enough money")
+    if (rerollCost() > money) throw Error("You don't have enough money")
 
     batch(() => {
       const freeze = run.freeze
@@ -816,7 +826,7 @@ function Items() {
         run.freeze = undefined
       }
 
-      run.money = money - cost
+      run.money = money - rerollCost()
       shop.reroll++
     })
 
@@ -852,10 +862,6 @@ function Items() {
 
     shop.currentItem = item
   }
-  const upgradeCost = createMemo(() => shopUpgradeCost(run))
-  const upgradeDisabled = createMemo(() => upgradeCost() > run.money)
-  const rerollDisabled = createMemo(() => REROLL_COST > run.money)
-  const t = useTranslation()
 
   return (
     <div class={shopContainerClass}>
@@ -889,7 +895,11 @@ function Items() {
             </Switch>
           )}
         </For>
-        <RerollButton onClick={reroll} disabled={rerollDisabled()} />
+        <RerollButton
+          onClick={reroll}
+          disabled={rerollDisabled()}
+          cost={rerollCost()}
+        />
         <FreezeButton onClick={freeze} />
       </div>
     </div>

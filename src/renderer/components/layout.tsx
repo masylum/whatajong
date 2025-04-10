@@ -18,7 +18,6 @@ export function Layout(props: ParentProps) {
   const match = createBreakpoints(breakpoints, { mediaFeature: "min-height" })
   const forcePortrait = createMemo(() => {
     const key = match.key
-    console.log(key, isPortrait())
     if (key === "xxs" || key === "xs" || key === "s") {
       return isPortrait()
     }

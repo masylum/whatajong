@@ -802,6 +802,7 @@ export function getMap(tiles: number) {
   )
 }
 
+// TODO: move elsewhere
 export function getOwnedEmperors(run?: RunState) {
   if (!run) return []
 

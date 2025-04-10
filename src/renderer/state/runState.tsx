@@ -133,10 +133,6 @@ export function generateRound(id: number, run: RunState): Round {
   return round
 }
 
-export function shopUpgradeCost(run: RunState) {
-  return run.shopLevel * 100
-}
-
 export const DECK_CAPACITY_PER_LEVEL = {
   1: 36,
   2: 42,

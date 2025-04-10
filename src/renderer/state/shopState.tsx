@@ -8,6 +8,7 @@ import {
   dots,
   dragons,
   flowers,
+  getOwnedEmperors,
   jokers,
   mutations,
   phoenix,
@@ -28,18 +29,38 @@ import { nanoid } from "nanoid"
 import { captureEvent } from "@/lib/observability"
 
 const SHOP_STATE_NAMESPACE = "shop-state-v2"
-
 const ITEM_COST = 20
 const EMPEROR_COST = 60
+const REROLL_COST = 10
+const SELL_EMPEROR_AMOUNT = 30
 
-export const SELL_EMPEROR_AMOUNT = 30
-
-export function emperorCost(level: number) {
-  return EMPEROR_COST + 10 * (level - 1)
+function itemRawCost(item: Item) {
+  switch (item.type) {
+    case "tile":
+      return ITEM_COST + 10 * (item.level - 1)
+    case "emperor":
+      return EMPEROR_COST + 10 * (item.level - 1)
+    case "reroll":
+      return REROLL_COST
+    case "upgrade":
+      return item.level * 100
+    default:
+      throw new Error(`Unknown item type: ${item.type}`)
+  }
 }
 
-export function itemCost(level: number) {
-  return ITEM_COST + 10 * (level - 1)
+export function itemCost(item: Item, run?: RunState) {
+  const raw = itemRawCost(item)
+  if (!run) return raw
+  const emperors = getOwnedEmperors(run)
+
+  let cost = raw
+  for (const emperor of emperors) {
+    if (!emperor.getDiscount) continue
+    cost *= emperor.getDiscount({ item })
+  }
+
+  return cost
 }
 
 const PATHS = {
@@ -71,12 +92,27 @@ export type DeckTileItem = BaseItem & {
   type: "deckTile"
 }
 
+export type FreezeItem = BaseItem & {
+  type: "freeze"
+  level: Level
+}
+
+export type RerollItem = BaseItem & {
+  type: "reroll"
+  level: Level
+}
+
 export type UpgradeItem = BaseItem & {
   type: "upgrade"
   level: Level
 }
 
-export type Item = TileItem | UpgradeItem | EmperorItem
+export type Item =
+  | TileItem
+  | UpgradeItem
+  | EmperorItem
+  | FreezeItem
+  | RerollItem
 type ShopState = {
   reroll: number
   currentItem: Item | DeckTileItem | null
@@ -186,8 +222,7 @@ export function buyItem(
   item: Item,
   fn: () => void,
 ) {
-  const cost =
-    item.type === "emperor" ? emperorCost(item.level) : itemCost(item.level)
+  const cost = itemCost(item, run)
   const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 

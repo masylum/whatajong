@@ -549,7 +549,7 @@ function Shop() {
       <div class={columnClass}>
         <p>{t.tutorial.shop2()}</p>
         <div class={shopItemContainerClass}>
-          <RerollButton disabled={false} />
+          <RerollButton disabled={false} cost={0} />
         </div>
       </div>
       <div class={columnClass}>

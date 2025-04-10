@@ -133,7 +133,7 @@ export const en = {
       "During a game, if you are running out of moves, discard a crew member to shuffle the board.",
     shop1:
       "Every round you yield 1 coin per tile on your deck. Spend them on the shop to buy new tiles and crew members.",
-    shop2: "Refresh the shop to get new items.",
+    shop2: "Reroll to get new items in the shop.",
     shop3:
       "If there is something you like, but you can't afford it, freeze the items until next round.",
     upgrade1:
@@ -251,15 +251,15 @@ export const en = {
     },
     woodworker: {
       name: "Woodworker",
-      description: "Add 20 points when clearing the tile 'Bam 9' (::b9::)",
+      description: "Reduce the cost of Bam cards (::b::) by 25%",
     },
     librarian: {
       name: "Librarian",
-      description: "Add 20 points when clearing the tile 'Crack 9' (::c9::)",
+      description: "Reduce the cost of Crack cards (::c::) by 25%",
     },
     cooper: {
       name: "Cooper",
-      description: "Add 20 points when clearing the tile 'Dot 9' (::o9::)",
+      description: "Reduce the cost of Dot cards (::o::) by 25%",
     },
     barterer: {
       name: "Barterer",
@@ -306,6 +306,14 @@ export const en = {
     combatant: {
       name: "Combatant",
       description: "Add 0.5 mult when clearing any tiles",
+    },
+    gambler: {
+      name: "Gambler",
+      description: "Reduce the cost of shop rerolls by 50%",
+    },
+    builder: {
+      name: "Builder",
+      description: "Reduce the cost of shop upgrades by 25%",
     },
     wizard: {
       name: "Wizard",
@@ -365,15 +373,19 @@ export const en = {
     },
     glassblower: {
       name: "Glassblower",
-      description: "Add 20 points when clearing Glass tiles (::g::)",
+      description: "Add 20 points when clearing Glass tiles",
     },
     stonemason: {
       name: "Stonemason",
-      description: "Add 10 coins when clearing Ivory tiles (::i::)",
+      description: "Add 10 coins when clearing Ivory tiles",
     },
     smith: {
       name: "Smith",
-      description: "Add 2 mult when clearing Bronze tiles (::b::)",
+      description: "Add 2 mult when clearing Bronze tiles",
+    },
+    recruiter: {
+      name: "Recruiter",
+      description: "Reduce the cost of crew members by 33%",
     },
     sailor: {
       name: "Sailor",
@@ -386,6 +398,18 @@ export const en = {
     captain: {
       name: "Captain",
       description: "Add 10 coins when clearing Wind tiles (::w::)",
+    },
+    jeweler: {
+      name: "Jeweler",
+      description: "Add 100 points when clearing Diamond tiles",
+    },
+    lapidarist: {
+      name: "Lapidarist",
+      description: "Add 40 coins when clearing Jade tiles",
+    },
+    miner: {
+      name: "Miner",
+      description: "Add 6 mult when clearing Gold tiles",
     },
   },
   tileDetails: {

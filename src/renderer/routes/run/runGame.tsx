@@ -35,7 +35,7 @@ import {
 import { BasicEmperor } from "@/components/emperor"
 import { shuffleTiles } from "@/lib/shuffleTiles"
 import Rand from "rand-seed"
-import { SELL_EMPEROR_AMOUNT, type EmperorItem } from "@/state/shopState"
+import { itemCost, type EmperorItem } from "@/state/shopState"
 import { useGlobalState } from "@/state/globalState"
 import RunGameOver from "./runGameOver"
 import { captureEvent } from "@/lib/observability"
@@ -184,6 +184,7 @@ function EmperorCard(props: { item: EmperorItem }) {
     () => EMPERORS.find((emperor) => emperor.name === props.item.name)!,
   )
   const [open, setOpen] = createSignal(false)
+  const t = useTranslation()
 
   function onDiscard() {
     const rng = new Rand()
@@ -198,20 +199,26 @@ function EmperorCard(props: { item: EmperorItem }) {
       }
     })
 
-    const deltedTimeout = setTimeout(() => {
-      setDeleted(true)
+    setDeleted(true)
 
-      const sideEffectTimeout = setTimeout(() => {
-        batch(() => {
-          run.items = run.items.filter((item) => item.id !== props.item.id)
-          run.money = run.money + SELL_EMPEROR_AMOUNT
-        })
-      }, FLIP_DURATION)
-
-      onCleanup(() => clearTimeout(sideEffectTimeout))
+    const sideEffectTimeout = setTimeout(() => {
+      batch(() => {
+        run.items = run.items.filter((item) => item.id !== props.item.id)
+        run.money =
+          run.money +
+          itemCost(
+            {
+              type: "emperor",
+              id: props.item.id,
+              level: props.item.level,
+              name: props.item.name,
+            },
+            run,
+          )
+      })
     }, FLIP_DURATION)
 
-    onCleanup(() => clearTimeout(deltedTimeout))
+    onCleanup(() => clearTimeout(sideEffectTimeout))
 
     captureEvent("emperor_discarded", {
       emperor: props.item.name,
@@ -238,7 +245,7 @@ function EmperorCard(props: { item: EmperorItem }) {
           <div class={emperorDialogButtonsClass}>
             <ShopButton hue="dot" onClick={onDiscard}>
               <Skull />
-              Discard and Shuffle
+              {t.common.discardAndShuffle()}
             </ShopButton>
           </div>
         </div>

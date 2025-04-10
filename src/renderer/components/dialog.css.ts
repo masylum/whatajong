@@ -40,6 +40,7 @@ export const contentClass = style({
   flexDirection: "column",
   position: "relative",
   padding: 16,
+  margin: 16,
   maxWidth: 400,
   borderRadius: 12,
   background: color.bone90,
