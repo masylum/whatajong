@@ -14,11 +14,11 @@ export function TileImage(iProps: Props) {
     { width: tileSize().width, height: tileSize().height },
     iProps,
   )
-  const href = useImageSrc(props.card)
+  const href = useImageSrc()
 
   return (
     <image
-      href={href()}
+      href={`${href()}/${iProps.card}.webp`}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

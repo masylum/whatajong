@@ -1,7 +1,7 @@
 import { useTranslation } from "@/i18n/useTranslation"
 import { type Card, getStandardPairs } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
-import { useTileSize } from "@/state/constants"
+import { useSmallerTileSize } from "@/state/constants"
 import type { AccentHue } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
@@ -49,7 +49,7 @@ function FallingTile(props: { card: Card }) {
   const cardRotation = createMemo(() => (Math.random() - 0.5) * 720)
   const cardDuration = createMemo(() => 2 + Math.random() * 15)
   const delay = createMemo(() => Math.random() * 10)
-  const tileSize = useTileSize(0.8)
+  const tileSize = useSmallerTileSize(0.8)
 
   return (
     <BasicTile

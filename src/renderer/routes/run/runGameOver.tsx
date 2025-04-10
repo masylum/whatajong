@@ -6,7 +6,7 @@ import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import { getRank, getSuit } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
-import { useTileSize } from "@/state/constants"
+import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import {
   GameStateProvider,
@@ -188,7 +188,7 @@ function Deck() {
       return getRank(a.card).localeCompare(getRank(b.card))
     }),
   )
-  const tileSize = useTileSize(0.5)
+  const tileSize = useSmallerTileSize(0.5)
 
   return (
     <div class={deckClass}>

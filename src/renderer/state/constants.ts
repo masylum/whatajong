@@ -1,4 +1,4 @@
-import { type Card, mapGetHeight, mapGetWidth } from "@/lib/game"
+import { mapGetHeight, mapGetWidth } from "@/lib/game"
 import { breakpoints } from "@/styles/breakpoints"
 import { createBreakpoints } from "@solid-primitives/media"
 import { useWindowSize } from "@solid-primitives/resize-observer"
@@ -65,19 +65,32 @@ export const useLayoutSize = createSingletonRoot(() => {
   })
 })
 
-export function useTileSize(ratio = 1) {
+function deriveSizeFromWidth(width: number) {
+  const height = width * TILE_RATIO
+  const corner = Math.floor(width / 10)
+  const sideSize = getSideSize(height)
+
+  return { width, height, corner, sideSize }
+}
+
+export const useTileSize = createSingletonRoot(() => {
   return createMemo(() => {
     const layout = useLayoutSize()
-    const width = (layout().width / (mapGetWidth() / 2)) * ratio
-    const height = width * TILE_RATIO
-    const corner = Math.floor(width / 10)
-    const sideSize = getSideSize(height)
+    const width = layout().width / (mapGetWidth() / 2)
+    return deriveSizeFromWidth(width)
+  })
+})
 
-    return { width, height, corner, sideSize }
+export function useSmallerTileSize(ratio: number) {
+  return createMemo(() => {
+    const tileSize = useTileSize()
+    const width = tileSize().width * ratio
+
+    return deriveSizeFromWidth(width)
   })
 }
 
-export function useImageSrc(card: Card) {
+export const useImageSrc = createSingletonRoot(() => {
   const match = createBreakpoints(breakpoints)
 
   return createMemo(() => {
@@ -91,6 +104,6 @@ export function useImageSrc(card: Card) {
       xxl: "m",
     }
     const size = sizes[match.key]
-    return `/tiles/${size}/${card}.webp`
+    return `/tiles/${size}`
   })
-}
+})

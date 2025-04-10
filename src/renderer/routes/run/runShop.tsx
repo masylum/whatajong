@@ -38,7 +38,7 @@ import {
   getSuit,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
-import { getSideSize, useTileSize } from "@/state/constants"
+import { getSideSize, useSmallerTileSize, useTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import { EmperorDescription, EmperorTitle } from "@/state/emperors"
 import {
@@ -200,7 +200,7 @@ function DeckTileComponent(props: {
   deckTile: DeckTile
   zIndex: number
 }) {
-  const tileSize = useTileSize(0.75)
+  const tileSize = useSmallerTileSize(0.75)
   const shop = useShopState()
 
   function onClick() {

@@ -111,11 +111,15 @@ export const tileClass = style({
   transitionDuration: `${DELETED_DURATION}ms`,
   transitionTimingFunction: "ease-in",
   outline: "none",
+  overflow: "visible",
   animationName: tileFallingAnimation,
   animationTimingFunction: easeBounce,
   animationDuration: ANIMATION_MEDIUM,
   animationDelay: tileAnimationDelayVar,
   animationFillMode: "backwards",
+})
+export const tileSvgClass = style({
+  overflow: "visible",
 })
 
 export const clickableClass = recipe({

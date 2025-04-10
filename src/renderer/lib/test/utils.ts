@@ -10,5 +10,17 @@ export function createTile({
   deleted = false,
   selected = false,
 }: Partial<Tile> & { card: Card }): Tile {
-  return { id, card, material, x, y, z, deleted, selected }
+  return {
+    id,
+    card,
+    material,
+    x,
+    y,
+    z,
+    deleted,
+    selected,
+    get coords() {
+      return `${x},${y},${z}`
+    },
+  }
 }

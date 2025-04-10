@@ -40,6 +40,7 @@ import {
   shakeAnimation,
   tileAnimationDelayVar,
   tileClass,
+  tileSvgClass,
 } from "./tileComponent.css"
 import { TileImage } from "./tileImage"
 import { TileShades } from "./tileShades"
@@ -236,7 +237,7 @@ export function TileComponent(iProps: Props) {
         </div>
       </Show>
       <Show when={!deleted()}>
-        <svg
+        <div
           style={{
             position: "absolute",
             left: `${coords().x}px`,
@@ -247,37 +248,41 @@ export function TileComponent(iProps: Props) {
               [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,
             }),
           }}
-          width={props.width}
-          height={props.height}
-          data-id={props.tile.id}
           class={tileClass}
         >
-          <g class={animation()}>
-            <TileSide d={dPath()} material={material()} />
-            <TileShades tile={props.tile} />
-            <TileBody material={material()} />
-            <TileImage card={props.tile.card} />
+          <svg
+            class={tileSvgClass}
+            width={props.width}
+            height={props.height}
+            data-id={props.tile.id}
+          >
+            <g class={animation()}>
+              <TileSide d={dPath()} material={material()} />
+              <TileShades tile={props.tile} />
+              <TileBody material={material()} />
+              <TileImage card={props.tile.card} />
 
-            {/* Clickable overlay with hover effect */}
-            <path
-              d={dPath()}
-              fill={fillColor()}
-              fill-opacity={fillOpacity()}
-              stroke={getHueColor(material())(40)}
-              stroke-width={selected() ? 2 : 1}
-              class={clickableClass({ canBeSelected: canBeSelected() })}
-              onMouseDown={() => {
-                if (!canBeSelected()) return
-                play("click")
-                props.onSelect(props.tile)
-              }}
-              onMouseEnter={() => {
-                props.onMouseEnter(props.tile)
-              }}
-              onMouseLeave={props.onMouseLeave}
-            />
-          </g>
-        </svg>
+              {/* Clickable overlay with hover effect */}
+              <path
+                d={dPath()}
+                fill={fillColor()}
+                fill-opacity={fillOpacity()}
+                stroke={getHueColor(material())(40)}
+                stroke-width={selected() ? 2 : 1}
+                class={clickableClass({ canBeSelected: canBeSelected() })}
+                onMouseDown={() => {
+                  if (!canBeSelected()) return
+                  play("click")
+                  props.onSelect(props.tile)
+                }}
+                onMouseEnter={() => {
+                  props.onMouseEnter(props.tile)
+                }}
+                onMouseLeave={props.onMouseLeave}
+              />
+            </g>
+          </svg>
+        </div>
       </Show>
     </>
   )

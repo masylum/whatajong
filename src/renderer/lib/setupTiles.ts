@@ -28,6 +28,9 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
             z,
             deleted: false,
             selected: false,
+            get coords() {
+              return `${this.x},${this.y},${this.z}`
+            },
           })
         }
       }
@@ -42,18 +45,21 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
     const freeTiles = getFreeTiles(tileDb)
     if (freeTiles.length <= 1) break
 
-    // Randomly select two free tiles
-    const idx1 = Math.floor(rng.next() * freeTiles.length)
-    const tile1 = freeTiles[idx1]!
-    freeTiles.splice(idx1, 1)
+    while (freeTiles.length > 1) {
+      // Randomly select two free tiles
+      const idx1 = Math.floor(rng.next() * freeTiles.length)
+      const tile1 = freeTiles[idx1]!
+      freeTiles.splice(idx1, 1)
 
-    const idx2 = Math.floor(rng.next() * freeTiles.length)
-    const tile2 = freeTiles[idx2]!
+      const idx2 = Math.floor(rng.next() * freeTiles.length)
+      const tile2 = freeTiles[idx2]!
+      freeTiles.splice(idx2, 1)
 
-    // Remove the pair and store their positions
-    tileDb.del(tile1.id)
-    tileDb.del(tile2.id)
-    pickOrder.push(tile1, tile2)
+      // Remove the pair and store their positions
+      tileDb.del(tile1.id)
+      tileDb.del(tile2.id)
+      pickOrder.push(tile1, tile2)
+    }
   }
 
   // If we couldn't remove all tiles, start over
@@ -88,6 +94,9 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       z: tile1.z,
       deleted: false,
       selected: false,
+      get coords() {
+        return `${this.x},${this.y},${this.z}`
+      },
     })
 
     tileDb.set(id2, {
@@ -99,6 +108,9 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
       z: tile2.z,
       deleted: false,
       selected: false,
+      get coords() {
+        return `${this.x},${this.y},${this.z}`
+      },
     })
   }
 

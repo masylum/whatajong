@@ -4,7 +4,7 @@ import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
 import { getStandardPairs } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
-import { useImageSrc, useTileSize } from "@/state/constants"
+import { useImageSrc, useSmallerTileSize } from "@/state/constants"
 import { fetchRuns } from "@/state/runState"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
@@ -34,8 +34,8 @@ function cards() {
 export function Home() {
   const t = useTranslation()
   const runs = createMemo(() => fetchRuns())
-  const db = useImageSrc("db")
-  const dc = useImageSrc("dc")
+  const db = useImageSrc()
+  const dc = useImageSrc()
 
   function onHover() {
     play("click2")
@@ -58,7 +58,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={db()}
+            src={`${db()}/db.webp`}
             alt="classic"
             width={36}
             height={52}
@@ -79,7 +79,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={dc()}
+            src={`${dc()}/dc.webp`}
             alt="duel"
             width={36}
             height={52}
@@ -93,7 +93,7 @@ export function Home() {
 }
 
 function Frame() {
-  const tileSize = useTileSize(0.7)
+  const tileSize = useSmallerTileSize(0.7)
   const size = useWindowSize()
   const padding = 0.95
   const horizontalTiles = createMemo(() =>
@@ -120,17 +120,17 @@ function Frame() {
       >
         <For each={cards().slice(0, horizontalTiles())}>
           {(card, j) => (
-            <BasicTile
+            <div
               class={cardClass}
-              width={tileSize().width}
               style={{
                 ...assignInlineVars({
                   [cardAnimationDelayVar]: `${j() * 20}ms`,
                 }),
                 "z-index": j(),
               }}
-              card={card}
-            />
+            >
+              <BasicTile width={tileSize().width} card={card} />
+            </div>
           )}
         </For>
       </div>
@@ -143,9 +143,8 @@ function Frame() {
       >
         <For each={cards().slice(0, verticalTiles())}>
           {(card, j) => (
-            <BasicTile
+            <div
               class={cardClass}
-              width={tileSize().width}
               style={{
                 "z-index": horizontalTiles() + j(),
                 ...assignInlineVars({
@@ -156,8 +155,9 @@ function Frame() {
                     ? "hidden"
                     : "visible",
               }}
-              card={card}
-            />
+            >
+              <BasicTile width={tileSize().width} card={card} />
+            </div>
           )}
         </For>
       </div>
@@ -170,9 +170,8 @@ function Frame() {
       >
         <For each={cards().slice(0, verticalTiles())}>
           {(card, j) => (
-            <BasicTile
+            <div
               class={cardClass}
-              width={tileSize().width}
               style={{
                 "z-index": horizontalTiles() + j(),
                 ...assignInlineVars({
@@ -183,8 +182,9 @@ function Frame() {
                     ? "hidden"
                     : "visible",
               }}
-              card={card}
-            />
+            >
+              <BasicTile width={tileSize().width} card={card} />
+            </div>
           )}
         </For>
       </div>
@@ -197,17 +197,17 @@ function Frame() {
       >
         <For each={cards().slice(0, horizontalTiles())}>
           {(card, j) => (
-            <BasicTile
+            <div
               class={cardClass}
-              width={tileSize().width}
               style={{
                 ...assignInlineVars({
                   [cardAnimationDelayVar]: `${verticalTiles() * 20 + j() * 20}ms`,
                 }),
                 "z-index": horizontalTiles() + verticalTiles() + j(),
               }}
-              card={card}
-            />
+            >
+              <BasicTile width={tileSize().width} card={card} />
+            </div>
           )}
         </For>
       </div>

@@ -10,10 +10,6 @@ import {
 import { difference, intersection } from "./setMethods"
 
 type Id = string
-type Indexes<Type, Attr extends keyof Type> = Map<
-  Attr,
-  RMap<Type[Attr], RSet<Id>>
->
 type ById<Type> = Record<Id, Type>
 type DatabaseConfig<Type, Attr extends keyof Type> = {
   indexes: Readonly<Attr[]>
@@ -22,7 +18,7 @@ type DatabaseConfig<Type, Attr extends keyof Type> = {
 export class Database<Type extends { id: Id }, Attr extends keyof Type> {
   public byId: ById<Type>
   public setById: SetStoreFunction<ById<Type>>
-  public indexes: Indexes<Type, Attr>
+  public indexes: Map<Attr, RMap<Type[Attr], RSet<Id>>>
 
   constructor(config: DatabaseConfig<Type, Attr>, values?: Type[]) {
     ;[this.byId, this.setById] = createStore({} as ById<Type>)

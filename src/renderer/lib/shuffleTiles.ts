@@ -24,6 +24,9 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
         z: tile.z,
         deleted: false,
         selected: false,
+        get coords() {
+          return `${this.x},${this.y},${this.z}`
+        },
       })
     }
 
@@ -100,6 +103,9 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
         z: tile1.z,
         deleted: false,
         selected: false,
+        get coords() {
+          return `${this.x},${this.y},${this.z}`
+        },
       })
 
       tileDb.set(id2, {
@@ -111,6 +117,9 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
         z: tile2.z,
         deleted: false,
         selected: false,
+        get coords() {
+          return `${this.x},${this.y},${this.z}`
+        },
       })
     }
 
