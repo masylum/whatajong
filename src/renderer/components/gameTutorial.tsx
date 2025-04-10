@@ -39,7 +39,7 @@ import {
   createSignal,
   onMount,
 } from "solid-js"
-import { BasicEmperor } from "./emperor"
+import { BasicEmperor } from "./basicEmperor"
 import { comboRecipe } from "./game/powerups.css"
 import { MovesIndicator, Penalty, Points } from "./game/stats"
 import {

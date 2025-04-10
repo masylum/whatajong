@@ -1,4 +1,5 @@
 import { play } from "@/components/audio"
+import { BasicEmperor } from "@/components/basicEmperor"
 import { Button, LinkButton, ShopButton } from "@/components/button"
 import { Dialog } from "@/components/dialog"
 import {
@@ -8,7 +9,6 @@ import {
   dialogItemsClass,
   dialogTitleClass,
 } from "@/components/dialog.css"
-import { BasicEmperor } from "@/components/emperor"
 import { Board } from "@/components/game/board"
 import { EmperorDetailsDialog } from "@/components/game/emperorDetails"
 import { Frame } from "@/components/game/frame"

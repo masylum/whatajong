@@ -117,6 +117,7 @@ export const tileClass = style({
   animationDuration: ANIMATION_MEDIUM,
   animationDelay: tileAnimationDelayVar,
   animationFillMode: "backwards",
+  WebkitTapHighlightColor: "transparent",
 })
 export const tileSvgClass = style({
   overflow: "visible",

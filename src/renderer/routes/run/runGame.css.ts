@@ -1,4 +1,4 @@
-import { EMPEROR_RATIO } from "@/components/emperor"
+import { EMPEROR_RATIO } from "@/components/basicEmperor"
 import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
 import { alpha, color } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"

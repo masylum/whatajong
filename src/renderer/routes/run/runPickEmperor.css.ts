@@ -124,7 +124,7 @@ export const buttonClass = recipe({
     animationFillMode: "backwards",
 
     ":hover": {
-      transform: "rotateX(-20deg) rotateY(-10deg) scale(1.2)",
+      transform: "rotateX(20deg) rotateY(-5deg) scaleY(1.1)",
       filter: "brightness(1.1)",
     },
 
@@ -135,6 +135,10 @@ export const buttonClass = recipe({
       [mediaQuery({ p: "l", l: "s" })]: {
         flexDirection: "column",
         width: CHOICE_EMPEROR_WIDTH * 1.3,
+        ":hover": {
+          transform: "rotateX(-20deg) rotateY(-10deg) scale(1.2)",
+          filter: "brightness(1.1)",
+        },
       },
       [mediaQuery({ p: "xl", l: "m" })]: {
         width: CHOICE_EMPEROR_WIDTH * 1.4,
@@ -154,6 +158,7 @@ export const buttonImageClass = style({
   objectPosition: "top center",
   height: "100%",
   maxHeight: 180,
+  maxWidth: 132,
   "@media": {
     [mediaQuery({ p: "m", l: "m" })]: {
       width: "100%",

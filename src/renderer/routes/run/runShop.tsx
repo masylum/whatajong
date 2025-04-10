@@ -7,9 +7,9 @@ import { Dialog } from "@kobalte/core/dialog"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 
 import { play } from "@/components/audio"
+import { BasicEmperor } from "@/components/basicEmperor"
 import { ShopButton } from "@/components/button"
 import { LinkButton } from "@/components/button"
-import { BasicEmperor } from "@/components/emperor"
 import { BasicTile } from "@/components/game/basicTile"
 import {
   CardMultiplier,

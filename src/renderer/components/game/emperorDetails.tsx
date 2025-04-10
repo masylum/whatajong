@@ -4,7 +4,7 @@ import {
   EmperorTitle,
 } from "@/state/emperors"
 import { createMemo } from "solid-js"
-import { BasicEmperor } from "../emperor"
+import { BasicEmperor } from "../basicEmperor"
 import {
   detailInfoClass,
   detailsDialogClass,

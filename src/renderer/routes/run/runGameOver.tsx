@@ -1,5 +1,5 @@
+import { BasicEmperor } from "@/components/basicEmperor"
 import { Button, LinkButton } from "@/components/button"
-import { BasicEmperor } from "@/components/emperor"
 import { BasicTile } from "@/components/game/basicTile"
 import { GameOver } from "@/components/game/gameOver"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"

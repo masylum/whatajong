@@ -1,5 +1,5 @@
+import { BasicEmperor } from "@/components/basicEmperor"
 import { LinkButton } from "@/components/button"
-import { BasicEmperor } from "@/components/emperor"
 import { ArrowLeft } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import { suitName } from "@/lib/game"

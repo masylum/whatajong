@@ -37,6 +37,7 @@ export const shopClass = style({
   maxWidth: MAX_WIDTH,
   maxHeight: MAX_HEIGHT,
   flexDirection: "column",
+  margin: "0 auto",
   fontFamily: secondary,
   gap: 12,
   padding: 12,
