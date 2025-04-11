@@ -103,18 +103,16 @@ export const titleClass = style({
 
 export const columnsClass = style({
   display: "flex",
-  alignItems: "flex-start",
+  flexDirection: "column",
   justifyContent: "center",
-  flex: 1,
-  gap: 12,
+  gap: 24,
   minHeight: 0,
-  maxHeight: 500,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 16,
+      gap: 28,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 24,
+      gap: 32,
     },
   },
 })
@@ -127,22 +125,20 @@ export const whatajongClass = style({
 export const columnClass = style({
   display: "flex",
   flexDirection: "column",
-  alignItems: "center",
-  gap: 24,
   color: color.dot70,
-  padding: 16,
+  gap: 12,
   ...fontSize.m,
   fontFamily: secondary,
   flex: 1,
-  height: "100%",
-  minHeight: 0,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.l,
+      gap: 16,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       ...fontSize.h2,
       textWrap: "pretty",
+      gap: 24,
     },
   },
 })
@@ -185,7 +181,6 @@ export const dragonRunClass = style({
   flexDirection: "column",
   alignItems: "center",
   gap: 12,
-  background: `radial-gradient(ellipse at center, ${alpha(color.bam60, 0.5)} 0%, ${alpha(color.bam60, 0.0)} 80%)`,
 })
 
 export const boardClass = style({
@@ -196,22 +191,18 @@ export const boardClass = style({
 })
 
 export const emperorContainerClass = style({
-  position: "relative",
-  height: "100%",
-  width: "100%",
-  maxWidth: 300,
+  display: "flex",
 })
 
 export const emperorClass = recipe({
   base: {
-    position: "absolute",
     borderRadius: 12,
     padding: 0,
     overflow: "hidden",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    height: "100%",
+    maxWidth: 100,
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -229,7 +220,7 @@ export const emperorImageClass = style({
 })
 
 export const emperorTextClass = style({
-  ...fontSize.m,
+  ...fontSize.xs,
   fontFamily: primary,
   display: "flex",
   flexDirection: "column",
@@ -240,13 +231,13 @@ export const emperorTextClass = style({
     [mediaQuery({ p: "m", l: "xs" })]: {
       padding: 12,
       gap: 12,
-      ...fontSize.h3,
+      ...fontSize.m,
     },
     [mediaQuery({ p: "l", l: "s" })]: {
-      ...fontSize.h2,
+      ...fontSize.l,
     },
     [mediaQuery({ p: "xl", l: "m" })]: {
-      ...fontSize.h1,
+      ...fontSize.h3,
     },
   },
   selectors: {
@@ -267,27 +258,6 @@ export const shopItemContainerClass = style({
   height: "100%",
   width: "100%",
   maxWidth: 300,
-})
-
-export const emperorDescriptionTextClass = style({
-  ...fontSize.s,
-  fontFamily: secondary,
-  "@media": {
-    [mediaQuery({ p: "m", l: "xs" })]: {
-      ...fontSize.m,
-    },
-    [mediaQuery({ p: "xl", l: "m" })]: {
-      ...fontSize.l,
-    },
-  },
-  selectors: {
-    ...hueSelectors(
-      (hue) => `${emperorClass.classNames.variants.hue[hue]} &`,
-      (kolor) => ({
-        color: kolor(60),
-      }),
-    ),
-  },
 })
 
 export const materialListClass = style({

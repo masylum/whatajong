@@ -1,6 +1,6 @@
-import { Button, LinkButton, ShopButton } from "@/components/button"
+import { Button, LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
-import { ArrowLeft, ArrowRight, Home, Play, Skull } from "@/components/icon"
+import { ArrowLeft, ArrowRight, Home, Play } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type Card,
@@ -21,11 +21,7 @@ import {
   UpgradeButton,
 } from "@/routes/run/runShop"
 import { getSideSize, useLayoutSize } from "@/state/constants"
-import {
-  EmperorDescription,
-  type EmperorName,
-  EmperorTitle,
-} from "@/state/emperors"
+import { type EmperorName, EmperorTitle } from "@/state/emperors"
 import { useGlobalState } from "@/state/globalState"
 import type { AccentHue } from "@/styles/colors"
 import {
@@ -55,7 +51,6 @@ import {
   dragonRunClass,
   emperorClass,
   emperorContainerClass,
-  emperorDescriptionTextClass,
   emperorImageClass,
   emperorTextClass,
   materialListClass,
@@ -328,12 +323,6 @@ function Dragons() {
       </div>
       <div class={columnClass}>
         <p innerHTML={t.tutorial.dragons2()} />
-        <div class={dragonRunClass}>
-          <BasicTile width={tileWidth()} card="db" />
-          <span class={comboRecipe({ hue: "bam" })}>
-            {t.common.dragonRun()}
-          </span>
-        </div>
         <p innerHTML={t.tutorial.dragons3()} />
       </div>
       <div class={columnClass}>
@@ -499,13 +488,6 @@ function Crew() {
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.crew3()}</p>
-        <div class={boardClass}>
-          <MovesIndicator urgency="urgent" pairs={1} />
-        </div>
-        <ShopButton hue="dot">
-          <Skull />
-          {t.common.discardAndShuffle()}
-        </ShopButton>
       </div>
     </div>
   )
@@ -753,15 +735,12 @@ function EmperorExplanation(props: {
     <div
       class={emperorClass({ hue: props.hue })}
       style={{
-        transform: `scale(0.8) translateX(${-20 + props.index * 20}px) rotate(${-10 + props.index * 10}deg)`,
+        transform: `translateX(${50 - props.index * 50}px) rotate(${-10 + props.index * 10}deg)`,
       }}
     >
       <BasicEmperor name={props.name} class={emperorImageClass} />
       <div class={emperorTextClass}>
         <EmperorTitle name={props.name} />
-        <div class={emperorDescriptionTextClass}>
-          <EmperorDescription name={props.name} />
-        </div>
       </div>
     </div>
   )
