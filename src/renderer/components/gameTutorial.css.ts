@@ -152,6 +152,7 @@ export const cardRowsClass = style({
 export const cardRowClass = style({
   display: "flex",
   alignItems: "center",
+  margin: "0 auto",
   gap: 12,
 })
 
@@ -170,6 +171,7 @@ export const cardTitleClass = recipe({
 export const rowsClass = style({
   display: "flex",
   flexDirection: "column",
+  margin: "0 auto",
 })
 
 export const rowClass = style({
@@ -187,6 +189,7 @@ export const boardClass = style({
 
 export const emperorContainerClass = style({
   display: "flex",
+  justifyContent: "center",
 })
 
 export const emperorClass = recipe({

@@ -28,7 +28,7 @@ import {
   useGameState,
 } from "@/state/gameState"
 import { useGlobalState } from "@/state/globalState"
-import { useRound, useRunState } from "@/state/runState"
+import { ownedEmperors, useRound, useRunState } from "@/state/runState"
 import { type EmperorItem, itemCost } from "@/state/shopState"
 import {
   TileStateProvider,
@@ -199,7 +199,7 @@ function EmperorCard(props: { item: EmperorItem }) {
     batch(() => {
       shuffleTiles({ rng, tileDb: tiles })
 
-      for (const emperor of run.ownedEmperors) {
+      for (const emperor of ownedEmperors(run)) {
         emperor.whenDiscarded?.({ run, deck, game, tileDb: tiles })
       }
     })

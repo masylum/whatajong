@@ -11,7 +11,7 @@ import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
-export const DELETED_DURATION = 300
+const DELETED_DURATION = 300
 export const FLOATING_NUMBER_DURATION = 1000
 
 const shakeKeyframes = keyframes({

@@ -293,14 +293,14 @@ function Clearing() {
             card="o1"
             style={{ transform: "rotate(7deg)" }}
           />
+          <h3
+            class={cardTitleClass({
+              hue: suitName("o") as any,
+            })}
+          >
+            {t.tutorial.clearing4()}
+          </h3>
         </div>
-        <h3
-          class={cardTitleClass({
-            hue: suitName("o") as any,
-          })}
-        >
-          {t.tutorial.clearing4()}
-        </h3>
       </div>
     </div>
   )
@@ -420,23 +420,6 @@ function SeasonsAndFlowers() {
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.seasonsAndFlowers3()}</p>
-        <div class={rowsClass}>
-          <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="c2" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
-          </div>
-          <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="o1" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="b7" />
-            <BasicTile width={tileWidth()} card="c8" highlighted="bam" />
-          </div>
-          <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="b1" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="o3" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="o3" highlighted="bam" />
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -722,7 +705,7 @@ function MaterialExplanation(props: { material: Material }) {
 
 function useTileSize() {
   const layout = useLayoutSize()
-  return createMemo(() => layout().width / 16)
+  return createMemo(() => layout().width / 12)
 }
 
 function EmperorExplanation(props: {

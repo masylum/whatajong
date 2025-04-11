@@ -9,12 +9,11 @@ import {
   overlaps,
 } from "./game"
 
-const MAP_SIZE = {
-  x: mapGetWidth(),
-  y: mapGetHeight(),
-}
-
 function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
+  const MAP_SIZE = {
+    x: mapGetWidth(),
+    y: mapGetHeight(),
+  }
   const value = tile[axis]
 
   if (bias === 0) return

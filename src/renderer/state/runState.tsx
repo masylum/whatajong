@@ -7,7 +7,6 @@ import {
   useContext,
 } from "solid-js"
 import { EMPERORS } from "./emperors"
-import type { Emperor } from "./emperors"
 import { calculateSeconds } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
 import { type Item, generateShopItems } from "./shopState"
@@ -29,7 +28,6 @@ export type RunState = {
     reroll: number
     active: boolean
   }
-  get ownedEmperors(): Emperor[]
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
@@ -88,16 +86,6 @@ export function createRunState(params: CreateRunStateParams) {
         shopItems: generateShopItems(),
         createdAt: Date.now(),
         items: [],
-        get ownedEmperors() {
-          const names = new Set(
-            (this.items as Item[])
-              .filter((item) => item.type === "emperor")
-              .map((item) => item.name),
-          )
-          if (!names.size) return []
-
-          return EMPERORS.filter((emperor) => names.has(emperor.name))
-        },
       }
     },
   })
@@ -131,10 +119,9 @@ export function generateRound(id: number, run: RunState): Round {
   const var1 = variation()
   const var2 = variation()
   const level = id - 1
-  const timerPoints =
-    level === 0 ? 0 : ((level * timer.lin + timer.exp ** level) / 20) * var1 // Grows level + 1.3^level
+  const timerPoints = ((level * timer.lin + timer.exp ** level) / 20) * var1 // Grows level + 1.3^level
   const pointObjective = Math.round(
-    (110 + level * point.lin + level ** point.exp) * var2,
+    (100 + level * point.lin + level ** point.exp) * var2,
   ) // Grows 30*level + level^2.8
 
   const round: Round = {
@@ -171,4 +158,17 @@ export function runGameWin(game: Game, run: RunState) {
   if (!enoughPoints) return false
 
   return true
+}
+
+export function ownedEmperors(run?: RunState) {
+  if (!run) return []
+
+  const names = new Set(
+    (run.items as Item[])
+      .filter((item) => item.type === "emperor")
+      .map((item) => item.name),
+  )
+  if (!names.size) return []
+
+  return EMPERORS.filter((emperor) => names.has(emperor.name))
 }

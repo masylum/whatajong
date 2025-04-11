@@ -19,7 +19,7 @@ import {
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
-import type { RunState } from "@/state/runState"
+import { type RunState, ownedEmperors } from "@/state/runState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { countBy, entries } from "remeda"
@@ -51,7 +51,7 @@ function itemRawCost(item: Item) {
 export function itemCost(item: Item, run?: RunState) {
   const raw = itemRawCost(item)
   if (!run) return raw
-  const emperors = run.ownedEmperors
+  const emperors = ownedEmperors(run)
 
   let cost = raw
   for (const emperor of emperors) {

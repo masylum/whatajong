@@ -1,5 +1,5 @@
 import type { Translator } from "@/i18n/useTranslation"
-import type { RunState } from "@/state/runState"
+import { type RunState, ownedEmperors } from "@/state/runState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { sumBy } from "remeda"
@@ -184,7 +184,7 @@ export function getCoins({
 }): number {
   const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
   const rabbitCoins = Math.min(game.rabbitActive ? newPoints : 0, 300)
-  const emperorCoins = sumBy(run?.ownedEmperors ?? [], (emperor) =>
+  const emperorCoins = sumBy(ownedEmperors(run), (emperor) =>
     sumBy(
       tiles,
       (tile) =>
@@ -222,7 +222,7 @@ export function getRawPoints({
   const cardPoints = getCardPoints(card)
   const materialPoints = getMaterialPoints(material)
   const emperorPoints = sumBy(
-    run?.ownedEmperors ?? [],
+    ownedEmperors(run),
     (emperor) => emperor.getRawPoints?.({ card, material, tileDb, game }) ?? 0,
   )
   let jokerPoints = 0
@@ -259,7 +259,7 @@ export function getRawMultiplier({
   }
 
   const emperorMultiplier = sumBy(
-    run?.ownedEmperors ?? [],
+    ownedEmperors(run),
     (emperor) =>
       emperor.getRawMultiplier?.({
         card,
@@ -339,7 +339,7 @@ export function selectTile({
       resolveTemporaryMaterial(game, tile)
 
       if (run) {
-        for (const emperor of run.ownedEmperors) {
+        for (const emperor of ownedEmperors(run)) {
           emperor.whenMatched?.({ run, tile, tileDb, game })
         }
       }
