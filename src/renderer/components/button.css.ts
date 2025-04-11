@@ -19,6 +19,7 @@ export const buttonClass = recipe({
     border: "none",
     cursor: "pointer",
     outline: "none",
+    WebkitTapHighlightColor: "transparent",
     ":focus": {
       outlineOffset: 2,
     },
@@ -120,6 +121,7 @@ export const shopButtonClass = recipe({
     fontVariantLigatures: "none",
     outline: "none",
     outlineOffset: 2,
+    WebkitTapHighlightColor: "transparent",
     ":disabled": {
       opacity: 0.5,
       cursor: "inherit",

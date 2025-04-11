@@ -134,16 +134,13 @@ function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
     t.tutorial.stages[props.steps[step()]! as keyof typeof t.tutorial.stages](),
   )
   const [play, setPlay] = createSignal(false)
-  const [upperBound, setUpperBound] = createSignal(0)
 
   onMount(() => {
-    setUpperBound(step())
     setPlay(step() >= props.steps.length)
   })
 
   function onSkip() {
-    globalState.tutorial[props.tutorial] = upperBound() + 1
-    setUpperBound(globalState.tutorial[props.tutorial])
+    onNext()
     setPlay(true)
   }
 
@@ -173,12 +170,15 @@ function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
             <ArrowLeft />
             {t.common.prev()}
           </Button>
-          <Show when={step() < upperBound()}>
-            <Button hue="dot" kind="dark" onClick={onNext}>
-              {t.common.next()}
-              <ArrowRight />
-            </Button>
-          </Show>
+          <Button
+            hue="dot"
+            kind="dark"
+            onClick={onNext}
+            disabled={step() >= props.steps.length - 1}
+          >
+            {t.common.next()}
+            <ArrowRight />
+          </Button>
           <Button hue="bam" kind="dark" onClick={onSkip}>
             <Show
               when={props.tutorial === "game"}
