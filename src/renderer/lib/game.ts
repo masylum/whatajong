@@ -4,7 +4,7 @@ import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { sumBy } from "remeda"
 import { batch } from "solid-js"
-import { type Database, initDatabase } from "./in-memoriam"
+import { Database } from "./in-memoriam"
 import { RESPONSIVE_MAP } from "./maps/responsive"
 import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
 import { resolveMutations } from "./resolveMutations"
@@ -344,15 +344,20 @@ export function selectTile({
         }
       }
     }
-
-    const condition = gameOverCondition(tileDb, game)
-
-    if (condition) {
-      game.endedAt = new Date().getTime()
-      game.endCondition = condition
-      return
-    }
   })
+
+  // This can be slow and we don't need it on real time. It makes the click feel laggy.
+  setTimeout(() => {
+    batch(() => {
+      const condition = gameOverCondition(tileDb, game)
+
+      if (condition) {
+        game.endedAt = new Date().getTime()
+        game.endCondition = condition
+        return
+      }
+    })
+  }, 100)
 }
 
 export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
@@ -423,13 +428,18 @@ export type Card =
   | Transport
 export type WindDirection = "n" | "s" | "e" | "w"
 
-export const deckTileIndexes = ["card", "material"] as const
-export type DeckTileIndexes = (typeof deckTileIndexes)[number]
+export const deckTileIndexes = {
+  card: (tile: DeckTile) => tile.card,
+  material: (tile: DeckTile) => tile.material,
+} as const
+
+export type DeckTileIndexes = typeof deckTileIndexes
 export type DeckTile = {
   id: string
   card: Card
   material: Material
 }
+
 export type Deck = Database<DeckTile, DeckTileIndexes>
 
 export function getStandardPairs(): [Card, Card][] {
@@ -556,6 +566,10 @@ type Position = {
   z: number
 }
 
+function coord(position: Position) {
+  return `${position.x},${position.y},${position.z}`
+}
+
 export type Tile = {
   id: string
   card: Card
@@ -566,12 +580,21 @@ export type Tile = {
   coins?: number
 } & Position
 type TileById = Record<string, Tile>
-export const tileIndexes = ["x", "y", "z", "deleted", "selected"] as const
-export type TileIndexes = (typeof tileIndexes)[number]
+export const tileIndexes = {
+  x: (tile: Tile) => tile.x,
+  y: (tile: Tile) => tile.y,
+  z: (tile: Tile) => tile.z,
+  deleted: (tile: Tile) => tile.deleted,
+  selected: (tile: Tile) => tile.selected,
+  coord,
+} as const
+export type TileIndexes = typeof tileIndexes
 export type TileDb = Database<Tile, TileIndexes>
 
-export function initTileDb(tiles: TileById): TileDb {
-  return initDatabase({ indexes: tileIndexes }, tiles)
+export function initTileDb(tiles: TileById) {
+  const db = new Database<Tile, TileIndexes>(tileIndexes)
+  db.update(tiles)
+  return db
 }
 
 export function fullyOverlaps(
@@ -637,9 +660,7 @@ function getFreedoms(tileDb: TileDb, position: Position) {
 export function getFinder(tileDb: TileDb, position: Position) {
   return (x = 0, y = 0, z = 0) => {
     const tile = tileDb.findBy({
-      x: position.x + x,
-      y: position.y + y,
-      z: position.z + z,
+      coord: coord({ x: position.x + x, y: position.y + y, z: position.z + z }),
     })
     if (!tile) return null
     if (tile.deleted) return null
@@ -650,21 +671,24 @@ export function getFinder(tileDb: TileDb, position: Position) {
 
 export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   const isCovered = overlaps(tileDb, tile, 1)
+  if (isCovered) return false
+
+  const material = getMaterial(tileDb, tile, game)
+  if (material === "diamond") return true
+
   const freedoms = getFreedoms(tileDb, tile)
   const countFreedoms = Object.values(freedoms).filter((v) => v).length
-  const material = getMaterial(tileDb, tile, game)
 
-  if (material === "diamond") return !isCovered
   if (material === "glass" || material === "wood") {
-    return countFreedoms >= 1 && !isCovered
+    return countFreedoms >= 1
   }
 
   if (material === "gold" || material === "jade") {
-    return countFreedoms >= 3 && !isCovered
+    return countFreedoms >= 3
   }
 
   const isFreeH = freedoms.left || freedoms.right
-  return isFreeH && !isCovered
+  return isFreeH
 }
 
 export function getMaterial(tileDb: TileDb, tile: Tile, game?: Game): Material {

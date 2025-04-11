@@ -1,6 +1,5 @@
 import type { Database } from "@/lib/in-memoriam"
-import { on } from "solid-js"
-import { createEffect, createMemo } from "solid-js"
+import { batch, createEffect, createMemo, on } from "solid-js"
 
 type CreateDbParams<T> = {
   namespace: string
@@ -24,8 +23,10 @@ export function persistentDatabase<T extends Database<any, any>>(
       if (persistedState) {
         db().update(JSON.parse(persistedState))
       } else {
-        db().update({})
-        params.init(db(), id)
+        batch(() => {
+          db().update({})
+          params.init(db(), id)
+        })
       }
     }),
   )

@@ -16,8 +16,7 @@ export function createDeckState(params: CreateDeckStateParams) {
   return persistentDatabase({
     namespace: "deck-state",
     id: params.id,
-    db: () =>
-      new Database<DeckTile, DeckTileIndexes>({ indexes: deckTileIndexes }),
+    db: () => new Database<DeckTile, DeckTileIndexes>(deckTileIndexes),
     init: (db) => {
       for (const tiles of getRunPairs()) {
         const id = nanoid()

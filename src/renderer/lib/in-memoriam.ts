@@ -11,18 +11,23 @@ import { difference, intersection } from "./setMethods"
 
 type Id = string
 type ById<Type> = Record<Id, Type>
-type DatabaseConfig<Type, Attr extends keyof Type> = {
-  indexes: Readonly<Attr[]>
-}
 
-export class Database<Type extends { id: Id }, Attr extends keyof Type> {
+export class Database<
+  Type extends { id: Id },
+  Config extends Record<string, (t: Type) => any>,
+> {
   public byId: ById<Type>
   public setById: SetStoreFunction<ById<Type>>
-  public indexes: Map<Attr, RMap<Type[Attr], RSet<Id>>>
+  public indexes: Map<
+    keyof Config,
+    RMap<ReturnType<Config[keyof Attr]>, RSet<Id>>
+  >
+  public config: Config
 
-  constructor(config: DatabaseConfig<Type, Attr>, values?: Type[]) {
+  constructor(config: Config, values?: Type[]) {
     ;[this.byId, this.setById] = createStore({} as ById<Type>)
-    this.indexes = new Map(config.indexes.map((i) => [i, new RMap()]))
+    this.config = config
+    this.indexes = new Map(Object.keys(config).map((i) => [i, new RMap()]))
 
     if (values) {
       for (const value of values) {
@@ -62,8 +67,7 @@ export class Database<Type extends { id: Id }, Attr extends keyof Type> {
 
       for (const indexName of this.indexes.keys()) {
         const index = this.indexes.get(indexName)!
-        const value = entity[indexName]
-
+        const value = this.config[indexName]!(entity)
         index.get(value)!.delete(id)
       }
     })
@@ -79,10 +83,10 @@ export class Database<Type extends { id: Id }, Attr extends keyof Type> {
 
       for (const indexName of this.indexes.keys()) {
         const index = this.indexes.get(indexName)!
-        const newValue = newEntity[indexName]
+        const newValue = this.config[indexName]!(newEntity)
 
         if (oldEntity) {
-          const oldValue = oldEntity[indexName]
+          const oldValue = this.config[indexName]!(oldEntity)
 
           if (oldValue !== newValue) {
             index.get(oldValue)!.delete(id)
@@ -101,12 +105,14 @@ export class Database<Type extends { id: Id }, Attr extends keyof Type> {
     })
   }
 
-  filterBy<K extends Attr>(query: Record<K, Type[K]>): Type[] {
+  filterBy(
+    query: Partial<{ [Key in keyof Config]: ReturnType<Config[Key]> }>,
+  ): Type[] {
     let entities
-    const values = Object.entries(query) as Array<[Attr, Type[Attr]]>
+    const values = Object.entries(query)
 
     for (const [attr, value] of values) {
-      const entitySet = this.indexes.get(attr)!.get(value)
+      const entitySet = this.indexes.get(attr)!.get(value!)
       if (!entitySet || entitySet.size === 0) return []
 
       entities = entities ? intersection(entities, entitySet) : entitySet
@@ -116,7 +122,9 @@ export class Database<Type extends { id: Id }, Attr extends keyof Type> {
     return [...entities].map((id) => this.get(id)!)
   }
 
-  findBy<K extends Attr>(query: Record<K, Type[K]>): Type | null {
+  findBy(
+    query: Partial<{ [Key in keyof Config]: ReturnType<Config[Key]> }>,
+  ): Type | null {
     return this.filterBy(query)[0] || null
   }
 
@@ -132,17 +140,4 @@ export class Database<Type extends { id: Id }, Attr extends keyof Type> {
   get size() {
     return Object.keys(this.byId).length
   }
-}
-
-export function initDatabase<
-  Type extends { id: string },
-  Attr extends keyof Type,
->(config: DatabaseConfig<Type, Attr>, entities: ById<Type>) {
-  const db = new Database<Type, Attr>(config)
-
-  for (const entity of Object.values(entities)) {
-    db.set(entity.id, entity)
-  }
-
-  return db
 }

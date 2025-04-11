@@ -7,7 +7,7 @@ import { color } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
-import { recipe } from "@vanilla-extract/recipes"
+import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
@@ -53,16 +53,6 @@ const floatingNumberKeyframes = keyframes({
   },
 })
 
-export const shakeAnimation = style({
-  animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
-  transformOrigin: "50% 50%",
-})
-
-export const deletedAnimationClass = style({
-  animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
-  transformOrigin: "50% 50%",
-})
-
 export const scoreClass = style({
   position: "absolute",
   zIndex: 9999,
@@ -105,20 +95,33 @@ export const scorePointsClass = style({
 
 export const tileAnimationDelayVar = createVar()
 
-export const tileClass = style({
-  pointerEvents: "none",
-  transitionProperty: "top, left",
-  transitionDuration: `${DELETED_DURATION}ms`,
-  transitionTimingFunction: "ease-in",
-  outline: "none",
-  overflow: "visible",
-  animationName: tileFallingAnimation,
-  animationTimingFunction: easeBounce,
-  animationDuration: ANIMATION_MEDIUM,
-  animationDelay: tileAnimationDelayVar,
-  animationFillMode: "backwards",
-  WebkitTapHighlightColor: "transparent",
+export const tileClass = recipe({
+  base: {
+    pointerEvents: "none",
+    outline: "none",
+    transformOrigin: "50% 50%",
+    WebkitTapHighlightColor: "transparent",
+  },
+  variants: {
+    animation: {
+      fall: {
+        animationName: tileFallingAnimation,
+        animationTimingFunction: easeBounce,
+        animationDuration: ANIMATION_MEDIUM,
+        animationDelay: tileAnimationDelayVar,
+        animationFillMode: "backwards",
+      },
+      shake: {
+        animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
+      },
+      deleted: {
+        animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
+      },
+    },
+  },
 })
+export type TileVariants = NonNullable<RecipeVariants<typeof tileClass>>
+
 export const tileSvgClass = style({
   overflow: "visible",
 })

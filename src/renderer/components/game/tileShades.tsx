@@ -178,12 +178,10 @@ function RightShade(props: SideShadeProps) {
   return (
     <Show when={rightShadePath()}>
       <path
-        data-variants={JSON.stringify(props.shadeVariants)}
         d={rightShadePath()}
         class={shadeClass}
         fill="rgba(0,0,0,0.1)"
         filter={`url(#${SOFT_SHADE_FILTER_ID})`}
-        data-shade={JSON.stringify(props.shadeVariants)}
       />
     </Show>
   )

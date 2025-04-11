@@ -7,14 +7,18 @@ type Element = {
   b: number
   name: string
 }
-const indexes = ["a", "b"] as const
-type Indexes = (typeof indexes)[number]
+const indexes = {
+  a: (tile: Element) => tile.a,
+  b: (tile: Element) => tile.b,
+  c: (tile: Element) => `${tile.a},${tile.b}`,
+} as const
+type Indexes = typeof indexes
 
 describe("database", () => {
   let db: Database<Element, Indexes>
 
   beforeEach(() => {
-    db = new Database<Element, Indexes>({ indexes })
+    db = new Database<Element, Indexes>(indexes)
     db.set("1", { id: "1", a: 1, b: 10, name: "alice" })
     db.set("2", { id: "2", a: 1, b: 10, name: "bob" })
     db.set("3", { id: "3", a: 2, b: 20, name: "charlie" })
@@ -41,7 +45,9 @@ describe("database", () => {
     expect(db.filterBy({ b: 10 }).length).toBe(2)
     expect(db.filterBy({ b: 40 }).length).toBe(1)
     expect(db.filterBy({ a: 1, b: 10 }).length).toBe(2)
+    expect(db.filterBy({ c: "1,10" }).length).toBe(2)
     expect(db.filterBy({ a: 2, b: 20 }).length).toBe(1)
+    expect(db.filterBy({ a: 2, b: 20, c: "1,10" }).length).toBe(0)
     expect(db.findBy({ a: 1, b: 10 })).not.toBeNull()
     expect(db.findBy({ a: 4 })).toBeNull()
   })

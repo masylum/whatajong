@@ -35,7 +35,7 @@ export function createTileState({
   return persistentDatabase({
     namespace: "tile-state",
     id,
-    db: () => new Database<Tile, TileIndexes>({ indexes: tileIndexes }),
+    db: () => new Database<Tile, TileIndexes>(tileIndexes),
     init: (db) => {
       const rng = new Rand(id())
       const newTiles = setupTiles({ rng, deck })

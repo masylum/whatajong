@@ -28,16 +28,14 @@ import {
 import { play } from "../audio"
 import { TileBody } from "./tileBody"
 import {
-  DELETED_DURATION,
   FLOATING_NUMBER_DURATION,
   SHAKE_DURATION,
   SHAKE_REPEAT,
+  type TileVariants,
   clickableClass,
-  deletedAnimationClass,
   scoreClass,
   scoreCoinsClass,
   scorePointsClass,
-  shakeAnimation,
   tileAnimationDelayVar,
   tileClass,
   tileSvgClass,
@@ -98,12 +96,9 @@ export function TileComponent(iProps: Props) {
     const yScore = props.tile.y * 3
     return zLayer + xScore + yScore
   })
-
+  const [animation, setAnimation] =
+    createSignal<TileVariants["animation"]>("fall")
   const [deleted, setDeleted] = createSignal(props.tile.deleted)
-  const [oopsie, setOopsie] = createSignal(false)
-  const [deletedAnimation, setDeletedAnimation] = createSignal<boolean>(false)
-  const [numberAnimation, setNumberAnimation] = createSignal<boolean>(false)
-
   const selected = createMemo(() => props.tile.selected)
   const state = createMemo<State>(() => {
     if (selected()) return "selected"
@@ -130,10 +125,10 @@ export function TileComponent(iProps: Props) {
     const currentState = state()
 
     if (prevState === "selected" && currentState === "idle") {
-      setOopsie(true)
+      setAnimation("shake")
       play("shake")
       setTimeout(() => {
-        setOopsie(false)
+        setAnimation(undefined)
       }, SHAKE_DURATION * SHAKE_REPEAT)
 
       return currentState
@@ -146,10 +141,6 @@ export function TileComponent(iProps: Props) {
     }
 
     if (prevState !== "deleted" && currentState === "deleted") {
-      setTimeout(() => {
-        setDeleted(true)
-      }, DELETED_DURATION)
-
       if (isDragon(props.tile.card)) {
         play("dragon")
       } else if (isFlower(props.tile.card)) {
@@ -183,44 +174,22 @@ export function TileComponent(iProps: Props) {
         play("ding")
       }
 
-      if (props.tile.coins) {
-        setTimeout(() => {
-          play("coin")
-        }, 300)
-      }
-
-      setDeletedAnimation(true)
+      setAnimation("deleted")
       setTimeout(() => {
-        setDeletedAnimation(false)
-      }, DELETED_DURATION)
+        setAnimation(undefined)
+        setDeleted(true)
+        if (props.tile.coins) {
+          play("coin")
+        }
+      }, FLOATING_NUMBER_DURATION)
     }
 
     return currentState
   }, state())
 
-  createEffect((prevPoints: number | undefined) => {
-    const points = props.tile.points
-
-    if (prevPoints !== points) {
-      setNumberAnimation(true)
-      setTimeout(() => {
-        setNumberAnimation(false)
-      }, FLOATING_NUMBER_DURATION)
-    }
-
-    return points
-  }, props.tile.points)
-
-  const animation = createMemo(() => {
-    if (oopsie()) return shakeAnimation
-    if (deletedAnimation()) return deletedAnimationClass
-
-    return undefined
-  })
-
   return (
     <>
-      <Show when={numberAnimation()}>
+      <Show when={animation() === "deleted"}>
         <div
           class={scoreClass}
           style={{
@@ -248,7 +217,7 @@ export function TileComponent(iProps: Props) {
               [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,
             }),
           }}
-          class={tileClass}
+          class={tileClass({ animation: animation() })}
         >
           <svg
             class={tileSvgClass}
@@ -256,7 +225,7 @@ export function TileComponent(iProps: Props) {
             height={props.height}
             data-id={props.tile.id}
           >
-            <g class={animation()}>
+            <g>
               <TileSide d={dPath()} material={material()} />
               <TileShades tile={props.tile} />
               <TileBody material={material()} />
