@@ -1,8 +1,8 @@
 import { GameTutorial, RunTutorial } from "@/components/gameTutorial"
-import { captureRun } from "@/lib/observability"
+import { captureEvent, captureRun } from "@/lib/observability"
 import { DeckStateProvider, createDeckState } from "@/state/deckState"
 import { useParams } from "@solidjs/router"
-import { Match, Switch, createMemo, onMount } from "solid-js"
+import { Match, Switch, createEffect, createMemo, onMount } from "solid-js"
 import { RunStateProvider, createRunState } from "../state/runState"
 import RunGame from "./run/runGame"
 import RunIntro from "./run/runMode"
@@ -18,6 +18,10 @@ export function Run() {
 
   onMount(() => {
     captureRun(id(), "adventure")
+  })
+
+  createEffect(() => {
+    captureEvent("run_stage", { runId: id(), stage: run.stage })
   })
 
   return (
