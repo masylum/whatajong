@@ -152,6 +152,7 @@ export const frameRightClass = style({
 export const cardAnimationDelayVar = createVar()
 export const cardClass = style({
   position: "relative",
+  display: "flex",
   animationName: fromBelowAnimation,
   animationTimingFunction: easeBounce,
   animationDuration: ANIMATION_FAST,
