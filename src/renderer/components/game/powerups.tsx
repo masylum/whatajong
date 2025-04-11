@@ -1,8 +1,8 @@
 import { useTranslation } from "@/i18n/useTranslation"
 import {
+  type BoatRun,
   type DragonRun,
   type PhoenixRun,
-  type RabbitRun,
   getRank,
 } from "@/lib/game"
 import { useGameState } from "@/state/gameState"
@@ -25,12 +25,8 @@ export function Powerups() {
       <Show when={game.phoenixRun}>
         {(phoenixRun) => <PhoenixRunComponent phoenixRun={phoenixRun()} />}
       </Show>
-      <Show when={game.rabbitRun}>
-        {(rabbitRun) => (
-          <Show when={!rabbitRun().score}>
-            <RabbitRunComponent rabbitRun={rabbitRun()} />
-          </Show>
-        )}
+      <Show when={game.boatRun}>
+        {(boatRun) => <BoatRunComponent boatRun={boatRun()} />}
       </Show>
     </div>
   )
@@ -89,20 +85,20 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
   )
 }
 
-function RabbitRunComponent(props: { rabbitRun: RabbitRun }) {
-  const combo = createMemo(() => props.rabbitRun.combo)
+function BoatRunComponent(props: { boatRun: BoatRun }) {
+  const combo = createMemo(() => props.boatRun.combo)
   const t = useTranslation()
 
   return (
     <div
       class={powerupRecipe({
-        size: props.rabbitRun.combo as any,
+        size: props.boatRun.combo as any,
         hue: "gold",
         side: "top",
       })}
     >
       <span class={comboRecipe({ hue: "gold" })}>
-        {t.common.rabbitRun()} +{combo()} mult
+        {t.common.boatRun()} +{combo()} mult
       </span>
     </div>
   )

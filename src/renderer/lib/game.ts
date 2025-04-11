@@ -17,7 +17,6 @@ const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 type EndConditions = (typeof END_CONDITIONS)[number]
 
 export type PhoenixRun = {
-  card: Phoenix
   number: number
   combo: number
 }
@@ -27,9 +26,9 @@ export type DragonRun = {
   combo: number
 }
 
-export type RabbitRun = {
-  card: Rabbit
+export type BoatRun = {
   score: boolean
+  directions: WindDirection[]
   combo: number
 }
 
@@ -40,9 +39,10 @@ export type Game = {
   endCondition?: EndConditions
   transport?: Transport
   temporaryMaterial?: Material
+  rabbitActive?: boolean
   dragonRun?: DragonRun
   phoenixRun?: PhoenixRun
-  rabbitRun?: RabbitRun
+  boatRun?: BoatRun
 }
 
 export function gameOverCondition(tileDb: TileDb, game?: Game) {
@@ -183,7 +183,7 @@ export function getCoins({
   tileDb?: TileDb
 }): number {
   const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
-  const rabbitMultiplier = getRabbitMultiplier(game)
+  const rabbitCoins = Math.min(game.rabbitActive ? newPoints : 0, 300)
   const emperorCoins = sumBy(run?.ownedEmperors ?? [], (emperor) =>
     sumBy(
       tiles,
@@ -197,7 +197,7 @@ export function getCoins({
     ),
   )
 
-  return newPoints * rabbitMultiplier + materialCoins + emperorCoins
+  return materialCoins + emperorCoins + rabbitCoins
 }
 
 function getJokerPoints(card: Card, tileDb: TileDb) {
@@ -254,7 +254,7 @@ export function getRawMultiplier({
 
   if (game) {
     dragonRunMultiplier = getDragonMultiplier(game, card)
-    rabbitMultiplier = getRabbitMultiplier(game)
+    rabbitMultiplier = getBoatMultiplier(game)
     phoenixRunMultiplier = getPhoenixRunMultiplier(game)
   }
 
@@ -326,7 +326,6 @@ export function selectTile({
       resolveWinds(tileDb, tile)
       resolveDragons(game, tile)
       resolvePhoenixRun(game, tile)
-      resolveRabbits(game, tile)
       resolveMutations(tileDb, tile)
       resolveJokers(tileDb, tile)
 
@@ -336,6 +335,7 @@ export function selectTile({
       game.points = game.points + newPoints
       tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
 
+      resolveRabbits(game, tile)
       resolveTemporaryMaterial(game, tile)
 
       if (run) {
@@ -344,20 +344,15 @@ export function selectTile({
         }
       }
     }
+
+    const condition = gameOverCondition(tileDb, game)
+
+    if (condition) {
+      game.endedAt = new Date().getTime()
+      game.endCondition = condition
+      return
+    }
   })
-
-  // This can be slow and we don't need it on real time. It makes the click feel laggy.
-  setTimeout(() => {
-    batch(() => {
-      const condition = gameOverCondition(tileDb, game)
-
-      if (condition) {
-        game.endedAt = new Date().getTime()
-        game.endCondition = condition
-        return
-      }
-    })
-  }, 100)
 }
 
 export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
@@ -566,7 +561,7 @@ type Position = {
   z: number
 }
 
-function coord(position: Position) {
+export function coord(position: Position) {
   return `${position.x},${position.y},${position.z}`
 }
 
@@ -659,11 +654,16 @@ function getFreedoms(tileDb: TileDb, position: Position) {
 
 export function getFinder(tileDb: TileDb, position: Position) {
   return (x = 0, y = 0, z = 0) => {
-    const tile = tileDb.findBy({
-      coord: coord({ x: position.x + x, y: position.y + y, z: position.z + z }),
-    })
+    const tile = tileDb
+      .filterBy({
+        coord: coord({
+          x: position.x + x,
+          y: position.y + y,
+          z: position.z + z,
+        }),
+      })
+      .find((t) => !t.deleted)
     if (!tile) return null
-    if (tile.deleted) return null
 
     return tile
   }
@@ -803,12 +803,11 @@ function getPhoenixRunMultiplier(game: Game) {
   return game.phoenixRun?.combo ?? 0
 }
 
-function getRabbitMultiplier(game: Game) {
-  const rabbitRun = game.rabbitRun
-  if (!rabbitRun) return 0
-  if (!rabbitRun.score) return 0
+function getBoatMultiplier(game: Game) {
+  const boatRun = game.boatRun
+  if (!boatRun) return 0
 
-  return rabbitRun.combo
+  return boatRun.combo
 }
 
 export function resolveTemporaryMaterial(game: Game, tile: Tile) {

@@ -15,7 +15,6 @@ const SoundFiles = [
   "earthquake",
   "great",
   "grunt",
-  "grunt2",
   "screech",
   "nice",
   "super",

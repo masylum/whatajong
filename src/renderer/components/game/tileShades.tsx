@@ -45,7 +45,7 @@ export function TileShades(iProps: Props) {
         sideSize={sideSize()}
         shadeVariants={shadeVariants()}
       />
-      <RightShade
+      <LeftShade
         height={props.height}
         width={props.width}
         sideSize={sideSize()}
@@ -127,7 +127,7 @@ function TopShade(props: SideShadeProps) {
   )
 }
 
-function RightShade(props: SideShadeProps) {
+function LeftShade(props: SideShadeProps) {
   const tileSize = useTileSize()
   const rightShadePath = createMemo(() => {
     const { topLeft, left, bottomLeft } = props.shadeVariants

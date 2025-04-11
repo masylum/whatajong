@@ -11,7 +11,6 @@ describe("resolvePhoenixRun", () => {
     resolvePhoenixRun(game, phoenixTile)
 
     expect(game.phoenixRun).toBeDefined()
-    expect(game.phoenixRun!.card).toBe("pb")
     expect(game.phoenixRun!.number).toBe(0)
     expect(game.phoenixRun!.combo).toBe(0)
   })
@@ -19,7 +18,7 @@ describe("resolvePhoenixRun", () => {
   it("sets the number to the tile rank when a suit card is played", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 2, combo: 0 },
+      phoenixRun: { number: 2, combo: 0 },
     }
     const suitTile = createTile({ card: "b3" })
 
@@ -32,7 +31,7 @@ describe("resolvePhoenixRun", () => {
   it("increments the number when a rabbit is played", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 3, combo: 3 },
+      phoenixRun: { number: 3, combo: 3 },
     }
     const rabbitTile = createTile({ card: "r1" })
 
@@ -45,7 +44,7 @@ describe("resolvePhoenixRun", () => {
   it("resets the run when a non-matching card is played", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 3, combo: 3 },
+      phoenixRun: { number: 3, combo: 3 },
     }
     const nonMatchingTile = createTile({ card: "b5" }) // Should be b4 to match
 
@@ -57,7 +56,7 @@ describe("resolvePhoenixRun", () => {
   it("wraps around the run when the number reaches 8", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 8, combo: 8 },
+      phoenixRun: { number: 8, combo: 8 },
     }
     const anyTile = createTile({ card: "b9" })
 
@@ -70,7 +69,7 @@ describe("resolvePhoenixRun", () => {
   it("maintains the run for special cards", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 4, combo: 6 },
+      phoenixRun: { number: 4, combo: 6 },
     }
 
     // Joker maintains the run
@@ -79,13 +78,13 @@ describe("resolvePhoenixRun", () => {
     expect(game.phoenixRun!.combo).toBe(6)
 
     // Mutation maintains the run
-    game.phoenixRun = { card: "pb", number: 4, combo: 6 }
+    game.phoenixRun = { number: 4, combo: 6 }
     resolvePhoenixRun(game, createTile({ card: "m1" }))
     expect(game.phoenixRun).toBeDefined()
     expect(game.phoenixRun!.combo).toBe(6)
 
     // Dragon maintains the run
-    game.phoenixRun = { card: "pb", number: 4, combo: 6 }
+    game.phoenixRun = { number: 4, combo: 6 }
     resolvePhoenixRun(game, createTile({ card: "dc" }))
     expect(game.phoenixRun).toBeDefined()
     expect(game.phoenixRun!.combo).toBe(6)
@@ -94,13 +93,12 @@ describe("resolvePhoenixRun", () => {
   it("resets to new phoenix when different phoenix is played", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { card: "pb", number: 5, combo: 6 },
+      phoenixRun: { number: 5, combo: 6 },
     }
     const newPhoenixTile = createTile({ card: "pc" })
 
     resolvePhoenixRun(game, newPhoenixTile)
 
-    expect(game.phoenixRun!.card).toBe("pc")
     expect(game.phoenixRun!.number).toBe(0)
     expect(game.phoenixRun!.combo).toBe(0)
   })

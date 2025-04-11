@@ -16,7 +16,7 @@ export const en = {
     goToShop: "go to shop",
     dragonRun: "Dragon Run",
     phoenixRun: "Phoenix Run",
-    rabbitRun: "Rabbit Run",
+    boatRun: "Boat Run",
     discardAndShuffle: "Discard and shuffle",
     yes: "yes",
     no: "no",
@@ -476,9 +476,8 @@ export const en = {
     },
     explanation: {
       wind: "Wind tiles move the pieces in the direction of the wind.",
-      rabbit1: "Clearing Rabbit Tiles starts a <strong>Rabbit Run</strong>.",
-      rabbit2:
-        "Each pair of Rabbit Tiles (::r::) you clear in a row increases your multiplier, and when the run ends, you earn one coin for every point scored.",
+      rabbit1:
+        "Rabbit Tiles (::r::) grant you one coin for each point that you score in the next clearing.",
       flower1:
         "Flower tiles can be cleared with other Flower tiles, regardless of their numbers.",
       flower2:

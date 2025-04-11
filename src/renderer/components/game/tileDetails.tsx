@@ -73,9 +73,8 @@ export function Explanation(props: { card: Card }) {
       </Match>
       <Match when={isRabbit(props.card)}>
         <div class={detailInfoClass}>
-          <p innerHTML={t.tileDetails.explanation.rabbit1()} />
           <p>
-            <Description str={t.tileDetails.explanation.rabbit2()} />
+            <Description str={t.tileDetails.explanation.rabbit1()} />
           </p>
         </div>
       </Match>

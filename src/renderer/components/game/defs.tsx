@@ -27,16 +27,6 @@ export function Defs() {
           <feGaussianBlur in="SourceAlpha" stdDeviation="0.8" result="blur" />
         </filter>
 
-        <filter id="wood-filter">
-          <feTurbulence type="fractalNoise" baseFrequency=".1 .01" />
-          <feColorMatrix
-            values="0 0 0 .11 .69
-                               0 0 0 .09 .38
-                               0 0 0 .08 .14
-                               0 0 0 0 1"
-          />
-        </filter>
-
         <For each={entries(MATERIALS)}>
           {([material, ids]) => (
             <>

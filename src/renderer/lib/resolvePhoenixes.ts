@@ -30,18 +30,15 @@ export function resolvePhoenixRun(game: Game, tile: Tile) {
 
   if (!phoenixRun) {
     if (phoenixCard) {
-      game.phoenixRun = { card: phoenixCard, number: 0, combo: 0 }
+      game.phoenixRun = { number: 0, combo: 0 }
     }
 
     return
   }
 
   if (!continuesPhoenixRun(phoenixRun.number, newCard)) {
-    game.phoenixRun = phoenixCard
-      ? { card: phoenixCard, number: 0, combo: 0 }
-      : undefined
+    game.phoenixRun = phoenixCard ? { number: 0, combo: 0 } : undefined
     captureEvent("phoenix_run_finished", {
-      card: phoenixRun.card,
       combo: phoenixRun.combo,
     })
     return

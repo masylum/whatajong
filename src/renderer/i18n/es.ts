@@ -16,7 +16,7 @@ export const es = {
     goToShop: "ir a la tienda",
     dragonRun: "C‌ombo Dragón",
     phoenixRun: "C‌ombo Fénix",
-    rabbitRun: "C‌ombo C‌onejo",
+    boatRun: "C‌ombo Barca",
     discardAndShuffle: "Descartar y barajar",
     yes: "si",
     no: "no",
@@ -479,9 +479,7 @@ export const es = {
     explanation: {
       wind: "Las fichas de Viento mueven las piezas en la dirección del viento.",
       rabbit1:
-        "Despejar fichas de C‌onejo inicia un <strong>C‌ombo C‌onejo</strong>.",
-      rabbit2:
-        "Cada par de fichas de C‌onejo (::r::) que despejes c‌oonsecutivamente aumenta tu multiplicador, y al terminar la racha, ganas una moneda por cada punto obtenido.",
+        "Las fichas de C‌onejo (::r::) te dan una moneda por cada punto que anotas en el siguiente despeje.",
       flower1:
         "Las fichas de Flor se pueden despejar c‌on otras fichas de Flor, sin importar su número.",
       flower2:

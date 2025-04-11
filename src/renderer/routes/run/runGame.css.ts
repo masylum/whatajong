@@ -65,6 +65,7 @@ export const roundTitleClass = style({
   textAlign: "center",
   paddingInline: 4,
   padding: 2,
+  flex: 1,
 })
 
 export const roundObjectiveClass = style({

@@ -157,21 +157,19 @@ export const buttonImageClass = style({
   objectFit: "cover",
   objectPosition: "top center",
   height: "100%",
-  maxHeight: 180,
-  maxWidth: 132,
+  minWidth: 0,
+  minHeight: 0,
+  flex: 1,
   "@media": {
     [mediaQuery({ p: "m", l: "m" })]: {
       width: "100%",
-      maxHeight: 200,
     },
-    [mediaQuery({ p: "l", l: "l" })]: {
-      maxHeight: 250,
-    },
+    [mediaQuery({ p: "l", l: "l" })]: {},
   },
 })
 
 export const buttonTextClass = style({
-  ...fontSize.m,
+  ...fontSize.l,
   fontFamily: primary,
   display: "flex",
   flexDirection: "column",
@@ -179,15 +177,15 @@ export const buttonTextClass = style({
   padding: 8,
   gap: 8,
   "@media": {
-    [mediaQuery({ p: "m", l: "xs" })]: {
-      padding: 12,
-      gap: 12,
+    [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h3,
     },
-    [mediaQuery({ p: "l", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 12,
+      gap: 12,
       ...fontSize.h2,
     },
-    [mediaQuery({ p: "xl", l: "m" })]: {
+    [mediaQuery({ p: "l", l: "m" })]: {
       ...fontSize.h1,
     },
   },

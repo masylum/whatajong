@@ -1,5 +1,6 @@
 import {
   type Tile,
+  coord,
   getMaterial,
   isDragon,
   isFlower,
@@ -217,7 +218,12 @@ export function TileComponent(iProps: Props) {
               [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,
             }),
           }}
-          class={tileClass({ animation: animation() })}
+          data-id={props.tile.id}
+          data-coord={coord(props.tile)}
+          class={tileClass({
+            animation: animation(),
+            rabbit: game.rabbitActive ? canBeSelected() : undefined,
+          })}
         >
           <svg
             class={tileSvgClass}
@@ -239,7 +245,7 @@ export function TileComponent(iProps: Props) {
                 stroke={getHueColor(material())(40)}
                 stroke-width={selected() ? 2 : 1}
                 class={clickableClass({ canBeSelected: canBeSelected() })}
-                onMouseDown={() => {
+                onPointerDown={() => {
                   if (!canBeSelected()) return
                   play("click")
                   props.onSelect(props.tile)

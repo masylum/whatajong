@@ -34,7 +34,6 @@ export function Frame(props: Props) {
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
   const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
-  const getRabbitCombo = createMemo(() => game.rabbitRun?.combo || 0)
   const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
@@ -63,7 +62,6 @@ export function Frame(props: Props) {
   }
 
   handleComboEffect(getDragonCombo, "grunt")
-  handleComboEffect(getRabbitCombo, "grunt2")
   handleComboEffect(getPhoenixCombo, "screech", false)
 
   // Cheat Code!

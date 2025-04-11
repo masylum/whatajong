@@ -774,21 +774,11 @@ describe("getCoins", () => {
   it("applies rabbit multiplier to points but not material coins", () => {
     const game: Game = {
       points: 0,
-      rabbitRun: { card: "r1", score: true, combo: 3 },
+      rabbitActive: true,
     }
     const bronzeTile = createTile({ card: "b1", material: "bronze" })
 
-    // 10 points * 3 (rabbit multiplier) + 5 bronze coins = 35
-    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(35)
-  })
-
-  it("handles rabbit run without score", () => {
-    const game: Game = {
-      points: 0,
-      rabbitRun: { card: "r1", score: false, combo: 3 },
-    }
-    const bronzeTile = createTile({ card: "b1", material: "bronze" })
-
-    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(5)
+    // 10 points + 5 bronze coins = 15
+    expect(getCoins({ tiles: [bronzeTile], game, newPoints: 10 })).toBe(15)
   })
 })

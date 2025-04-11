@@ -10,8 +10,8 @@ export function BasicEmperor(
   const [props, imgProps] = splitProps(iProps, ["name"])
   return (
     <img
-      srcset={`/occupations/m/${props.name}.webp 300w, /occupations/s/${props.name}.webp 134w`}
-      sizes="(min-width: 1024px) 300px, 134px"
+      srcset={`/occupations/s/${props.name}.webp 134w,/occupations/m/${props.name}.webp 300w,/occupations/l/${props.name}.webp 500w`}
+      sizes="(max-width: 300px) 134px, (max-width: 768px) 300px, 500px"
       src={`/occupations/m/${props.name}.webp`}
       {...imgProps}
       alt={props.name}

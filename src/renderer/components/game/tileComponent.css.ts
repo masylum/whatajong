@@ -101,8 +101,20 @@ export const tileClass = recipe({
     outline: "none",
     transformOrigin: "50% 50%",
     WebkitTapHighlightColor: "transparent",
+    // for the winds animation
+    transitionProperty: "top, left",
+    transitionDuration: `${DELETED_DURATION}ms`,
+    transitionTimingFunction: "ease-in",
   },
   variants: {
+    rabbit: {
+      true: {
+        filter: "saturate(1.2) hue-rotate(8deg)",
+      },
+      false: {
+        filter: "saturate(0.9) brightness(0.9)",
+      },
+    },
     animation: {
       fall: {
         animationName: tileFallingAnimation,
