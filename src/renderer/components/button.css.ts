@@ -12,8 +12,8 @@ export const buttonClass = recipe({
     lineHeight: 1,
     display: "flex",
     alignItems: "center",
-    paddingInline: 8,
-    paddingBlock: 4,
+    paddingInline: 12,
+    paddingBlock: 8,
     gap: 4,
     borderRadius: 8,
     border: "none",
@@ -28,8 +28,6 @@ export const buttonClass = recipe({
     },
     "@media": {
       [mediaQuery({ p: "l", l: "m" })]: {
-        paddingInline: 12,
-        paddingBlock: 8,
         ...fontSize.h3,
         gap: 8,
       },

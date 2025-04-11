@@ -173,7 +173,7 @@ export const buttonTextClass = style({
   fontFamily: primary,
   display: "flex",
   flexDirection: "column",
-  flex: 1,
+  flex: 2,
   padding: 8,
   gap: 8,
   "@media": {
@@ -183,6 +183,7 @@ export const buttonTextClass = style({
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 12,
       gap: 12,
+      flex: 1,
       ...fontSize.h2,
     },
     [mediaQuery({ p: "l", l: "m" })]: {

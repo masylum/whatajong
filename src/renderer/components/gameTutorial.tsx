@@ -48,7 +48,6 @@ import {
   columnClass,
   columnsClass,
   containerClass,
-  dragonRunClass,
   emperorClass,
   emperorContainerClass,
   emperorImageClass,
@@ -449,22 +448,22 @@ function Board() {
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
+        <p>{t.tutorial.board1()}</p>
         <div class={boardClass}>
           <Points points={100} />
         </div>
-        <p>{t.tutorial.board1()}</p>
       </div>
       <div class={columnClass}>
+        <p>{t.tutorial.board2()}</p>
         <div class={boardClass}>
           <Penalty points={100} />
         </div>
-        <p>{t.tutorial.board2()}</p>
       </div>
       <div class={columnClass}>
+        <p>{t.tutorial.board3()}</p>
         <div class={boardClass}>
           <MovesIndicator urgency="moderate" pairs={2} />
         </div>
-        <p>{t.tutorial.board3()}</p>
       </div>
     </div>
   )

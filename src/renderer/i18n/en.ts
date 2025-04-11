@@ -20,7 +20,7 @@ export const en = {
     discardAndShuffle: "Discard and shuffle",
     yes: "yes",
     no: "no",
-    roundN: "Round {{num}}",
+    roundN: "Round {{round}}",
     pointsN: "{{points}} points",
     levelN: "level {{level}}",
     objective: "Objective",
@@ -108,7 +108,7 @@ export const en = {
     clearing2: "Example of free tiles highlighted in green.",
     clearing3: "When clearing a pair of tiles, you score points.",
     clearing4: "2 points!",
-    dragons1: "There are 3 dragons, one for each suit.",
+    dragons1: "There are 3 dragons, one of each suit.",
     dragons2: "Clear dragon tiles to start a <strong>Dragon Run</strong>.",
     dragons3:
       "Clearing tiles from another suit will break the <strong>Dragon Run</strong>.",
@@ -119,13 +119,13 @@ export const en = {
     seasonsAndFlowers2:
       "Flowers & Seasons can be matched among themselves, regardless of their number.",
     seasonsAndFlowers3:
-      "Clearing Flowers & Seasons makes it easier to clear tiles on the next turn.",
+      "Clearing Flowers & Seasons will allow you in the next move, to clear tiles with only one open side.",
     board1:
       "The points indicator shows you how many points have you scored so far.",
     board2:
       "The penalty indicator shows you how many points have you lost due to time passing by.",
     board3:
-      "The moves indicator, shows you how many moves you have left. If it reaches to 0, the board is unsolvable and you have lost the game.",
+      "The moves indicator, shows you how many moves you have left. If it reaches 0, the board is unsolvable and you have lost the game.",
     crew1: "To help you on this journey, you can recruit crew members.",
     crew2:
       "Each crew member has a unique ability. Be creative and combine them to unlock powerful combinations.",

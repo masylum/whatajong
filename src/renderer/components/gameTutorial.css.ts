@@ -1,5 +1,5 @@
 import { mediaQuery } from "@/styles/breakpoints"
-import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
+import { color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
@@ -176,18 +176,13 @@ export const rowClass = style({
   display: "flex",
 })
 
-export const dragonRunClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 12,
-})
-
 export const boardClass = style({
   background: color.bone90,
   padding: 12,
   borderRadius: 8,
   position: "relative",
+  maxWidth: 200,
+  margin: "0 auto",
 })
 
 export const emperorContainerClass = style({
