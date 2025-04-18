@@ -42,7 +42,7 @@ function itemRawCost(item: Item) {
     case "reroll":
       return REROLL_COST
     case "upgrade":
-      return item.level * 100
+      return (item.level - 1) * 100
     default:
       throw new Error(`Unknown item type: ${item.type}`)
   }
