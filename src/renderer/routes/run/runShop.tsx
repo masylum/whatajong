@@ -799,8 +799,8 @@ function Items() {
     itemCost(
       {
         type: "upgrade",
-        level: shopLevel(),
-        id: `upgrade-${shopLevel()}`,
+        level: shopLevel() + 1,
+        id: `upgrade-${shopLevel() + 1}`,
       },
       run,
     ),
