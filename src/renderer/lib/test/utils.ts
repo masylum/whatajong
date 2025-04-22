@@ -1,7 +1,7 @@
-import type { Card, Tile } from "../game"
+import type { CardId, Tile } from "../game"
 
 export function createTile({
-  card,
+  cardId,
   id = "1",
   material = "bone",
   x = 0,
@@ -9,10 +9,10 @@ export function createTile({
   z = 0,
   deleted = false,
   selected = false,
-}: Partial<Tile> & { card: Card }): Tile {
+}: Partial<Tile> & { cardId: CardId }): Tile {
   return {
     id,
-    card,
+    cardId,
     material,
     x,
     y,

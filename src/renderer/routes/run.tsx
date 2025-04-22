@@ -1,11 +1,10 @@
-import { GameTutorial, RunTutorial } from "@/components/gameTutorial"
 import { captureEvent, captureRun } from "@/lib/observability"
 import { DeckStateProvider, createDeckState } from "@/state/deckState"
 import { useParams } from "@solidjs/router"
 import { Match, Switch, createEffect, createMemo, onMount } from "solid-js"
 import { RunStateProvider, createRunState } from "../state/runState"
 import RunGame from "./run/runGame"
-import RunIntro from "./run/runMode"
+import RunMode from "./run/runMode"
 import RunSelect from "./run/runSelect"
 import RunShop from "./run/runShop"
 
@@ -28,21 +27,17 @@ export function Run() {
     <RunStateProvider run={run}>
       <DeckStateProvider deck={newDeck()}>
         <Switch>
-          <Match when={run.stage === "intro"}>
-            <RunIntro />
-          </Match>
           <Match when={run.stage === "select"}>
             <RunSelect />
           </Match>
+          <Match when={run.stage === "intro"}>
+            <RunMode />
+          </Match>
           <Match when={run.stage === "game"}>
-            <GameTutorial>
-              <RunGame />
-            </GameTutorial>
+            <RunGame />
           </Match>
           <Match when={run.stage === "shop"}>
-            <RunTutorial>
-              <RunShop />
-            </RunTutorial>
+            <RunShop />
           </Match>
         </Switch>
       </DeckStateProvider>

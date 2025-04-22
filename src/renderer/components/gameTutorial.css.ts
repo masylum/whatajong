@@ -1,5 +1,5 @@
 import { mediaQuery } from "@/styles/breakpoints"
-import { color, hueSelectors, hueVariants } from "@/styles/colors"
+import { color, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
@@ -107,6 +107,8 @@ export const columnsClass = style({
   justifyContent: "center",
   gap: 24,
   minHeight: 0,
+  maxWidth: 800,
+  margin: "0 auto",
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 28,
@@ -187,71 +189,11 @@ export const boardClass = style({
   margin: "0 auto",
 })
 
-export const emperorContainerClass = style({
-  display: "flex",
-  justifyContent: "center",
-})
-
-export const emperorClass = recipe({
-  base: {
-    borderRadius: 12,
-    padding: 0,
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    maxWidth: 100,
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      background: kolor(20),
-      border: `4px solid ${kolor(30)}`,
-    })),
-  },
-})
-
-export const emperorImageClass = style({
-  width: "100%",
-  minHeight: 0,
-  objectFit: "cover",
-  objectPosition: "top center",
-})
-
-export const emperorTextClass = style({
-  ...fontSize.xs,
-  fontFamily: primary,
-  display: "flex",
-  flexDirection: "column",
-  flex: 1,
-  padding: 8,
-  gap: 8,
-  "@media": {
-    [mediaQuery({ p: "m", l: "xs" })]: {
-      padding: 12,
-      gap: 12,
-      ...fontSize.m,
-    },
-    [mediaQuery({ p: "l", l: "s" })]: {
-      ...fontSize.l,
-    },
-    [mediaQuery({ p: "xl", l: "m" })]: {
-      ...fontSize.h3,
-    },
-  },
-  selectors: {
-    ...hueSelectors(
-      (hue) => `${emperorClass.classNames.variants.hue[hue]} &`,
-      (kolor) => ({
-        color: kolor(70),
-      }),
-    ),
-  },
-})
-
 export const shopItemContainerClass = style({
   display: "flex",
-  alignItems: "flex-start",
+  alignItems: "center",
   justifyContent: "center",
+  margin: "0 auto",
   gap: 4,
   height: "100%",
   width: "100%",

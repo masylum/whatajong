@@ -1,53 +1,61 @@
 import {
-  type Card,
-  MUTATION_RANKS,
+  type CardId,
   type Tile,
   type TileDb,
-  getRank,
-  getSuit,
+  getCard,
   isMutation,
   isSuit,
 } from "./game"
 
+const MUTATION_RANKS = {
+  m1: ["o", "c"],
+  m2: ["o", "b"],
+  m3: ["b", "c"],
+} as const
+
 function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {
-  const tiles = tileDb.all.filter((tile) => isSuit(tile.card))
+  const tiles = tileDb.all.filter((tile) => isSuit(tile.cardId))
   for (const tile of tiles) {
-    const oldRank = getRank(tile.card)
+    const oldRank = getCard(tile.cardId).rank
     const newRank = fn(oldRank)
-    const newCard = tile.card.replace(oldRank, newRank.toString()) as Card
-    tileDb.set(tile.id, { ...tile, card: newCard })
+    const newCardId = tile.cardId.replace(oldRank, newRank.toString()) as CardId
+    tileDb.set(tile.id, { ...tile, cardId: newCardId })
   }
 }
 
 export function resolveMutations(tileDb: TileDb, tile: Tile) {
-  const mutationCard = isMutation(tile.card)
+  const mutationCard = isMutation(tile.cardId)
   if (!mutationCard) return
 
-  const rank = getRank(mutationCard)
+  const id = mutationCard.id
 
   // + 1
-  if (rank === "4") {
+  if (id === "m4") {
     mapSuits(tileDb, (rank) => Math.min(Number.parseInt(rank) + 1, 9))
     return
   }
 
   // - 1
-  if (rank === "5") {
+  if (id === "m5") {
     mapSuits(tileDb, (rank) => Math.max(Number.parseInt(rank) - 1, 1))
     return
   }
 
-  const [aSuit, bSuit] = MUTATION_RANKS[rank]
-  const aTiles = tileDb.all.filter((tile) => getSuit(tile.card) === aSuit)
-  const bTiles = tileDb.all.filter((tile) => getSuit(tile.card) === bSuit)
+  const [aSuit, bSuit] = MUTATION_RANKS[id]
+  const aTiles = tileDb.all.filter(
+    (tile) => getCard(tile.cardId).suit === aSuit,
+  )
+  const bTiles = tileDb.all.filter(
+    (tile) => getCard(tile.cardId).suit === bSuit,
+  )
 
   for (const aTile of aTiles) {
-    const newCard = aTile.card.replace(aSuit, bSuit) as Card
-    tileDb.set(aTile.id, { ...aTile, card: newCard })
+    const newCardId = aTile.cardId.replace(aSuit, bSuit) as CardId
+    tileDb.set(aTile.id, { ...aTile, cardId: newCardId })
   }
 
   for (const bTile of bTiles) {
-    const newCard = bTile.card.replace(bSuit, aSuit) as Card
-    tileDb.set(bTile.id, { ...bTile, card: newCard })
+    const newCardId = bTile.cardId.replace(bSuit, aSuit) as CardId
+    tileDb.set(bTile.id, { ...bTile, cardId: newCardId })
   }
 }

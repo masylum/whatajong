@@ -45,30 +45,6 @@ export const pairClass = style({
   zIndex: -1,
 })
 
-export const ownedEmperorsClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-})
-
-export const ownedEmperorsListClass = style({
-  display: "flex",
-  flexWrap: "wrap",
-  gap: 12,
-})
-
-export const emperorClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 16,
-  justifyContent: "center",
-  padding: 0,
-  maxWidth: 40,
-  borderRadius: 12,
-  overflow: "hidden",
-})
-
 export const gameOverInfoClass = style({
   display: "flex",
   flexDirection: "column",

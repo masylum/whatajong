@@ -6,15 +6,10 @@ import {
   fromLeftAnimation,
 } from "@/styles/animations.css"
 import { heightQueries, mediaQuery } from "@/styles/breakpoints"
-import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import {
-  createContainer,
-  createVar,
-  keyframes,
-  style,
-} from "@vanilla-extract/css"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 const MAX_WIDTH = 1000
@@ -75,6 +70,7 @@ export const deckItemClass = style({
   position: "relative",
   cursor: "pointer",
   transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+  WebkitTapHighlightColor: "transparent",
   ":hover": {
     transform: "translate(-5%, -5%)",
     filter: "brightness(1.1)",
@@ -104,36 +100,27 @@ export const areaTitleClass = recipe({
   },
 })
 
-export const pillClass = recipe({
-  base: {
-    fontFamily: primary,
-    fontVariantLigatures: "none",
-    display: "inline-block",
-    borderRadius: 999,
-    ...fontSize.s,
-    paddingInline: 8,
-    paddingBlock: 1,
-    "@media": {
-      [mediaQuery({ p: "m", l: "s" })]: {
-        ...fontSize.m,
-        paddingInline: 12,
-        paddingBlock: 2,
-      },
-    },
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(80)}, ${kolor(70)})`,
-      boxShadow: `1px -1px 0px 0 inset ${kolor(90)},
-        0px 0px 0px 1px ${kolor(50)},
-        0px 0px 3px -1px ${kolor(30)},
-        0px 0px 10px -5px ${kolor(30)}
+export const pillClass = style({
+  fontFamily: primary,
+  fontVariantLigatures: "none",
+  display: "inline-block",
+  borderRadius: 999,
+  ...fontSize.s,
+  paddingInline: 8,
+  paddingBlock: 1,
+  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
+  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
+        0px 0px 0px 1px ${color.gold50},
+        0px 0px 3px -1px ${color.gold30},
+        0px 0px 10px -5px ${color.gold30}
       `,
-      color: kolor(10),
-    })),
-  },
-  defaultVariants: {
-    hue: "gold",
+  color: color.gold10,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.m,
+      paddingInline: 12,
+      paddingBlock: 2,
+    },
   },
 })
 
@@ -164,19 +151,19 @@ export const shopContainerClass = style({
 export const shopItemsClass = style({
   display: "flex",
   justifyContent: "center",
-  gap: 4,
+  gap: 8,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 8,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
       gap: 12,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "m", l: "s" })]: {
       gap: 16,
     },
-    [mediaQuery({ p: "xl", l: "l" })]: {
+    [mediaQuery({ p: "l", l: "m" })]: {
       gap: 20,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      gap: 24,
     },
   },
 })
@@ -185,15 +172,13 @@ export const rotation = createVar()
 
 export const shopItemClass = recipe({
   base: {
-    borderRadius: 8,
-    overflow: "hidden",
     flex: 1,
-    boxShadow: `0 0 0 1px ${alpha(color.dot10, 0.2)}`,
     padding: 0,
+    gap: 12,
     background: "none",
     display: "flex",
     flexDirection: "column",
-    maxWidth: 50,
+    alignItems: "center",
     transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
     transform: `rotateZ(${rotation})`,
     animationName: fromLeftAnimation,
@@ -202,6 +187,8 @@ export const shopItemClass = recipe({
     animationDelay: "500ms",
     outline: "none",
     outlineOffset: 2,
+    border: "none",
+    WebkitTapHighlightColor: "transparent",
     selectors: {
       "&:first-child": { animationDelay: "0ms" },
       "&:nth-child(2)": { animationDelay: "50ms" },
@@ -214,52 +201,22 @@ export const shopItemClass = recipe({
   },
   variants: {
     hoverable: { true: {}, false: {} },
+    selected: {
+      true: {
+        transform: "rotateZ(0deg) scale(1.2)",
+        filter: "brightness(1.1)",
+      },
+      false: {},
+    },
     disabled: {
       true: {
         filter: "brightness(0.8) saturate(0.8)",
       },
       false: {},
     },
-    hue: {
-      ...hueVariants((kolor) => ({
-        background: `linear-gradient(to bottom, ${kolor(90)}, ${kolor(80)})`,
-        border: `1px solid ${kolor(40)}`,
-        color: kolor(30),
-        ":focus": {
-          outline: `2px solid ${kolor(40)}`,
-        },
-      })),
-      glass: {
-        background: `linear-gradient(to bottom, ${color.dot80}, ${color.dot70})`,
-        border: `1px solid ${color.dot40}`,
-        color: color.dot30,
-        ":focus": {
-          outline: `2px solid ${color.dot40}`,
-        },
-      },
-      diamond: {
-        background: `linear-gradient(to bottom, ${color.diamond70}, ${color.diamond60})`,
-        border: `1px solid ${color.diamond40}`,
-        color: color.diamond30,
-        ":focus": {
-          outline: `2px solid ${color.diamond40}`,
-        },
-      },
-      bam: {
-        background: `linear-gradient(to bottom, ${color.bam70}, ${color.bam60})`,
-        border: `1px solid ${color.bam40}`,
-        color: color.bam30,
-        ":focus": {
-          outline: `2px solid ${color.bam40}`,
-        },
-      },
-    },
     frozen: {
       true: {
-        filter: "brightness(0.9) saturate(0.8)",
-        background: `linear-gradient(to bottom, ${color.glass90}, ${color.glass80})`,
-        border: `1px solid ${color.glass40}`,
-        color: color.glass30,
+        filter: "brightness(0.9) sepia(1) hue-rotate(155deg)",
       },
     },
   },
@@ -292,26 +249,32 @@ export const shopItemClass = recipe({
 })
 
 export const shopItemContentClass = style({
-  padding: 2,
-  borderBottom: `1px solid ${alpha(color.dot10, 0.2)}`,
   flex: 1,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  minHeight: 50,
+  width: "100%",
 })
 
-export const shopItemCostClass = style({
-  padding: 2,
-  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-  color: color.gold30,
-  fontWeight: 700,
-  ...fontSize.s,
-  selectors: {
-    [`${shopItemClass.classNames.variants.frozen.true} &`]: {
-      background: `linear-gradient(to bottom, ${color.glass70}, ${color.glass60})`,
-      color: color.glass30,
-    },
+export const shopItemButtonClass = recipe({
+  base: {
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    borderRadius: 8,
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
+      border: `1px solid ${kolor(40)}`,
+      color: kolor(90),
+    })),
   },
 })
 
@@ -384,9 +347,6 @@ export const dialogContentClass = recipe({
       },
       upgrade: {
         maxWidth: 500,
-      },
-      emperor: {
-        maxWidth: 450,
       },
       tileUpgrade: {
         maxWidth: 700,
@@ -493,63 +453,6 @@ export const detailTitleClass = style({
   },
 })
 
-export const detailListClass = recipe({
-  base: {
-    display: "grid",
-    gridGap: 8,
-    width: "100%",
-    gridTemplateColumns: "max-content",
-    padding: 8,
-    borderRadius: 4,
-    fontVariantLigatures: "none",
-    "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        gridGap: 12,
-      },
-    },
-  },
-  variants: {
-    type: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
-    })),
-  },
-})
-
-export const detailTermClass = style({
-  ...fontSize.s,
-  fontFamily: primary,
-  justifySelf: "start",
-  selectors: hueSelectors(
-    (hue) => `${detailListClass.classNames.variants.type[hue]} &`,
-    (kolor) => ({
-      color: kolor(30),
-    }),
-  ),
-  "@media": {
-    [heightQueries.s]: {
-      ...fontSize.m,
-    },
-  },
-})
-
-export const detailDescriptionClass = style({
-  ...fontSize.s,
-  fontFamily: primary,
-  justifySelf: "end",
-  gridColumnStart: 2,
-  selectors: hueSelectors(
-    (hue) => `${detailListClass.classNames.variants.type[hue]} &`,
-    (kolor) => ({
-      color: kolor(10),
-    }),
-  ),
-  "@media": {
-    [heightQueries.s]: {
-      ...fontSize.m,
-    },
-  },
-})
-
 export const upgradeTitleClass = style({
   ...fontSize.l,
   textAlign: "center",
@@ -592,39 +495,12 @@ export const modalDetailsClass = style({
   },
 })
 
-export const modalEmperorClass = style({
-  aspectRatio: "2 / 3",
-  width: "100%",
-  maxWidth: 100,
-  cursor: "pointer",
-  minWidth: 0,
-  borderRadius: 8,
-  border: `1px solid ${color.bone40}`,
-})
-
 export const modalDetailsContentClass = style({
   display: "flex",
   flexDirection: "column",
   flex: 1,
   gap: 12,
 })
-
-export const emperorDetailsTitleClass = style({
-  ...fontSize.h2,
-  fontFamily: primary,
-  color: color.crack10,
-})
-
-export const emperorDetailsDescriptionClass = style({
-  padding: 8,
-  borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
-  color: color.crack10,
-  fontFamily: secondary,
-  ...fontSize.m,
-})
-
-const ownedEmperorsContainer = createContainer()
 
 export const areaClass = recipe({
   base: {
@@ -653,75 +529,9 @@ export const areaClass = recipe({
   },
 })
 
-export const ownedEmperorsListClass = style({
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(30px, 1fr))",
-  minHeight: 0,
-  gap: 4,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 8,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 12,
-    },
-  },
-})
-
-export const emperorClass = style({
-  aspectRatio: "2 / 3",
-  maxHeight: "100%",
-  cursor: "pointer",
-  minHeight: 0,
-  borderRadius: 8,
-  transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
-  border: `1px solid ${color.bone40}`,
-  ":hover": {
-    transform: "scale(1.1)",
-    filter: "brightness(1.1)",
-  },
-  "@container": {
-    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
-      borderRadius: 12,
-    },
-    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
-      borderRadius: 16,
-    },
-  },
-})
-
-export const emptyEmperorClass = style({
-  aspectRatio: "2 / 3",
-  maxHeight: "100%",
-  background: alpha(color.crack10, 0.1),
-  boxShadow: `1px 1px 2px 0 inset ${alpha(color.crack10, 0.1)}`,
-  borderRadius: 8,
-  "@container": {
-    [`${ownedEmperorsContainer} (min-width: 300px)`]: {
-      borderRadius: 12,
-    },
-    [`${ownedEmperorsContainer} (min-width: 500px)`]: {
-      borderRadius: 16,
-    },
-  },
-})
-
-export const MINI_TILE_SIZE = 24
-
-export const fullExplanationClass = recipe({
-  base: {
-    ...fontSize.s,
-    fontFamily: secondary,
-    paddingInline: 12,
-    paddingBlock: 4,
-    borderRadius: 4,
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      color: kolor(40),
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
-    })),
-  },
+export const pairClass = style({
+  position: "absolute",
+  zIndex: -1,
 })
 
 export const shopHeaderClass = style({
@@ -787,10 +597,4 @@ export const closeButtonClass = style({
   ":hover": {
     color: color.bone30,
   },
-})
-
-export const upgradeCardPreviewClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 })

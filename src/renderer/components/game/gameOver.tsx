@@ -1,5 +1,5 @@
 import { useTranslation } from "@/i18n/useTranslation"
-import { type Card, getStandardPairs } from "@/lib/game"
+import { type Card, type CardId, getAllTiles } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
 import type { AccentHue } from "@/styles/colors"
@@ -43,7 +43,7 @@ function GameOver(props: { win: boolean; round?: number } & ParentProps) {
   )
 }
 
-function FallingTile(props: { card: Card }) {
+function FallingTile(props: { cardId: CardId }) {
   const cardStartX = createMemo(() => Math.random() * window.innerWidth)
   const cardEndX = createMemo(() => cardStartX() + (Math.random() - 0.5) * 400)
   const cardRotation = createMemo(() => (Math.random() - 0.5) * 720)
@@ -64,7 +64,7 @@ function FallingTile(props: { card: Card }) {
       }}
       width={tileSize().width}
       class={bouncingCardClass}
-      card={props.card}
+      cardId={props.cardId}
     />
   )
 }
@@ -72,11 +72,9 @@ function FallingTile(props: { card: Card }) {
 export function FallingTiles() {
   const cards = createMemo<Card[]>(() => {
     const rng = new Rand()
-    return shuffle(getStandardPairs(), rng)
-      .slice(0, 10)
-      .flatMap(([p, _]) => p)
+    return shuffle(getAllTiles(), rng).slice(0, 10)
   })
-  return <For each={cards()}>{(card) => <FallingTile card={card} />}</For>
+  return <For each={cards()}>{(card) => <FallingTile cardId={card.id} />}</For>
 }
 
 function Title(props: { win: boolean; round?: number }) {

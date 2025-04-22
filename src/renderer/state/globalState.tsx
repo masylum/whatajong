@@ -9,10 +9,7 @@ import { createPersistantMutable } from "./persistantMutable"
 type GlobalState = {
   muted: boolean
   locale: string
-  tutorial: {
-    game: number
-    run: number
-  }
+  tutorial: boolean
 }
 
 export function createGlobalState() {
@@ -22,10 +19,7 @@ export function createGlobalState() {
     init: () => ({
       muted: false,
       locale: navigator.language,
-      tutorial: {
-        game: 0,
-        run: 0,
-      },
+      tutorial: false,
     }),
   })
 }

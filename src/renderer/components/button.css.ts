@@ -1,6 +1,6 @@
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, hueVariants, mapHues } from "@/styles/colors"
-import { primary } from "@/styles/fontFamily.css"
+import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { globalStyle } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
@@ -14,7 +14,7 @@ export const buttonClass = recipe({
     alignItems: "center",
     paddingInline: 12,
     paddingBlock: 8,
-    gap: 4,
+    gap: 8,
     borderRadius: 8,
     border: "none",
     cursor: "pointer",
@@ -30,7 +30,7 @@ export const buttonClass = recipe({
     "@media": {
       [mediaQuery({ p: "l", l: "m" })]: {
         ...fontSize.h3,
-        gap: 8,
+        gap: 12,
       },
     },
   },
@@ -38,6 +38,11 @@ export const buttonClass = recipe({
     clickable: {
       true: {
         cursor: "pointer",
+      },
+    },
+    suave: {
+      true: {
+        fontFamily: secondary,
       },
     },
     kind: {

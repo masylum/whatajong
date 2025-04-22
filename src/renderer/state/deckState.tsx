@@ -3,7 +3,7 @@ import {
   type DeckTile,
   type DeckTileIndexes,
   deckTileIndexes,
-  getRunPairs,
+  getInitialPairs,
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
 import { nanoid } from "nanoid"
@@ -18,11 +18,11 @@ export function createDeckState(params: CreateDeckStateParams) {
     id: params.id,
     db: () => new Database<DeckTile, DeckTileIndexes>(deckTileIndexes),
     init: (db) => {
-      for (const tiles of getRunPairs()) {
+      for (const cards of getInitialPairs()) {
         const id = nanoid()
         db.set(id, {
           id,
-          card: tiles[0],
+          cardId: cards[0].id,
           material: "bone",
         })
       }

@@ -1,32 +1,38 @@
 import {
-  type Card,
+  type CardId,
   type Game,
   type Tile,
-  getRank,
+  getCard,
   isDragon,
+  isFlower,
   isJoker,
   isMutation,
   isPhoenix,
   isRabbit,
-  isSuit,
 } from "./game"
 import { captureEvent } from "./observability"
 
-function continuesPhoenixRun(number: number, card: Card) {
-  if (isJoker(card) || isMutation(card) || isRabbit(card) || isDragon(card))
+function continuesPhoenixRun(number: number, cardId: CardId) {
+  if (
+    isJoker(cardId) ||
+    isMutation(cardId) ||
+    isFlower(cardId) ||
+    isRabbit(cardId) ||
+    isDragon(cardId)
+  )
     return true
-  if (isPhoenix(card)) return false
+  if (isPhoenix(cardId)) return false
 
-  const rank = Number.parseInt(getRank(card))
-  if (Number.isNaN(rank)) return true
+  const rank = Number.parseInt(getCard(cardId).rank)
+  if (Number.isNaN(rank)) return false
 
-  return rank === number + 1
+  return number === 0 || rank === number + 1
 }
 
 export function resolvePhoenixRun(game: Game, tile: Tile) {
   const phoenixRun = game.phoenixRun
-  const newCard = tile.card
-  const phoenixCard = isPhoenix(newCard)
+  const newCardId = tile.cardId
+  const phoenixCard = isPhoenix(newCardId)
 
   if (!phoenixRun) {
     if (phoenixCard) {
@@ -36,7 +42,7 @@ export function resolvePhoenixRun(game: Game, tile: Tile) {
     return
   }
 
-  if (!continuesPhoenixRun(phoenixRun.number, newCard)) {
+  if (!continuesPhoenixRun(phoenixRun.number, newCardId)) {
     game.phoenixRun = phoenixCard ? { number: 0, combo: 0 } : undefined
     captureEvent("phoenix_run_finished", {
       combo: phoenixRun.combo,
@@ -44,25 +50,14 @@ export function resolvePhoenixRun(game: Game, tile: Tile) {
     return
   }
 
-  if (isRabbit(newCard)) {
-    phoenixRun.combo += 1
+  const number = Number.parseInt(getCard(newCardId).rank)
+  if (Number.isNaN(number)) return
 
-    if (phoenixRun.number === 8) {
-      phoenixRun.number = 0
-    } else {
-      phoenixRun.number += 1
-    }
-    return
-  }
+  phoenixRun.combo += 1
 
-  if (isSuit(newCard)) {
-    phoenixRun.combo += 1
-
-    const number = Number.parseInt(getRank(newCard))
-    if (number === 9) {
-      phoenixRun.number = 0
-    } else {
-      phoenixRun.number = number
-    }
+  if (number === 9) {
+    phoenixRun.number = 0
+  } else {
+    phoenixRun.number = number
   }
 }

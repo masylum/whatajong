@@ -2,10 +2,11 @@ import { play } from "@/components/audio"
 import { BasicTile } from "@/components/game/basicTile"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
-import { getStandardPairs } from "@/lib/game"
+import { getAllTiles } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useImageSrc, useSmallerTileSize } from "@/state/constants"
-import { fetchRuns } from "@/state/runState"
+import { useGlobalState } from "@/state/globalState"
+import { TUTORIAL_SEED, fetchRuns } from "@/state/runState"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { nanoid } from "nanoid"
@@ -28,7 +29,7 @@ import {
 
 function cards() {
   const rng = new Rand()
-  return shuffle(getStandardPairs(), rng).flatMap(([c, _]) => c)
+  return shuffle([...getAllTiles(), ...getAllTiles()], rng)
 }
 
 export function Home() {
@@ -36,6 +37,20 @@ export function Home() {
   const runs = createMemo(() => fetchRuns())
   const db = useImageSrc()
   const dc = useImageSrc()
+  const globalState = useGlobalState()
+
+  const runId = createMemo(() => {
+    if (!globalState.tutorial) {
+      return TUTORIAL_SEED
+    }
+
+    const run = runs()[0]
+    if (run) {
+      return run.runId
+    }
+
+    return nanoid()
+  })
 
   function onHover() {
     play("click2")
@@ -46,6 +61,25 @@ export function Home() {
       <Frame />
       <h1 class={titleClass}>Whatajong</h1>
       <nav class={navClass}>
+        <a
+          onMouseEnter={onHover}
+          href={`/run/${runId()}`}
+          class={buttonClass({ hue: "crack" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "200ms",
+            }),
+          }}
+        >
+          <img
+            class={buttonIconClass}
+            src={`${dc()}/dc.webp`}
+            alt="duel"
+            width={36}
+            height={52}
+          />
+          {t.common.play()}
+        </a>
         <a
           onMouseEnter={onHover}
           href={`/play/${nanoid()}`}
@@ -63,28 +97,7 @@ export function Home() {
             width={36}
             height={52}
           />
-          {t.home.classicGame()}
-        </a>
-        <a
-          onMouseEnter={onHover}
-          href={
-            runs().length > 0 ? `/run/${runs()[0].runId}` : `/run/${nanoid()}`
-          }
-          class={buttonClass({ hue: "crack" })}
-          style={{
-            ...assignInlineVars({
-              [buttonAnimationDelayVar]: "200ms",
-            }),
-          }}
-        >
-          <img
-            class={buttonIconClass}
-            src={`${dc()}/dc.webp`}
-            alt="duel"
-            width={36}
-            height={52}
-          />
-          {t.home.adventureGame()}
+          {t.settings.title()}
         </a>
       </nav>
       <Mountains />
@@ -129,7 +142,7 @@ function Frame() {
                 "z-index": j(),
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -156,7 +169,7 @@ function Frame() {
                     : "visible",
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -183,7 +196,7 @@ function Frame() {
                     : "visible",
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -206,7 +219,7 @@ function Frame() {
                 "z-index": horizontalTiles() + verticalTiles() + j(),
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>

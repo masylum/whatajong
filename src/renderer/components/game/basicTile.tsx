@@ -1,4 +1,4 @@
-import type { Card, Material } from "@/lib/game"
+import type { CardId, Material } from "@/lib/game"
 import { TILE_RATIO, useTileSize } from "@/state/constants"
 import { type AccentHue, getHueColor } from "@/styles/colors"
 import { type JSX, Show, createMemo, splitProps } from "solid-js"
@@ -9,13 +9,17 @@ import { TileImage } from "./tileImage"
 import { TileSide } from "./tileSide"
 
 type Props = {
-  card?: Card
+  cardId?: CardId
   highlighted?: AccentHue | "white"
   material?: Material
   width?: number
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
-  const [local, other] = splitProps(props, ["card", "highlighted", "material"])
+  const [local, other] = splitProps(props, [
+    "cardId",
+    "highlighted",
+    "material",
+  ])
   const tileSize = useTileSize()
   const width = createMemo(() => props.width ?? tileSize().width)
   const height = createMemo(() => width() * TILE_RATIO)
@@ -32,9 +36,9 @@ export function BasicTile(props: Props) {
     >
       <TileSide d={dPath()} material={local.material} />
       <TileBody material={local.material} width={width()} height={height()} />
-      <Show when={local.card}>
-        {(card) => (
-          <TileImage width={width()} height={height()} card={card()} />
+      <Show when={local.cardId}>
+        {(cardId) => (
+          <TileImage width={width()} height={height()} cardId={cardId()} />
         )}
       </Show>
       <Show when={local.highlighted}>

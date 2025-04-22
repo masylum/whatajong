@@ -5,9 +5,8 @@ import {
   dots,
   dragons,
   flowers,
-  phoenix,
+  phoenixes,
   rabbits,
-  seasons,
   winds,
 } from "@/lib/game"
 import { For, Show, createMemo } from "solid-js"
@@ -29,10 +28,8 @@ export function MiniTiles(props: { suit: Suit }) {
         return dragons
       case "f":
         return flowers
-      case "s":
-        return seasons
       case "p":
-        return phoenix
+        return phoenixes
       case "r":
         return rabbits
       case "w":
@@ -48,13 +45,13 @@ export function MiniTiles(props: { suit: Suit }) {
         when={showRange()}
         fallback={
           <For each={cards()}>
-            {(card) => <MiniTile card={card} size={20} />}
+            {(card) => <MiniTile cardId={card.id} size={20} />}
           </For>
         }
       >
-        <MiniTile card={cards()[0]} size={20} />
+        <MiniTile cardId={cards()[0]!.id} size={20} />
         →
-        <MiniTile card={cards()[8]} size={20} />
+        <MiniTile cardId={cards()[8]!.id} size={20} />
       </Show>
     </span>
   )

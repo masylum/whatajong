@@ -1,9 +1,9 @@
-import type { Card, Material, Suit } from "@/lib/game"
+import type { CardId, Material } from "@/lib/game"
 import { Show, mergeProps } from "solid-js"
 import { miniTileClass } from "./miniTile.css"
 
 export function MiniTile(props: {
-  card?: Card | Suit
+  cardId?: CardId
   material?: Material
   size?: number
 }) {
@@ -11,11 +11,11 @@ export function MiniTile(props: {
 
   return (
     <div class={miniTileClass({ material: mProps.material })}>
-      <Show when={props.card}>
-        {(card) => (
+      <Show when={props.cardId}>
+        {(cardId) => (
           <img
-            src={`/tiles/xs/${card()}.webp`}
-            alt={card()}
+            src={`/tiles/xs/${cardId()}.webp`}
+            alt={cardId()}
             height={mProps.size}
           />
         )}

@@ -1,10 +1,7 @@
 import { useTranslation } from "@/i18n/useTranslation"
-import type { Card, Material, Mutation } from "@/lib/game"
+import type { CardId, Material } from "@/lib/game"
 import {
   getMaterialCoins,
-  getMutationRanks,
-  getRank,
-  getRawMultiplier,
   getRawPoints,
   isDragon,
   isFlower,
@@ -12,13 +9,10 @@ import {
   isMutation,
   isPhoenix,
   isRabbit,
-  isSeason,
   isWind,
-  suitName,
 } from "@/lib/game"
-import { useRunState } from "@/state/runState"
 import type { AccentHue } from "@/styles/colors"
-import { Match, Show, Switch, createMemo, mergeProps } from "solid-js"
+import { Match, Show, Switch, mergeProps } from "solid-js"
 import { Description } from "../description"
 import {
   detailDescriptionClass,
@@ -37,95 +31,67 @@ export function MaterialFreedom(iProps: {
 
   return (
     <div class={detailFreedomClass({ hue: props.hue })}>
-      <Switch>
-        <Match when={props.material === "glass" || props.material === "wood"}>
-          {t.tileDetails.freedom.relaxed()}
-        </Match>
-        <Match when={props.material === "diamond"}>
-          {t.tileDetails.freedom.diamond()}
-        </Match>
-        <Match
-          when={
-            props.material === "bone" ||
-            props.material === "ivory" ||
-            props.material === "bronze"
-          }
-        >
-          {t.tileDetails.freedom.standard()}
-        </Match>
-        <Match when={props.material === "gold" || props.material === "jade"}>
-          {t.tileDetails.freedom.gold()}
-        </Match>
-      </Switch>
+      <Show
+        when={props.material === "glass" || props.material === "diamond"}
+        fallback={t.tileDetails.freedom.standard()}
+      >
+        {t.tileDetails.freedom.relaxed()}
+      </Show>
     </div>
   )
 }
 
-export function Explanation(props: { card: Card }) {
+export function Explanation(props: { cardId: CardId }) {
   const t = useTranslation()
 
   return (
     <Switch>
-      <Match when={isWind(props.card)}>
+      <Match when={isWind(props.cardId)}>
         <div class={detailInfoClass}>
           <p>{t.tileDetails.explanation.wind()}</p>
         </div>
       </Match>
-      <Match when={isRabbit(props.card)}>
+      <Match when={isRabbit(props.cardId)}>
         <div class={detailInfoClass}>
           <p>
             <Description str={t.tileDetails.explanation.rabbit1()} />
           </p>
         </div>
       </Match>
-      <Match when={isFlower(props.card)}>
+      <Match when={isFlower(props.cardId)}>
         <div class={detailInfoClass}>
           <p>{t.tileDetails.explanation.flower1()}</p>
           <p>{t.tileDetails.explanation.flower2()}</p>
         </div>
       </Match>
-      <Match when={isSeason(props.card)}>
-        <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.season1()}</p>
-          <p>{t.tileDetails.explanation.season2()}</p>
-        </div>
-      </Match>
-      <Match when={isDragon(props.card)}>
+      <Match when={isDragon(props.cardId)}>
         {(dragonCard) => (
           <div class={detailInfoClass}>
             <p innerHTML={t.tileDetails.explanation.dragon1()} />
             <p>
               <Description
                 str={t.tileDetails.explanation.dragon2({
-                  suitName: t.suit[getRank(dragonCard())](),
-                  suit: getRank(dragonCard()),
+                  color: dragonCard().rank,
                 })}
               />
             </p>
           </div>
         )}
       </Match>
-      <Match when={isPhoenix(props.card)}>
+      <Match when={isPhoenix(props.cardId)}>
         <div class={detailInfoClass}>
           <p innerHTML={t.tileDetails.explanation.phoenix1()} />
           <p>{t.tileDetails.explanation.phoenix2()}</p>
         </div>
       </Match>
-      <Match when={isMutation(props.card)}>
+      <Match when={isMutation(props.cardId)}>
         {(mutationCard) => (
           <div class={detailInfoClass}>
-            <Switch fallback={<MutationExplanation card={mutationCard()} />}>
-              <Match when={getRank(props.card) === "4"}>
-                <p>{t.tileDetails.explanation.mutation1()}</p>
-              </Match>
-              <Match when={getRank(props.card) === "5"}>
-                <p>{t.tileDetails.explanation.mutation2()}</p>
-              </Match>
-            </Switch>
+            <p>{t.tileDetails.explanation[mutationCard().id]()}</p>
           </div>
         )}
       </Match>
-      <Match when={isJoker(props.card)}>
+      <Match when={isJoker(props.cardId)}>
         <div class={detailInfoClass}>
           <p>{t.tileDetails.explanation.joker1()}</p>
           <p>{t.tileDetails.explanation.joker2()}</p>
@@ -150,60 +116,15 @@ export function MaterialCoins(props: { material: Material }) {
   )
 }
 
-export function CardMultiplier(props: { material: Material; card: Card }) {
-  const run = useRunState()
-  const t = useTranslation()
-
-  return (
-    <Show
-      when={
-        getRawMultiplier({
-          card: props.card,
-          material: props.material,
-          run,
-        }) * 2
-      }
-    >
-      {(mult) => (
-        <dl class={detailListClass({ type: "crack" })}>
-          <dt class={detailTermClass}>{t.common.multiplier()}:</dt>
-          <dd class={detailDescriptionClass}>{mult()}</dd>
-        </dl>
-      )}
-    </Show>
-  )
-}
-
-export function CardPoints(props: { card: Card; material: Material }) {
-  const run = useRunState()
+export function CardPoints(props: { cardId: CardId; material: Material }) {
   const t = useTranslation()
 
   return (
     <dl class={detailListClass({ type: "bam" })}>
       <dt class={detailTermClass}>{t.common.points()}:</dt>
       <dd class={detailDescriptionClass}>
-        {getRawPoints({ card: props.card, material: props.material, run }) * 2}
+        {getRawPoints({ cardId: props.cardId, material: props.material }) * 2}
       </dd>
     </dl>
-  )
-}
-
-function MutationExplanation(props: { card: Mutation }) {
-  const ranks = createMemo(() => getMutationRanks(props.card)!)
-  const from = createMemo(() => ranks()[0]!)
-  const to = createMemo(() => ranks()[1]!)
-  const t = useTranslation()
-
-  return (
-    <p>
-      <Description
-        str={t.tileDetails.explanation.mutation3({
-          fromSuitName: suitName(from()),
-          fromSuit: from(),
-          toSuitName: suitName(to()),
-          toSuit: to(),
-        })}
-      />
-    </p>
   )
 }

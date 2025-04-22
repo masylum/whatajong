@@ -1,7 +1,6 @@
 import { getAvailablePairs, selectTile } from "@/lib/game"
 import { useLayoutSize } from "@/state/constants"
 import { useGameState } from "@/state/gameState"
-import { useRunState } from "@/state/runState"
 import { useTileState } from "@/state/tileState"
 import { createShortcut } from "@solid-primitives/keyboard"
 import {
@@ -66,13 +65,12 @@ export function Frame(props: Props) {
 
   // Cheat Code!
   const tileDb = useTileState()
-  const run = useRunState()
   createShortcut(["Shift", "K"], () => {
     console.log("cheat!")
     const tiles = getAvailablePairs(tileDb, game)[0]
     if (!tiles) return
     for (const tile of tiles) {
-      selectTile({ tileDb, run, game, tileId: tile.id })
+      selectTile({ tileDb, game, tileId: tile.id })
     }
     game.points += 100
   })

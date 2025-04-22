@@ -1,10 +1,10 @@
-import { LinkButton } from "@/components/button"
+import { Button, LinkButton } from "@/components/button"
 import { ArrowLeft } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import { captureEvent } from "@/lib/observability"
-import { type Difficulty, useRunState } from "@/state/runState"
+import { type Difficulty, TUTORIAL_SEED, useRunState } from "@/state/runState"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { batch, createMemo } from "solid-js"
+import { Show, batch, createMemo } from "solid-js"
 import {
   backButtonClass,
   buttonAnimationDelayVar,
@@ -19,7 +19,7 @@ import {
   titleContainerClass,
 } from "./runMode.css"
 
-export default function RunIntro() {
+export default function RunMode() {
   const run = useRunState()
 
   function onSelectMode(mode: Difficulty) {
@@ -38,8 +38,35 @@ export default function RunIntro() {
           <ArrowLeft />
         </LinkButton>
       </div>
-      <SelectDifficulty onSelectMode={onSelectMode} />
+      <Show
+        when={run.runId === TUTORIAL_SEED}
+        fallback={<SelectDifficulty onSelectMode={onSelectMode} />}
+      >
+        <TutorialIntro onSelectMode={onSelectMode} />
+      </Show>
     </div>
+  )
+}
+
+function TutorialIntro(props: { onSelectMode: (mode: Difficulty) => void }) {
+  const t = useTranslation()
+
+  return (
+    <>
+      <div class={titleContainerClass}>
+        <h1 class={titleClass}>{t.mode.title()}</h1>
+      </div>
+      <p class={subtitleClass}>
+        TODO: Sail along the Yellow River, a major trade route in ancient China.
+      </p>
+      <p class={subtitleClass}>
+        TODO: Solve a Mahjong Solitaire challenge at each of the 24 ports to
+        c‌omplete your journey.
+      </p>
+      <Button kind="dark" hue="bam" onClick={() => props.onSelectMode("easy")}>
+        TODO: start first challenge
+      </Button>
+    </>
   )
 }
 

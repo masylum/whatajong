@@ -1,41 +1,12 @@
-import { Button, LinkButton } from "@/components/button"
+import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
-import { ArrowLeft, ArrowRight, Home, Play } from "@/components/icon"
+import { ArrowLeft, ArrowRight, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import {
-  type Card,
-  type Material,
-  type Suit,
-  type Wind,
-  cardName,
-  getWindDirection,
-  suitName,
-} from "@/lib/game"
-import {
-  CoinCounter,
-  DeckTitle,
-  EmperorItemComponent,
-  FreezeButton,
-  ItemTile,
-  RerollButton,
-  UpgradeButton,
-} from "@/routes/run/runShop"
+import { type Material, type WindDirection, cardName } from "@/lib/game"
+import { FreezeButton, ItemTile, RerollButton } from "@/routes/run/runShop"
 import { getSideSize, useLayoutSize } from "@/state/constants"
-import { type EmperorName, EmperorTitle } from "@/state/emperors"
-import { useGlobalState } from "@/state/globalState"
-import type { AccentHue } from "@/styles/colors"
-import {
-  type Accessor,
-  type JSXElement,
-  Match,
-  type ParentProps,
-  Show,
-  Switch,
-  createMemo,
-  createSignal,
-  onMount,
-} from "solid-js"
-import { BasicEmperor } from "./basicEmperor"
+import { hueFromColor, hueFromSuit } from "@/styles/colors"
+import { Match, Switch, createMemo, createSignal } from "solid-js"
 import { comboRecipe } from "./game/powerups.css"
 import { MovesIndicator, Penalty, Points } from "./game/stats"
 import {
@@ -48,10 +19,6 @@ import {
   columnClass,
   columnsClass,
   containerClass,
-  emperorClass,
-  emperorContainerClass,
-  emperorImageClass,
-  emperorTextClass,
   materialListClass,
   materialListItemClass,
   materialNameClass,
@@ -68,136 +35,73 @@ const STEPS = [
   "dragons",
   "seasonsAndFlowers",
   "board",
+  "shop",
+  "materials",
 ] as const
-const RUN_STEPS = ["crew", "shop", "upgrade", "materials"] as const
 
-export function GameTutorial(props: ParentProps) {
-  return (
-    <Tutorial steps={STEPS} tutorial="game" fallback={props.children}>
-      {(step) => (
-        <Switch>
-          <Match when={step() === 0}>
-            <Tiles />
-          </Match>
-          <Match when={step() === 1}>
-            <Clearing />
-          </Match>
-          <Match when={step() === 2}>
-            <Dragons />
-          </Match>
-          <Match when={step() === 3}>
-            <SeasonsAndFlowers />
-          </Match>
-          <Match when={step() === 4}>
-            <Board />
-          </Match>
-        </Switch>
-      )}
-    </Tutorial>
-  )
-}
-
-export function RunTutorial(props: ParentProps) {
-  return (
-    <Tutorial steps={RUN_STEPS} tutorial="run" fallback={props.children}>
-      {(step) => (
-        <Switch>
-          <Match when={step() === 0}>
-            <Crew />
-          </Match>
-          <Match when={step() === 1}>
-            <Shop />
-          </Match>
-          <Match when={step() === 2}>
-            <Upgrade />
-          </Match>
-          <Match when={step() === 3}>
-            <Materials />
-          </Match>
-        </Switch>
-      )}
-    </Tutorial>
-  )
-}
-
-type TutorialProps<T> = {
-  steps: T
-  fallback: JSXElement
-  children: (step: Accessor<number>) => JSXElement
-  tutorial: "game" | "run"
-}
-function Tutorial<T extends readonly string[]>(props: TutorialProps<T>) {
+export function GameTutorial(props: { onClose: () => void }) {
   const t = useTranslation()
-  const globalState = useGlobalState()
-  const step = createMemo(() => globalState.tutorial[props.tutorial])
+  const [step, setStep] = createSignal(0)
   const stage = createMemo(() =>
-    t.tutorial.stages[props.steps[step()]! as keyof typeof t.tutorial.stages](),
+    t.tutorial.stages[STEPS[step()]! as keyof typeof t.tutorial.stages](),
   )
-  const [play, setPlay] = createSignal(false)
-
-  onMount(() => {
-    setPlay(step() >= props.steps.length)
-  })
-
-  function onSkip() {
-    onNext()
-    setPlay(true)
-  }
 
   function onPrev() {
-    globalState.tutorial[props.tutorial] -= 1
+    setStep(step() - 1)
   }
 
   function onNext() {
-    globalState.tutorial[props.tutorial] += 1
+    setStep(step() + 1)
   }
 
   return (
-    <Show when={!play()} fallback={props.fallback}>
-      <div class={containerClass}>
-        <div class={backButtonClass}>
-          <LinkButton href="/" hue="dot" kind="dark">
-            <Home />
-          </LinkButton>
-        </div>
-        <div class={buttonsClass}>
-          <Button
-            hue="dot"
-            kind="dark"
-            onClick={onPrev}
-            disabled={step() === 0}
-          >
-            <ArrowLeft />
-            {t.common.prev()}
-          </Button>
-          <Button
-            hue="dot"
-            kind="dark"
-            onClick={onNext}
-            disabled={step() >= props.steps.length - 1}
-          >
-            {t.common.next()}
-            <ArrowRight />
-          </Button>
-          <Button hue="bam" kind="dark" onClick={onSkip}>
-            <Show
-              when={props.tutorial === "game"}
-              fallback={
-                <>
-                  {t.common.goToShop()}
-                  <ArrowRight />
-                </>
-              }
-            >
-              <Play />
-              {t.common.play()}
-            </Show>
-          </Button>
-        </div>
-        <h1 class={titleClass}>{t.tutorial.title({ stage: stage() })}</h1>
-        {props.children(step)}
+    <div class={containerClass}>
+      <div class={backButtonClass}>
+        <Button hue="dot" kind="dark" onClick={props.onClose}>
+          <X />
+          {t.common.close()}
+        </Button>
       </div>
-    </Show>
+      <div class={buttonsClass}>
+        <Button hue="dot" kind="dark" onClick={onPrev} disabled={step() === 0}>
+          <ArrowLeft />
+          {t.common.prev()}
+        </Button>
+        <Button
+          hue="dot"
+          kind="dark"
+          onClick={onNext}
+          disabled={step() >= STEPS.length - 1}
+        >
+          {t.common.next()}
+          <ArrowRight />
+        </Button>
+      </div>
+      <h1 class={titleClass}>{t.tutorial.title({ stage: stage() })}</h1>
+      <Switch>
+        <Match when={step() === 0}>
+          <Tiles />
+        </Match>
+        <Match when={step() === 1}>
+          <Clearing />
+        </Match>
+        <Match when={step() === 2}>
+          <Dragons />
+        </Match>
+        <Match when={step() === 3}>
+          <SeasonsAndFlowers />
+        </Match>
+        <Match when={step() === 4}>
+          <Board />
+        </Match>
+        <Match when={step() === 5}>
+          <Shop />
+        </Match>
+        <Match when={step() === 6}>
+          <Materials />
+        </Match>
+      </Switch>
+    </div>
   )
 }
 
@@ -223,12 +127,12 @@ function Tiles() {
         <div class={cardRowClass}>
           <BasicTile
             width={tileWidth()}
-            card="b8"
+            cardId="b8"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
             width={tileWidth()}
-            card="b8"
+            cardId="b8"
             style={{ transform: "rotate(7deg)" }}
           />
         </div>
@@ -249,18 +153,18 @@ function Clearing() {
         {t.tutorial.clearing2()}
         <div class={rowsClass}>
           <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="c2" />
-            <BasicTile width={tileWidth()} card="c2" />
-            <BasicTile width={tileWidth()} card="o6" highlighted="bam" />
+            <BasicTile width={tileWidth()} cardId="o6" highlighted="bam" />
+            <BasicTile width={tileWidth()} cardId="c2" />
+            <BasicTile width={tileWidth()} cardId="c2" />
+            <BasicTile width={tileWidth()} cardId="o6" highlighted="bam" />
           </div>
           <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="o1" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="b7" />
-            <BasicTile width={tileWidth()} card="c8" />
+            <BasicTile width={tileWidth()} cardId="o1" highlighted="bam" />
+            <BasicTile width={tileWidth()} cardId="b7" />
+            <BasicTile width={tileWidth()} cardId="c8" />
             <BasicTile
               width={tileWidth()}
-              card="o1"
+              cardId="o1"
               highlighted="bam"
               style={{
                 "z-index": 2,
@@ -274,9 +178,9 @@ function Clearing() {
             />
           </div>
           <div class={rowClass}>
-            <BasicTile width={tileWidth()} card="b1" highlighted="bam" />
-            <BasicTile width={tileWidth()} card="o3" />
-            <BasicTile width={tileWidth()} card="o3" />
+            <BasicTile width={tileWidth()} cardId="b1" highlighted="bam" />
+            <BasicTile width={tileWidth()} cardId="o3" />
+            <BasicTile width={tileWidth()} cardId="o3" />
           </div>
         </div>
       </div>
@@ -285,19 +189,15 @@ function Clearing() {
         <div class={cardRowClass}>
           <BasicTile
             width={tileWidth()}
-            card="o1"
+            cardId="o1"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
             width={tileWidth()}
-            card="o1"
+            cardId="o1"
             style={{ transform: "rotate(7deg)" }}
           />
-          <h3
-            class={cardTitleClass({
-              hue: suitName("o") as any,
-            })}
-          >
+          <h3 class={cardTitleClass({ hue: "dot" })}>
             {t.tutorial.clearing4()}
           </h3>
         </div>
@@ -315,9 +215,10 @@ function Dragons() {
       <div class={columnClass}>
         <p>{t.tutorial.dragons1()}</p>
         <div class={cardRowsClass}>
-          <DragonExplanation suit="b" />
-          <DragonExplanation suit="c" />
-          <DragonExplanation suit="o" />
+          <DragonExplanation color="r" />
+          <DragonExplanation color="g" />
+          <DragonExplanation color="b" />
+          <DragonExplanation color="k" />
         </div>
       </div>
       <div class={columnClass}>
@@ -330,12 +231,12 @@ function Dragons() {
           <div class={cardRowClass}>
             <BasicTile
               width={tileWidth()}
-              card="b8"
+              cardId="b8"
               style={{ transform: "rotate(5deg)" }}
             />
             <BasicTile
               width={tileWidth()}
-              card="b8"
+              cardId="b8"
               style={{ transform: "rotate(-7deg)" }}
             />
             <span class={comboRecipe({ hue: "bam" })}>x1</span>
@@ -343,12 +244,12 @@ function Dragons() {
           <div class={cardRowClass}>
             <BasicTile
               width={tileWidth()}
-              card="b3"
+              cardId="b3"
               style={{ transform: "rotate(5deg)" }}
             />
             <BasicTile
               width={tileWidth()}
-              card="b3"
+              cardId="b3"
               style={{ transform: "rotate(-7deg)" }}
             />
             <span class={comboRecipe({ hue: "bam" })}>x2</span>
@@ -368,10 +269,10 @@ function SeasonsAndFlowers() {
       <div class={columnClass}>
         <p>{t.tutorial.seasonsAndFlowers1()}</p>
         <div class={rowsClass}>
-          <WindExplanation wind="ww" />
-          <WindExplanation wind="we" />
-          <WindExplanation wind="ws" />
-          <WindExplanation wind="wn" />
+          <WindExplanation direction="w" />
+          <WindExplanation direction="e" />
+          <WindExplanation direction="s" />
+          <WindExplanation direction="n" />
         </div>
       </div>
       <div class={columnClass}>
@@ -380,12 +281,12 @@ function SeasonsAndFlowers() {
           <div class={cardRowClass}>
             <BasicTile
               width={tileWidth()}
-              card="f1"
+              cardId="f1"
               style={{ transform: "rotate(5deg)" }}
             />
             <BasicTile
               width={tileWidth()}
-              card="f2"
+              cardId="f2"
               style={{ transform: "rotate(-7deg)" }}
             />
             <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
@@ -393,12 +294,12 @@ function SeasonsAndFlowers() {
           <div class={cardRowClass}>
             <BasicTile
               width={tileWidth()}
-              card="s1"
+              cardId="f1"
               style={{ transform: "rotate(5deg)" }}
             />
             <BasicTile
               width={tileWidth()}
-              card="s2"
+              cardId="f2"
               style={{ transform: "rotate(-7deg)" }}
             />
             <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
@@ -406,12 +307,12 @@ function SeasonsAndFlowers() {
           <div class={cardRowClass}>
             <BasicTile
               width={tileWidth()}
-              card="s1"
+              cardId="f1"
               style={{ transform: "rotate(5deg)" }}
             />
             <BasicTile
               width={tileWidth()}
-              card="f1"
+              cardId="f1"
               style={{ transform: "rotate(-7deg)" }}
             />
             <span class={comboRecipe({ hue: "crack" })}>{t.common.no()}</span>
@@ -452,29 +353,6 @@ function Board() {
   )
 }
 
-function Crew() {
-  const t = useTranslation()
-
-  return (
-    <div class={columnsClass}>
-      <div class={columnClass}>
-        <p>{t.tutorial.crew1()}</p>
-        <p>{t.tutorial.crew2()}</p>
-      </div>
-      <div class={columnClass}>
-        <div class={emperorContainerClass}>
-          <EmperorExplanation index={0} name="birdwatcher" hue="bam" />
-          <EmperorExplanation index={1} name="breeder" hue="dot" />
-          <EmperorExplanation index={2} name="dragon_rider" hue="crack" />
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.crew3()}</p>
-      </div>
-    </div>
-  )
-}
-
 function Shop() {
   const t = useTranslation()
 
@@ -485,27 +363,21 @@ function Shop() {
         <div class={shopItemContainerClass}>
           <ItemTile
             item={{
-              card: "b1",
+              cardId: "b1",
               level: 1,
               type: "tile",
               id: "b1",
             }}
+            selected={false}
           />
           <ItemTile
             item={{
-              card: "dc",
+              cardId: "dr",
               level: 1,
               type: "tile",
               id: "dc",
             }}
-          />
-          <EmperorItemComponent
-            item={{
-              name: "birdwatcher",
-              level: 1,
-              type: "emperor",
-              id: "birdwatcher",
-            }}
+            selected={false}
           />
         </div>
       </div>
@@ -519,43 +391,6 @@ function Shop() {
         <p>{t.tutorial.shop3()}</p>
         <div class={shopItemContainerClass}>
           <FreezeButton />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Upgrade() {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={columnsClass}>
-      <div class={columnClass}>
-        <p>{t.tutorial.upgrade1()}</p>
-        <div class={shopItemContainerClass}>
-          <UpgradeButton cost={100} disabled={false} />
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.upgrade2()}</p>
-        <div class={boardClass}>
-          <div class={rowsClass}>
-            <DeckTitle pairs={70} capacity={72} />
-            <br />
-            <div class={rowClass}>
-              <BasicTile width={tileWidth()} card="o6" />
-              <BasicTile width={tileWidth()} card="c2" />
-              <BasicTile width={tileWidth()} card="c2" />
-              <BasicTile width={tileWidth()} card="o6" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.upgrade3()}</p>
-        <div class={boardClass}>
-          <CoinCounter money={100} />
         </div>
       </div>
     </div>
@@ -622,57 +457,57 @@ function Materials() {
   )
 }
 
-function SuitExplanation(props: { suit: Suit }) {
+function SuitExplanation(props: { suit: "b" | "c" | "o" }) {
   const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
-      <h3 class={cardTitleClass({ hue: suitName(props.suit) as any })}>
+      <h3 class={cardTitleClass({ hue: hueFromSuit(props.suit) })}>
         {t.suit[props.suit]()}
       </h3>
       <BasicTile
         width={tileWidth()}
-        card={`${props.suit}1` as Card}
+        cardId={`${props.suit}1`}
         style={{ transform: "rotate(5deg)" }}
       />
       <BasicTile
         width={tileWidth()}
-        card={`${props.suit}5` as Card}
+        cardId={`${props.suit}5`}
         style={{ transform: "rotate(-10deg)" }}
       />
       <BasicTile
         width={tileWidth()}
-        card={`${props.suit}9` as Card}
+        cardId={`${props.suit}9`}
         style={{ transform: "rotate(7deg)" }}
       />
     </div>
   )
 }
 
-function DragonExplanation(props: { suit: "b" | "c" | "o" }) {
+function DragonExplanation(props: { color: "r" | "g" | "b" | "k" }) {
   const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
-      <BasicTile width={tileWidth()} card={`d${props.suit}`} />
-      <h3 class={cardTitleClass({ hue: suitName(props.suit) as any })}>
-        {cardName(t, `d${props.suit}`)}
+      <BasicTile width={tileWidth()} cardId={`d${props.color}`} />
+      <h3 class={cardTitleClass({ hue: hueFromColor(props.color) })}>
+        {cardName(t, `d${props.color}`)}
       </h3>
     </div>
   )
 }
 
-function WindExplanation(props: { wind: Wind }) {
+function WindExplanation(props: { direction: WindDirection }) {
   const t = useTranslation()
   const tileWidth = useTileSize()
 
   return (
     <div class={cardRowClass}>
-      <BasicTile width={tileWidth()} card={props.wind} />
+      <BasicTile width={tileWidth()} cardId={`w${props.direction}`} />
       <h3 class={cardTitleClass({ hue: "dot" })}>
-        {getWindDirection(t, props.wind)}
+        {t.windDirections[props.direction]()}
       </h3>
     </div>
   )
@@ -689,13 +524,13 @@ function MaterialExplanation(props: { material: Material }) {
       </h3>
       <BasicTile
         width={tileWidth()}
-        card="b1"
+        cardId="b1"
         material={props.material}
         style={{ transform: "rotate(5deg)" }}
       />
       <BasicTile
         width={tileWidth()}
-        card="o1"
+        cardId="o1"
         material={props.material}
         style={{ transform: "rotate(5deg)" }}
       />
@@ -706,24 +541,4 @@ function MaterialExplanation(props: { material: Material }) {
 function useTileSize() {
   const layout = useLayoutSize()
   return createMemo(() => layout().width / 12)
-}
-
-function EmperorExplanation(props: {
-  index: number
-  name: EmperorName
-  hue: AccentHue
-}) {
-  return (
-    <div
-      class={emperorClass({ hue: props.hue })}
-      style={{
-        transform: `translateX(${50 - props.index * 50}px) rotate(${-10 + props.index * 10}deg)`,
-      }}
-    >
-      <BasicEmperor name={props.name} class={emperorImageClass} />
-      <div class={emperorTextClass}>
-        <EmperorTitle name={props.name} />
-      </div>
-    </div>
-  )
 }

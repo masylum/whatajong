@@ -1,11 +1,11 @@
-import type { Card } from "@/lib/game"
+import type { CardId } from "@/lib/game"
 import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
 import { mergeProps } from "solid-js"
 
 type Props = {
   width?: number
   height?: number
-  card: Card
+  cardId: CardId
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
@@ -18,7 +18,7 @@ export function TileImage(iProps: Props) {
 
   return (
     <image
-      href={`${href()}/${iProps.card}.webp`}
+      href={`${href()}/${iProps.cardId}.webp`}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

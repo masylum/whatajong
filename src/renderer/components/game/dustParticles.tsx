@@ -1,4 +1,4 @@
-import { type Tile, type WindDirection, getRank, isWind } from "@/lib/game"
+import { type Tile, type WindDirection, getCard, isWind } from "@/lib/game"
 import { difference } from "@/lib/setMethods"
 import { useTileState } from "@/state/tileState"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
@@ -53,7 +53,7 @@ export function DustParticles() {
   })
 
   const windTiles = createMemo(() =>
-    tiles.filterBy({ deleted: true }).filter((tile) => isWind(tile.card)),
+    tiles.filterBy({ deleted: true }).filter((tile) => isWind(tile.cardId)),
   )
   const hasWind = () => !!windDirection()
 
@@ -63,7 +63,7 @@ export function DustParticles() {
 
     if (newWindTiles.size) {
       const windTile = newWindTiles.values().next().value!
-      const direction = getRank(windTile.card) as WindDirection
+      const direction = getCard(windTile.cardId).rank as WindDirection
       setWindDirection(direction)
     }
 

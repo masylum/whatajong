@@ -5,7 +5,7 @@ import { getNextMaterials, getTransformation } from "./shopState"
 describe("getNextMaterials", () => {
   function createDeckTiles(materials: Material[]) {
     return materials.map(
-      (material) => ({ id: material, material, card: "b1" }) as const,
+      (material) => ({ id: material, material, cardId: "b1" }) as const,
     )
   }
 
@@ -49,7 +49,7 @@ describe("getNextMaterials", () => {
 describe("getTransformation", () => {
   function createDeckTiles(materials: Record<string, Material>) {
     return Object.entries(materials).map(
-      ([id, material]) => ({ id, material, card: "b1" }) as const,
+      ([id, material]) => ({ id, material, cardId: "b1" }) as const,
     )
   }
 

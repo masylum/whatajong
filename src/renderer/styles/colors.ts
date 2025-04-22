@@ -151,6 +151,27 @@ const accentHues = [
   "diamond",
 ] as const
 
+export function hueFromSuit(suit: "b" | "c" | "o") {
+  return (
+    {
+      b: "bam",
+      c: "crack",
+      o: "dot",
+    } as const
+  )[suit]
+}
+
+export function hueFromColor(suit: "r" | "g" | "b" | "k") {
+  return (
+    {
+      r: "bam",
+      g: "crack",
+      b: "dot",
+      k: "ivory",
+    } as const
+  )[suit]
+}
+
 type Hue = keyof typeof huesAndShades
 export type AccentHue = (typeof accentHues)[number]
 type BaseHue = Exclude<Hue, AccentHue>

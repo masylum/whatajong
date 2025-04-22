@@ -8,7 +8,6 @@ import {
   isMutation,
   isPhoenix,
   isRabbit,
-  isSeason,
   isWind,
   mapGetHeight,
   mapGetWidth,
@@ -142,19 +141,17 @@ export function TileComponent(iProps: Props) {
     }
 
     if (prevState !== "deleted" && currentState === "deleted") {
-      if (isDragon(props.tile.card)) {
+      if (isDragon(props.tile.cardId)) {
         play("dragon")
-      } else if (isFlower(props.tile.card)) {
+      } else if (isFlower(props.tile.cardId)) {
         play("flower")
-      } else if (isSeason(props.tile.card)) {
-        play("season")
-      } else if (isWind(props.tile.card)) {
+      } else if (isWind(props.tile.cardId)) {
         play("wind")
-      } else if (isPhoenix(props.tile.card)) {
+      } else if (isPhoenix(props.tile.cardId)) {
         play("phoenix")
-      } else if (isRabbit(props.tile.card)) {
+      } else if (isRabbit(props.tile.cardId)) {
         play("rabbit")
-      } else if (isMutation(props.tile.card)) {
+      } else if (isMutation(props.tile.cardId)) {
         play("mutation")
       } else if (
         props.tile.material === "bronze" ||
@@ -235,7 +232,7 @@ export function TileComponent(iProps: Props) {
               <TileSide d={dPath()} material={material()} />
               <TileShades tile={props.tile} />
               <TileBody material={material()} />
-              <TileImage card={props.tile.card} />
+              <TileImage cardId={props.tile.cardId} />
 
               {/* Clickable overlay with hover effect */}
               <path

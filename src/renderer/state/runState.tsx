@@ -1,4 +1,4 @@
-import type { Deck, Game, Level } from "@/lib/game"
+import type { Game } from "@/lib/game"
 import Rand from "rand-seed"
 import {
   type ParentProps,
@@ -6,21 +6,20 @@ import {
   createMemo,
   useContext,
 } from "solid-js"
-import { EMPERORS } from "./emperors"
 import { calculateSeconds } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
-import { type Item, generateShopItems } from "./shopState"
+import { type TileItem, generateShopItems } from "./shopState"
 
-const RUN_STATE_NAMESPACE = "run-state-v2"
+const RUN_STATE_NAMESPACE = "run-state-v3"
+export const TUTORIAL_SEED = "tutorial-seed"
 
 export type RunState = {
   runId: string
   money: number
   round: number
   stage: RoundStage
-  shopLevel: Level
-  shopItems: Item[]
-  items: Item[]
+  shopItems: TileItem[]
+  items: TileItem[]
   difficulty?: Difficulty
   createdAt: number
   freeze?: {
@@ -82,7 +81,6 @@ export function createRunState(params: CreateRunStateParams) {
         money: 0,
         round: 1,
         stage: "intro",
-        shopLevel: 1,
         shopItems: generateShopItems(),
         createdAt: Date.now(),
         items: [],
@@ -94,15 +92,15 @@ export function createRunState(params: CreateRunStateParams) {
 const DIFFICULTY = {
   easy: {
     timer: { exp: 1.2, lin: 0.5 },
-    point: { exp: 2.4, lin: 20 },
+    point: { initial: 40, exp: 2.2, lin: 20 },
   },
   medium: {
     timer: { exp: 1.3, lin: 1 },
-    point: { exp: 2.8, lin: 30 },
+    point: { initial: 50, exp: 2.4, lin: 30 },
   },
   hard: {
     timer: { exp: 1.4, lin: 2 },
-    point: { exp: 3, lin: 60 },
+    point: { initial: 60, exp: 2.6, lin: 60 },
   },
 } as const
 
@@ -121,7 +119,7 @@ export function generateRound(id: number, run: RunState): Round {
   const level = id - 1
   const timerPoints = ((level * timer.lin + timer.exp ** level) / 20) * var1 // Grows level + 1.3^level
   const pointObjective = Math.round(
-    (100 + level * point.lin + level ** point.exp) * var2,
+    (point.initial + level * point.lin + level ** point.exp) * var2,
   ) // Grows 30*level + level^2.8
 
   const round: Round = {
@@ -131,18 +129,6 @@ export function generateRound(id: number, run: RunState): Round {
   }
 
   return round
-}
-
-export const DECK_CAPACITY_PER_LEVEL = {
-  1: 36,
-  2: 42,
-  3: 52,
-  4: 64,
-  5: 77,
-} as const
-
-export function getIncome(deck: Deck, run: RunState) {
-  return deck.size * run.shopLevel
 }
 
 function totalPoints(game: Game, round: Round) {
@@ -158,17 +144,4 @@ export function runGameWin(game: Game, run: RunState) {
   if (!enoughPoints) return false
 
   return true
-}
-
-export function ownedEmperors(run?: RunState) {
-  if (!run) return []
-
-  const names = new Set(
-    (run.items as Item[])
-      .filter((item) => item.type === "emperor")
-      .map((item) => item.name),
-  )
-  if (!names.size) return []
-
-  return EMPERORS.filter((emperor) => names.has(emperor.name))
 }

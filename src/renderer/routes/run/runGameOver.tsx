@@ -1,10 +1,9 @@
-import { BasicEmperor } from "@/components/basicEmperor"
 import { Button, LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { GameOver } from "@/components/game/gameOver"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { getRank, getSuit } from "@/lib/game"
+import { getCard } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
@@ -13,8 +12,7 @@ import {
   calculateSeconds,
   createGameState,
 } from "@/state/gameState"
-import { getIncome, runGameWin, useRound, useRunState } from "@/state/runState"
-import type { EmperorItem } from "@/state/shopState"
+import { runGameWin, useRound, useRunState } from "@/state/runState"
 import { createTileState } from "@/state/tileState"
 import { nanoid } from "nanoid"
 import { sumBy } from "remeda"
@@ -23,12 +21,9 @@ import {
   deckClass,
   deckItemClass,
   deckRowsClass,
-  emperorClass,
   gameOverClass,
   gameOverInfoClass,
   moneyClass,
-  ownedEmperorsClass,
-  ownedEmperorsListClass,
   pairClass,
 } from "./runGameOver.css"
 
@@ -55,10 +50,10 @@ export default function RunGameOver() {
     const overAchievement = achievement() - 1
     if (overAchievement <= 0) return 0
 
-    return Math.min(Math.floor((overAchievement * 10) / 2), 100)
+    return Math.min(Math.floor(overAchievement * 2), 12)
   })
 
-  const income = createMemo(() => getIncome(deck, run))
+  const income = createMemo(() => run.round * 3)
 
   function onShop() {
     batch(() => {
@@ -163,7 +158,6 @@ export default function RunGameOver() {
           <Show when={!win()}>
             <div class={gameOverInfoClass}>
               <span class={moneyClass}>${run.money}</span>
-              <OwnedEmperors />
               <Deck />
             </div>
           </Show>
@@ -179,13 +173,13 @@ function Deck() {
 
   const sortedDeck = createMemo(() =>
     deck.all.sort((a, b) => {
-      const suitA = getSuit(a.card)
-      const suitB = getSuit(b.card)
-      if (suitA !== suitB) {
+      const aCard = getCard(a.cardId)
+      const bCard = getCard(b.cardId)
+      if (aCard.suit !== bCard.suit) {
         const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
-        return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
+        return suitOrder.indexOf(aCard.suit) - suitOrder.indexOf(bCard.suit)
       }
-      return getRank(a.card).localeCompare(getRank(b.card))
+      return aCard.rank.localeCompare(bCard.rank)
     }),
   )
   const tileSize = useSmallerTileSize(0.5)
@@ -208,7 +202,7 @@ function Deck() {
               }}
             >
               <BasicTile
-                card={deckTile.card}
+                cardId={deckTile.cardId}
                 material={deckTile.material}
                 width={tileSize().width}
               />
@@ -220,28 +214,6 @@ function Deck() {
                 material={deckTile.material}
                 width={tileSize().width}
               />
-            </div>
-          )}
-        </For>
-      </div>
-    </div>
-  )
-}
-
-function OwnedEmperors() {
-  const run = useRunState()
-
-  const ownedEmperors = createMemo(
-    () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
-  )
-
-  return (
-    <div class={ownedEmperorsClass}>
-      <div class={ownedEmperorsListClass}>
-        <For each={ownedEmperors()}>
-          {(emperor) => (
-            <div class={emperorClass}>
-              <BasicEmperor name={emperor.name} />
             </div>
           )}
         </For>
