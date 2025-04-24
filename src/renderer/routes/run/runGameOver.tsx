@@ -289,7 +289,7 @@ function FallingTile(props: { cardId: CardId }) {
   )
 }
 
-export function FallingTiles() {
+function FallingTiles() {
   const cards = createMemo<Card[]>(() => {
     const rng = new Rand()
     return shuffle(getAllTiles(), rng).slice(0, 10)

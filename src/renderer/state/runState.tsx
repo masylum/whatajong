@@ -41,8 +41,8 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver" | "reward"
-export type Round = {
+type RoundStage = "intro" | "game" | "shop" | "gameOver" | "reward"
+type Round = {
   id: number
   pointObjective: number
   timerPoints: number

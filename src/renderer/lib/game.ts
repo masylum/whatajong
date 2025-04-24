@@ -331,11 +331,11 @@ export function isKudo(cardId: CardId) {
   return checkSuit(cardId, "k")
 }
 
-export function isHonor(cardId: CardId) {
+function isHonor(cardId: CardId) {
   return checkSuit(cardId, "h")
 }
 
-export function isAstronomer(cardId: CardId) {
+function isAstronomer(cardId: CardId) {
   return checkSuit(cardId, "a")
 }
 
@@ -664,7 +664,7 @@ export const phoenixes = [
 type PhoenixCard = (typeof phoenixes)[number]
 
 // biome-ignore format:
-export const mutations = [
+const mutations = [
   { id: "m1", suit: "m", rank: "", colors: ["b", "r"], points: 2, level: 7 },
   { id: "m2", suit: "m", rank: "", colors: ["g", "b"], points: 2, level: 7 },
   { id: "m3", suit: "m", rank: "", colors: ["r", "g"], points: 2, level: 7 },
@@ -679,7 +679,7 @@ export const jokers = [
 ] as const
 type JokerCard = (typeof jokers)[number]
 
-export const kudos = [
+const kudos = [
   { id: "kr", suit: "k", rank: "r", colors: ["r"], points: 2, level: 9 },
   { id: "kg", suit: "k", rank: "g", colors: ["g"], points: 2, level: 9 },
   { id: "kb", suit: "k", rank: "b", colors: ["b"], points: 2, level: 9 },
@@ -687,7 +687,7 @@ export const kudos = [
 ] as const
 type KudoCard = (typeof kudos)[number]
 
-export const honors = [
+const honors = [
   { id: "hr", suit: "h", rank: "r", colors: ["r"], points: 2, level: 10 },
   { id: "hg", suit: "h", rank: "g", colors: ["g"], points: 2, level: 10 },
   { id: "hb", suit: "h", rank: "b", colors: ["b"], points: 2, level: 10 },
@@ -696,7 +696,7 @@ export const honors = [
 type HonorCard = (typeof honors)[number]
 
 // biome-ignore format:
-export const astronomers = [
+const astronomers = [
   { id: "a1", suit: "a", rank: "x", colors: ["g", "r", "b", "k"], points: 8, level: 11 },
 ] as const
 type AstronomerCard = (typeof astronomers)[number]

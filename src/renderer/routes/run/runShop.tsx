@@ -563,9 +563,7 @@ function Header() {
   const nextRound = createMemo(() => generateRound(run.round, run))
 
   function continueRun() {
-    batch(() => {
-      run.stage = "select"
-    })
+    run.stage = "game"
   }
 
   return (

@@ -182,7 +182,7 @@ function BottomRight() {
   return <Moves />
 }
 
-export function Frame(props: { setTutorial: (tutorial: boolean) => void }) {
+function Frame(props: { setTutorial: (tutorial: boolean) => void }) {
   const game = useGameState()
   const [comboAnimation, setComboAnimation] = createSignal(0)
 

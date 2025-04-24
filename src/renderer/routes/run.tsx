@@ -7,7 +7,6 @@ import { RunStateProvider, createRunState } from "../state/runState"
 import RunGame from "./run/runGame"
 import RunMode from "./run/runMode"
 import RunReward from "./run/runReward"
-import RunSelect from "./run/runSelect"
 import RunShop from "./run/runShop"
 
 export function Run() {
@@ -31,9 +30,6 @@ export function Run() {
       <DeckStateProvider deck={newDeck()}>
         <ShopStateProvider shop={shop}>
           <Switch>
-            <Match when={run.stage === "select"}>
-              <RunSelect />
-            </Match>
             <Match when={run.stage === "intro"}>
               <RunMode />
             </Match>
