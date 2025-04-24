@@ -20,7 +20,7 @@ describe("resolveMutations", () => {
 
   it("increases all suit ranks by 1 with m4 mutation", () => {
     const mutationTile = createTile({ cardId: "m4" })
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Check that each suit card rank increased by 1
     expect(tileDb.get("1")!.cardId).toBe("b2") // b1 -> b2
@@ -34,7 +34,7 @@ describe("resolveMutations", () => {
 
   it("decreases all suit ranks by 1 with m5 mutation", () => {
     const mutationTile = createTile({ cardId: "m5" })
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Check that each suit card rank decreased by 1
     expect(tileDb.get("1")!.cardId).toBe("b1") // b1 stays b1 (min)
@@ -51,7 +51,7 @@ describe("resolveMutations", () => {
     tileDb.set("8", createTile({ id: "8", cardId: "o1", x: 2, y: 1, z: 0 }))
 
     const mutationTile = createTile({ cardId: "m1" })
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become crack cards
     expect(tileDb.get("8")!.cardId).toBe("c1")
@@ -66,7 +66,7 @@ describe("resolveMutations", () => {
     tileDb.set("8", createTile({ id: "8", cardId: "o1", x: 2, y: 1, z: 0 }))
 
     const mutationTile = createTile({ cardId: "m2" })
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become bamboo cards
     expect(tileDb.get("8")!.cardId).toBe("b1")
@@ -79,7 +79,7 @@ describe("resolveMutations", () => {
 
   it("swaps bamboo and crack suits with m3 mutation", () => {
     const mutationTile = createTile({ cardId: "m3" })
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Bamboo cards become crack cards
     expect(tileDb.get("1")!.cardId).toBe("c1")
@@ -98,7 +98,7 @@ describe("resolveMutations", () => {
     }))
 
     const regularTile = createTile({ cardId: "b1" })
-    resolveMutations(tileDb, regularTile)
+    resolveMutations({ tileDb, tile: regularTile })
 
     // No cards should change
     for (const cardInfo of originalCards) {
@@ -113,7 +113,7 @@ describe("resolveMutations", () => {
     tileDb.set("9", createTile({ id: "9", cardId: "f1", x: 2, y: 2, z: 0 }))
 
     const mutationTile = createTile({ cardId: "m4" }) // +1 mutation
-    resolveMutations(tileDb, mutationTile)
+    resolveMutations({ tileDb, tile: mutationTile })
 
     // Non-suit cards shouldn't change
     expect(tileDb.get("8")!.cardId).toBe("wn")

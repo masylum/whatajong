@@ -34,7 +34,7 @@ describe("resolveDragons", () => {
       const game: Game = { points: 0 }
       const dragonTile = createTile({ cardId: "dr" })
 
-      resolveDragons(game, dragonTile)
+      resolveDragons({ game, tile: dragonTile })
 
       expect(game.dragonRun).toBeDefined()
       expect(game.dragonRun!.color).toBe("r")
@@ -48,7 +48,7 @@ describe("resolveDragons", () => {
       }
       const matchingTile = createTile({ cardId: "c3" })
 
-      resolveDragons(game, matchingTile)
+      resolveDragons({ game, tile: matchingTile })
 
       expect(game.dragonRun!.combo).toBe(2)
     })
@@ -60,17 +60,17 @@ describe("resolveDragons", () => {
       }
 
       const flowerTile = createTile({ cardId: "f1" })
-      resolveDragons(game, flowerTile)
+      resolveDragons({ game, tile: flowerTile })
       expect(game.dragonRun!.combo).toBe(3)
 
       // Joker doesn't increase combo but maintains run
       const jokerTile = createTile({ cardId: "j1" })
-      resolveDragons(game, jokerTile)
+      resolveDragons({ game, tile: jokerTile })
       expect(game.dragonRun!.combo).toBe(4)
 
       // Mutation doesn't increase combo but maintains run
       const mutationTile = createTile({ cardId: "m1" })
-      resolveDragons(game, mutationTile)
+      resolveDragons({ game, tile: mutationTile })
       expect(game.dragonRun!.combo).toBe(5)
     })
 
@@ -81,7 +81,7 @@ describe("resolveDragons", () => {
       }
       const nonMatchingTile = createTile({ cardId: "b2" })
 
-      resolveDragons(game, nonMatchingTile)
+      resolveDragons({ game, tile: nonMatchingTile })
 
       expect(game.dragonRun).toBeUndefined()
     })
@@ -93,7 +93,7 @@ describe("resolveDragons", () => {
       }
       const newDragonTile = createTile({ cardId: "db" })
 
-      resolveDragons(game, newDragonTile)
+      resolveDragons({ game, tile: newDragonTile })
 
       expect(game.dragonRun!.color).toBe("b")
       expect(game.dragonRun!.combo).toBe(0)
@@ -106,7 +106,7 @@ describe("resolveDragons", () => {
       }
       const sameDragonTile = createTile({ cardId: "dr" })
 
-      resolveDragons(game, sameDragonTile)
+      resolveDragons({ game, tile: sameDragonTile })
 
       expect(game.dragonRun!.color).toBe("r")
       expect(game.dragonRun!.combo).toBe(4)

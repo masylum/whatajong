@@ -30,14 +30,11 @@ export function MaterialFreedom(iProps: {
   const t = useTranslation()
 
   return (
-    <div class={detailFreedomClass({ hue: props.hue })}>
-      <Show
-        when={props.material === "glass" || props.material === "diamond"}
-        fallback={t.tileDetails.freedom.standard()}
-      >
+    <Show when={props.material === "glass" || props.material === "diamond"}>
+      <div class={detailFreedomClass({ hue: props.hue })}>
         {t.tileDetails.freedom.relaxed()}
-      </Show>
-    </div>
+      </div>
+    </Show>
   )
 }
 
@@ -123,7 +120,7 @@ export function CardPoints(props: { cardId: CardId; material: Material }) {
     <dl class={detailListClass({ type: "bam" })}>
       <dt class={detailTermClass}>{t.common.points()}:</dt>
       <dd class={detailDescriptionClass}>
-        {getRawPoints({ cardId: props.cardId, material: props.material }) * 2}
+        {getRawPoints({ cardId: props.cardId, material: props.material })}
       </dd>
     </dl>
   )

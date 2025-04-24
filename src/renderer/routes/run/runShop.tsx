@@ -27,23 +27,20 @@ import {
   type DeckTileItem,
   type Path,
   REROLL_COST,
-  ShopStateProvider,
   type TileItem,
-  buyItem,
-  createShopState,
+  buyTile,
   generateItems,
   getNextMaterial,
-  getTransformation,
   isTile,
   itemCost,
+  upgradeTile,
   useShopState,
 } from "@/state/shopState"
 import { Dialog } from "@kobalte/core/dialog"
+import { Key } from "@solid-primitives/keyed"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { nanoid } from "nanoid"
-import { entries } from "remeda"
+import { isDeepEqual } from "remeda"
 import {
-  For,
   Match,
   type ParentProps,
   Show,
@@ -93,17 +90,6 @@ import {
 const DECK_CAPACITY = 144
 
 export default function RunShop() {
-  const run = useRunState()
-  const shop = createShopState({ id: () => run.runId })
-
-  return (
-    <ShopStateProvider shop={shop}>
-      <Shop />
-    </ShopStateProvider>
-  )
-}
-
-function Shop() {
   const shop = useShopState()
 
   createEffect(
@@ -246,13 +232,6 @@ function CardDetails(props: {
   const deck = useDeckState()
   const t = useTranslation()
 
-  function buyTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
-      const id = nanoid()
-      deck.set(id, { id, material: "bone", cardId: item.cardId })
-    })
-  }
-
   return (
     <Dialog.Content class={dialogContentClass({ type: "tile" })}>
       <CloseButton />
@@ -279,7 +258,7 @@ function CardDetails(props: {
               hue="bam"
               disabled={itemCost(item()) > run.money}
               onClick={() => {
-                buyTile(item())
+                buyTile({ run, shop, item: item(), deck })
               }}
             >
               <Buy />
@@ -408,32 +387,6 @@ function MaterialUpgradeButton(props: {
   const deck = useDeckState()
   const t = useTranslation()
 
-  const tilesWithSameCard = createMemo(() =>
-    deck.filterBy({ cardId: props.item.cardId }),
-  )
-  const transformation = createMemo(() =>
-    getTransformation(tilesWithSameCard(), props.path),
-  )
-
-  function upgradeTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
-      const { updates, removes } = transformation()
-
-      for (const [id, material] of entries(updates)) {
-        deck.set(id, { id, material, cardId: item.cardId })
-      }
-
-      for (const id of removes) {
-        deck.del(id)
-      }
-    })
-    captureEvent("tile_upgraded", {
-      material: props.material,
-      cardId: props.item.cardId,
-      path: props.path,
-    })
-  }
-
   return (
     <div class={materialUpgradeClass({ hue: props.material })}>
       <div class={materialUpgradeBlockClass}>
@@ -470,7 +423,7 @@ function MaterialUpgradeButton(props: {
         hue={props.material}
         disabled={false}
         onClick={() => {
-          upgradeTile(props.item)
+          upgradeTile({ run, shop, item: props.item, deck, path: props.path })
         }}
       >
         <Buy />
@@ -492,7 +445,7 @@ function Deck() {
       const suitA = cardA.suit
       const suitB = cardB.suit
       if (suitA !== suitB) {
-        const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
+        const suitOrder = ["b", "c", "o", "w", "d", "r", "f", "s"]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
       }
       return cardA.rank.localeCompare(cardB.rank)
@@ -510,11 +463,11 @@ function Deck() {
         {")"}
       </div>
       <div class={deckRowsClass}>
-        <For each={sortedDeck()}>
+        <Key each={sortedDeck()} by={(deckTile) => deckTile.id}>
           {(deckTile, i) => (
-            <DeckTileComponent deckTile={deckTile} zIndex={i()} />
+            <DeckTileComponent deckTile={deckTile()} zIndex={i()} />
           )}
-        </For>
+        </Key>
       </div>
     </div>
   )
@@ -524,9 +477,15 @@ function Items() {
   const run = useRunState()
   const shop = useShopState()
   const t = useTranslation()
-  const items = createMemo(() => generateItems(run, shop))
+  const items = createMemo(() => generateItems(run, shop), {
+    equals: isDeepEqual,
+  })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
   const isSelected = createSelector(() => shop.currentItem?.id)
+
+  createEffect(() => {
+    console.log(JSON.stringify(items(), null, 2))
+  })
 
   function selectItem(item: TileItem | null) {
     if (item?.id === shop.currentItem?.id) {
@@ -567,7 +526,7 @@ function Items() {
     }
 
     run.freeze = {
-      round: run.round,
+      round: run.round, // TODO: deprecate?
       reroll: shop.reroll,
       active: true,
     }
@@ -578,15 +537,15 @@ function Items() {
     <div class={shopContainerClass}>
       <div class={areaTitleClass({ hue: "bam" })}>{t.common.shop()}</div>
       <div class={shopItemsClass}>
-        <For each={items()}>
+        <Key each={items()} by={(item) => item.id}>
           {(tileItem) => (
             <ItemTile
-              item={tileItem}
-              selected={isSelected(tileItem.id as any)}
+              item={tileItem()}
+              selected={isSelected(tileItem().id as any)}
               onClick={selectItem}
             />
           )}
-        </For>
+        </Key>
         <RerollButton
           onClick={reroll}
           disabled={rerollDisabled()}
@@ -601,11 +560,10 @@ function Items() {
 function Header() {
   const run = useRunState()
   const t = useTranslation()
-  const nextRound = createMemo(() => generateRound(run.round + 1, run))
+  const nextRound = createMemo(() => generateRound(run.round, run))
 
   function continueRun() {
     batch(() => {
-      run.round = run.round + 1
       run.stage = "select"
     })
   }

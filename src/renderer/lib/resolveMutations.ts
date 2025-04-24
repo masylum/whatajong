@@ -23,7 +23,10 @@ function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {
   }
 }
 
-export function resolveMutations(tileDb: TileDb, tile: Tile) {
+export function resolveMutations({
+  tileDb,
+  tile,
+}: { tileDb: TileDb; tile: Tile }) {
   const mutationCard = isMutation(tile.cardId)
   if (!mutationCard) return
 

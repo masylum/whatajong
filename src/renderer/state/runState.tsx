@@ -8,17 +8,28 @@ import {
 } from "solid-js"
 import { calculateSeconds } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
-import { type TileItem, generateShopItems } from "./shopState"
+import type { TileItem } from "./shopState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
+export const REWARDS = {
+  2: "winds",
+  3: "dragons",
+  4: "rabbits",
+  5: "flowers",
+  6: "phoenixes",
+  7: "mutations",
+  8: "jokers",
+  9: "kudos",
+  10: "honors",
+  11: "astronomer",
+} as const
 
 export type RunState = {
   runId: string
   money: number
   round: number
   stage: RoundStage
-  shopItems: TileItem[]
   items: TileItem[]
   difficulty?: Difficulty
   createdAt: number
@@ -30,7 +41,7 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
+type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver" | "reward"
 export type Round = {
   id: number
   pointObjective: number
@@ -80,8 +91,8 @@ export function createRunState(params: CreateRunStateParams) {
         runId: params.id(),
         money: 0,
         round: 1,
+        reward: 1,
         stage: "intro",
-        shopItems: generateShopItems(),
         createdAt: Date.now(),
         items: [],
       }
@@ -144,4 +155,8 @@ export function runGameWin(game: Game, run: RunState) {
   if (!enoughPoints) return false
 
   return true
+}
+
+export function calculateIncome(run: RunState) {
+  return run.round * 3
 }

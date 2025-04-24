@@ -42,7 +42,7 @@ const BIASES = {
   w: ["x", -2],
 } as const
 
-export function resolveWinds(tileDb: TileDb, tile: Tile) {
+export function resolveWinds({ tileDb, tile }: { tileDb: TileDb; tile: Tile }) {
   const windCard = isWind(tile.cardId)
   if (!windCard) return
 

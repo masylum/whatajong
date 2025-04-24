@@ -164,8 +164,8 @@ export function hueFromSuit(suit: "b" | "c" | "o") {
 export function hueFromColor(suit: "r" | "g" | "b" | "k") {
   return (
     {
-      r: "bam",
-      g: "crack",
+      r: "crack",
+      g: "bam",
       b: "dot",
       k: "ivory",
     } as const

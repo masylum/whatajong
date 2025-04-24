@@ -4,6 +4,7 @@ import { useGameState } from "@/state/gameState"
 import { hueFromColor } from "@/styles/colors"
 import { Show, createMemo } from "solid-js"
 import {
+  comboMultiplierClass,
   comboRecipe,
   phoenixComboClass,
   playerPowerupsClass,
@@ -40,7 +41,8 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
       })}
     >
       <span class={comboRecipe({ hue: hue() })}>
-        {t.common.dragonRun()} +{combo()} mult
+        {t.common.dragonRun()}
+        <span class={comboMultiplierClass}>x{combo()}</span>
       </span>
     </div>
   )

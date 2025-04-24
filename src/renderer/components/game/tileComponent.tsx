@@ -217,10 +217,7 @@ export function TileComponent(iProps: Props) {
           }}
           data-id={props.tile.id}
           data-coord={coord(props.tile)}
-          class={tileClass({
-            animation: animation(),
-            rabbit: game.rabbitActive ? canBeSelected() : undefined,
-          })}
+          class={tileClass({ animation: animation() })}
         >
           <svg
             class={tileSvgClass}

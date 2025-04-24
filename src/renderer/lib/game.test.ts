@@ -20,6 +20,7 @@ import {
   isFlower,
   isFree,
   isJoker,
+  isKudo,
   isPhoenix,
   isRabbit,
   isWind,
@@ -139,6 +140,20 @@ describe("gameOverCondition", () => {
 
 describe("getPoints", () => {
   const game: Game = { points: 0 }
+  let tileDb: TileDb
+
+  beforeEach(() => {
+    // Initialize a basic tileDb for each test
+    tileDb = initTileDb({
+      t1: createTile({ id: "t1", cardId: "b1", x: 10, y: 10 }), // Some default tiles
+      t2: createTile({ id: "t2", cardId: "b2", x: 12, y: 10 }),
+    })
+    // Reset game state
+    game.points = 0
+    game.dragonRun = undefined
+    game.phoenixRun = undefined
+    game.temporaryMaterial = undefined
+  })
 
   function createDragonPowerup(color: Color, combo: number) {
     game.dragonRun = { color, combo }
@@ -150,10 +165,10 @@ describe("getPoints", () => {
     const flowerTile = createTile({ cardId: "f1" })
     const windTile = createTile({ cardId: "wn" })
 
-    expect(getPoints({ game, tile: standardTile })).toBe(1)
-    expect(getPoints({ game, tile: dragonTile })).toBe(2)
-    expect(getPoints({ game, tile: flowerTile })).toBe(2)
-    expect(getPoints({ game, tile: windTile })).toBe(4)
+    expect(getPoints({ game, tile: standardTile, tileDb })).toBe(1)
+    expect(getPoints({ game, tile: dragonTile, tileDb })).toBe(2)
+    expect(getPoints({ game, tile: flowerTile, tileDb })).toBe(2)
+    expect(getPoints({ game, tile: windTile, tileDb })).toBe(4)
   })
 
   it("accepts two tiles", () => {
@@ -162,10 +177,10 @@ describe("getPoints", () => {
     const goldTile = createTile({ cardId: "c1", material: "gold" })
     const goldWindTile = createTile({ cardId: "wn", material: "gold" })
 
-    expect(getPoints({ game, tile: boneTile })).toBe(1)
-    expect(getPoints({ game, tile: goldTile })).toBe(9)
-    expect(getPoints({ game, tile: goldWindTile })).toBe(12)
-    expect(getPoints({ game, tile: jadeTile })).toBe(17)
+    expect(getPoints({ game, tile: boneTile, tileDb })).toBe(1)
+    expect(getPoints({ game, tile: goldTile, tileDb })).toBe(9)
+    expect(getPoints({ game, tile: goldWindTile, tileDb })).toBe(12)
+    expect(getPoints({ game, tile: jadeTile, tileDb })).toBe(17)
   })
 
   it("adds correct point values for different materials", () => {
@@ -176,12 +191,12 @@ describe("getPoints", () => {
     const bronzeTile = createTile({ cardId: "c1", material: "bronze" })
     const goldTile = createTile({ cardId: "c1", material: "gold" })
 
-    expect(getPoints({ game, tile: glassTile })).toBe(3)
-    expect(getPoints({ game, tile: diamondTile })).toBe(9)
-    expect(getPoints({ game, tile: ivoryTile })).toBe(5)
-    expect(getPoints({ game, tile: jadeTile })).toBe(17)
-    expect(getPoints({ game, tile: bronzeTile })).toBe(3)
-    expect(getPoints({ game, tile: goldTile })).toBe(9)
+    expect(getPoints({ game, tile: glassTile, tileDb })).toBe(3)
+    expect(getPoints({ game, tile: diamondTile, tileDb })).toBe(9)
+    expect(getPoints({ game, tile: ivoryTile, tileDb })).toBe(5)
+    expect(getPoints({ game, tile: jadeTile, tileDb })).toBe(17)
+    expect(getPoints({ game, tile: bronzeTile, tileDb })).toBe(3)
+    expect(getPoints({ game, tile: goldTile, tileDb })).toBe(9)
   })
 
   it("applies dragon multipliers to matching suits", () => {
@@ -190,22 +205,97 @@ describe("getPoints", () => {
 
     createDragonPowerup("r", 3)
 
-    expect(getPoints({ game, tile: circleTile })).toBe(4)
-    expect(getPoints({ game, tile: bambooTile })).toBe(4)
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(4)
+    expect(getPoints({ game, tile: bambooTile, tileDb })).toBe(4)
   })
 
   it("applies different dragons to their matching suits", () => {
     const bambooTile = createTile({ cardId: "b1", material: "bone" })
-    createDragonPowerup("r", 2)
+    createDragonPowerup("g", 2)
 
-    expect(getPoints({ game, tile: bambooTile })).toBe(3)
+    expect(getPoints({ game, tile: bambooTile, tileDb })).toBe(3)
   })
 
   it("combines material and dragon multipliers correctly", () => {
     createDragonPowerup("r", 2)
     const jadeCircleTile = createTile({ cardId: "c1", material: "jade" })
 
-    expect(getPoints({ game, tile: jadeCircleTile })).toBe(51)
+    expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(51)
+  })
+
+  it("adds kudos points based on active matching kudo tiles", () => {
+    const circleTile = createTile({ cardId: "c1", material: "bone" })
+    tileDb = initTileDb({
+      k1: createTile({ id: "k1", cardId: "kr", x: 0, y: 0 }),
+      k2: createTile({ id: "k2", cardId: "kg", x: 2, y: 0 }),
+      k3: createTile({ id: "k3", cardId: "kr", x: 4, y: 0 }),
+      k4: createTile({ id: "k4", cardId: "kr", x: 6, y: 0, z: 1 }),
+      k5: createTile({ id: "k5", cardId: "b5", x: 6, y: 0, z: 2 }),
+    })
+
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
+
+    const bambooTile = createTile({ cardId: "b1", material: "bone" })
+    expect(getPoints({ game, tile: bambooTile, tileDb })).toBe(2)
+  })
+
+  it("when 2 matching honors are free, add 2 mult", () => {
+    const circleTile = createTile({ cardId: "c1", material: "bone" })
+    tileDb = initTileDb({
+      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
+      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
+    })
+
+    // 1 * (1 + 2) = 3
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
+  })
+
+  it("it takes into account the color of the honors", () => {
+    const circleTile = createTile({ cardId: "c1", material: "bone" })
+    tileDb = initTileDb({
+      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
+      h2: createTile({ id: "h2", cardId: "hg", x: 2, y: 0 }),
+    })
+
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(1)
+  })
+
+  it("when 3 honors are free, add 2 mult", () => {
+    const circleTile = createTile({ cardId: "c1", material: "bone" })
+    tileDb = initTileDb({
+      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
+      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
+      h3: createTile({ id: "h3", cardId: "hr", x: 0, y: 2 }),
+    })
+
+    // 1 * (1 + 2) = 3
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
+  })
+
+  it("when 4 honors are free, add 2 mult", () => {
+    const circleTile = createTile({ cardId: "c1", material: "bone" })
+    tileDb = initTileDb({
+      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
+      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
+      h3: createTile({ id: "h3", cardId: "hr", x: 0, y: 2 }),
+      h4: createTile({ id: "h4", cardId: "hr", x: 2, y: 2 }),
+    })
+
+    // 1 * (1 + 4) = 5
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(5)
+  })
+
+  it("combines kudos, honors, dragon, and material correctly", () => {
+    createDragonPowerup("r", 2)
+    const jadeCircleTile = createTile({ cardId: "c1", material: "jade" })
+    tileDb = initTileDb({
+      k1: createTile({ id: "hr", cardId: "hr", x: 0, y: 0 }),
+      h1: createTile({ id: "kr", cardId: "kr", x: 2, y: 0 }),
+      h2: createTile({ id: "hr", cardId: "hr", x: 4, y: 0 }),
+    })
+
+    // (17 + 1) * (1 + 2 + 2) = 90
+    expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(90)
   })
 })
 
@@ -345,6 +435,9 @@ describe("card type checkers", () => {
 
     expect(isPhoenix("pb")?.id).toBe("pb")
     expect(isPhoenix("b1")).toBeNull()
+
+    expect(isKudo("kr")?.id).toBe("kr")
+    expect(isKudo("b1")).toBeNull()
   })
 })
 
@@ -505,19 +598,15 @@ describe("selectTile", () => {
 })
 
 describe("getCoins", () => {
-  it("adds no coins when there is no rabbit run", () => {
-    const game: Game = { points: 0 }
-    const boneTile = createTile({ cardId: "b1", material: "bone" })
-
-    expect(getCoins({ tile: boneTile, game, newPoints: 10 })).toBe(0)
-  })
-
   it("adds material coins", () => {
-    const game: Game = { points: 0 }
     const bronzeTile = createTile({ cardId: "b1", material: "bronze" })
     const goldTile = createTile({ cardId: "b1", material: "gold" })
+    const rabbitTile = createTile({ cardId: "rr", material: "bone" })
+    const rabbitGoldTile = createTile({ cardId: "rr", material: "gold" })
 
-    expect(getCoins({ tile: bronzeTile, game, newPoints: 10 })).toBe(1)
-    expect(getCoins({ tile: goldTile, game, newPoints: 10 })).toBe(4)
+    expect(getCoins({ tile: bronzeTile, newPoints: 1 })).toBe(1)
+    expect(getCoins({ tile: goldTile, newPoints: 1 })).toBe(4)
+    expect(getCoins({ tile: rabbitTile, newPoints: 1 })).toBe(1)
+    expect(getCoins({ tile: rabbitGoldTile, newPoints: 2 })).toBe(6)
   })
 })

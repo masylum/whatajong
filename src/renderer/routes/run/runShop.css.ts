@@ -316,8 +316,9 @@ export const dialogContentClass = recipe({
     fontFamily: primary,
     display: "flex",
     flexDirection: "column",
-    gap: 12,
+    gap: 32,
     position: "relative",
+    minWidth: 300,
     boxShadow: `
       0px 1px 1px 0px ${alpha(color.bone30, 0.3)},
       0px 1px 5px -2px ${alpha(color.bone30, 0.3)},

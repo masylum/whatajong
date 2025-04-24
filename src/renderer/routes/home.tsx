@@ -2,7 +2,16 @@ import { play } from "@/components/audio"
 import { BasicTile } from "@/components/game/basicTile"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
-import { getAllTiles } from "@/lib/game"
+import {
+  bams,
+  cracks,
+  dots,
+  dragons,
+  flowers,
+  jokers,
+  rabbits,
+  winds,
+} from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useImageSrc, useSmallerTileSize } from "@/state/constants"
 import { useGlobalState } from "@/state/globalState"
@@ -29,14 +38,24 @@ import {
 
 function cards() {
   const rng = new Rand()
-  return shuffle([...getAllTiles(), ...getAllTiles()], rng)
+  const basicTiles = [
+    ...bams,
+    ...cracks,
+    ...dots,
+    ...dragons,
+    ...rabbits,
+    ...jokers,
+    ...winds,
+    ...flowers,
+  ]
+  return shuffle([...basicTiles, ...basicTiles], rng)
 }
 
 export function Home() {
   const t = useTranslation()
   const runs = createMemo(() => fetchRuns())
-  const db = useImageSrc()
-  const dc = useImageSrc()
+  const dg = useImageSrc()
+  const dr = useImageSrc()
   const globalState = useGlobalState()
 
   const runId = createMemo(() => {
@@ -73,7 +92,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${dc()}/dc.webp`}
+            src={`${dr()}/dr.webp`}
             alt="duel"
             width={36}
             height={52}
@@ -92,7 +111,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${db()}/db.webp`}
+            src={`${dg()}/dg.webp`}
             alt="classic"
             width={36}
             height={52}

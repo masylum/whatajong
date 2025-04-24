@@ -29,7 +29,7 @@ function continuesPhoenixRun(number: number, cardId: CardId) {
   return number === 0 || rank === number + 1
 }
 
-export function resolvePhoenixRun(game: Game, tile: Tile) {
+export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
   const phoenixRun = game.phoenixRun
   const newCardId = tile.cardId
   const phoenixCard = isPhoenix(newCardId)

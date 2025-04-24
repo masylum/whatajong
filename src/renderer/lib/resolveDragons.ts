@@ -14,7 +14,7 @@ export function cardMatchesDragon(color: Color, cardId: CardId) {
   return isIncludedIn(color, colors)
 }
 
-export function resolveDragons(game: Game, tile: Tile) {
+export function resolveDragons({ game, tile }: { game: Game; tile: Tile }) {
   const dragonRun = game.dragonRun
   const newCard = tile.cardId
   const dragonCard = isDragon(newCard)

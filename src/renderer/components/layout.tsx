@@ -8,7 +8,6 @@ import { useWindowSize } from "@solid-primitives/resize-observer"
 import { Link, MetaProvider } from "@solidjs/meta"
 import { type ParentProps, Show, createMemo } from "solid-js"
 import { Defs } from "./game/defs"
-import { FallingTiles } from "./game/gameOver"
 import { portraitClass, subtitleClass, titleClass } from "./layout.css"
 
 export function Layout(props: ParentProps) {
@@ -58,7 +57,6 @@ function Portrait() {
       <h1 class={titleClass}>Whatajong</h1>
       <h1 class={subtitleClass}>{t.layout.rotate()}</h1>
       <img src="/rotate.webp" alt={t.layout.rotate()} height={150} />
-      <FallingTiles />
     </div>
   )
 }

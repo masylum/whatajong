@@ -9,3 +9,7 @@ export function shuffle<T>(array: T[], rng: Rand): T[] {
 
   return shuffled
 }
+
+export function pick<T>(arr: readonly T[]) {
+  return arr[Math.floor(Math.random() * arr.length)]!
+}

@@ -116,9 +116,6 @@ export const buttonContainerClass = recipe({
           },
         },
       },
-      emperor: {
-        gap: 24,
-      },
     },
   },
 })

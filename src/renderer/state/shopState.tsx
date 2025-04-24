@@ -1,23 +1,15 @@
 import { play } from "@/components/audio"
 import {
-  type Card,
   type CardId,
+  type Deck,
   type DeckTile,
   type Material,
-  bams,
-  cracks,
-  dots,
-  dragons,
-  flowers,
-  jokers,
-  mutations,
-  phoenixes,
-  rabbits,
-  winds,
+  getAllTiles,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
 import type { RunState } from "@/state/runState"
+import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { countBy, entries } from "remeda"
 import { type ParentProps, batch, createContext, useContext } from "solid-js"
@@ -26,6 +18,8 @@ import { createPersistantMutable } from "./persistantMutable"
 const SHOP_STATE_NAMESPACE = "shop-state-v3"
 const ITEM_COST = 3
 export const REROLL_COST = 1
+const ITEM_COUNT = 5
+const ITEM_POOL_SIZE = 8
 
 export function itemCost(item: TileItem) {
   return ITEM_COST + Math.ceil((item.level - 1) / 3)
@@ -97,31 +91,22 @@ export function createShopState(params: CreateShopStateParams) {
   })
 }
 
-function generateTileItems(level: number, num: number, cards: Card[]) {
-  return Array.from({ length: num }, (_, i) =>
-    cards.flatMap(
+export function generateTileItems({
+  i,
+  level,
+  strict = false,
+}: { i: number; level: number; strict?: boolean }) {
+  return getAllTiles()
+    .filter((t) => (strict ? t.level === level : t.level <= level))
+    .flatMap(
       (card, j) =>
         ({
-          id: `tile-${level}-${i}-${j}`,
+          id: `tile-${card.id}-${i}-${j}`,
           cardId: card.id,
           type: "tile",
-          level,
-        }) as const,
-    ),
-  ).flat()
-}
-
-export function generateShopItems(): TileItem[] {
-  return [
-    ...generateTileItems(1, 8, [...bams, ...cracks, ...dots]),
-    ...generateTileItems(2, 8, [...winds]),
-    ...generateTileItems(3, 8, [...dragons]),
-    ...generateTileItems(4, 8, [...flowers]),
-    ...generateTileItems(5, 9, [...rabbits]),
-    ...generateTileItems(6, 9, [...phoenixes]),
-    ...generateTileItems(7, 9, [...mutations]),
-    ...generateTileItems(8, 9, [...jokers]),
-  ]
+          level: card.level,
+        }) as TileItem,
+    )
 }
 
 export function generateItems(run: RunState, shop: ShopState) {
@@ -130,44 +115,24 @@ export function generateItems(run: RunState, shop: ShopState) {
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
-  const initialPool = run.shopItems.filter((item) => item.level <= run.round)
+  const level = run.round
+  const initialPool = Array.from({ length: ITEM_POOL_SIZE }, (_, i) =>
+    generateTileItems({ i: i + 1, level }),
+  ).flat()
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
-
-  const start = (5 * reroll) % poolSize
-
+  const start = (ITEM_COUNT * reroll) % poolSize
   const shuffled = shuffle(initialPool, rng).filter(
     (item) => !itemIds.has(item.id),
   )
 
   const items = []
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < ITEM_COUNT; i++) {
     const index = (start + i) % shuffled.length
     items.push(shuffled[index]!)
   }
 
   return items
-}
-
-export function buyItem(
-  run: RunState,
-  shop: ShopState,
-  item: TileItem,
-  fn: () => void,
-) {
-  const cost = itemCost(item)
-  const money = run.money
-  if (cost > money) throw Error("You don't have enough money")
-
-  batch(() => {
-    run.money = money - cost
-    run.items.push(item)
-    shop.currentItem = null
-    fn()
-  })
-
-  captureEvent("item_bought", item)
-  play("coin2")
 }
 
 function mergeCounts(
@@ -246,4 +211,74 @@ export function getTransformation(
   }
 
   return { adds, updates, removes }
+}
+
+export function buyTile({
+  run,
+  shop,
+  item,
+  deck,
+  reward = false,
+}: {
+  run: RunState
+  shop: ShopState
+  item: TileItem
+  deck: Deck
+  reward?: boolean
+}) {
+  const cost = reward ? 0 : itemCost(item)
+  const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
+
+  batch(() => {
+    run.money = money - cost
+    run.items.push(item)
+    shop.currentItem = null
+    const id = nanoid()
+    deck.set(id, { id, material: "bone", cardId: item.cardId })
+  })
+
+  if (!reward) {
+    play("coin2")
+    captureEvent("tile_bought", { cardId: item.cardId })
+  }
+}
+
+export function upgradeTile({
+  run,
+  shop,
+  item,
+  deck,
+  path,
+}: {
+  run: RunState
+  shop: ShopState
+  item: TileItem
+  deck: Deck
+  path: Path
+}) {
+  const cost = itemCost(item)
+  const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
+
+  batch(() => {
+    run.money = money - cost
+    run.items.push(item)
+    shop.currentItem = null
+    const { updates, removes } = getTransformation(
+      deck.filterBy({ cardId: item.cardId }),
+      path,
+    )
+
+    for (const [id, material] of entries(updates)) {
+      deck.set(id, { id, material, cardId: item.cardId })
+    }
+
+    for (const id of removes) {
+      deck.del(id)
+    }
+  })
+
+  play("coin2")
+  captureEvent("tile_upgraded", { cardId: item.cardId, path })
 }

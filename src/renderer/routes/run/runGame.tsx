@@ -1,3 +1,5 @@
+import { play } from "@/components/audio"
+import type { Track } from "@/components/audio"
 import { Button, LinkButton } from "@/components/button"
 import { Dialog } from "@/components/dialog"
 import {
@@ -7,21 +9,47 @@ import {
   dialogTitleClass,
 } from "@/components/dialog.css"
 import { Board } from "@/components/game/board"
-import { Frame } from "@/components/game/frame"
+import { DustParticles } from "@/components/game/dustParticles"
+import { Powerups } from "@/components/game/powerups"
 import { Moves, PointsAndPenalty } from "@/components/game/stats"
 import { GameTutorial } from "@/components/gameTutorial"
 import { Bell, Gear, Help, Home, Rotate } from "@/components/icon"
 import { BellOff } from "@/components/icon"
+import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
-import { selectTile } from "@/lib/game"
+import { getAvailablePairs, selectTile } from "@/lib/game"
+import { useLayoutSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { GameStateProvider, createGameState } from "@/state/gameState"
+import {
+  GameStateProvider,
+  createGameState,
+  useGameState,
+} from "@/state/gameState"
 import { useGlobalState } from "@/state/globalState"
 import { useRound, useRunState } from "@/state/runState"
-import { TileStateProvider, createTileState } from "@/state/tileState"
+import {
+  TileStateProvider,
+  createTileState,
+  useTileState,
+} from "@/state/tileState"
+import { createShortcut } from "@solid-primitives/keyboard"
 import { nanoid } from "nanoid"
-import { Show, createEffect, createMemo, createSignal } from "solid-js"
-import { roundClass, roundObjectiveClass, roundTitleClass } from "./runGame.css"
+import {
+  type Accessor,
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  onMount,
+} from "solid-js"
+import {
+  COMBO_ANIMATION_DURATION,
+  containerClass,
+  gameRecipe,
+  roundClass,
+  roundObjectiveClass,
+  roundTitleClass,
+} from "./runGame.css"
 import RunGameOver from "./runGameOver"
 
 export default function RunGame() {
@@ -41,21 +69,7 @@ export default function RunGame() {
           <Show when={!game.endCondition} fallback={<RunGameOver />}>
             <Show
               when={tutorial()}
-              fallback={
-                <Frame
-                  board={
-                    <Board
-                      onSelectTile={(tileId) =>
-                        selectTile({ tileDb: tiles(), game, tileId })
-                      }
-                    />
-                  }
-                  bottomLeft={<BottomLeft />}
-                  bottomRight={<BottomRight />}
-                  topLeft={<TopLeft />}
-                  topRight={<TopRight onTutorial={setTutorial} />}
-                />
-              }
+              fallback={<Frame setTutorial={setTutorial} />}
             >
               <GameTutorial onClose={() => setTutorial(false)} />
             </Show>
@@ -66,7 +80,7 @@ export default function RunGame() {
   )
 }
 
-function TopRight(props: { onTutorial: (tutorial: boolean) => void }) {
+function TopRight(props: { setTutorial: (tutorial: boolean) => void }) {
   const run = useRunState()
   const globalState = useGlobalState()
   const [open, setOpen] = createSignal(false)
@@ -133,7 +147,7 @@ function TopRight(props: { onTutorial: (tutorial: boolean) => void }) {
               </LinkButton>
             </div>
             <div class={dialogItemClass}>
-              <Button hue="gold" suave onClick={() => props.onTutorial(true)}>
+              <Button hue="gold" suave onClick={() => props.setTutorial(true)}>
                 <Help />
                 {t.common.help()}
               </Button>
@@ -166,4 +180,104 @@ function BottomLeft() {
 
 function BottomRight() {
   return <Moves />
+}
+
+export function Frame(props: { setTutorial: (tutorial: boolean) => void }) {
+  const game = useGameState()
+  const [comboAnimation, setComboAnimation] = createSignal(0)
+
+  const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
+  const layout = useLayoutSize()
+  const orientation = createMemo(() => layout().orientation)
+  const tiles = useTileState()
+
+  function handleComboEffect(
+    getCombo: Accessor<number>,
+    soundEffect: Track,
+    resetAnimation = true,
+  ) {
+    return createEffect((prevCombo: number) => {
+      const combo = getCombo()
+
+      if (combo > prevCombo) {
+        setComboAnimation(combo)
+        play(soundEffect)
+
+        if (resetAnimation) {
+          setTimeout(() => {
+            setComboAnimation(0)
+          }, COMBO_ANIMATION_DURATION)
+        }
+      }
+
+      return combo
+    }, getCombo())
+  }
+
+  handleComboEffect(getDragonCombo, "grunt")
+  handleComboEffect(getPhoenixCombo, "screech", false)
+
+  // Cheat Code!
+  const tileDb = useTileState()
+  createShortcut(["Shift", "K"], () => {
+    console.log("cheat!")
+    const tiles = getAvailablePairs(tileDb, game)[0]
+    if (!tiles) return
+    for (const tile of tiles) {
+      selectTile({ tileDb, game, tileId: tile.id })
+    }
+    game.points += 100
+  })
+
+  onMount(() => {
+    play("gong")
+  })
+
+  return (
+    <div
+      class={gameRecipe({
+        comboAnimation: comboAnimation() as any,
+      })}
+    >
+      <div
+        class={containerClass({
+          position: "topLeft",
+          orientation: orientation(),
+        })}
+      >
+        <TopLeft />
+      </div>
+      <div
+        class={containerClass({
+          position: "topRight",
+          orientation: orientation(),
+        })}
+      >
+        <TopRight setTutorial={props.setTutorial} />
+      </div>
+      <Board
+        onSelectTile={(tileId) => selectTile({ tileDb: tiles, game, tileId })}
+      />
+      <div
+        class={containerClass({
+          position: "bottomLeft",
+          orientation: orientation(),
+        })}
+      >
+        <BottomLeft />
+      </div>
+      <div
+        class={containerClass({
+          position: "bottomRight",
+          orientation: orientation(),
+        })}
+      >
+        <BottomRight />
+      </div>
+      <Mountains />
+      <DustParticles />
+      <Powerups />
+    </div>
+  )
 }
