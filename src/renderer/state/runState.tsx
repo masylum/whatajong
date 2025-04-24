@@ -102,16 +102,16 @@ export function createRunState(params: CreateRunStateParams) {
 
 const DIFFICULTY = {
   easy: {
-    timer: { exp: 1.2, lin: 0.5 },
-    point: { initial: 40, exp: 2.2, lin: 20 },
+    timer: { exp: 1.1, lin: 1 },
+    point: { initial: 40, exp: 2.1, lin: 5 },
   },
   medium: {
-    timer: { exp: 1.3, lin: 1 },
-    point: { initial: 50, exp: 2.4, lin: 30 },
+    timer: { exp: 1.15, lin: 2 },
+    point: { initial: 40, exp: 2.2, lin: 10 },
   },
   hard: {
-    timer: { exp: 1.4, lin: 2 },
-    point: { initial: 60, exp: 2.6, lin: 60 },
+    timer: { exp: 1.2, lin: 3 },
+    point: { initial: 40, exp: 2.3, lin: 15 },
   },
 } as const
 
