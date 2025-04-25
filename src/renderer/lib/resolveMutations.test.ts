@@ -18,32 +18,30 @@ describe("resolveMutations", () => {
     })
   })
 
-  it("increases all suit ranks by 1 with m4 mutation", () => {
+  it("decreases all suit ranks by 1 with m4 mutation", () => {
     const mutationTile = createTile({ cardId: "m4" })
     resolveMutations({ tileDb, tile: mutationTile })
 
-    // Check that each suit card rank increased by 1
-    expect(tileDb.get("1")!.cardId).toBe("b2") // b1 -> b2
-    expect(tileDb.get("2")!.cardId).toBe("b6") // b5 -> b6
-    expect(tileDb.get("3")!.cardId).toBe("b9") // b9 stays b9 (max)
-    expect(tileDb.get("4")!.cardId).toBe("c3") // c2 -> c3
-    expect(tileDb.get("5")!.cardId).toBe("c6") // c5 -> c6
-    expect(tileDb.get("6")!.cardId).toBe("o4") // o3 -> o4
-    expect(tileDb.get("7")!.cardId).toBe("o9") // o8 -> o9
+    expect(tileDb.get("1")!.cardId).toBe("b1")
+    expect(tileDb.get("2")!.cardId).toBe("b4")
+    expect(tileDb.get("3")!.cardId).toBe("b8")
+    expect(tileDb.get("4")!.cardId).toBe("c1")
+    expect(tileDb.get("5")!.cardId).toBe("c4")
+    expect(tileDb.get("6")!.cardId).toBe("o2")
+    expect(tileDb.get("7")!.cardId).toBe("o7")
   })
 
-  it("decreases all suit ranks by 1 with m5 mutation", () => {
+  it("increases all suit ranks by 1 with m5 mutation", () => {
     const mutationTile = createTile({ cardId: "m5" })
     resolveMutations({ tileDb, tile: mutationTile })
 
-    // Check that each suit card rank decreased by 1
-    expect(tileDb.get("1")!.cardId).toBe("b1") // b1 stays b1 (min)
-    expect(tileDb.get("2")!.cardId).toBe("b4") // b5 -> b4
-    expect(tileDb.get("3")!.cardId).toBe("b8") // b9 -> b8
-    expect(tileDb.get("4")!.cardId).toBe("c1") // c2 -> c1
-    expect(tileDb.get("5")!.cardId).toBe("c4") // c5 -> c4
-    expect(tileDb.get("6")!.cardId).toBe("o2") // o3 -> o2
-    expect(tileDb.get("7")!.cardId).toBe("o7") // o8 -> o7
+    expect(tileDb.get("1")!.cardId).toBe("b2")
+    expect(tileDb.get("2")!.cardId).toBe("b6")
+    expect(tileDb.get("3")!.cardId).toBe("b9")
+    expect(tileDb.get("4")!.cardId).toBe("c3")
+    expect(tileDb.get("5")!.cardId).toBe("c6")
+    expect(tileDb.get("6")!.cardId).toBe("o4")
+    expect(tileDb.get("7")!.cardId).toBe("o9")
   })
 
   it("swaps dots and crack suits with m1 mutation", () => {
@@ -54,11 +52,11 @@ describe("resolveMutations", () => {
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become crack cards
-    expect(tileDb.get("8")!.cardId).toBe("c1")
+    expect(tileDb.get("8")!.cardId).toBe("o1")
 
     // Crack cards become dot cards
-    expect(tileDb.get("4")!.cardId).toBe("o2")
-    expect(tileDb.get("5")!.cardId).toBe("o5")
+    expect(tileDb.get("4")!.cardId).toBe("b2")
+    expect(tileDb.get("5")!.cardId).toBe("b5")
   })
 
   it("swaps dot and bamboo suits with m2 mutation", () => {
@@ -69,12 +67,12 @@ describe("resolveMutations", () => {
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become bamboo cards
-    expect(tileDb.get("8")!.cardId).toBe("b1")
+    expect(tileDb.get("8")!.cardId).toBe("c1")
 
     // Bamboo cards become dot cards
-    expect(tileDb.get("1")!.cardId).toBe("o1")
-    expect(tileDb.get("2")!.cardId).toBe("o5")
-    expect(tileDb.get("3")!.cardId).toBe("o9")
+    expect(tileDb.get("1")!.cardId).toBe("b1")
+    expect(tileDb.get("2")!.cardId).toBe("b5")
+    expect(tileDb.get("3")!.cardId).toBe("b9")
   })
 
   it("swaps bamboo and crack suits with m3 mutation", () => {
@@ -82,13 +80,13 @@ describe("resolveMutations", () => {
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Bamboo cards become crack cards
-    expect(tileDb.get("1")!.cardId).toBe("c1")
-    expect(tileDb.get("2")!.cardId).toBe("c5")
-    expect(tileDb.get("3")!.cardId).toBe("c9")
+    expect(tileDb.get("1")!.cardId).toBe("o1")
+    expect(tileDb.get("2")!.cardId).toBe("o5")
+    expect(tileDb.get("3")!.cardId).toBe("o9")
 
     // Crack cards become bamboo cards
-    expect(tileDb.get("4")!.cardId).toBe("b2")
-    expect(tileDb.get("5")!.cardId).toBe("b5")
+    expect(tileDb.get("4")!.cardId).toBe("c2")
+    expect(tileDb.get("5")!.cardId).toBe("c5")
   })
 
   it("has no effect for non-mutation cards", () => {

@@ -4,11 +4,13 @@ import {
   getMaterialCoins,
   getRawPoints,
   isDragon,
+  isElement,
   isFlower,
   isJoker,
   isMutation,
   isPhoenix,
   isRabbit,
+  isTrigram,
   isWind,
 } from "@/lib/game"
 import type { AccentHue } from "@/styles/colors"
@@ -76,8 +78,17 @@ export function Explanation(props: { cardId: CardId }) {
       </Match>
       <Match when={isJoker(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.joker1()}</p>
-          <p>{t.tileDetails.explanation.joker2()}</p>
+          <p>{t.tileDetails.explanation.joker()}</p>
+        </div>
+      </Match>
+      <Match when={isElement(props.cardId)}>
+        <div class={detailInfoClass}>
+          <p>{t.tileDetails.explanation.element()}</p>
+        </div>
+      </Match>
+      <Match when={isTrigram(props.cardId)}>
+        <div class={detailInfoClass}>
+          <p>{t.tileDetails.explanation.trigram()}</p>
         </div>
       </Match>
     </Switch>

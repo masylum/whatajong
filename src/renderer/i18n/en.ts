@@ -61,9 +61,8 @@ export const en = {
     p: "Phoenix",
     j: "Joker",
     m: "Mutation",
-    k: "Kudo",
-    h: "Honor",
     t: "Tip",
+    e: "Element",
     a: "Astronomer",
   },
   windDirections: {
@@ -88,8 +87,7 @@ export const en = {
     d: "{{color}} Dragon",
     p: "{{color}} Phoenix",
     r: "{{color}} Rabbit",
-    k: "{{color}} Kudo",
-    h: "{{color}} Honor",
+    e: "{{color}} Element",
     t: "{{color}} Tip",
   },
   tutorial: {
@@ -229,6 +227,10 @@ export const en = {
       m5: "Increase the number of all the tiles on your board.",
       joker:
         "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any color and any number.",
+      element:
+        "Every Element tile on the board gives all tiles of its color bonus points.<br />If the Element tile is free on at least one side, it grants an additional bonus.",
+      trigram:
+        "Each Trigram tile on the board gives all tiles of its number bonus points.<br />If the Trigram tile is free on at least one side, it grants an additional bonus.",
     },
   },
   runSelect: {

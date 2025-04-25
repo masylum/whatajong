@@ -18,8 +18,8 @@ export const REWARDS = {
   6: "p",
   7: "m",
   8: "j",
-  9: "k",
-  10: "h",
+  9: "e",
+  10: "t",
   11: "a",
 } as const
 

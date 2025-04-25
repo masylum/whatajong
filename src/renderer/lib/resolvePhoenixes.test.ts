@@ -11,14 +11,14 @@ describe("resolvePhoenixRun", () => {
     resolvePhoenixRun({ game, tile: phoenixTile })
 
     expect(game.phoenixRun).toBeDefined()
-    expect(game.phoenixRun!.number).toBe(0)
+    expect(game.phoenixRun!.number).toBe(undefined)
     expect(game.phoenixRun!.combo).toBe(0)
   })
 
   it("sets the number to the tile rank when a suit card is played", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { number: 0, combo: 0 },
+      phoenixRun: { number: undefined, combo: 0 },
     }
     const suitTile = createTile({ cardId: "b3" })
 
@@ -43,13 +43,13 @@ describe("resolvePhoenixRun", () => {
   it("maintains the run when a the first card is not a suit", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { number: 0, combo: 0 },
+      phoenixRun: { number: undefined, combo: 0 },
     }
     const jokerTile = createTile({ cardId: "j1" })
 
     resolvePhoenixRun({ game, tile: jokerTile })
 
-    expect(game.phoenixRun!.number).toBe(0)
+    expect(game.phoenixRun!.number).toBe(undefined)
     expect(game.phoenixRun!.combo).toBe(0)
 
     const suitTile = createTile({ cardId: "b3" })
@@ -60,16 +60,16 @@ describe("resolvePhoenixRun", () => {
     expect(game.phoenixRun!.combo).toBe(1)
   })
 
-  it("wraps around the run when the number reaches 8", () => {
+  it("wraps around the run when the number reaches 9", () => {
     const game: Game = {
       points: 0,
-      phoenixRun: { number: 8, combo: 8 },
+      phoenixRun: { number: 9, combo: 8 },
     }
-    const anyTile = createTile({ cardId: "b9" })
+    const anyTile = createTile({ cardId: "b1" })
 
     resolvePhoenixRun({ game, tile: anyTile })
 
-    expect(game.phoenixRun!.number).toBe(0)
+    expect(game.phoenixRun!.number).toBe(1)
     expect(game.phoenixRun!.combo).toBe(9)
   })
 
@@ -104,7 +104,7 @@ describe("resolvePhoenixRun", () => {
 
     resolvePhoenixRun({ game, tile: newPhoenixTile })
 
-    expect(game.phoenixRun!.number).toBe(0)
+    expect(game.phoenixRun!.number).toBe(undefined)
     expect(game.phoenixRun!.combo).toBe(0)
   })
 

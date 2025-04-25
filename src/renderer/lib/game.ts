@@ -1,6 +1,6 @@
 import type { Translator } from "@/i18n/useTranslation"
 import Rand from "rand-seed"
-import { indexBy, sumBy } from "remeda"
+import { indexBy } from "remeda"
 import { batch } from "solid-js"
 import { Database } from "./in-memoriam"
 import { RESPONSIVE_MAP } from "./maps/responsive"
@@ -81,24 +81,30 @@ function getMaterialPoints(material: Material) {
   }
 }
 
-function getActiveKudos(colors: Readonly<Color[]>, tileDb: TileDb) {
-  return sumBy(colors, (rank) => {
-    return tileDb
-      .filterBy({ deleted: false, cardId: `k${rank}` })
-      .filter((tile) => !isCovered(tileDb, tile)).length
-  })
-}
-
-function getActiveHonors(colors: Readonly<Color[]>, tileDb: TileDb) {
-  const honors = sumBy(
-    colors,
-    (rank) =>
-      tileDb
-        .filterBy({ deleted: false, cardId: `h${rank}` })
-        .filter((tile) => isFree(tileDb, tile)).length,
+function getElements(colors: Readonly<Color[]>, tileDb: TileDb) {
+  const elements = colors.flatMap((rank) =>
+    tileDb.filterBy({ deleted: false, cardId: `e${rank}` }),
   )
 
-  return honors % 2 === 0 ? honors : honors - 1
+  return {
+    visibleElements: elements.filter((tile) => !isCovered(tileDb, tile)).length,
+    freeElements: elements.filter((tile) => isFree(tileDb, tile)).length,
+  }
+}
+
+function getTrigrams(card: Card, tileDb: TileDb) {
+  const suitCard = isSuit(card.id)
+  if (!suitCard) return { visibleTrigrams: 0, freeTrigrams: 0 }
+
+  const trigrams = tileDb.filterBy({
+    deleted: false,
+    cardId: `t${suitCard.rank}`,
+  })
+
+  return {
+    visibleTrigrams: trigrams.filter((tile) => !isCovered(tileDb, tile)).length,
+    freeTrigrams: trigrams.filter((tile) => isFree(tileDb, tile)).length,
+  }
 }
 
 export function getPoints({
@@ -115,12 +121,16 @@ export function getPoints({
   const phoenixRunMultiplier = getPhoenixRunMultiplier(game)
 
   const card = getCard(tile.cardId)
-  const honors = getActiveHonors(card.colors, tileDb)
-  const kudos = getActiveKudos(card.colors, tileDb)
+  const { visibleTrigrams, freeTrigrams } = getTrigrams(card, tileDb)
+  const { visibleElements, freeElements } = getElements(card.colors, tileDb)
 
   return (
-    (rawPoints + kudos) *
-    (1 + dragonRunMultiplier + phoenixRunMultiplier + honors)
+    (rawPoints + visibleElements + visibleTrigrams) *
+    (1 +
+      dragonRunMultiplier +
+      phoenixRunMultiplier +
+      freeElements +
+      freeTrigrams)
   )
 }
 
@@ -265,8 +275,8 @@ export function getAllTiles(): Card[] {
     ...flowers,
     ...rabbits,
     ...phoenixes,
-    ...kudos,
-    ...honors,
+    ...elements,
+    ...trigrams,
     ...astronomers,
   ]
 }
@@ -335,12 +345,12 @@ export function isPhoenix(cardId: CardId) {
   return checkSuit(cardId, "p")
 }
 
-export function isKudo(cardId: CardId) {
-  return checkSuit(cardId, "k")
+export function isElement(cardId: CardId) {
+  return checkSuit(cardId, "e")
 }
 
-function isHonor(cardId: CardId) {
-  return checkSuit(cardId, "h")
+export function isTrigram(cardId: CardId) {
+  return checkSuit(cardId, "t")
 }
 
 function isAstronomer(cardId: CardId) {
@@ -492,8 +502,7 @@ export function cardName(t: Translator, cardId: CardId) {
     isDragon(cardId) ||
     isPhoenix(cardId) ||
     isRabbit(cardId) ||
-    isKudo(cardId) ||
-    isHonor(cardId)
+    isElement(cardId)
 
   if (colorCard) {
     return t.cardName[colorCard.suit]({ color: t.color[colorCard.rank]() })
@@ -686,21 +695,26 @@ export const jokers = [
 ] as const
 type JokerCard = (typeof jokers)[number]
 
-const kudos = [
-  { id: "kr", suit: "k", rank: "r", colors: ["r"], points: 2, level: 9 },
-  { id: "kg", suit: "k", rank: "g", colors: ["g"], points: 2, level: 9 },
-  { id: "kb", suit: "k", rank: "b", colors: ["b"], points: 2, level: 9 },
-  { id: "kk", suit: "k", rank: "k", colors: ["k"], points: 2, level: 9 },
+const elements = [
+  { id: "er", suit: "e", rank: "r", colors: ["r"], points: 4, level: 9 },
+  { id: "eg", suit: "e", rank: "g", colors: ["g"], points: 4, level: 9 },
+  { id: "eb", suit: "e", rank: "b", colors: ["b"], points: 4, level: 9 },
+  { id: "ek", suit: "e", rank: "k", colors: ["k"], points: 4, level: 9 },
 ] as const
-type KudoCard = (typeof kudos)[number]
+type ElementCard = (typeof elements)[number]
 
-const honors = [
-  { id: "hr", suit: "h", rank: "r", colors: ["r"], points: 2, level: 10 },
-  { id: "hg", suit: "h", rank: "g", colors: ["g"], points: 2, level: 10 },
-  { id: "hb", suit: "h", rank: "b", colors: ["b"], points: 2, level: 10 },
-  { id: "hk", suit: "h", rank: "k", colors: ["k"], points: 2, level: 10 },
+const trigrams = [
+  { id: "t1", suit: "t", rank: "1", colors: ["k"], points: 2, level: 10 },
+  { id: "t2", suit: "t", rank: "2", colors: ["k"], points: 2, level: 10 },
+  { id: "t3", suit: "t", rank: "3", colors: ["k"], points: 2, level: 10 },
+  { id: "t4", suit: "t", rank: "4", colors: ["k"], points: 2, level: 10 },
+  { id: "t5", suit: "t", rank: "5", colors: ["k"], points: 2, level: 10 },
+  { id: "t6", suit: "t", rank: "6", colors: ["k"], points: 2, level: 10 },
+  { id: "t7", suit: "t", rank: "7", colors: ["k"], points: 2, level: 10 },
+  { id: "t8", suit: "t", rank: "8", colors: ["k"], points: 2, level: 10 },
+  { id: "t9", suit: "t", rank: "9", colors: ["k"], points: 2, level: 10 },
 ] as const
-type HonorCard = (typeof honors)[number]
+type TrigramCard = (typeof trigrams)[number]
 
 // biome-ignore format:
 const astronomers = [
@@ -720,8 +734,8 @@ export type Card =
   | PhoenixCard
   | MutationCard
   | JokerCard
-  | KudoCard
-  | HonorCard
+  | ElementCard
+  | TrigramCard
   | AstronomerCard
 export type CardId = Card["id"]
 export type Suit = Card["suit"]

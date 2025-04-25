@@ -146,6 +146,20 @@ function fetchReward(reward: Suit) {
         tiles: ["j1"],
         reward: "one",
       } as const
+    case "e":
+      return {
+        title: t.suit.e(),
+        explanation: t.tileDetails.explanation.element(),
+        tiles: ["er", "eg", "eb", "ek"],
+        reward: "one",
+      } as const
+    case "t":
+      return {
+        title: t.suit.t(),
+        explanation: t.tileDetails.explanation.trigram(),
+        tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
+        reward: "one",
+      } as const
     default:
       return {
         title: `Reward: ${reward}`,

@@ -54,7 +54,7 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
   }
 
   if (!continuesPhoenixRun(phoenixRun.number, newCardId)) {
-    game.phoenixRun = phoenixCard ? { number: 0, combo: 0 } : undefined
+    game.phoenixRun = phoenixCard ? { number: undefined, combo: 0 } : undefined
     captureEvent("phoenix_run_finished", {
       combo: phoenixRun.combo,
     })

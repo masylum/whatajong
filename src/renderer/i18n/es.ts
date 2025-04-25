@@ -61,9 +61,8 @@ export const es = {
     p: "Fénix",
     j: "Joker",
     m: "Mutación",
-    k: "Kudo",
-    h: "Honor",
-    t: "Propina",
+    e: "Elemento",
+    t: "Trigrama",
     a: "Astrónoma",
   },
   windDirections: {
@@ -88,9 +87,8 @@ export const es = {
     d: "Dragón {{color}}",
     p: "Fénix {{color}}",
     r: "Conejo {{color}}",
-    k: "Kudo {{color}}",
-    h: "Honor {{color}}",
-    t: "Propina {{color}}",
+    e: "Elemento {{color}}",
+    t: "Trigrama {{color}}",
   },
   tutorial: {
     title: "Tutorial: {{stage}}",
@@ -232,6 +230,10 @@ export const es = {
       m5: "Aumenta el número en todas las fichas en tu tablero.",
       joker:
         "Despejar una ficha de Joker baraja tu tablero.<br />Las fichas de Joker coinciden con cualquier color y cualquier número.",
+      element:
+        "Cada ficha Elemento otorga +1 punto a todas las fichas de su color mientras esté visible en el tablero.<br />Si la ficha Elemente está libre en al menos un lado, otorga un bonus adicional.",
+      trigram:
+        "Cada ficha Trigrama otorga +1 punto a todas las fichas de su número mientras esté visible en el tablero.<br />Si la ficha Trigram está libre en al menos un lado, otorga un bonus adicional.",
     },
   },
   runSelect: {

@@ -21,7 +21,6 @@ import {
   isFlower,
   isFree,
   isJoker,
-  isKudo,
   isPhoenix,
   isRabbit,
   isWind,
@@ -224,79 +223,64 @@ describe("getPoints", () => {
     expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(51)
   })
 
-  it("adds kudos points based on active matching kudo tiles", () => {
+  it("when 2 matching elements are free, add 2 mult", () => {
     const circleTile = createTile({ cardId: "c1", material: "bone" })
     tileDb = initTileDb({
-      k1: createTile({ id: "k1", cardId: "kr", x: 0, y: 0 }),
-      k2: createTile({ id: "k2", cardId: "kg", x: 2, y: 0 }),
-      k3: createTile({ id: "k3", cardId: "kr", x: 4, y: 0 }),
-      k4: createTile({ id: "k4", cardId: "kr", x: 6, y: 0, z: 1 }),
-      k5: createTile({ id: "k5", cardId: "b5", x: 6, y: 0, z: 2 }),
+      e1: createTile({ id: "e1", cardId: "er", x: 0, y: 0 }),
+      e2: createTile({ id: "e2", cardId: "er", x: 2, y: 0 }),
     })
 
-    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
-
-    const bambooTile = createTile({ cardId: "b1", material: "bone" })
-    expect(getPoints({ game, tile: bambooTile, tileDb })).toBe(2)
+    // (1 + 2) * (1 + 2) = 9
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(9)
   })
 
-  it("when 2 matching honors are free, add 2 mult", () => {
+  it("it takes into account the color of the elements", () => {
     const circleTile = createTile({ cardId: "c1", material: "bone" })
     tileDb = initTileDb({
-      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
-      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
+      e1: createTile({ id: "e1", cardId: "er", x: 0, y: 0 }),
+      e2: createTile({ id: "e2", cardId: "eg", x: 2, y: 0 }),
     })
 
-    // 1 * (1 + 2) = 3
-    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
+    // (1 + 1) * (1 + 1) = 4
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(4)
   })
 
-  it("it takes into account the color of the honors", () => {
+  it("when 3 elements are free, add 2 mult", () => {
     const circleTile = createTile({ cardId: "c1", material: "bone" })
     tileDb = initTileDb({
-      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
-      h2: createTile({ id: "h2", cardId: "hg", x: 2, y: 0 }),
+      e1: createTile({ id: "e1", cardId: "er", x: 0, y: 0 }),
+      e2: createTile({ id: "e2", cardId: "er", x: 2, y: 0 }),
+      e3: createTile({ id: "e3", cardId: "er", x: 0, y: 2 }),
     })
 
-    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(1)
+    // (1 + 3) * (1 + 3) = 16
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(16)
   })
 
-  it("when 3 honors are free, add 2 mult", () => {
+  it("when 4 elements are free, add 2 mult", () => {
     const circleTile = createTile({ cardId: "c1", material: "bone" })
     tileDb = initTileDb({
-      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
-      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
-      h3: createTile({ id: "h3", cardId: "hr", x: 0, y: 2 }),
+      e1: createTile({ id: "e1", cardId: "er", x: 0, y: 0 }),
+      e2: createTile({ id: "e2", cardId: "er", x: 2, y: 0 }),
+      e3: createTile({ id: "e3", cardId: "er", x: 0, y: 2 }),
+      e4: createTile({ id: "e4", cardId: "er", x: 2, y: 2 }),
     })
 
-    // 1 * (1 + 2) = 3
-    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(3)
+    // (1 + 4) * (1 + 4) = 25
+    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(25)
   })
 
-  it("when 4 honors are free, add 2 mult", () => {
-    const circleTile = createTile({ cardId: "c1", material: "bone" })
-    tileDb = initTileDb({
-      h1: createTile({ id: "h1", cardId: "hr", x: 0, y: 0 }),
-      h2: createTile({ id: "h2", cardId: "hr", x: 2, y: 0 }),
-      h3: createTile({ id: "h3", cardId: "hr", x: 0, y: 2 }),
-      h4: createTile({ id: "h4", cardId: "hr", x: 2, y: 2 }),
-    })
-
-    // 1 * (1 + 4) = 5
-    expect(getPoints({ game, tile: circleTile, tileDb })).toBe(5)
-  })
-
-  it("combines kudos, honors, dragon, and material correctly", () => {
+  it("combines elements, dragon, and material correctly", () => {
     createDragonPowerup("r", 2)
     const jadeCircleTile = createTile({ cardId: "c1", material: "jade" })
     tileDb = initTileDb({
-      k1: createTile({ id: "hr", cardId: "hr", x: 0, y: 0 }),
-      h1: createTile({ id: "kr", cardId: "kr", x: 2, y: 0 }),
-      h2: createTile({ id: "hr", cardId: "hr", x: 4, y: 0 }),
+      e1: createTile({ id: "er", cardId: "er", x: 0, y: 0 }),
+      e2: createTile({ id: "er", cardId: "er", x: 2, y: 0 }),
+      e3: createTile({ id: "er", cardId: "er", x: 4, y: 0 }),
     })
 
-    // (17 + 1) * (1 + 2 + 2) = 90
-    expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(90)
+    // (17 + 3) * (1 + 2 + 2) = 100
+    expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(100)
   })
 })
 
@@ -458,9 +442,6 @@ describe("card type checkers", () => {
 
     expect(isPhoenix("pb")?.id).toBe("pb")
     expect(isPhoenix("b1")).toBeNull()
-
-    expect(isKudo("kr")?.id).toBe("kr")
-    expect(isKudo("b1")).toBeNull()
   })
 })
 

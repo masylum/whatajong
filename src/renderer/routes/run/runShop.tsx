@@ -19,7 +19,13 @@ import {
   X,
 } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { type DeckTile, type Material, cardName, getCard } from "@/lib/game"
+import {
+  type DeckTile,
+  type Material,
+  type Suit,
+  cardName,
+  getCard,
+} from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
@@ -451,7 +457,21 @@ function Deck() {
       const suitA = cardA.suit
       const suitB = cardB.suit
       if (suitA !== suitB) {
-        const suitOrder = ["b", "c", "o", "w", "d", "r", "f", "p", "m", "j"]
+        const suitOrder: Suit[] = [
+          "b",
+          "c",
+          "o",
+          "w",
+          "d",
+          "r",
+          "f",
+          "p",
+          "m",
+          "j",
+          "e",
+          "t",
+          "a",
+        ]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
       }
       return cardA.rank.localeCompare(cardB.rank)
