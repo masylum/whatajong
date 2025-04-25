@@ -170,6 +170,12 @@ export const shopItemsClass = style({
 
 export const rotation = createVar()
 
+const float = keyframes({
+  "0%": { transform: "translateY(0px) rotate(0deg)" },
+  "50%": { transform: "translateY(-5px) rotate(3deg)" },
+  "100%": { transform: "translateY(0px) rotate(0deg)" },
+})
+
 export const shopItemClass = recipe({
   base: {
     flex: 1,
@@ -181,23 +187,22 @@ export const shopItemClass = recipe({
     alignItems: "center",
     transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
     transform: `rotateZ(${rotation})`,
-    animationName: fromLeftAnimation,
-    animationDuration: ANIMATION_FAST,
-    animationFillMode: "backwards",
-    animationDelay: "500ms",
     outline: "none",
     outlineOffset: 2,
     border: "none",
     WebkitTapHighlightColor: "transparent",
-    selectors: {
-      "&:first-child": { animationDelay: "0ms" },
-      "&:nth-child(2)": { animationDelay: "50ms" },
-      "&:nth-child(3)": { animationDelay: "100ms" },
-      "&:nth-child(4)": { animationDelay: "150ms" },
-      "&:nth-child(5)": { animationDelay: "200ms" },
-      "&:nth-child(6)": { animationDelay: "250ms" },
-      "&:nth-child(7)": { animationDelay: "300ms" },
-    },
+    maxWidth: 60,
+    selectors: Object.fromEntries(
+      Array.from({ length: 7 }, (_, i) => [
+        `&:nth-child(${i + 1})`,
+        {
+          animation: `
+            ${ANIMATION_FAST} ease-in-out ${i * 50}ms 1 backwards ${fromLeftAnimation},
+            ${float} 4s ease-in-out ${-i * 1}s infinite
+          `,
+        },
+      ]),
+    ),
   },
   variants: {
     hoverable: { true: {}, false: {} },
@@ -303,7 +308,7 @@ export const dialogPositionerClass = style({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  maxHeight: 600,
+  padding: 16,
 })
 
 export const dialogContentClass = recipe({
@@ -311,7 +316,6 @@ export const dialogContentClass = recipe({
     zIndex: 50,
     borderRadius: 12,
     padding: 16,
-    margin: 16,
     backgroundColor: color.bone90,
     fontFamily: primary,
     display: "flex",
@@ -319,6 +323,8 @@ export const dialogContentClass = recipe({
     gap: 32,
     position: "relative",
     minWidth: 300,
+    minHeight: 0,
+    maxHeight: "100%",
     boxShadow: `
       0px 1px 1px 0px ${alpha(color.bone30, 0.3)},
       0px 1px 5px -2px ${alpha(color.bone30, 0.3)},
@@ -489,6 +495,7 @@ export const modalDetailsClass = style({
   display: "flex",
   gap: 16,
   minWidth: 0,
+  minHeight: 0,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       gap: 24,
@@ -501,6 +508,7 @@ export const modalDetailsContentClass = style({
   flexDirection: "column",
   flex: 1,
   gap: 12,
+  minHeight: 0,
 })
 
 export const areaClass = recipe({
@@ -598,4 +606,9 @@ export const closeButtonClass = style({
   ":hover": {
     color: color.bone30,
   },
+})
+
+export const videoContainerClass = style({
+  minHeight: 0,
+  flex: 1,
 })

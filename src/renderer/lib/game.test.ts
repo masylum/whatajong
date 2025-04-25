@@ -4,6 +4,7 @@ import {
   type Game,
   type Tile,
   type TileDb,
+  cardsMatch,
   deleteTiles,
   fullyOverlaps,
   gameOverCondition,
@@ -296,6 +297,28 @@ describe("getPoints", () => {
 
     // (17 + 1) * (1 + 2 + 2) = 90
     expect(getPoints({ game, tile: jadeCircleTile, tileDb })).toBe(90)
+  })
+})
+
+describe("cardsMatch", () => {
+  it("should match identical cards", () => {
+    expect(cardsMatch("b1", "b1")).toBe(true)
+    expect(cardsMatch("c5", "c5")).toBe(true)
+    expect(cardsMatch("wn", "wn")).toBe(true)
+    expect(cardsMatch("dr", "dr")).toBe(true)
+  })
+
+  it("should match any flower with any flower", () => {
+    expect(cardsMatch("f1", "f2")).toBe(true)
+    expect(cardsMatch("f2", "f3")).toBe(true)
+  })
+
+  it("should not match different non-flower/season cards", () => {
+    expect(cardsMatch("b1", "b2")).toBe(false)
+    expect(cardsMatch("c5", "c6")).toBe(false)
+    expect(cardsMatch("b1", "c1")).toBe(false)
+    expect(cardsMatch("wn", "ws")).toBe(false)
+    expect(cardsMatch("wn", "dr")).toBe(false)
   })
 })
 

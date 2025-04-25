@@ -14,7 +14,7 @@ const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 type EndConditions = (typeof END_CONDITIONS)[number]
 
 export type PhoenixRun = {
-  number: number
+  number?: number
   combo: number
 }
 
@@ -192,7 +192,7 @@ export function selectTile({
 
     tileDb.set(firstTile.id, { ...firstTile, selected: false })
 
-    if (firstTile.cardId === tile.cardId) {
+    if (cardsMatch(firstTile.cardId, tile.cardId)) {
       const tiles = [tile, firstTile]
 
       deleteTiles(tileDb, tiles)
@@ -223,6 +223,14 @@ export function selectTile({
       return
     }
   })
+}
+
+export function cardsMatch(cardId1: CardId, cardId2: CardId) {
+  if (isFlower(cardId1) && isFlower(cardId2)) {
+    return true
+  }
+
+  return cardId1 === cardId2
 }
 
 export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
@@ -488,7 +496,7 @@ export function cardName(t: Translator, cardId: CardId) {
     isHonor(cardId)
 
   if (colorCard) {
-    return t.cardName[colorCard.suit]({ color: colorCard.rank })
+    return t.cardName[colorCard.suit]({ color: t.color[colorCard.rank]() })
   }
 
   const mutationCard = isMutation(cardId)
@@ -644,7 +652,6 @@ export const rabbits = [
   { id: "rr", suit: "r", rank: "r", colors: ["r"], points: 1, level: 4 },
   { id: "rg", suit: "r", rank: "g", colors: ["g"], points: 1, level: 4 },
   { id: "rb", suit: "r", rank: "b", colors: ["b"], points: 1, level: 4 },
-  { id: "rk", suit: "r", rank: "k", colors: ["k"], points: 1, level: 4 },
 ] as const
 type RabbitCard = (typeof rabbits)[number]
 

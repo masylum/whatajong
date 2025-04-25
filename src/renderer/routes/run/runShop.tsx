@@ -4,6 +4,7 @@ import { LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import {
   CardPoints,
+  CardVideo,
   Explanation,
   MaterialCoins,
   MaterialFreedom,
@@ -85,9 +86,10 @@ import {
   shopItemsClass,
   upgradeDescriptionClass,
   upgradeTitleClass,
+  videoContainerClass,
 } from "./runShop.css"
 
-const DECK_CAPACITY = 144
+const DECK_CAPACITY = 165
 
 export default function RunShop() {
   const shop = useShopState()
@@ -248,6 +250,10 @@ function CardDetails(props: {
           <MaterialCoins material={props.material} />
           <MaterialFreedom material={props.material} />
           <Explanation cardId={cardId()} />
+          <CardVideo
+            suit={getCard(cardId()).suit}
+            class={videoContainerClass}
+          />
         </div>
       </div>
       <div class={buttonsClass}>
@@ -445,7 +451,7 @@ function Deck() {
       const suitA = cardA.suit
       const suitB = cardB.suit
       if (suitA !== suitB) {
-        const suitOrder = ["b", "c", "o", "w", "d", "r", "f", "s"]
+        const suitOrder = ["b", "c", "o", "w", "d", "r", "f", "p", "m", "j"]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
       }
       return cardA.rank.localeCompare(cardB.rank)
@@ -526,7 +532,7 @@ function Items() {
     }
 
     run.freeze = {
-      round: run.round, // TODO: deprecate?
+      round: run.round,
       reroll: shop.reroll,
       active: true,
     }

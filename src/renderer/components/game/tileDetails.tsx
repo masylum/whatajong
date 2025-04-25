@@ -1,5 +1,5 @@
 import { useTranslation } from "@/i18n/useTranslation"
-import type { CardId, Material } from "@/lib/game"
+import type { CardId, Material, Suit } from "@/lib/game"
 import {
   getMaterialCoins,
   getRawPoints,
@@ -13,7 +13,6 @@ import {
 } from "@/lib/game"
 import type { AccentHue } from "@/styles/colors"
 import { Match, Show, Switch, mergeProps } from "solid-js"
-import { Description } from "../description"
 import {
   detailDescriptionClass,
   detailFreedomClass,
@@ -50,35 +49,22 @@ export function Explanation(props: { cardId: CardId }) {
       </Match>
       <Match when={isRabbit(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>
-            <Description str={t.tileDetails.explanation.rabbit1()} />
-          </p>
+          <p innerHTML={t.tileDetails.explanation.rabbit()} />
         </div>
       </Match>
       <Match when={isFlower(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.flower1()}</p>
-          <p>{t.tileDetails.explanation.flower2()}</p>
+          <p innerHTML={t.tileDetails.explanation.flower()} />
         </div>
       </Match>
       <Match when={isDragon(props.cardId)}>
-        {(dragonCard) => (
-          <div class={detailInfoClass}>
-            <p innerHTML={t.tileDetails.explanation.dragon1()} />
-            <p>
-              <Description
-                str={t.tileDetails.explanation.dragon2({
-                  color: dragonCard().rank,
-                })}
-              />
-            </p>
-          </div>
-        )}
+        <div class={detailInfoClass}>
+          <p innerHTML={t.tileDetails.explanation.dragon()} />
+        </div>
       </Match>
       <Match when={isPhoenix(props.cardId)}>
         <div class={detailInfoClass}>
-          <p innerHTML={t.tileDetails.explanation.phoenix1()} />
-          <p>{t.tileDetails.explanation.phoenix2()}</p>
+          <p innerHTML={t.tileDetails.explanation.phoenix()} />
         </div>
       </Match>
       <Match when={isMutation(props.cardId)}>
@@ -123,5 +109,24 @@ export function CardPoints(props: { cardId: CardId; material: Material }) {
         {getRawPoints({ cardId: props.cardId, material: props.material })}
       </dd>
     </dl>
+  )
+}
+
+const NO_VIDEO = ["o", "b", "c"]
+export function CardVideo(props: { suit: Suit; class: string }) {
+  if (NO_VIDEO.includes(props.suit)) {
+    return null
+  }
+
+  return (
+    <video
+      src={`/videos/${props.suit}.mp4`}
+      autoplay
+      muted
+      loop
+      playsinline
+      width="100%"
+      class={props.class}
+    />
   )
 }

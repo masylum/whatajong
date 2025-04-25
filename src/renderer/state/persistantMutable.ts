@@ -19,11 +19,10 @@ export function createPersistantMutable<T extends Record<string, any>>(
     on(params.id, (id) => {
       const persistedState = localStorage.getItem(key(id))
 
-      if (persistedState) {
-        modifyMutable(mutable, reconcile(JSON.parse(persistedState)))
-      } else {
-        modifyMutable(mutable, reconcile(params.init()))
-      }
+      setMutable(
+        mutable,
+        persistedState ? JSON.parse(persistedState) : params.init(),
+      )
     }),
   )
 
@@ -37,4 +36,8 @@ export function createPersistantMutable<T extends Record<string, any>>(
   )
 
   return mutable
+}
+
+export function setMutable<T>(mutable: T, value: T) {
+  modifyMutable(mutable, reconcile(value))
 }

@@ -189,8 +189,9 @@ export const en = {
     roundReward: "Round reward",
     tileCoins: "Tile c‌oins",
     overachiever: "Over achiever ({{percent}} %)",
-    trySameRun: "Try same run",
-    startNewRun: "Start new run",
+    trySameRun: "Try again",
+    noPairs: "You ran out of moves",
+    notEnoughPoints: "You didn't score enough points",
   },
   shop: {
     upgrade: {
@@ -211,29 +212,31 @@ export const en = {
       standard: "Free if the left or right side is open.",
     },
     explanation: {
-      wind: "Wind tiles move the pieces in the direction of the wind.",
-      rabbit1:
-        "Rabbit Tiles (::r::) grant you one coin for each point that you score in the next clearing.",
-      flower1:
-        "Flower tiles can be cleared with other Flower tiles, regardless of their numbers.",
-      flower2:
-        "Clearing Flowers makes it easier to clear tiles on the next turn.",
-      dragon1: "Clearing Dragon Tiles starts a <strong>Dragon Run</strong>.",
-      dragon2: "Clear {{color}} tiles to get a multiplier bonus.",
-      phoenix1: "Clearing Phoenix Tiles starts a <strong>Phoenix Run</strong>.",
-      phoenix2:
-        "Clear tiles in consecutive number order (1, 2, 3...) to get a multiplier bonus.",
-      m1: "Swap all the Dots (::o::) and Cracks (::c::) cards on your board.",
-      m2: "Swap all the Bams (::b::) and Dots (::o::) cards on your board.",
-      m3: "Swap all the Cracks (::c::) and Bams (::b::) cards on your board.",
-      m4: "Increase the number of all the bam/crack/dot cards on your board.",
-      m5: "Decrease the number of all the bam/crack/dot cards on your board.",
-      joker1: "Clearing Joker Tiles shuffles your board.",
-      joker2: "Score 1 point per shuffled tile.",
+      wind: "When cleared, a breeze moves the tiles towards the cardinal direction.",
+      rabbit: "Rabbit tiles grant you one coin for each point they score.",
+      flower:
+        "Flower tiles are red, green and blue.<br />Flowers can be matched with any other flower tile.",
+      dragon:
+        "Clear dragon tiles to start a <strong>Dragon Run</strong>.<br />While the <strong>Dragon Run</strong> is active, clear tiles of the Dragon's color to score more points.",
+      phoenix:
+        "Clear phoenix tiles to start a <strong>Phoenix Run</strong>.<br />While the <strong>Phoenix Run</strong> is active, clear consecutive numbers to score more points.",
+      mutation:
+        "Mutation tiles allow you to change the tiles on your board: Swap their suit or increase/decrease their number.",
+      m1: "Swap all the Cracks (::c::) and Bams (::b::) tiles on your board.",
+      m2: "Swap all the Dots (::o::) and Cracks (::c::) tiles on your board.",
+      m3: "Swap all the Bams (::b::) and Dots (::o::) tiles on your board.",
+      m4: "Decrease the number of all the tiles on your board.",
+      m5: "Increase the number of all the tiles on your board.",
+      joker:
+        "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any color and any number.",
     },
   },
   runSelect: {
     title: "Get ready!",
     subtitle: "Win the current round to unlock the next ones.",
+  },
+  runReward: {
+    title: "New tiles!",
+    subtitle: "get one free",
   },
 }

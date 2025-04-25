@@ -12,7 +12,19 @@ import {
 } from "./game"
 import { captureEvent } from "./observability"
 
-function continuesPhoenixRun(number: number, cardId: CardId) {
+function parseNumber(cardId: CardId) {
+  const rank = Number.parseInt(getCard(cardId).rank)
+  if (Number.isNaN(rank)) return null
+  return rank
+}
+
+export function nextNumber(number: number) {
+  if (number === 9) return 1
+  return number + 1
+}
+
+function continuesPhoenixRun(number: number | undefined, cardId: CardId) {
+  if (number === undefined) return true
   if (
     isJoker(cardId) ||
     isMutation(cardId) ||
@@ -21,12 +33,11 @@ function continuesPhoenixRun(number: number, cardId: CardId) {
     isDragon(cardId)
   )
     return true
-  if (isPhoenix(cardId)) return false
 
-  const rank = Number.parseInt(getCard(cardId).rank)
-  if (Number.isNaN(rank)) return false
+  const rank = parseNumber(cardId)
+  if (rank === null) return false
 
-  return number === 0 || rank === number + 1
+  return rank === nextNumber(number)
 }
 
 export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
@@ -36,7 +47,7 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
 
   if (!phoenixRun) {
     if (phoenixCard) {
-      game.phoenixRun = { number: 0, combo: 0 }
+      game.phoenixRun = { number: undefined, combo: 0 }
     }
 
     return
@@ -50,14 +61,9 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
     return
   }
 
-  const number = Number.parseInt(getCard(newCardId).rank)
-  if (Number.isNaN(number)) return
+  const number = parseNumber(newCardId)
+  if (number === null) return
 
   phoenixRun.combo += 1
-
-  if (number === 9) {
-    phoenixRun.number = 0
-  } else {
-    phoenixRun.number = number
-  }
+  phoenixRun.number = number
 }

@@ -1,6 +1,6 @@
 import type Rand from "rand-seed"
 import { batch } from "solid-js"
-import { type Tile, type TileDb, initTileDb } from "./game"
+import { type Tile, type TileDb, cardsMatch, initTileDb } from "./game"
 import { getFreeTiles } from "./game"
 import { shuffle } from "./rand"
 
@@ -68,7 +68,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
         const tile2 = currentTiles[j]!
         if (usedTileIds.has(tile2.id)) continue
 
-        if (tile1.cardId === tile2.cardId) {
+        if (cardsMatch(tile1.cardId, tile2.cardId)) {
           pairs.push([tile1, tile2])
           usedTileIds.add(tile1.id)
           usedTileIds.add(tile2.id)

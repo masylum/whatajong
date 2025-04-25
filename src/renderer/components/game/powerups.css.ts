@@ -118,7 +118,7 @@ export const comboRecipe = recipe({
         transformOrigin: "center left",
       },
       [`${powerupRecipe.classNames.variants.side.right} &`]: {
-        transform: "rotate(-90deg) translate(-50%, 50%)",
+        transform: "rotate(-90deg) translate(50%, -50%)",
         transformOrigin: "center right",
       },
     },
@@ -153,24 +153,17 @@ export const comboMultiplierClass = style({
 })
 
 export const phoenixComboClass = style({
-  ...fontSize.hero2,
+  ...fontSize.hero3,
   position: "absolute",
   transform: "translateY(-120%)",
   zIndex: -1,
-  color: alpha(color.bronze40, 0.3),
+  color: alpha(color.bronze40, 0.5),
   fontFamily: primary,
-  top: "50%",
+  top: "40%",
   right: 20,
   "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      right: 40,
-    },
     [mediaQuery({ p: "l", l: "m" })]: {
-      right: 60,
-      ...fontSize.hero1,
-    },
-    [mediaQuery({ p: "xl", l: "l" })]: {
-      right: 80,
+      ...fontSize.hero2,
     },
   },
 })

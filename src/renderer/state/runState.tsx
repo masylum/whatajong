@@ -1,4 +1,3 @@
-import type { Game } from "@/lib/game"
 import Rand from "rand-seed"
 import {
   type ParentProps,
@@ -6,23 +5,22 @@ import {
   createMemo,
   useContext,
 } from "solid-js"
-import { calculateSeconds } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
 import type { TileItem } from "./shopState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
 export const REWARDS = {
-  2: "winds",
-  3: "dragons",
-  4: "rabbits",
-  5: "flowers",
-  6: "phoenixes",
-  7: "mutations",
-  8: "jokers",
-  9: "kudos",
-  10: "honors",
-  11: "astronomer",
+  2: "w",
+  3: "d",
+  4: "r",
+  5: "f",
+  6: "p",
+  7: "m",
+  8: "j",
+  9: "k",
+  10: "h",
+  11: "a",
 } as const
 
 export type RunState = {
@@ -33,6 +31,8 @@ export type RunState = {
   items: TileItem[]
   difficulty?: Difficulty
   createdAt: number
+  retries: number
+  totalPoints: number
   freeze?: {
     round: number
     reroll: number
@@ -93,6 +93,8 @@ export function createRunState(params: CreateRunStateParams) {
         round: 1,
         reward: 1,
         stage: "intro",
+        retries: 0,
+        totalPoints: 0,
         createdAt: Date.now(),
         items: [],
       }
@@ -140,21 +142,6 @@ export function generateRound(id: number, run: RunState): Round {
   }
 
   return round
-}
-
-function totalPoints(game: Game, round: Round) {
-  const time = calculateSeconds(game)
-  const penalty = Math.floor(time * round.timerPoints)
-  return game.points - penalty
-}
-
-export function runGameWin(game: Game, run: RunState) {
-  const round = generateRound(run.round, run)
-  if (game.endCondition !== "empty-board") return false
-  const enoughPoints = totalPoints(game, round) >= round.pointObjective
-  if (!enoughPoints) return false
-
-  return true
 }
 
 export function calculateIncome(run: RunState) {

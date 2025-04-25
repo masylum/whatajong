@@ -190,10 +190,30 @@ export const titleClass = style({
   },
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bam70,
+      color: color.bam80,
     },
     [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.crack70,
+      color: color.crack80,
+    },
+  },
+})
+
+export const subtitleClass = style({
+  ...fontSize.h3,
+  textAlign: "center",
+  animationName: fromBelowAnimation,
+  animationDuration: ANIMATION_SLOW,
+  animationFillMode: "backwards",
+  color: color.crack60,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h1,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero4,
     },
   },
 })

@@ -191,7 +191,8 @@ export const es = {
     tileCoins: "Monedas por fichas",
     overachiever: "Sobresaliente ({{percent}} %)",
     trySameRun: "Reintentar",
-    startNewRun: "Nueva partida",
+    noPairs: "Te has quedado sin jugadas",
+    notEnoughPoints: "No has anotado suficientes puntos",
   },
   shop: {
     upgrade: {
@@ -213,32 +214,32 @@ export const es = {
       standard: "Libre si el lado izquierdo o derecho está abierto.",
     },
     explanation: {
-      wind: "Las fichas de Viento mueven las piezas en la dirección del viento.",
-      rabbit1:
-        "Las fichas de C‌onejo (::r::) te dan una moneda por cada punto que anotas en el siguiente despeje.",
-      flower1:
-        "Las fichas de Flor se pueden despejar c‌on otras fichas de Flor, sin importar su número.",
-      flower2:
-        "Despejar flores facilita despejar fichas en el siguiente turno.",
-      dragon1:
-        "Despejar fichas de Dragón inicia un <strong>C‌ombo Dragón</strong>.",
-      dragon2:
-        "Despeja fichas de {{color}} para obtener un bono de multiplicador.",
-      phoenix1:
-        "Despejar fichas de Fénix inicia un <strong>C‌ombo Fénix</strong>.",
-      phoenix2:
-        "Despeja fichas en orden numéric‌o c‌onsecutivo (1, 2, 3...) para obtener un bono de multiplicador.",
-      m1: "Intercambia todas las fichas de Rueda (::o::) por fichas de Letras (::c::) en tu tablero.",
-      m2: "Intercambia todas las fichas de Bambú (::o::) por fichas de Rueda (::o::) en tu tablero.",
-      m3: "Intercambia todas las fichas de Letras (::c::) por fichas de Bambú (::b::) en tu tablero.",
-      m4: "Aumenta el número en las fichas de Bambú/Letras/Ruedas en tu tablero.",
-      m5: "Disminuye el número en las fichas de Bambú/Letras/Ruedas en tu tablero.",
-      joker1: "Despejar fichas C‌omodín baraja tu tablero.",
-      joker2: "Gana 1 punto por cada ficha barajada.",
+      wind: "Cuando se despeja, un viento mueve las fichas hacia la dirección cardinal.",
+      rabbit:
+        "Las fichas de C‌onejo te dan una moneda por cada punto que anotan.",
+      flower:
+        "Las fichas de Flor son rojas, verdes y azules.<br />Las flores se pueden despejar con cualquier otra flor.",
+      dragon:
+        "Despejar fichas de Dragón inicia un <strong>C‌ombo Dragón</strong>.<br />Mientras el <strong>C‌ombo Dragón</strong> esté activo, despeja fichas del color del Dragón para ganar más puntos.",
+      phoenix:
+        "Despejar fichas de Fénix inicia un <strong>C‌ombo Fénix</strong>.<br />Mientras el <strong>C‌ombo Fénix</strong> esté activo, despeja números consecutivos para ganar más puntos.",
+      mutation:
+        "Las fichas de Mutación te permiten cambiar las fichas en tu tablero: Intercambiar su palo o aumentar/disminuir su número.",
+      m1: "Intercambia todas las fichas de Letras (::c::) por fichas de Bams (::b::) en tu tablero.",
+      m2: "Intercambia todas las fichas de Rueda (::o::) por fichas de Letras (::c::) en tu tablero.",
+      m3: "Intercambia todas las fichas de Bams (::b::) por fichas de Ruedas (::o::) en tu tablero.",
+      m4: "Disminuye el número en todas las fichas en tu tablero.",
+      m5: "Aumenta el número en todas las fichas en tu tablero.",
+      joker:
+        "Despejar una ficha de Joker baraja tu tablero.<br />Las fichas de Joker coinciden con cualquier color y cualquier número.",
     },
   },
   runSelect: {
     title: "¡Listo!",
     subtitle: "Gana la ronda actual para desbloquear las siguientes.",
+  },
+  runReward: {
+    title: "¡Nuevas fichas!",
+    subtitle: "una gratis de regalo",
   },
 }

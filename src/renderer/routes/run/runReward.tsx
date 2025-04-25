@@ -1,11 +1,16 @@
 import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
+import { CardVideo } from "@/components/game/tileDetails"
 import { ArrowRight } from "@/components/icon"
-import type { CardId } from "@/lib/game"
-import { pick } from "@/lib/rand"
-import { useSmallerTileSize } from "@/state/constants"
+import { useTranslation } from "@/i18n/useTranslation"
+import { type CardId, type Suit, getCard } from "@/lib/game"
+import { seedPick } from "@/lib/rand"
+import { useTileSize } from "@/state/constants"
+import { useDeckState } from "@/state/deckState"
 import { REWARDS, useRunState } from "@/state/runState"
-import { For, createMemo } from "solid-js"
+import { buyTile, generateTileItem, useShopState } from "@/state/shopState"
+import Rand from "rand-seed"
+import { For, Show, createMemo, createSelector } from "solid-js"
 import {
   buttonContainerClass,
   columnsClass,
@@ -18,109 +23,135 @@ import {
   videoClass,
 } from "./runReward.css"
 
-const TITLES = [
-  "New tiles discovered",
-  "Fresh tiles await",
-  "Tiles revealed!",
-  "Tiles granted",
-  "Tiles received",
-  "New tiles unlocked",
-  "A gift for you",
-  "A reward for you",
-]
 export default function RunReward() {
   const run = useRunState()
-  const rewardKey = createMemo(() => REWARDS[run.round as keyof typeof REWARDS])
-  const tileSize = useSmallerTileSize(0.8)
-
-  const info = createMemo(() => {
-    const key = rewardKey()
-    if (!key) {
-      throw Error("Expected reward not found")
-    }
-
-    // TODO: Add actual translations to i18n files for 'reward' keys
-    switch (key) {
-      case "winds":
-        return {
-          title: "Winds",
-          explanation:
-            "When cleared, a gust of wind moves the tiles towards the wind's direction.",
-          tiles: ["ww", "we", "ws", "wn"],
-          video: "winds.mp4",
-        } as const
-      case "dragons":
-        return {
-          title: "Dragons",
-          explanation:
-            "Clear dragon tiles to start a <strong>Dragon Run</strong>.<br />While the <strong>Dragon Run</strong> is active, clear tiles of the Dragon's color to score more points.",
-          tiles: ["dr", "dg", "db", "dk"],
-          video: "dragons.mp4",
-        } as const
-      case "rabbits":
-        return {
-          title: "Rabbits",
-          explanation:
-            "Rabbit tiles grant you one coin for each point they score.",
-          tiles: ["rr", "rg", "rb", "rk"],
-          video: "rabbits.mp4",
-        } as const
-      case "flowers":
-        return {
-          title: "Flowers",
-          explanation:
-            "Flower tiles are flexible: they contain all colors and can be matched with any other flower tile.",
-          tiles: ["f1", "f2", "f3"],
-          video: "flowers.mp4",
-        } as const
-      default:
-        return {
-          title: `Reward: ${key}`,
-          explanation: "Explanation coming soon...",
-          tiles: [] as CardId[],
-          video: "dragons.mp4",
-        } as const
-    }
+  const reward = createMemo(() => REWARDS[run.round as keyof typeof REWARDS]!)
+  const info = createMemo(() => fetchReward(reward()))
+  const t = useTranslation()
+  const randTile = createMemo(() => {
+    const rng = new Rand(`${run.runId}-${run.round}`)
+    return seedPick(info().tiles, rng)!
   })
+  const isSelected = createSelector(randTile)
+  const shop = useShopState()
+  const deck = useDeckState()
 
   function onContinue() {
     run.stage = "shop"
+
+    const tiles = info().reward === "all" ? info().tiles : [randTile()]
+
+    for (const tile of tiles) {
+      const item = generateTileItem({ card: getCard(tile), i: 0 })
+      buyTile({ run, shop, item, deck, reward: true })
+    }
   }
 
   return (
     <div class={containerClass}>
-      <h1 class={titleClass}>{pick(TITLES)}</h1>
+      <h1 class={titleClass}>
+        {t.runReward.title()}{" "}
+        <Show when={info().reward === "one"}>{t.runReward.subtitle()}</Show>
+      </h1>
       <div class={columnsClass}>
         <h2 class={subtitleClass}>{info().title}</h2>
         <div class={tilesContainerClass}>
           <For each={info().tiles}>
             {(cardId, i) => (
-              <div
-                class={floatingTileClass}
-                style={{ "animation-delay": `${i() * -0.5}s` }}
-              >
-                <BasicTile cardId={cardId} width={tileSize().width} />
-              </div>
+              <FloatingTile
+                cardId={cardId}
+                i={i()}
+                isSelected={info().reward === "all" || isSelected(cardId)}
+              />
             )}
           </For>
         </div>
         <p class={explanationClass} innerHTML={info().explanation} />
-        <video
-          src={`/videos/${info().video}`}
-          autoplay
-          muted
-          loop
-          playsinline
-          width="100%"
-          class={videoClass}
-        />
+        <CardVideo suit={reward()} class={videoClass} />
       </div>
       <div class={buttonContainerClass}>
         <Button hue="bam" kind="dark" onClick={onContinue}>
-          Continue to Shop {/* Placeholder */}
+          {t.common.goToShop()}
           <ArrowRight />
         </Button>
       </div>
     </div>
   )
+}
+
+function FloatingTile(props: {
+  cardId: CardId
+  i: number
+  isSelected: boolean
+}) {
+  const tileSize = useTileSize()
+
+  return (
+    <div class={floatingTileClass({ isSelected: props.isSelected })}>
+      <BasicTile cardId={props.cardId} width={tileSize().width} />
+    </div>
+  )
+}
+
+function fetchReward(reward: Suit) {
+  const t = useTranslation()
+
+  switch (reward) {
+    case "w":
+      return {
+        title: t.suit.w(),
+        explanation: t.tileDetails.explanation.wind(),
+        tiles: ["ww", "we", "ws", "wn"],
+        reward: "all",
+      } as const
+    case "d":
+      return {
+        title: t.suit.d(),
+        explanation: t.tileDetails.explanation.dragon(),
+        tiles: ["dr", "dg", "db", "dk"],
+        reward: "one",
+      } as const
+    case "r":
+      return {
+        title: t.suit.r(),
+        explanation: t.tileDetails.explanation.rabbit(),
+        tiles: ["rr", "rg", "rb"],
+        reward: "one",
+      } as const
+    case "f":
+      return {
+        title: t.suit.f(),
+        explanation: t.tileDetails.explanation.flower(),
+        tiles: ["f1", "f2", "f3"],
+        reward: "one",
+      } as const
+    case "p":
+      return {
+        title: t.suit.p(),
+        explanation: t.tileDetails.explanation.phoenix(),
+        tiles: ["pr", "pg", "pb"],
+        reward: "one",
+      } as const
+    case "m":
+      return {
+        title: t.suit.m(),
+        explanation: t.tileDetails.explanation.mutation(),
+        tiles: ["m1", "m2", "m3", "m4", "m5"],
+        reward: "one",
+      } as const
+    case "j":
+      return {
+        title: t.suit.j(),
+        explanation: t.tileDetails.explanation.joker(),
+        tiles: ["j1"],
+        reward: "one",
+      } as const
+    default:
+      return {
+        title: `Reward: ${reward}`,
+        explanation: "Explanation coming soon...",
+        tiles: [] as CardId[],
+        reward: 1,
+      } as const
+  }
 }

@@ -36,12 +36,20 @@ export function createTileState({
     namespace: "tile-state",
     id,
     db: () => new Database<Tile, TileIndexes>(tileIndexes),
-    init: (db) => {
-      const rng = new Rand(id())
-      const newTiles = setupTiles({ rng, deck })
-      for (const tile of Object.values(newTiles)) {
-        db.set(tile.id, tile)
-      }
+    init: (db, id) => {
+      initializeTileState(id, deck, db)
     },
   })
+}
+
+export function initializeTileState(
+  id: string,
+  deck: DeckTile[],
+  db: Database<Tile, TileIndexes>,
+) {
+  const rng = new Rand(id)
+  const newTiles = setupTiles({ rng, deck })
+  for (const tile of Object.values(newTiles)) {
+    db.set(tile.id, tile)
+  }
 }

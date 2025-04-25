@@ -8,9 +8,9 @@ import {
 } from "./game"
 
 const MUTATION_RANKS = {
-  m1: ["o", "c"],
-  m2: ["o", "b"],
-  m3: ["b", "c"],
+  m1: ["c", "b"],
+  m2: ["o", "c"],
+  m3: ["b", "o"],
 } as const
 
 function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {
@@ -32,15 +32,15 @@ export function resolveMutations({
 
   const id = mutationCard.id
 
-  // + 1
+  // - 1
   if (id === "m4") {
-    mapSuits(tileDb, (rank) => Math.min(Number.parseInt(rank) + 1, 9))
+    mapSuits(tileDb, (rank) => Math.max(Number.parseInt(rank) - 1, 1))
     return
   }
 
-  // - 1
+  // + 1
   if (id === "m5") {
-    mapSuits(tileDb, (rank) => Math.max(Number.parseInt(rank) - 1, 1))
+    mapSuits(tileDb, (rank) => Math.min(Number.parseInt(rank) + 1, 9))
     return
   }
 

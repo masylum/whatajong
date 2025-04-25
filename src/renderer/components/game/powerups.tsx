@@ -42,7 +42,7 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
     >
       <span class={comboRecipe({ hue: hue() })}>
         {t.common.dragonRun()}
-        <span class={comboMultiplierClass}>x{combo()}</span>
+        <span class={comboMultiplierClass}>x{combo() + 1}</span>
       </span>
     </div>
   )
@@ -50,7 +50,7 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
 
 function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
   const combo = createMemo(() => props.phoenixRun.combo)
-  const number = createMemo(() => props.phoenixRun.number ?? 0)
+  const number = createMemo(() => props.phoenixRun.number)
   const t = useTranslation()
 
   return (
@@ -61,9 +61,12 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
         side: "right",
       })}
     >
-      <span class={phoenixComboClass}>{number() + 1}</span>
+      <Show when={number()}>
+        {(number) => <span class={phoenixComboClass}>{number()}</span>}
+      </Show>
       <span class={comboRecipe({ hue: "bronze" })}>
-        {t.common.phoenixRun()} +{combo()} mult
+        {t.common.phoenixRun()}
+        <span class={comboMultiplierClass}>x{combo() + 1}</span>
       </span>
     </div>
   )

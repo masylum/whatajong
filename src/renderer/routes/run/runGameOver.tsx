@@ -1,4 +1,4 @@
-import { Button, LinkButton } from "@/components/button"
+import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -10,20 +10,19 @@ import { useDeckState } from "@/state/deckState"
 import {
   GameStateProvider,
   calculateSeconds,
-  createGameState,
+  initialGameState,
+  useGameState,
 } from "@/state/gameState"
+import { setMutable } from "@/state/persistantMutable"
 import {
   REWARDS,
   calculateIncome,
-  runGameWin,
   useRound,
   useRunState,
 } from "@/state/runState"
-import { buyTile, generateTileItems, useShopState } from "@/state/shopState"
-import { createTileState } from "@/state/tileState"
+import { initializeTileState, useTileState } from "@/state/tileState"
 import type { AccentHue } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { sumBy } from "remeda"
 import {
@@ -53,28 +52,40 @@ import {
   scoreClass,
   screenClass,
   startX,
+  subtitleClass,
   titleClass,
 } from "./runGameOver.css"
+
+// biome-ignore format:
+const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const
+// biome-ignore format:
+const DEFEAT_TITLES = [ "defeat", "gameOver", "oops", "failed", "crushed", "wasted" ] as const
 
 export default function RunGameOver() {
   const run = useRunState()
   const round = useRound()
   const id = createMemo(() => `${run.runId}-${round().id}`)
-  const game = createGameState({ id })
+  const game = useGameState()
   const deck = useDeckState()
-  const tiles = createTileState({ id, deck: deck.all })
-  const shop = useShopState()
+  const tiles = useTileState()
 
   const time = createMemo(() => calculateSeconds(game))
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
-  const win = createMemo(() => runGameWin(game, run))
+  const win = createMemo(() => {
+    if (game.endCondition !== "empty-board") return false
+    const enoughPoints = totalPoints() >= round().pointObjective
+    if (!enoughPoints) return false
+
+    return true
+  })
+
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
   const t = useTranslation()
 
   const tileCoins = createMemo(() =>
-    sumBy(tiles().filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
+    sumBy(tiles.filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
   )
   const overAchievementCoins = createMemo(() => {
     const overAchievement = achievement() - 1
@@ -83,21 +94,7 @@ export default function RunGameOver() {
     return Math.min(Math.floor(overAchievement * 2), 12)
   })
   const income = createMemo(() => calculateIncome(run))
-
-  function onShop() {
-    batch(() => {
-      run.round += 1
-      run.stage = run.round in REWARDS ? "reward" : "shop"
-
-      // rewards
-      const items = generateTileItems({ i: 0, level: run.round, strict: true })
-      for (const item of items) {
-        buyTile({ run, shop, item, deck, reward: true })
-      }
-
-      run.money += income() + tileCoins() + overAchievementCoins()
-    })
-  }
+  const isRewardRound = createMemo(() => run.round in REWARDS)
 
   onMount(() => {
     captureEvent("game_over", {
@@ -113,82 +110,122 @@ export default function RunGameOver() {
     })
   })
 
+  function goToNextRound() {
+    batch(() => {
+      run.round += 1
+      run.stage = isRewardRound() ? "reward" : "shop"
+      run.money += income() + tileCoins() + overAchievementCoins()
+      run.totalPoints = totalPoints()
+    })
+  }
+
+  function retrySameRound() {
+    batch(() => {
+      run.retries += 1
+      setMutable(game, initialGameState())
+      tiles.update({})
+      initializeTileState(id(), deck.all, tiles)
+    })
+    console.log(run, game, tiles)
+  }
+
   return (
     <GameStateProvider game={game}>
-      <GameOver win={win()} round={run.round}>
-        <div class={gameOverClass}>
-          <Score>
-            <Show when={win()}>
-              <List hue="gold">
-                <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
-                <Show when={tileCoins()}>
-                  {(coins) => (
-                    <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
-                  )}
-                </Show>
-                <Show when={overAchievementCoins()}>
-                  {(coins) => (
-                    <Item
-                      label={t.gameOver.overachiever({
-                        percent: Math.round(achievement() * 100),
-                      })}
-                    >
-                      + ${coins()}
-                    </Item>
-                  )}
-                </Show>
-              </List>
-            </Show>
-
-            <List hue="bam">
-              <Item label={t.common.points()}>{points()}</Item>
-            </List>
-
-            <Show when={round().timerPoints}>
-              <List hue="crack">
-                <Item label={t.gameOver.timePenalty({ time: time() })}>
-                  {penalty()}
-                </Item>
-              </List>
-            </Show>
-
-            <List hue="dot">
-              <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
-              <Item label={t.common.objective()}>{round().pointObjective}</Item>
-            </List>
-
-            <Buttons>
-              <Show
-                when={win()}
-                fallback={
-                  <>
-                    <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
-                      <Rotate />
-                      {t.gameOver.trySameRun()}
-                    </LinkButton>
-                    <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
-                      {t.gameOver.startNewRun()}
-                      <ArrowRight />
-                    </LinkButton>
-                  </>
-                }
-              >
-                <Button hue="bam" kind="dark" onClick={() => onShop()}>
-                  <Shop />
-                  {t.common.goToShop()}
-                </Button>
-              </Show>
-            </Buttons>
-          </Score>
+      <div class={gameOverClass}>
+        <div class={screenClass({ win: win() })}>
+          <Title win={win()} round={run.round} />
           <Show when={!win()}>
-            <div class={gameOverInfoClass}>
-              <span class={moneyClass}>${run.money}</span>
-              <Deck />
+            <div class={subtitleClass}>
+              <Show
+                when={game.endCondition === "no-pairs"}
+                fallback={t.gameOver.notEnoughPoints()}
+              >
+                {t.gameOver.noPairs()}
+              </Show>
             </div>
           </Show>
+          <div class={gameOverClass}>
+            <div class={scoreClass}>
+              <Show when={win()}>
+                <List hue="gold">
+                  <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
+                  <Show when={tileCoins()}>
+                    {(coins) => (
+                      <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
+                    )}
+                  </Show>
+                  <Show when={overAchievementCoins()}>
+                    {(coins) => (
+                      <Item
+                        label={t.gameOver.overachiever({
+                          percent: Math.round(achievement() * 100),
+                        })}
+                      >
+                        + ${coins()}
+                      </Item>
+                    )}
+                  </Show>
+                </List>
+              </Show>
+
+              <List hue="bam">
+                <Item label={t.common.points()}>{points()}</Item>
+              </List>
+
+              <Show when={round().timerPoints}>
+                <List hue="crack">
+                  <Item label={t.gameOver.timePenalty({ time: time() })}>
+                    {penalty()}
+                  </Item>
+                </List>
+              </Show>
+
+              <List hue="dot">
+                <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
+                <Item label={t.common.objective()}>
+                  {round().pointObjective}
+                </Item>
+              </List>
+
+              <div class={buttonsClass}>
+                <Show
+                  when={win()}
+                  fallback={
+                    <Button hue="bam" kind="dark" onClick={retrySameRound}>
+                      {t.gameOver.trySameRun()}
+                      <Rotate />
+                    </Button>
+                  }
+                >
+                  <Button hue="bam" kind="dark" onClick={() => goToNextRound()}>
+                    <Show
+                      when={isRewardRound()}
+                      fallback={
+                        <>
+                          <Shop />
+                          {t.common.goToShop()}
+                        </>
+                      }
+                    >
+                      <>
+                        {t.common.next()}
+                        <ArrowRight />
+                      </>
+                    </Show>
+                  </Button>
+                </Show>
+              </div>
+            </div>
+            <Show when={!win()}>
+              <div class={gameOverInfoClass}>
+                <span class={moneyClass}>${run.money}</span>
+                <Deck />
+              </div>
+            </Show>
+          </div>
+          <FallingTiles />
         </div>
-        <FallingTiles />
-      </GameOver>
+      </div>
     </GameStateProvider>
   )
 }
@@ -242,22 +279,6 @@ function Deck() {
             </div>
           )}
         </For>
-      </div>
-    </div>
-  )
-}
-
-// biome-ignore format:
-const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const
-// biome-ignore format:
-const DEFEAT_TITLES = [ "defeat", "gameOver", "oops", "failed", "crushed", "wasted" ] as const
-
-function GameOver(props: { win: boolean; round?: number } & ParentProps) {
-  return (
-    <div class={gameOverClass}>
-      <div class={screenClass({ win: props.win })}>
-        <Title win={props.win} round={props.round} />
-        {props.children}
       </div>
     </div>
   )
@@ -331,12 +352,4 @@ function Item(props: { label: string } & ParentProps) {
       <dd class={detailDescriptionClass}>{props.children}</dd>
     </>
   )
-}
-
-function Score(props: ParentProps) {
-  return <div class={scoreClass}>{props.children}</div>
-}
-
-function Buttons(props: ParentProps) {
-  return <div class={buttonsClass}>{props.children}</div>
 }

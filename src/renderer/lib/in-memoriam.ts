@@ -10,7 +10,7 @@ import {
 import { difference, intersection } from "./setMethods"
 
 type Id = string
-type ById<Type> = Record<Id, Type>
+export type ById<Type> = Record<Id, Type>
 
 export class Database<
   Type extends { id: Id },

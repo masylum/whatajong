@@ -9,11 +9,15 @@ export function createGameState(params: CreateGameStateParams) {
   return createPersistantMutable<Game>({
     namespace: GAME_STATE_NAMESPACE,
     id: params.id,
-    init: () => ({
-      startedAt: new Date().getTime(),
-      points: 0,
-    }),
+    init: initialGameState,
   })
+}
+
+export function initialGameState() {
+  return {
+    startedAt: new Date().getTime(),
+    points: 0,
+  }
 }
 
 export function calculateSeconds(game: Game) {

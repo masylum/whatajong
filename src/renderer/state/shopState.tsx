@@ -1,5 +1,6 @@
 import { play } from "@/components/audio"
 import {
+  type Card,
   type CardId,
   type Deck,
   type DeckTile,
@@ -91,22 +92,13 @@ export function createShopState(params: CreateShopStateParams) {
   })
 }
 
-export function generateTileItems({
-  i,
-  level,
-  strict = false,
-}: { i: number; level: number; strict?: boolean }) {
-  return getAllTiles()
-    .filter((t) => (strict ? t.level === level : t.level <= level))
-    .flatMap(
-      (card, j) =>
-        ({
-          id: `tile-${card.id}-${i}-${j}`,
-          cardId: card.id,
-          type: "tile",
-          level: card.level,
-        }) as TileItem,
-    )
+export function generateTileItem({ card, i }: { card: Card; i: number }) {
+  return {
+    id: `tile-${card.id}-${i}`,
+    cardId: card.id,
+    type: "tile",
+    level: card.level,
+  } as TileItem
 }
 
 export function generateItems(run: RunState, shop: ShopState) {
@@ -117,7 +109,9 @@ export function generateItems(run: RunState, shop: ShopState) {
 
   const level = run.round
   const initialPool = Array.from({ length: ITEM_POOL_SIZE }, (_, i) =>
-    generateTileItems({ i: i + 1, level }),
+    getAllTiles()
+      .filter((t) => t.level <= level)
+      .flatMap((card) => generateTileItem({ card, i })),
   ).flat()
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
