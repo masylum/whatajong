@@ -74,12 +74,17 @@ const pulseVar = createVar()
 const combinedPulseKeyframes = keyframes({
   "0%": {
     transform: "translate(-50%, -50%) scale(0.8)",
+    boxShadow: `0 0 0 0px rgba(from ${pulseVar} r g b / 0)`,
   },
   "50%": {
-    transform: "translate(-50%, -50%) scale(2)",
+    transform: "translate(-50%, -50%) scale(1)",
+    boxShadow: `0 0 0 10px rgba(from ${pulseVar} r g b / 0.2)`,
+    opacity: 1,
   },
   "100%": {
     transform: "translate(-50%, -50%) scale(0.8)",
+    // TODO: @supports (color: hsl(from white h s l)) {
+    boxShadow: `0 0 0 30px rgba(from ${pulseVar} r g b / 0)`,
   },
 })
 
@@ -125,6 +130,9 @@ export const pulseClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
+      vars: {
+        [pulseVar]: kolor(50),
+      },
       backgroundColor: alpha(kolor(50), 0.2),
     })),
   },
