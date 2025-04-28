@@ -30,6 +30,7 @@ export const en = {
     upgrade: "upgrade",
     shop: "shop",
     close: "close",
+    paused: "paused",
     help: "Help",
   },
   settings: {
@@ -64,7 +65,6 @@ export const en = {
     m: "Mutation",
     t: "Trigram",
     e: "Element",
-    a: "Astronomer",
     g: "Gemstone",
   },
   windDirections: {
@@ -80,20 +80,20 @@ export const en = {
     k: "Black",
   },
   cardName: {
-    m1: "Dot / Crack mutation",
-    m2: "Bam / Dot mutation",
-    m3: "Crack / Bam mutation",
-    m4: "+1 Mutation",
-    m5: "-1 Mutation",
+    m1: "Crack / Bam mutation",
+    m2: "Dot / Crack mutation",
+    m3: "Bam / Dot mutation",
+    m4: "-1 Mutation",
+    m5: "+1 Mutation",
     w: "{{direction}} Wind",
     d: "{{color}} Dragon",
     p: "{{color}} Phoenix",
     r: "{{color}} Rabbit",
     e: "{{color}} Element",
-    gr: "Ruby",
-    gg: "Emerald",
-    gb: "Sapphire",
-    gk: "Diamond",
+    gr: "Garnet",
+    gg: "Jade",
+    gb: "Topaz",
+    gk: "Quartz",
   },
   tutorial: {
     title: "Tutorial: {{stage}}",
@@ -208,9 +208,10 @@ export const en = {
     newTiles: "new tiles:",
   },
   tileDetails: {
-    freedom: {
-      relaxed: "You can clear this tile even if none of its sides are open.",
-      standard: "Free if the left or right side is open.",
+    materialExtraPoints: "{{material}} bonus points",
+    materialExplanation: {
+      blue: "Clear this tile even if none of its sides are open.",
+      black: "Clear this tile to stop the time.",
     },
     explanation: {
       wind: "When cleared, a breeze moves the tiles towards the cardinal direction.",

@@ -23,7 +23,7 @@ export function TileImage(iProps: Props) {
     iProps,
   )
   const href = useImageSrc()
-  const cardId = createMemo(() => {
+  const image = createMemo(() => {
     const card = isTrigram(props.cardId) ?? isElement(props.cardId)
     if (card) {
       return `${props.cardId}${props.free ? 1 : 2}`
@@ -33,19 +33,16 @@ export function TileImage(iProps: Props) {
   })
 
   const filter = createMemo(() => {
-    if (props.material) {
-      if (isShiny(props.material)) {
-        return "invert(1) sepia(0.3) brightness(1.05) hue-rotate(180deg)"
-      }
-
+    if (!props.material || !isShiny(props.material)) {
       return undefined
     }
-    return undefined
+
+    return "invert(1) sepia(0.3) brightness(1.05) hue-rotate(180deg)"
   })
 
   return (
     <image
-      href={`${href()}/${cardId()}.webp`}
+      href={`${href()}/${image()}.webp`}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

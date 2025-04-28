@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
-import type { Game } from "./game"
 import { resolvePhoenixRun } from "./resolvePhoenixes"
-import { createTile } from "./test/utils"
+import { createGame, createTile } from "./test/utils"
 
 describe("resolvePhoenixRun", () => {
   it("initializes phoenix run when phoenix card is played with no active run", () => {
-    const game: Game = { points: 0 }
+    const game = createGame()
     const phoenixTile = createTile({ cardId: "pb" })
 
     resolvePhoenixRun({ game, tile: phoenixTile })
@@ -16,10 +15,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("sets the number to the tile rank when a suit card is played", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: undefined, combo: 0 },
-    }
+    })
     const suitTile = createTile({ cardId: "b3" })
 
     resolvePhoenixRun({ game, tile: suitTile })
@@ -29,10 +27,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("resets the run when a non-matching card is played", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: 3, combo: 3 },
-    }
+    })
     const nonMatchingTile = createTile({ cardId: "b5" }) // Should be b4 to match
 
     resolvePhoenixRun({ game, tile: nonMatchingTile })
@@ -41,10 +38,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("maintains the run when a the first card is not a suit", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: undefined, combo: 0 },
-    }
+    })
     const jokerTile = createTile({ cardId: "j1" })
 
     resolvePhoenixRun({ game, tile: jokerTile })
@@ -61,10 +57,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("wraps around the run when the number reaches 9", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: 9, combo: 8 },
-    }
+    })
     const anyTile = createTile({ cardId: "b1" })
 
     resolvePhoenixRun({ game, tile: anyTile })
@@ -74,10 +69,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("maintains the run for special cards", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: 4, combo: 6 },
-    }
+    })
 
     // Joker maintains the run
     resolvePhoenixRun({ game, tile: createTile({ cardId: "j1" }) })
@@ -96,10 +90,9 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("resets to new phoenix when different phoenix is played", () => {
-    const game: Game = {
-      points: 0,
+    const game = createGame({
       phoenixRun: { number: 5, combo: 6 },
-    }
+    })
     const newPhoenixTile = createTile({ cardId: "pr" })
 
     resolvePhoenixRun({ game, tile: newPhoenixTile })
@@ -109,7 +102,7 @@ describe("resolvePhoenixRun", () => {
   })
 
   it("has no effect for non-phoenix cards when no run is active", () => {
-    const game: Game = { points: 0 }
+    const game = createGame()
     const regularTile = createTile({ cardId: "b1" })
 
     resolvePhoenixRun({ game, tile: regularTile })

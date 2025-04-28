@@ -1,5 +1,5 @@
 import { mediaQuery } from "@/styles/breakpoints"
-import { alpha, color, hueVariants } from "@/styles/colors"
+import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
@@ -16,14 +16,9 @@ export const detailListClass = recipe({
     fontVariantLigatures: "none",
   },
   variants: {
-    type: {
-      bam: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.1)}, ${alpha(color.bam50, 0.2)})`,
-      },
-      gold: {
-        background: `linear-gradient(to bottom, ${alpha(color.gold70, 0.2)}, ${alpha(color.gold70, 0.3)})`,
-      },
-    },
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
+    })),
   },
 })
 
@@ -31,14 +26,12 @@ export const detailTermClass = style({
   ...fontSize.m,
   fontFamily: primary,
   justifySelf: "start",
-  selectors: {
-    [`${detailListClass.classNames.variants.type.bam} &`]: {
-      color: color.bam30,
-    },
-    [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.gold30,
-    },
-  },
+  selectors: hueSelectors(
+    (hue) => `${detailListClass.classNames.variants.hue[hue]} &`,
+    (kolor) => ({
+      color: kolor(30),
+    }),
+  ),
 })
 
 export const detailDescriptionClass = style({
@@ -46,25 +39,18 @@ export const detailDescriptionClass = style({
   fontFamily: primary,
   justifySelf: "end",
   gridColumnStart: 2,
-  selectors: {
-    [`${detailListClass.classNames.variants.type.bam} &`]: {
-      color: color.bam20,
-    },
-    [`${detailListClass.classNames.variants.type.gold} &`]: {
-      color: color.gold20,
-    },
-  },
+  selectors: hueSelectors(
+    (hue) => `${detailListClass.classNames.variants.hue[hue]} &`,
+    (kolor) => ({
+      color: kolor(20),
+    }),
+  ),
 })
 
-export const detailFreedomClass = recipe({
+export const detailInfoTitleClass = recipe({
   base: {
-    display: "flex",
-    flexDirection: "column",
-    padding: 8,
-    borderRadius: 4,
-    fontFamily: secondary,
+    fontFamily: primary,
     ...fontSize.s,
-    lineHeight: 1.1,
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         ...fontSize.m,
@@ -73,22 +59,33 @@ export const detailFreedomClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.2)})`,
-      color: kolor(10),
+      color: kolor(40),
     })),
   },
 })
 
-// TODO: DRY
-export const detailInfoClass = style({
-  padding: 8,
-  borderRadius: 4,
-  background: `linear-gradient(to bottom, ${alpha(color.bone50, 0.2)}, ${alpha(color.bone50, 0.4)})`,
-  fontFamily: secondary,
-  ...fontSize.s,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.m,
+export const detailInfoClass = recipe({
+  base: {
+    display: "flex",
+    flexDirection: "column",
+    padding: 8,
+    gap: 8,
+    borderRadius: 4,
+    background: `linear-gradient(to bottom, ${alpha(color.bone50, 0.2)}, ${alpha(color.bone50, 0.4)})`,
+    fontFamily: secondary,
+    ...fontSize.s,
+    lineHeight: 1,
+    "@media": {
+      [mediaQuery({ p: "s", l: "xs" })]: {
+        ...fontSize.m,
+        lineHeight: 1,
+      },
     },
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.2)}, ${alpha(kolor(50), 0.4)})`,
+      color: kolor(30),
+    })),
   },
 })

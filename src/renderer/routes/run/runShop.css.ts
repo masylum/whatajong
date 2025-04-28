@@ -108,13 +108,14 @@ export const coinsClass = style({
   ...fontSize.s,
   paddingInline: 8,
   paddingBlock: 1,
-  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-        0px 0px 0px 1px ${color.gold50},
-        0px 0px 3px -1px ${color.gold30},
-        0px 0px 10px -5px ${color.gold30}
-      `,
-  color: color.gold10,
+  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.8)}, ${alpha(color.crack40, 0.9)})`,
+  boxShadow: `
+    1px -1px 1px 0 inset ${color.crack60},
+    0px 0px 0px 1px ${color.crack30},
+    0px 0px 3px -1px ${color.crack10},
+    0px 0px 10px -5px ${color.crack10}
+  `,
+  color: color.crack90,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.m,
@@ -128,7 +129,7 @@ export const shopContainerClass = style({
   width: "100%",
   display: "flex",
   flexDirection: "column",
-  background: `linear-gradient(to bottom, ${alpha(color.bam70, 0.2)}, ${alpha(color.bam70, 0.3)})`,
+  background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
   padding: 8,
   borderRadius: 12,
   gap: 12,
@@ -276,7 +277,7 @@ export const shopItemButtonClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.6)}, ${alpha(kolor(40), 0.9)})`,
       border: `1px solid ${kolor(40)}`,
       color: kolor(90),
     })),
@@ -378,7 +379,6 @@ export const materialUpgradesClass = style({
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 20,
-      flexDirection: "row",
     },
   },
 })
@@ -395,11 +395,6 @@ export const materialUpgradeClass = recipe({
     padding: 12,
     borderRadius: 8,
     flex: 1,
-    "@media": {
-      [mediaQuery({ p: "m", l: "s" })]: {
-        flexDirection: "column",
-      },
-    },
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -410,7 +405,7 @@ export const materialUpgradeClass = recipe({
 
 export const materialUpgradeBlockClass = style({
   display: "flex",
-  gap: 24,
+  gap: 16,
 })
 
 export const materialUpgradeTextClass = recipe({
@@ -563,31 +558,6 @@ export const shopHeaderItemsClass = style({
     [mediaQuery({ p: "l", l: "m" })]: {
       gap: 24,
     },
-  },
-})
-export const shopHeaderItemClass = recipe({
-  base: {
-    display: "flex",
-    padding: 8,
-    borderRadius: 8,
-    alignItems: "center",
-    fontFamily: primary,
-    ...fontSize.s,
-    gap: 12,
-    "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        ...fontSize.m,
-      },
-      [mediaQuery({ p: "m", l: "s" })]: {
-        ...fontSize.l,
-      },
-    },
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(70), 0.2)}, ${alpha(kolor(70), 0.3)})`,
-      color: kolor(30),
-    })),
   },
 })
 

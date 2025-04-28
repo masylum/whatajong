@@ -14,6 +14,7 @@ export const gameOverClass = style({
   flexDirection: "column",
   justifyContent: "space-between",
   gap: 32,
+  backgroundImage: "url(/halftone.png)",
   "@media": {
     [mediaQuery({ p: "xl", l: "l" })]: {
       flexDirection: "row",
@@ -53,8 +54,9 @@ export const pairClass = style({
 export const gameOverInfoClass = style({
   display: "flex",
   flexDirection: "column",
-  flex: 1,
   gap: 12,
+  maxWidth: 600,
+  margin: "0 auto",
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       gap: 16,
@@ -72,14 +74,14 @@ export const moneyClass = style({
   alignSelf: "flex-start",
   fontFamily: primary,
   ...fontSize.m,
-  background: `linear-gradient(to bottom, ${color.gold80}, ${color.gold70})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-      0px 0px 0px 1px ${color.gold50},
-      0px 0px 3px -1px ${color.gold30},
-      0px 0px 10px -5px ${color.gold30}
-    `,
-  color: color.gold10,
-  fontVariantLigatures: "none",
+  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.9)}, ${alpha(color.crack40, 0.9)})`,
+  boxShadow: `
+    1px -1px 1px 0 inset ${color.crack60},
+    0px 0px 0px 1px ${color.crack30},
+    0px 0px 3px -1px ${color.crack10},
+    0px 0px 10px -5px ${color.crack10}
+  `,
+  color: color.crack90,
   display: "inline-block",
   borderRadius: 999,
   paddingInline: 8,
@@ -160,11 +162,11 @@ export const screenClass = recipe({
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${color.bam20}, ${color.bam10})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bam90, 0.5)}, ${alpha(color.bam80, 0.5)})`,
         color: color.bam90,
       },
       false: {
-        background: `linear-gradient(to bottom, ${color.crack20}, ${color.crack10})`,
+        background: `linear-gradient(to bottom, ${alpha(color.crack90, 0.5)}, ${alpha(color.crack80, 0.5)})`,
         color: color.crack90,
       },
     },
@@ -190,10 +192,10 @@ export const titleClass = style({
   },
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bam80,
+      color: color.bam30,
     },
     [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.crack80,
+      color: color.crack30,
     },
   },
 })
@@ -204,7 +206,7 @@ export const subtitleClass = style({
   animationName: fromBelowAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
-  color: color.crack60,
+  color: color.crack40,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h2,
@@ -250,23 +252,23 @@ export const detailListClass = recipe({
         rowGap: 12,
         columnGap: 48,
         padding: 12,
-        borderRadius: 12,
+        borderRadius: 8,
       },
       [mediaQuery({ p: "l", l: "m" })]: {
         rowGap: 16,
         columnGap: 64,
         padding: 16,
-        borderRadius: 16,
+        borderRadius: 12,
       },
     },
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.4)}, ${alpha(kolor(50), 0.2)})`,
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.3)})`,
     })),
   },
 })
-export const detailTermClass = style({
+export const itemKeyClass = style({
   ...fontSize.l,
   fontFamily: primary,
   "@media": {
@@ -280,23 +282,15 @@ export const detailTermClass = style({
       ...fontSize.h1,
     },
   },
-  selectors: {
-    [`${detailListClass.classNames.variants.hue.bam} &`]: {
-      color: color.bam60,
-    },
-    [`${detailListClass.classNames.variants.hue.crack} &`]: {
-      color: color.crack60,
-    },
-    [`${detailListClass.classNames.variants.hue.dot} &`]: {
-      color: color.dot60,
-    },
-    [`${detailListClass.classNames.variants.hue.gold} &`]: {
-      color: color.gold60,
-    },
-  },
+  selectors: hueSelectors(
+    (hue) => `${detailListClass.classNames.variants.hue[hue]} &`,
+    (kolor) => ({
+      color: kolor(40),
+    }),
+  ),
 })
 
-export const detailDescriptionClass = style({
+export const itemValueClass = style({
   ...fontSize.l,
   fontFamily: primary,
   justifySelf: "start",
@@ -315,7 +309,7 @@ export const detailDescriptionClass = style({
   selectors: hueSelectors(
     (hue) => `${detailListClass.classNames.variants.hue[hue]} &`,
     (kolor) => ({
-      color: kolor(80),
+      color: kolor(30),
     }),
   ),
 })

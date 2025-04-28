@@ -1,12 +1,6 @@
+import type { Game } from "@/state/gameState"
 import { isIncludedIn } from "remeda"
-import {
-  type CardId,
-  type Color,
-  type Game,
-  type Tile,
-  getCard,
-  isDragon,
-} from "./game"
+import { type CardId, type Color, type Tile, getCard, isDragon } from "./game"
 import { captureEvent } from "./observability"
 
 export function cardMatchesDragon(color: Color, cardId: CardId) {

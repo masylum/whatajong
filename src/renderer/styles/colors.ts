@@ -55,18 +55,6 @@ const huesAndShades = {
     10: "#1a0805",
   },
 
-  gold: {
-    90: "#fff1c8",
-    80: "#ffe086",
-    70: "#efc41f",
-    60: "#d8b01c",
-    50: "#ba9e2f",
-    40: "#947d12",
-    30: "#5f5008",
-    20: "#392d05",
-    10: "#130e01",
-  },
-
   black: {
     90: "#f6f3ec",
     80: "#eae7dc",
@@ -80,7 +68,7 @@ const huesAndShades = {
   },
 } as const
 
-const accentHues = ["bam", "crack", "dot", "bone", "gold", "black"] as const
+const accentHues = ["bam", "crack", "dot", "bone", "black"] as const
 
 export function hueFromSuit(suit: "b" | "c" | "o") {
   return (

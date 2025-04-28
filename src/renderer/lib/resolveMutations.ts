@@ -1,5 +1,6 @@
 import {
   type CardId,
+  type Suit,
   type Tile,
   type TileDb,
   getCard,
@@ -20,6 +21,29 @@ function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {
     const newRank = fn(oldRank)
     const newCardId = tile.cardId.replace(oldRank, newRank.toString()) as CardId
     tileDb.set(tile.id, { ...tile, cardId: newCardId })
+  }
+}
+
+const MUTATION_MATERIALS = {
+  r: ["bone", "garnet", "ruby"],
+  g: ["bone", "jade", "emerald"],
+  b: ["bone", "topaz", "sapphire"],
+} as const
+
+function changeSuits(
+  tileDb: TileDb,
+  tiles: Tile[],
+  fromSuit: Suit,
+  toSuit: Suit,
+) {
+  for (const tile of tiles) {
+    const newCardId = tile.cardId.replace(fromSuit, toSuit) as CardId
+    const material = tile.material
+    const color = isSuit(tile.cardId)!.colors[0]!
+    const materialIndex = MUTATION_MATERIALS[color].indexOf(material as any)
+    const newColor = isSuit(newCardId)!.colors[0]!
+    const newMaterial = MUTATION_MATERIALS[newColor][materialIndex]!
+    tileDb.set(tile.id, { ...tile, cardId: newCardId, material: newMaterial })
   }
 }
 
@@ -52,13 +76,6 @@ export function resolveMutations({
     (tile) => getCard(tile.cardId).suit === bSuit,
   )
 
-  for (const aTile of aTiles) {
-    const newCardId = aTile.cardId.replace(aSuit, bSuit) as CardId
-    tileDb.set(aTile.id, { ...aTile, cardId: newCardId })
-  }
-
-  for (const bTile of bTiles) {
-    const newCardId = bTile.cardId.replace(bSuit, aSuit) as CardId
-    tileDb.set(bTile.id, { ...bTile, cardId: newCardId })
-  }
+  changeSuits(tileDb, aTiles, aSuit, bSuit)
+  changeSuits(tileDb, bTiles, bSuit, aSuit)
 }

@@ -3,12 +3,12 @@ import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import { type Material, type WindDirection, cardName } from "@/lib/game"
+import { MovesIndicator, Penalty, Points } from "@/routes/run/runGame"
 import { FreezeButton, ItemTile, RerollButton } from "@/routes/run/runShop"
 import { getSideSize, useLayoutSize } from "@/state/constants"
 import { hueFromColor, hueFromMaterial, hueFromSuit } from "@/styles/colors"
 import { Match, Switch, createMemo, createSignal } from "solid-js"
 import { comboRecipe } from "./game/powerups.css"
-import { MovesIndicator, Penalty, Points } from "./game/stats"
 import {
   backButtonClass,
   boardClass,

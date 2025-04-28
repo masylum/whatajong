@@ -6,8 +6,8 @@ import {
   CardPoints,
   CardVideo,
   Explanation,
-  MaterialCoins,
-  MaterialFreedom,
+  MaterialExplanation,
+  MaterialExplanationDescription,
 } from "@/components/game/tileDetails"
 import { ArrowRight, Buy, Dices, Freeze, Home, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -19,6 +19,7 @@ import {
   getCard,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
+import { throttle } from "@/lib/throttle"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import { generateRound, useRunState } from "@/state/runState"
@@ -78,7 +79,6 @@ import {
   shopClass,
   shopContainerClass,
   shopHeaderClass,
-  shopHeaderItemClass,
   shopHeaderItemsClass,
   shopItemButtonClass,
   shopItemClass,
@@ -90,6 +90,10 @@ import {
 } from "./runShop.css"
 
 const DECK_CAPACITY = 165
+
+const onHoverTile = throttle(() => {
+  play("click2")
+}, 30)
 
 export default function RunShop() {
   const shop = useShopState()
@@ -164,7 +168,7 @@ function DeckTileComponent(props: {
       style={{
         "z-index": props.zIndex,
       }}
-      onMouseEnter={() => play("click2")}
+      onMouseEnter={onHoverTile}
       onClick={onClick}
     >
       <BasicTile
@@ -240,15 +244,9 @@ function CardDetails(props: {
       <div class={modalDetailsClass}>
         <BasicTile cardId={cardId()} material={props.material} />
         <div class={modalDetailsContentClass}>
-          <div class={detailTitleClass}>
-            {cardName(t, cardId())}{" "}
-            <Show when={props.material !== "bone"}>
-              ({t.material[props.material]()})
-            </Show>
-          </div>
+          <div class={detailTitleClass}>{cardName(t, cardId())}</div>
           <CardPoints cardId={cardId()} material={props.material} />
-          <MaterialCoins material={props.material} />
-          <MaterialFreedom material={props.material} />
+          <MaterialExplanation material={props.material} />
           <Explanation cardId={cardId()} />
           <CardVideo
             suit={getCard(cardId()).suit}
@@ -389,30 +387,7 @@ function MaterialUpgradeButton(props: {
           >
             {t.material[props.material]()}
           </span>
-          <Switch>
-            <Match
-              when={
-                props.material === "quartz" || props.material === "obsidian"
-              }
-            >
-              TODO: stop the time
-            </Match>
-            <Match
-              when={props.material === "jade" || props.material === "emerald"}
-            >
-              {t.shop.upgrade.morePoints()}
-            </Match>
-            <Match
-              when={props.material === "garnet" || props.material === "ruby"}
-            >
-              {t.shop.upgrade.getCoins()}
-            </Match>
-            <Match
-              when={props.material === "topaz" || props.material === "sapphire"}
-            >
-              {t.shop.upgrade.easierToMatch()}
-            </Match>
-          </Switch>
+          <MaterialExplanationDescription material={props.material} />
         </div>
       </div>
       <ShopButton
@@ -456,7 +431,6 @@ function Deck() {
           "j",
           "e",
           "g",
-          "a",
         ]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
       }
@@ -494,10 +468,6 @@ function Items() {
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
   const isSelected = createSelector(() => shop.currentItem?.id)
-
-  createEffect(() => {
-    console.log(JSON.stringify(items(), null, 2))
-  })
 
   function selectItem(item: TileItem | null) {
     if (item?.id === shop.currentItem?.id) {
@@ -547,7 +517,10 @@ function Items() {
 
   return (
     <div class={shopContainerClass}>
-      <div class={areaTitleClass({ hue: "bam" })}>{t.common.shop()}</div>
+      <div class={areaTitleClass({ hue: "crack" })}>
+        {t.common.shop()}
+        <span class={coinsClass}>${run.money}</span>
+      </div>
       <div class={shopItemsClass}>
         <Key each={items()} by={(item) => item.id}>
           {(tileItem) => (
@@ -586,12 +559,6 @@ function Header() {
         </LinkButton>
       </div>
 
-      <div class={shopHeaderItemsClass}>
-        <div class={shopHeaderItemClass({ hue: "gold" })}>
-          {t.common.coins()}
-          <span class={coinsClass}>${run.money}</span>
-        </div>
-      </div>
       <div class={continueClass}>
         <ShopButton hue="bone" onClick={continueRun}>
           {t.common.roundN({ round: nextRound().id })}
@@ -629,7 +596,7 @@ function ShopItem(
   return (
     <button
       type="button"
-      onMouseEnter={() => !props.disabled && props.onClick && play("click2")}
+      onMouseEnter={() => !props.disabled && props.onClick && onHoverTile()}
       class={shopItemClass({
         disabled: props.disabled,
         hoverable: !!props.onClick,

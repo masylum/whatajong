@@ -6,6 +6,7 @@ export const ANIMATION_FAST = "100ms"
 
 export const easeBounce =
   "linear(0, 0.417 25.5%, 0.867 49.4%, 1 57.7%, 0.925 65.1%, 0.908 68.6%, 0.902 72.2%, 0.916 78.2%, 0.988 92.1%, 1)"
+export const overshot = "cubic-bezier(0.199, -0.491, 0, 0.997)"
 
 export const fromBelowAnimation = keyframes({
   from: {

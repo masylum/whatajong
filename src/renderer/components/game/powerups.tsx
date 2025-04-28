@@ -1,6 +1,9 @@
 import { useTranslation } from "@/i18n/useTranslation"
-import type { DragonRun, PhoenixRun } from "@/lib/game"
-import { useGameState } from "@/state/gameState"
+import {
+  type DragonRun,
+  type PhoenixRun,
+  useGameState,
+} from "@/state/gameState"
 import { hueFromColor } from "@/styles/colors"
 import { Show, createMemo } from "solid-js"
 import {

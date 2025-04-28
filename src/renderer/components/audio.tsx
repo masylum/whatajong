@@ -27,8 +27,6 @@ const SoundFiles = [
   "alarm2",
   "alarm3",
   "phoenix",
-  "flower",
-  "rabbit",
   "mutation",
   "freeze",
   "joker",

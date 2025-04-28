@@ -3,11 +3,12 @@ import {
   coord,
   getMaterial,
   isDragon,
-  isFlower,
+  isElement,
   isFree,
+  isJoker,
   isMutation,
   isPhoenix,
-  isRabbit,
+  isTrigram,
   isWind,
   mapGetHeight,
   mapGetWidth,
@@ -15,7 +16,7 @@ import {
 import { getSideSize, useTileSize } from "@/state/constants"
 import { useGameState } from "@/state/gameState"
 import { useTileState } from "@/state/tileState"
-import { getHueColor, hueFromMaterial } from "@/styles/colors"
+import { getHueColor, hueFromColor, hueFromMaterial } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { isDeepEqual } from "remeda"
 import {
@@ -29,10 +30,12 @@ import { play } from "../audio"
 import { TileBody } from "./tileBody"
 import {
   FLOATING_NUMBER_DURATION,
+  MUTATE_DURATION,
   SHAKE_DURATION,
   SHAKE_REPEAT,
   type TileVariants,
   clickableClass,
+  pulseClass,
   scoreClass,
   scoreCoinsClass,
   scorePointsClass,
@@ -53,7 +56,7 @@ type Props = {
   width?: number
   height?: number
 }
-type State = "idle" | "selected" | "deleted"
+type State = "idle" | "selected" | "deleted" | "shuffling"
 
 export function TileComponent(iProps: Props) {
   const game = useGameState()
@@ -85,7 +88,7 @@ export function TileComponent(iProps: Props) {
     strokePath({ width: props.width, height: props.height }),
   )
 
-  const material = createMemo(() => getMaterial(tiles, props.tile, game))
+  const material = createMemo(() => getMaterial(props.tile, game))
   const canBeSelected = createMemo(() => isFree(tiles, props.tile, game))
   const mapWidth = createMemo(() => mapGetWidth())
   const mapHeight = createMemo(() => mapGetHeight())
@@ -103,6 +106,7 @@ export function TileComponent(iProps: Props) {
   const state = createMemo<State>(() => {
     if (selected()) return "selected"
     if (props.tile.deleted) return "deleted"
+    if (game.joker) return "shuffling"
 
     return "idle"
   })
@@ -113,6 +117,15 @@ export function TileComponent(iProps: Props) {
     return "#ffffff"
   })
 
+  const pulsingColor = createMemo(() => {
+    if (!canBeSelected()) return
+    if (isTrigram(props.tile.cardId)) return "k"
+    const elementCard = isElement(props.tile.cardId)
+    if (elementCard) return elementCard.rank
+
+    return
+  })
+
   const fillOpacity = createMemo(() => {
     const sel = selected()
     if (sel) return 0.5
@@ -120,6 +133,20 @@ export function TileComponent(iProps: Props) {
 
     return 0
   })
+  const mutateSource = createMemo(() => `${props.tile.cardId}${material()}`)
+
+  createEffect((prevSource: string) => {
+    const source = mutateSource()
+
+    if (source !== prevSource) {
+      setAnimation("mutate")
+      setTimeout(() => {
+        setAnimation(undefined)
+      }, MUTATE_DURATION)
+    }
+
+    return source
+  }, mutateSource())
 
   createEffect((prevState: State) => {
     const currentState = state()
@@ -140,19 +167,24 @@ export function TileComponent(iProps: Props) {
       return currentState
     }
 
+    if (prevState !== "shuffling" && currentState === "shuffling") {
+      setAnimation("deleted")
+      setTimeout(() => {
+        setAnimation(undefined)
+      }, FLOATING_NUMBER_DURATION)
+    }
+
     if (prevState !== "deleted" && currentState === "deleted") {
       if (isDragon(props.tile.cardId)) {
         play("dragon")
-      } else if (isFlower(props.tile.cardId)) {
-        play("flower")
       } else if (isWind(props.tile.cardId)) {
         play("wind")
       } else if (isPhoenix(props.tile.cardId)) {
         play("phoenix")
-      } else if (isRabbit(props.tile.cardId)) {
-        play("rabbit")
       } else if (isMutation(props.tile.cardId)) {
         play("mutation")
+      } else if (isJoker(props.tile.cardId)) {
+        play("joker")
       } else {
         play("ding")
       }
@@ -176,8 +208,8 @@ export function TileComponent(iProps: Props) {
         <div
           class={scoreClass}
           style={{
-            left: `${coords().x}px`,
-            top: `${coords().y}px`,
+            left: `${coords().x + tileSize().width / 2}px`,
+            top: `${coords().y + tileSize().height / 2}px`,
           }}
         >
           <Show when={props.tile.coins}>
@@ -187,6 +219,17 @@ export function TileComponent(iProps: Props) {
             {(points) => <span class={scorePointsClass}>+{points()}</span>}
           </Show>
         </div>
+      </Show>
+      <Show when={pulsingColor()}>
+        {(color) => (
+          <div
+            class={pulseClass({ hue: hueFromColor(color()) })}
+            style={{
+              left: `${coords().x + tileSize().width / 2}px`,
+              top: `${coords().y + tileSize().height / 2}px`,
+            }}
+          />
+        )}
       </Show>
       <Show when={!deleted()}>
         <div

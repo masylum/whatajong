@@ -145,5 +145,5 @@ export function generateRound(id: number, run: RunState): Round {
 }
 
 export function calculateIncome(run: RunState) {
-  return run.round * 3
+  return 3 + run.round
 }

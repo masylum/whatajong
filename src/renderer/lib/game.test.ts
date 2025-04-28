@@ -1,7 +1,7 @@
+import type { Game } from "@/state/gameState"
 import { beforeEach, describe, expect, it } from "vitest"
 import {
   type Color,
-  type Game,
   type Tile,
   type TileDb,
   cardsMatch,
@@ -32,7 +32,7 @@ import {
   selectTile,
 } from "./game"
 import { RESPONSIVE_MAP } from "./maps/responsive"
-import { createTile } from "./test/utils"
+import { createGame, createTile } from "./test/utils"
 
 describe("map", () => {
   describe("mapGet", () => {
@@ -139,7 +139,7 @@ describe("gameOverCondition", () => {
 })
 
 describe("getPoints", () => {
-  const game: Game = { points: 0 }
+  const game = createGame()
   let tileDb: TileDb
 
   beforeEach(() => {
@@ -455,7 +455,7 @@ describe("getMaterial", () => {
     expect(getMaterial(jadeTile)).toBe("jade")
   })
 
-  it("returns the temporary material when it is free", () => {
+  it("returns the temporary material when it matches the color", () => {
     const boneTile = createTile({
       id: "1",
       cardId: "b1",
@@ -464,19 +464,19 @@ describe("getMaterial", () => {
     })
     const jadeTile = createTile({
       id: "2",
-      cardId: "b1",
+      cardId: "o1",
       material: "jade",
       x: 2,
     })
     const garnetTile = createTile({
       id: "3",
-      cardId: "c1",
+      cardId: "m4",
       material: "garnet",
       x: 4,
     })
-    const game: Game = { points: 0, temporaryMaterial: "topaz" }
+    const game = createGame({ temporaryMaterial: "topaz" })
 
-    expect(getMaterial(boneTile, game)).toBe("topaz")
+    expect(getMaterial(boneTile, game)).toBe("bone")
     expect(getMaterial(jadeTile, game)).toBe("topaz")
     expect(getMaterial(garnetTile, game)).toBe("topaz")
   })
@@ -508,7 +508,7 @@ describe("selectTile", () => {
   let game: Game
 
   beforeEach(() => {
-    game = { points: 0 }
+    game = createGame()
     tileDb = initTileDb({
       "1": createTile({ id: "1", cardId: "b1", x: 0, y: 0, z: 0 }),
       "2": createTile({ id: "2", cardId: "b1", x: 2, y: 0, z: 0 }),
@@ -603,7 +603,6 @@ describe("selectTile", () => {
 
     // Game should have ended with empty-board
     expect(game.endCondition).toBe("empty-board")
-    expect(game.endedAt).toBeDefined()
   })
 })
 

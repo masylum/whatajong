@@ -1,15 +1,5 @@
-import {
-  type CardId,
-  type Game,
-  type Tile,
-  getCard,
-  isDragon,
-  isFlower,
-  isJoker,
-  isMutation,
-  isPhoenix,
-  isRabbit,
-} from "./game"
+import type { Game } from "@/state/gameState"
+import { type CardId, type Tile, getCard, isPhoenix } from "./game"
 import { captureEvent } from "./observability"
 
 function parseNumber(cardId: CardId) {
@@ -18,24 +8,17 @@ function parseNumber(cardId: CardId) {
   return rank
 }
 
-export function nextNumber(number: number) {
+function nextNumber(number: number) {
   if (number === 9) return 1
   return number + 1
 }
 
 function continuesPhoenixRun(number: number | undefined, cardId: CardId) {
   if (number === undefined) return true
-  if (
-    isJoker(cardId) ||
-    isMutation(cardId) ||
-    isFlower(cardId) ||
-    isRabbit(cardId) ||
-    isDragon(cardId)
-  )
-    return true
+  if (isPhoenix(cardId)) return false
 
   const rank = parseNumber(cardId)
-  if (rank === null) return false
+  if (rank === null) return true
 
   return rank === nextNumber(number)
 }

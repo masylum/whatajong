@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
-import type { Game } from "./game"
 import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
-import { createTile } from "./test/utils"
+import { createGame, createTile } from "./test/utils"
 
 describe("resolveDragons", () => {
   describe("cardMatchesDragon", () => {
@@ -31,7 +30,7 @@ describe("resolveDragons", () => {
 
   describe("resolveDragons", () => {
     it("initializes dragon run when dragon card is played with no active run", () => {
-      const game: Game = { points: 0 }
+      const game = createGame()
       const dragonTile = createTile({ cardId: "dr" })
 
       resolveDragons({ game, tile: dragonTile })
@@ -42,10 +41,9 @@ describe("resolveDragons", () => {
     })
 
     it("increases combo when matching suit is played", () => {
-      const game: Game = {
-        points: 0,
+      const game = createGame({
         dragonRun: { color: "r", combo: 1 },
-      }
+      })
       const matchingTile = createTile({ cardId: "c3" })
 
       resolveDragons({ game, tile: matchingTile })
@@ -54,10 +52,9 @@ describe("resolveDragons", () => {
     })
 
     it("maintains run but doesn't increase combo for special cards", () => {
-      const game: Game = {
-        points: 0,
+      const game = createGame({
         dragonRun: { color: "r", combo: 2 },
-      }
+      })
 
       const flowerTile = createTile({ cardId: "f1" })
       resolveDragons({ game, tile: flowerTile })
@@ -75,10 +72,9 @@ describe("resolveDragons", () => {
     })
 
     it("resets run when non-matching card is played", () => {
-      const game: Game = {
-        points: 0,
+      const game = createGame({
         dragonRun: { color: "r", combo: 3 },
-      }
+      })
       const nonMatchingTile = createTile({ cardId: "b2" })
 
       resolveDragons({ game, tile: nonMatchingTile })
@@ -87,10 +83,9 @@ describe("resolveDragons", () => {
     })
 
     it("switches to new dragon when different dragon is played", () => {
-      const game: Game = {
-        points: 0,
+      const game = createGame({
         dragonRun: { color: "r", combo: 3 },
-      }
+      })
       const newDragonTile = createTile({ cardId: "db" })
 
       resolveDragons({ game, tile: newDragonTile })
@@ -100,10 +95,9 @@ describe("resolveDragons", () => {
     })
 
     it("maintains dragon if same dragon is played", () => {
-      const game: Game = {
-        points: 0,
+      const game = createGame({
         dragonRun: { color: "r", combo: 3 },
-      }
+      })
       const sameDragonTile = createTile({ cardId: "dr" })
 
       resolveDragons({ game, tile: sameDragonTile })

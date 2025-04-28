@@ -7,12 +7,7 @@ import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import {
-  GameStateProvider,
-  calculateSeconds,
-  initialGameState,
-  useGameState,
-} from "@/state/gameState"
+import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import {
   REWARDS,
@@ -24,7 +19,6 @@ import { initializeTileState, useTileState } from "@/state/tileState"
 import type { AccentHue } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
-import { sumBy } from "remeda"
 import {
   For,
   type ParentProps,
@@ -39,13 +33,13 @@ import {
   deckClass,
   deckItemClass,
   deckRowsClass,
-  detailDescriptionClass,
   detailListClass,
-  detailTermClass,
   duration,
   endX,
   gameOverClass,
   gameOverInfoClass,
+  itemKeyClass,
+  itemValueClass,
   moneyClass,
   pairClass,
   rotation,
@@ -69,7 +63,7 @@ export default function RunGameOver() {
   const deck = useDeckState()
   const tiles = useTileState()
 
-  const time = createMemo(() => calculateSeconds(game))
+  const time = createMemo(() => game.time)
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
@@ -84,9 +78,7 @@ export default function RunGameOver() {
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
   const t = useTranslation()
 
-  const tileCoins = createMemo(() =>
-    sumBy(tiles.filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
-  )
+  const tileCoins = createMemo(() => game.coins)
   const overAchievementCoins = createMemo(() => {
     const overAchievement = achievement() - 1
     if (overAchievement <= 0) return 0
@@ -115,7 +107,7 @@ export default function RunGameOver() {
       run.round += 1
       run.stage = isRewardRound() ? "reward" : "shop"
       run.money += income() + tileCoins() + overAchievementCoins()
-      run.totalPoints = totalPoints()
+      run.totalPoints += totalPoints()
     })
   }
 
@@ -126,13 +118,12 @@ export default function RunGameOver() {
       tiles.update({})
       initializeTileState(id(), deck.all, tiles)
     })
-    console.log(run, game, tiles)
   }
 
   return (
-    <GameStateProvider game={game}>
-      <div class={gameOverClass}>
-        <div class={screenClass({ win: win() })}>
+    <div class={gameOverClass}>
+      <div class={screenClass({ win: win() })}>
+        <div>
           <Title win={win()} round={run.round} />
           <Show when={!win()}>
             <div class={subtitleClass}>
@@ -144,89 +135,85 @@ export default function RunGameOver() {
               </Show>
             </div>
           </Show>
-          <div class={gameOverClass}>
-            <div class={scoreClass}>
-              <Show when={win()}>
-                <List hue="gold">
-                  <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
-                  <Show when={tileCoins()}>
-                    {(coins) => (
-                      <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
-                    )}
-                  </Show>
-                  <Show when={overAchievementCoins()}>
-                    {(coins) => (
-                      <Item
-                        label={t.gameOver.overachiever({
-                          percent: Math.round(achievement() * 100),
-                        })}
-                      >
-                        + ${coins()}
-                      </Item>
-                    )}
-                  </Show>
-                </List>
+        </div>
+        <div class={scoreClass}>
+          <Show when={win()}>
+            <List hue="crack">
+              <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
+              <Show when={tileCoins()}>
+                {(coins) => (
+                  <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
+                )}
               </Show>
-
-              <List hue="bam">
-                <Item label={t.common.points()}>{points()}</Item>
-              </List>
-
-              <Show when={round().timerPoints}>
-                <List hue="crack">
-                  <Item label={t.gameOver.timePenalty({ time: time() })}>
-                    {penalty()}
+              <Show when={overAchievementCoins()}>
+                {(coins) => (
+                  <Item
+                    label={t.gameOver.overachiever({
+                      percent: Math.round(achievement() * 100),
+                    })}
+                  >
+                    + ${coins()}
                   </Item>
-                </List>
+                )}
               </Show>
+            </List>
+          </Show>
 
-              <List hue="dot">
-                <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
-                <Item label={t.common.objective()}>
-                  {round().pointObjective}
-                </Item>
-              </List>
+          <List hue="bam">
+            <Item label={t.common.points()}>{points()}</Item>
+          </List>
 
-              <div class={buttonsClass}>
+          <Show when={round().timerPoints}>
+            <List hue="black">
+              <Item label={t.gameOver.timePenalty({ time: time() })}>
+                {penalty()}
+              </Item>
+            </List>
+          </Show>
+
+          <List hue="dot">
+            <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
+            <Item label={t.common.objective()}>{round().pointObjective}</Item>
+          </List>
+
+          <div class={buttonsClass}>
+            <Show
+              when={win()}
+              fallback={
+                <Button hue="bam" onClick={retrySameRound}>
+                  {t.gameOver.trySameRun()}
+                  <Rotate />
+                </Button>
+              }
+            >
+              <Button hue="bam" onClick={() => goToNextRound()}>
                 <Show
-                  when={win()}
+                  when={isRewardRound()}
                   fallback={
-                    <Button hue="bam" kind="dark" onClick={retrySameRound}>
-                      {t.gameOver.trySameRun()}
-                      <Rotate />
-                    </Button>
+                    <>
+                      <Shop />
+                      {t.common.goToShop()}
+                    </>
                   }
                 >
-                  <Button hue="bam" kind="dark" onClick={() => goToNextRound()}>
-                    <Show
-                      when={isRewardRound()}
-                      fallback={
-                        <>
-                          <Shop />
-                          {t.common.goToShop()}
-                        </>
-                      }
-                    >
-                      <>
-                        {t.common.next()}
-                        <ArrowRight />
-                      </>
-                    </Show>
-                  </Button>
+                  <>
+                    {t.common.next()}
+                    <ArrowRight />
+                  </>
                 </Show>
-              </div>
-            </div>
-            <Show when={!win()}>
-              <div class={gameOverInfoClass}>
-                <span class={moneyClass}>${run.money}</span>
-                <Deck />
-              </div>
+              </Button>
             </Show>
           </div>
-          <FallingTiles />
         </div>
+        <Show when={!win()}>
+          <div class={gameOverInfoClass}>
+            <span class={moneyClass}>${run.money}</span>
+            <Deck />
+          </div>
+        </Show>
       </div>
-    </GameStateProvider>
+      <FallingTiles />
+    </div>
   )
 }
 
@@ -348,8 +335,8 @@ function List(props: { hue: AccentHue } & ParentProps) {
 function Item(props: { label: string } & ParentProps) {
   return (
     <>
-      <dt class={detailTermClass}>{props.label}</dt>
-      <dd class={detailDescriptionClass}>{props.children}</dd>
+      <dt class={itemKeyClass}>{props.label}</dt>
+      <dd class={itemValueClass}>{props.children}</dd>
     </>
   )
 }
