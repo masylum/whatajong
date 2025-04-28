@@ -1,6 +1,6 @@
 import type { CardId, Material } from "@/lib/game"
 import { TILE_RATIO, useTileSize } from "@/state/constants"
-import { type AccentHue, getHueColor } from "@/styles/colors"
+import { type AccentHue, getHueColor, hueFromMaterial } from "@/styles/colors"
 import { type JSX, Show, createMemo, splitProps } from "solid-js"
 import { tileClass } from "./basicTile.css"
 import { TileBody } from "./tileBody"
@@ -56,7 +56,7 @@ export function BasicTile(props: Props) {
       <path
         d={dPath()}
         fill="none"
-        stroke={getHueColor(local.material ?? "bone")(40)}
+        stroke={getHueColor(hueFromMaterial(local.material ?? "bone"))(40)}
         stroke-width="1"
       />
     </svg>

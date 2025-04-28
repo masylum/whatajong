@@ -9,15 +9,7 @@ import {
   MaterialCoins,
   MaterialFreedom,
 } from "@/components/game/tileDetails"
-import {
-  ArrowRight,
-  Buy,
-  Coins,
-  Dices,
-  Freeze,
-  Home,
-  X,
-} from "@/components/icon"
+import { ArrowRight, Buy, Dices, Freeze, Home, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type DeckTile,
@@ -43,11 +35,13 @@ import {
   upgradeTile,
   useShopState,
 } from "@/state/shopState"
+import { hueFromMaterial } from "@/styles/colors"
 import { Dialog } from "@kobalte/core/dialog"
 import { Key } from "@solid-primitives/keyed"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { isDeepEqual } from "remeda"
 import {
+  For,
   Match,
   type ParentProps,
   Show,
@@ -64,6 +58,7 @@ import {
   backgroundClass,
   buttonsClass,
   closeButtonClass,
+  coinsClass,
   continueClass,
   deckItemClass,
   deckRowsClass,
@@ -79,7 +74,6 @@ import {
   modalDetailsClass,
   modalDetailsContentClass,
   pairClass,
-  pillClass,
   rotation,
   shopClass,
   shopContainerClass,
@@ -291,20 +285,14 @@ function TileItemDetails(props: { item: TileItem }) {
   const tilesWithSameCard = createMemo(() =>
     deck.filterBy({ cardId: item().cardId }),
   )
-  const freedomUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "freedom"),
+  const upgrades = createMemo(() =>
+    getCard(item().cardId).colors.map((color) => ({
+      path: color,
+      material: getNextMaterial(tilesWithSameCard(), color),
+    })),
   )
-  const pointsUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "points"),
-  )
-  const coinsUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "coins"),
-  )
-  const isUpgrading = createMemo(
-    () =>
-      freedomUpgrade() !== "bone" ||
-      pointsUpgrade() !== "bone" ||
-      coinsUpgrade() !== "bone",
+  const isUpgrading = createMemo(() =>
+    upgrades().some((upgrade) => upgrade.material !== "bone"),
   )
 
   return (
@@ -320,33 +308,15 @@ function TileItemDetails(props: { item: TileItem }) {
             {t.shop.upgrade.description()}
           </div>
           <div class={materialUpgradesClass}>
-            <Show when={freedomUpgrade()}>
-              {(material) => (
+            <For each={upgrades()}>
+              {({ material, path }) => (
                 <MaterialUpgradeButton
-                  material={material()}
+                  material={material}
                   item={item()}
-                  path="freedom"
+                  path={path}
                 />
               )}
-            </Show>
-            <Show when={pointsUpgrade()}>
-              {(material) => (
-                <MaterialUpgradeButton
-                  material={material()}
-                  item={item()}
-                  path="points"
-                />
-              )}
-            </Show>
-            <Show when={coinsUpgrade()}>
-              {(material) => (
-                <MaterialUpgradeButton
-                  material={material()}
-                  item={item()}
-                  path="coins"
-                />
-              )}
-            </Show>
+            </For>
           </div>
         </div>
       </Dialog.Content>
@@ -400,39 +370,54 @@ function MaterialUpgradeButton(props: {
   const t = useTranslation()
 
   return (
-    <div class={materialUpgradeClass({ hue: props.material })}>
+    <div class={materialUpgradeClass({ hue: hueFromMaterial(props.material) })}>
       <div class={materialUpgradeBlockClass}>
         <BasicTile
           cardId={props.item.cardId}
           material={props.material}
           width={30}
         />
-        <div class={materialUpgradeTextClass({ hue: props.material })}>
-          <span class={materialUpgradeTitleClass({ hue: props.material })}>
+        <div
+          class={materialUpgradeTextClass({
+            hue: hueFromMaterial(props.material),
+          })}
+        >
+          <span
+            class={materialUpgradeTitleClass({
+              hue: hueFromMaterial(props.material),
+            })}
+          >
             {t.material[props.material]()}
           </span>
           <Switch>
             <Match
-              when={props.material === "glass" || props.material === "diamond"}
+              when={
+                props.material === "quartz" || props.material === "obsidian"
+              }
             >
-              {t.shop.upgrade.easierToMatch()}
+              TODO: stop the time
             </Match>
             <Match
-              when={props.material === "ivory" || props.material === "jade"}
+              when={props.material === "jade" || props.material === "emerald"}
             >
               {t.shop.upgrade.morePoints()}
             </Match>
             <Match
-              when={props.material === "bronze" || props.material === "gold"}
+              when={props.material === "garnet" || props.material === "ruby"}
             >
               {t.shop.upgrade.getCoins()}
+            </Match>
+            <Match
+              when={props.material === "topaz" || props.material === "sapphire"}
+            >
+              {t.shop.upgrade.easierToMatch()}
             </Match>
           </Switch>
         </div>
       </div>
       <ShopButton
         type="button"
-        hue={props.material}
+        hue={hueFromMaterial(props.material)}
         disabled={false}
         onClick={() => {
           upgradeTile({ run, shop, item: props.item, deck, path: props.path })
@@ -461,6 +446,7 @@ function Deck() {
           "b",
           "c",
           "o",
+          "t",
           "w",
           "d",
           "r",
@@ -469,7 +455,7 @@ function Deck() {
           "m",
           "j",
           "e",
-          "t",
+          "g",
           "a",
         ]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
@@ -595,16 +581,15 @@ function Header() {
   return (
     <div class={shopHeaderClass}>
       <div class={shopHeaderItemsClass}>
-        <LinkButton hue="glass" href="/">
+        <LinkButton hue="dot" href="/">
           <Home />
         </LinkButton>
       </div>
 
       <div class={shopHeaderItemsClass}>
         <div class={shopHeaderItemClass({ hue: "gold" })}>
-          <Coins />
           {t.common.coins()}
-          <span class={pillClass}>${run.money}</span>
+          <span class={coinsClass}>${run.money}</span>
         </div>
       </div>
       <div class={continueClass}>
@@ -657,7 +642,7 @@ function ShopItem(
       })}
     >
       <div class={shopItemContentClass}>{props.children}</div>
-      <div class={pillClass}>${props.cost}</div>
+      <div class={coinsClass}>${props.cost}</div>
     </button>
   )
 }

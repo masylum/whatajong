@@ -157,7 +157,7 @@ export const phoenixComboClass = style({
   position: "absolute",
   transform: "translateY(-120%)",
   zIndex: -1,
-  color: alpha(color.bronze40, 0.5),
+  color: alpha(color.bone40, 0.5),
   fontFamily: primary,
   top: "40%",
   right: 20,

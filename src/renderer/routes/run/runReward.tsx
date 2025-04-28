@@ -160,6 +160,13 @@ function fetchReward(reward: Suit) {
         tiles: ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"],
         reward: "one",
       } as const
+    case "g":
+      return {
+        title: t.suit.g(),
+        explanation: t.tileDetails.explanation.gem(),
+        tiles: ["gr", "gg", "gb", "gk"],
+        reward: "one",
+      } as const
     default:
       return {
         title: `Reward: ${reward}`,

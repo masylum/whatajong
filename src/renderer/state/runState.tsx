@@ -20,7 +20,7 @@ export const REWARDS = {
   8: "j",
   9: "e",
   10: "t",
-  11: "a",
+  11: "g",
 } as const
 
 export type RunState = {

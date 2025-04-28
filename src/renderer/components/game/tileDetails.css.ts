@@ -17,17 +17,8 @@ export const detailListClass = recipe({
   },
   variants: {
     type: {
-      dot: {
-        background: `linear-gradient(to bottom, ${alpha(color.dot50, 0.1)}, ${alpha(color.dot50, 0.2)})`,
-      },
-      crack: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.1)}, ${alpha(color.crack50, 0.2)})`,
-      },
       bam: {
         background: `linear-gradient(to bottom, ${alpha(color.bam50, 0.1)}, ${alpha(color.bam50, 0.2)})`,
-      },
-      bronze: {
-        background: `linear-gradient(to bottom, ${alpha(color.bronze70, 0.2)}, ${alpha(color.bronze70, 0.3)})`,
       },
       gold: {
         background: `linear-gradient(to bottom, ${alpha(color.gold70, 0.2)}, ${alpha(color.gold70, 0.3)})`,
@@ -41,17 +32,8 @@ export const detailTermClass = style({
   fontFamily: primary,
   justifySelf: "start",
   selectors: {
-    [`${detailListClass.classNames.variants.type.dot} &`]: {
-      color: color.dot30,
-    },
-    [`${detailListClass.classNames.variants.type.crack} &`]: {
-      color: color.crack30,
-    },
     [`${detailListClass.classNames.variants.type.bam} &`]: {
       color: color.bam30,
-    },
-    [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bronze30,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
       color: color.gold30,
@@ -65,14 +47,8 @@ export const detailDescriptionClass = style({
   justifySelf: "end",
   gridColumnStart: 2,
   selectors: {
-    [`${detailListClass.classNames.variants.type.dot} &`]: {
-      color: color.dot20,
-    },
-    [`${detailListClass.classNames.variants.type.crack} &`]: {
-      color: color.crack20,
-    },
-    [`${detailListClass.classNames.variants.type.bronze} &`]: {
-      color: color.bronze20,
+    [`${detailListClass.classNames.variants.type.bam} &`]: {
+      color: color.bam20,
     },
     [`${detailListClass.classNames.variants.type.gold} &`]: {
       color: color.gold20,

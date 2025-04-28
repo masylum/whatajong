@@ -27,9 +27,10 @@ export function itemCost(item: TileItem) {
 }
 
 const PATHS = {
-  freedom: ["glass", "diamond"],
-  points: ["ivory", "jade"],
-  coins: ["bronze", "gold"],
+  r: ["garnet", "ruby"],
+  g: ["jade", "emerald"],
+  b: ["topaz", "sapphire"],
+  k: ["quartz", "obsidian"],
 } as const
 export type Path = keyof typeof PATHS
 
@@ -170,7 +171,7 @@ export function getNextMaterials(tiles: DeckTile[], path: Path) {
 
 export function getNextMaterial(tiles: DeckTile[], path: Path) {
   const materials = getNextMaterials(tiles, path)
-  return materials[materials.length - 1]
+  return materials[materials.length - 1]!
 }
 
 type MaterialTransformation = {

@@ -1,4 +1,5 @@
 import type { CardId, Material } from "@/lib/game"
+import { hueFromMaterial } from "@/styles/colors"
 import { Show, mergeProps } from "solid-js"
 import { miniTileClass } from "./miniTile.css"
 
@@ -10,7 +11,7 @@ export function MiniTile(props: {
   const mProps = mergeProps({ size: 24, material: "bone" } as const, props)
 
   return (
-    <div class={miniTileClass({ material: mProps.material })}>
+    <div class={miniTileClass({ material: hueFromMaterial(mProps.material) })}>
       <Show when={props.cardId}>
         {(cardId) => (
           <img

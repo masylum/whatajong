@@ -57,14 +57,14 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
     <div
       class={powerupRecipe({
         size: combo() as any,
-        hue: "bronze",
+        hue: "bone",
         side: "right",
       })}
     >
       <Show when={number()}>
         {(number) => <span class={phoenixComboClass}>{number()}</span>}
       </Show>
-      <span class={comboRecipe({ hue: "bronze" })}>
+      <span class={comboRecipe({ hue: "bone" })}>
         {t.common.phoenixRun()}
         <span class={comboMultiplierClass}>x{combo() + 1}</span>
       </span>

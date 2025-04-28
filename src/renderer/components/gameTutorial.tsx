@@ -5,7 +5,7 @@ import { useTranslation } from "@/i18n/useTranslation"
 import { type Material, type WindDirection, cardName } from "@/lib/game"
 import { FreezeButton, ItemTile, RerollButton } from "@/routes/run/runShop"
 import { getSideSize, useLayoutSize } from "@/state/constants"
-import { hueFromColor, hueFromSuit } from "@/styles/colors"
+import { hueFromColor, hueFromMaterial, hueFromSuit } from "@/styles/colors"
 import { Match, Switch, createMemo, createSignal } from "solid-js"
 import { comboRecipe } from "./game/powerups.css"
 import { MovesIndicator, Penalty, Points } from "./game/stats"
@@ -405,51 +405,51 @@ function Materials() {
       <div class={columnClass}>
         <p>{t.tutorial.material1()}</p>
         <div class={cardRowsClass}>
-          <MaterialExplanation material="glass" />
-          <MaterialExplanation material="ivory" />
-          <MaterialExplanation material="bronze" />
+          <MaterialExplanation material="bone" />
+          <MaterialExplanation material="topaz" />
+          <MaterialExplanation material="sapphire" />
         </div>
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.material2()}</p>
         <div class={cardRowsClass}>
-          <MaterialExplanation material="diamond" />
+          <MaterialExplanation material="obsidian" />
           <MaterialExplanation material="jade" />
-          <MaterialExplanation material="gold" />
+          <MaterialExplanation material="garnet" />
         </div>
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.material3()}</p>
         <ul class={materialListClass}>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "glass" })}>
-              {t.material.glass()}
+            <strong class={materialNameClass({ hue: "bone" })}>
+              {t.material.quartz()}
             </strong>
             {" / "}
-            <strong class={materialNameClass({ hue: "diamond" })}>
-              {t.material.diamond()}
+            <strong class={materialNameClass({ hue: "bone" })}>
+              {t.material.bone()}
             </strong>{" "}
-            {t.tutorial.materialGlass()}
+            {t.tutorial.materialBone()}
           </li>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "ivory" })}>
-              {t.material.ivory()}
+            <strong class={materialNameClass({ hue: "bone" })}>
+              {t.material.quartz()}
             </strong>
             {" / "}
-            <strong class={materialNameClass({ hue: "jade" })}>
+            <strong class={materialNameClass({ hue: "bone" })}>
               {t.material.jade()}
             </strong>{" "}
-            {t.tutorial.materialIvory()}
+            {t.tutorial.materialBone()}
           </li>
           <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "bronze" })}>
-              {t.material.bronze()}
+            <strong class={materialNameClass({ hue: "bone" })}>
+              {t.material.bone()}
             </strong>
             {" / "}
-            <strong class={materialNameClass({ hue: "gold" })}>
-              {t.material.gold()}
+            <strong class={materialNameClass({ hue: "bone" })}>
+              {t.material.bone()}
             </strong>{" "}
-            {t.tutorial.materialBronze()}
+            {t.tutorial.materialBone()}
           </li>
         </ul>
       </div>
@@ -519,7 +519,7 @@ function MaterialExplanation(props: { material: Material }) {
 
   return (
     <div class={cardRowClass}>
-      <h3 class={cardTitleClass({ hue: props.material })}>
+      <h3 class={cardTitleClass({ hue: hueFromMaterial(props.material) })}>
         {t.material[props.material]()}
       </h3>
       <BasicTile

@@ -15,7 +15,7 @@ import {
 import { getSideSize, useTileSize } from "@/state/constants"
 import { useGameState } from "@/state/gameState"
 import { useTileState } from "@/state/tileState"
-import { getHueColor } from "@/styles/colors"
+import { getHueColor, hueFromMaterial } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { isDeepEqual } from "remeda"
 import {
@@ -153,21 +153,6 @@ export function TileComponent(iProps: Props) {
         play("rabbit")
       } else if (isMutation(props.tile.cardId)) {
         play("mutation")
-      } else if (
-        props.tile.material === "bronze" ||
-        props.tile.material === "gold"
-      ) {
-        play("metal_ding")
-      } else if (
-        props.tile.material === "glass" ||
-        props.tile.material === "diamond"
-      ) {
-        play("glass_ding")
-      } else if (
-        props.tile.material === "ivory" ||
-        props.tile.material === "jade"
-      ) {
-        play("stone_ding")
       } else {
         play("ding")
       }
@@ -229,14 +214,18 @@ export function TileComponent(iProps: Props) {
               <TileSide d={dPath()} material={material()} />
               <TileShades tile={props.tile} />
               <TileBody material={material()} />
-              <TileImage cardId={props.tile.cardId} />
+              <TileImage
+                cardId={props.tile.cardId}
+                material={material()}
+                free={canBeSelected()}
+              />
 
               {/* Clickable overlay with hover effect */}
               <path
                 d={dPath()}
                 fill={fillColor()}
                 fill-opacity={fillOpacity()}
-                stroke={getHueColor(material())(40)}
+                stroke={getHueColor(hueFromMaterial(material()))(40)}
                 stroke-width={selected() ? 2 : 1}
                 class={clickableClass({ canBeSelected: canBeSelected() })}
                 onPointerDown={() => {

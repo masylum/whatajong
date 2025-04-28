@@ -41,14 +41,15 @@ export const en = {
     goBack: "Go back home",
   },
   material: {
-    glass: "glass",
-    diamond: "diamond",
+    quartz: "quartz",
+    obsidian: "obsidian",
     jade: "jade",
-    ivory: "ivory",
-    bronze: "bronze",
-    gold: "gold",
+    emerald: "emerald",
+    garnet: "garnet",
+    ruby: "ruby",
+    topaz: "topaz",
+    sapphire: "sapphire",
     bone: "bone",
-    wood: "wood",
   },
   suit: {
     f: "Flower",
@@ -61,9 +62,10 @@ export const en = {
     p: "Phoenix",
     j: "Joker",
     m: "Mutation",
-    t: "Tip",
+    t: "Trigram",
     e: "Element",
     a: "Astronomer",
+    g: "Gemstone",
   },
   windDirections: {
     n: "north",
@@ -88,7 +90,10 @@ export const en = {
     p: "{{color}} Phoenix",
     r: "{{color}} Rabbit",
     e: "{{color}} Element",
-    t: "{{color}} Tip",
+    gr: "Ruby",
+    gg: "Emerald",
+    gb: "Sapphire",
+    gk: "Diamond",
   },
   tutorial: {
     title: "Tutorial: {{stage}}",
@@ -143,9 +148,7 @@ export const en = {
     material1: "Buy three of the same tile to upgrade the material.",
     material2: "Buy three upgraded tiles to upgrade the material.",
     material3: "Different materials have different characteristics:",
-    materialGlass: "easier to clear",
-    materialIvory: "give more points.",
-    materialBronze: "give coins.",
+    materialBone: "easier to clear",
   },
   mode: {
     title: "Welcome to the adventure!",
@@ -228,9 +231,10 @@ export const en = {
       joker:
         "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any color and any number.",
       element:
-        "Every Element tile on the board gives all tiles of its color bonus points.<br />If the Element tile is free on at least one side, it grants an additional bonus.",
+        "Every Element tile on the board gives all tiles of its color bonus points.<br />While an Element tile is free, it grants an additional bonus.",
       trigram:
-        "Each Trigram tile on the board gives all tiles of its number bonus points.<br />If the Trigram tile is free on at least one side, it grants an additional bonus.",
+        "Each Trigram tile on the board gives all tiles of its number bonus points.<br />While an Trigram tile is free, it grants an additional bonus.",
+      gem: "When you clear this tile, all tiles of its color turn into its material until the next clearing.",
     },
   },
   runSelect: {

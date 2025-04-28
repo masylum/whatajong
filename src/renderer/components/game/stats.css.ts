@@ -83,15 +83,15 @@ const pulseMild = keyframes({
 const pulseModerate = keyframes({
   "0%": {
     transform: "scale(0.9) translate(50%, 50%)",
-    boxShadow: `0 0 0 0 ${alpha(color.bronze60, 0.2)}`,
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0.2)}`,
   },
   "50%": {
     transform: "scale(1) translate(50%, 50%)",
-    boxShadow: `0 0 10px 100px ${alpha(color.bronze60, 0)}`,
+    boxShadow: `0 0 10px 100px ${alpha(color.bone60, 0)}`,
   },
   "100%": {
     transform: "scale(0.9) translate(50%, 50%)",
-    boxShadow: `0 0 0 0 ${alpha(color.bronze60, 0)}`,
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0)}`,
   },
 })
 
@@ -155,9 +155,9 @@ export const movesClass = recipe({
         },
       },
       moderate: {
-        color: color.bronze30,
+        color: color.bone30,
         "::before": {
-          background: `radial-gradient(circle, ${alpha(color.bronze60, 0.3)}, ${alpha(color.bronze60, 0)})`,
+          background: `radial-gradient(circle, ${alpha(color.bone60, 0.3)}, ${alpha(color.bone60, 0)})`,
           animation: `${pulseModerate} 1.5s infinite ease-in-out`,
         },
       },

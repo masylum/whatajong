@@ -100,7 +100,7 @@ export const areaTitleClass = recipe({
   },
 })
 
-export const pillClass = style({
+export const coinsClass = style({
   fontFamily: primary,
   fontVariantLigatures: "none",
   display: "inline-block",

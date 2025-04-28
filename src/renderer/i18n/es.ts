@@ -41,14 +41,15 @@ export const es = {
     goBack: "Volver al inicio",
   },
   material: {
-    glass: "cristal",
-    diamond: "diamante",
+    quartz: "cuarzo",
+    obsidian: "obsidiana",
     jade: "jade",
-    ivory: "marfil",
-    bronze: "bronce",
-    gold: "oro",
+    emerald: "esmeralda",
+    garnet: "garnet",
+    ruby: "rubí",
+    topaz: "topaz",
+    sapphire: "zafiro",
     bone: "hueso",
-    wood: "madera",
   },
   suit: {
     f: "Flor",
@@ -64,6 +65,7 @@ export const es = {
     e: "Elemento",
     t: "Trigrama",
     a: "Astrónoma",
+    g: "Gema",
   },
   windDirections: {
     n: "norte",
@@ -88,7 +90,10 @@ export const es = {
     p: "Fénix {{color}}",
     r: "Conejo {{color}}",
     e: "Elemento {{color}}",
-    t: "Trigrama {{color}}",
+    gr: "Rubí",
+    gg: "Esmeralda",
+    gb: "Zafiro",
+    gk: "Diamante",
   },
   tutorial: {
     title: "Tutorial: {{stage}}",
@@ -144,9 +149,7 @@ export const es = {
     material1: "C‌ompra tres fichas iguales para mejorar su material.",
     material2: "C‌ompra tres fichas mejoradas para mejorar aún más su material.",
     material3: "Los distintos materiales tienen características diferentes:",
-    materialGlass: "son más fáciles de despejar",
-    materialIvory: "dan más puntos.",
-    materialBronze: "dan monedas.",
+    materialBone: "son más fáciles de despejar",
   },
   mode: {
     title: "¡Bienvenido a la aventura!",
@@ -234,6 +237,7 @@ export const es = {
         "Cada ficha Elemento otorga +1 punto a todas las fichas de su color mientras esté visible en el tablero.<br />Si la ficha Elemente está libre en al menos un lado, otorga un bonus adicional.",
       trigram:
         "Cada ficha Trigrama otorga +1 punto a todas las fichas de su número mientras esté visible en el tablero.<br />Si la ficha Trigram está libre en al menos un lado, otorga un bonus adicional.",
+      gem: "Cuando despejas esta ficha, todas las fichas de su color se convierten en su material hasta el siguiente despeje.",
     },
   },
   runSelect: {

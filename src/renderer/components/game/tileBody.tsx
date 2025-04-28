@@ -1,6 +1,6 @@
-import { type Material, isTransparent } from "@/lib/game"
+import { type Material, isShiny, opacity } from "@/lib/game"
 import { useTileSize } from "@/state/constants"
-import { getHueColor } from "@/styles/colors"
+import { getHueColor, hueFromMaterial } from "@/styles/colors"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
 
@@ -22,6 +22,12 @@ export function TileBody(iProps: Props) {
   )
   const fill = createMemo(() => MATERIALS[props.material].body)
   const corner = createMemo(() => tileSize().corner)
+  const shiny = createMemo(() => isShiny(props.material))
+  const strokeShade = createMemo(() => {
+    if (props.material === "bone") return 90
+    if (shiny()) return 60
+    return 80
+  })
 
   return (
     <>
@@ -36,8 +42,8 @@ export function TileBody(iProps: Props) {
           v ${-props.height + 2 * corner()}
           a ${corner()} ${corner()} 0 0 1 ${corner()} -${corner()}
           Z`}
-        fill-opacity={isTransparent(props.material) ? 0.6 : 1}
-        stroke={getHueColor(props.material)(90)}
+        fill-opacity={opacity(props.material)}
+        stroke={getHueColor(hueFromMaterial(props.material))(strokeShade())}
         fill={`url(#${fill()})`}
       />
     </>

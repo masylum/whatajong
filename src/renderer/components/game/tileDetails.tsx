@@ -27,11 +27,11 @@ export function MaterialFreedom(iProps: {
   material: Material
   hue?: AccentHue
 }) {
-  const props = mergeProps({ hue: "bronze" as const }, iProps)
+  const props = mergeProps({ hue: "bone" as const }, iProps)
   const t = useTranslation()
 
   return (
-    <Show when={props.material === "glass" || props.material === "diamond"}>
+    <Show when={props.material === "quartz" || props.material === "obsidian"}>
       <div class={detailFreedomClass({ hue: props.hue })}>
         {t.tileDetails.freedom.relaxed()}
       </div>
@@ -70,25 +70,23 @@ export function Explanation(props: { cardId: CardId }) {
         </div>
       </Match>
       <Match when={isMutation(props.cardId)}>
-        {(mutationCard) => (
-          <div class={detailInfoClass}>
-            <p>{t.tileDetails.explanation[mutationCard().id]()}</p>
-          </div>
-        )}
+        <div class={detailInfoClass}>
+          <p innerHTML={t.tileDetails.explanation.mutation()} />
+        </div>
       </Match>
       <Match when={isJoker(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.joker()}</p>
+          <p innerHTML={t.tileDetails.explanation.joker()} />
         </div>
       </Match>
       <Match when={isElement(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.element()}</p>
+          <p innerHTML={t.tileDetails.explanation.element()} />
         </div>
       </Match>
       <Match when={isTrigram(props.cardId)}>
         <div class={detailInfoClass}>
-          <p>{t.tileDetails.explanation.trigram()}</p>
+          <p innerHTML={t.tileDetails.explanation.trigram()} />
         </div>
       </Match>
     </Switch>

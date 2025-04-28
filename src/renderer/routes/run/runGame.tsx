@@ -101,7 +101,10 @@ export default function RunGame() {
   // Cheat Code!
   createShortcut(["Shift", "K"], () => {
     console.log("cheat!")
-    const pairs = getAvailablePairs(tiles(), game)[0]
+    const pairs = getAvailablePairs(tiles(), game).sort(
+      // remove top to bottom, since this is the easiest heuristic to solve the game
+      (a, b) => b[0]!.z + b[1]!.z - (a[0]!.z + a[1]!.z),
+    )[0]
     if (!pairs) return
     for (const tile of pairs) {
       selectTile({ tileDb: tiles(), game, tileId: tile.id })
@@ -111,10 +114,6 @@ export default function RunGame() {
 
   onMount(() => {
     play("gong")
-  })
-
-  createEffect(() => {
-    console.log(JSON.stringify(game))
   })
 
   return (
