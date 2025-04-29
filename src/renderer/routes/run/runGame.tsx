@@ -106,7 +106,7 @@ export default function RunGame() {
     createEffect((prevCombo: number) => {
       const combo = getCombo()
 
-      if (combo === 0) {
+      if (prevCombo && !combo) {
         play(endSound)
       } else if (combo > prevCombo) {
         setComboAnimation(combo)
