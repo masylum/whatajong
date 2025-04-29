@@ -19,6 +19,17 @@ export const fromBelowAnimation = keyframes({
   },
 })
 
+export const fromAboveAnimation = keyframes({
+  from: {
+    transform: "translateY(-50%) scale(0.8)",
+    opacity: 0,
+  },
+  to: {
+    transform: "translateY(0) scale(1)",
+    opacity: 1,
+  },
+})
+
 export const fromLeftAnimation = keyframes({
   from: {
     transform: "translateX(-200%) scale(0.8)",
@@ -39,4 +50,16 @@ export const tileFallingAnimation = keyframes({
     transform: "translateY(0) translateX(0) scale(1)",
     opacity: 1,
   },
+})
+
+export const floatAnimation = keyframes({
+  "0%": { transform: "translateY(0px) rotate(0deg)" },
+  "50%": { transform: "translateY(-15px) rotate(5deg)" },
+  "100%": { transform: "translateY(0px) rotate(0deg)" },
+})
+
+export const mildFloatAnimation = keyframes({
+  "0%": { transform: "translateY(0px) rotate(0deg)" },
+  "50%": { transform: "translateY(-5px) rotate(3deg)" },
+  "100%": { transform: "translateY(0px) rotate(0deg)" },
 })

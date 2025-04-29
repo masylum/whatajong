@@ -1,6 +1,10 @@
-import { ANIMATION_SLOW } from "@/styles/animations.css"
-import { ANIMATION_MEDIUM } from "@/styles/animations.css"
-import { fromBelowAnimation } from "@/styles/animations.css"
+import {
+  ANIMATION_MEDIUM,
+  ANIMATION_SLOW,
+  easeBounce,
+  fromAboveAnimation,
+  fromBelowAnimation,
+} from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
@@ -15,6 +19,10 @@ export const gameOverClass = style({
   justifyContent: "space-between",
   gap: 32,
   backgroundImage: "url(/halftone.png)",
+  width: "100dvw",
+  height: "100dvh",
+  position: "relative",
+  overflow: "hidden",
   "@media": {
     [mediaQuery({ p: "xl", l: "l" })]: {
       flexDirection: "row",
@@ -132,41 +140,32 @@ export const bouncingCardClass = style({
 
 export const screenClass = recipe({
   base: {
-    width: "100dvw",
-    height: "100dvh",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
-    gap: 12,
+    gap: 32,
+    width: "100%",
+    height: "100%",
     "@media": {
-      [mediaQuery({ p: "s", l: "xs" })]: {
-        padding: 24,
-        gap: 24,
-      },
       [mediaQuery({ p: "m", l: "s" })]: {
-        padding: 32,
-        gap: 32,
-      },
-      [mediaQuery({ p: "l", l: "m" })]: {
-        padding: 48,
-        gap: 48,
+        padding: 24,
+        gap: 64,
       },
       [mediaQuery({ p: "xl", l: "l" })]: {
         padding: 64,
-        gap: 64,
       },
     },
   },
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam90, 0.5)}, ${alpha(color.bam80, 0.5)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.1)}, ${alpha(color.bam60, 0.3)})`,
         color: color.bam90,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack90, 0.5)}, ${alpha(color.crack80, 0.5)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.crack60, 0.1)}, ${alpha(color.crack60, 0.3)})`,
         color: color.crack90,
       },
     },
@@ -176,9 +175,10 @@ export const screenClass = recipe({
 export const titleClass = style({
   ...fontSize.h2,
   textAlign: "center",
-  animationName: fromBelowAnimation,
+  animationName: fromAboveAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
+  animationTimingFunction: easeBounce,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h1,
@@ -192,10 +192,10 @@ export const titleClass = style({
   },
   selectors: {
     [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bam30,
+      color: color.bam40,
     },
     [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.crack30,
+      color: color.crack40,
     },
   },
 })
@@ -228,31 +228,30 @@ export const detailListClass = recipe({
     width: "100%",
     rowGap: 8,
     columnGap: 32,
-    padding: 8,
+    padding: 12,
     borderRadius: 8,
-    animationName: fromBelowAnimation,
-    animationDuration: ANIMATION_MEDIUM,
+    animationName: fromAboveAnimation,
+    animationDuration: ANIMATION_SLOW,
+    animationTimingFunction: easeBounce,
     animationFillMode: "backwards",
     selectors: {
       "&:first-child": {
-        animationDelay: "100ms",
-      },
-      "&:nth-child(2)": {
         animationDelay: "200ms",
       },
+      "&:nth-child(2)": {
+        animationDelay: "400ms",
+      },
       "&:nth-child(3)": {
-        animationDelay: "300ms",
+        animationDelay: "600ms",
       },
       "&:nth-child(4)": {
-        animationDelay: "400ms",
+        animationDelay: "800ms",
       },
     },
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
         rowGap: 12,
         columnGap: 48,
-        padding: 12,
-        borderRadius: 8,
       },
       [mediaQuery({ p: "l", l: "m" })]: {
         rowGap: 16,
@@ -264,22 +263,22 @@ export const detailListClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.1)}, ${alpha(kolor(50), 0.3)})`,
+      background: alpha(kolor(50), 0.1),
     })),
   },
 })
 export const itemKeyClass = style({
-  ...fontSize.l,
+  ...fontSize.m,
   fontFamily: primary,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.h3,
+      ...fontSize.l,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h2,
+      ...fontSize.h3,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      ...fontSize.h1,
+      ...fontSize.h2,
     },
   },
   selectors: hueSelectors(
@@ -291,19 +290,19 @@ export const itemKeyClass = style({
 })
 
 export const itemValueClass = style({
-  ...fontSize.l,
+  ...fontSize.m,
   fontFamily: primary,
   justifySelf: "start",
   gridColumnStart: 2,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.h3,
+      ...fontSize.l,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h2,
+      ...fontSize.h3,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      ...fontSize.h1,
+      ...fontSize.h2,
     },
   },
   selectors: hueSelectors(

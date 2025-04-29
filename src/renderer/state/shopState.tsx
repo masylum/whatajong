@@ -23,7 +23,7 @@ const ITEM_COUNT = 5
 const ITEM_POOL_SIZE = 8
 
 export function itemCost(item: TileItem) {
-  return ITEM_COST + Math.ceil((item.level - 1) / 3)
+  return ITEM_COST + item.level - 1
 }
 
 const PATHS = {

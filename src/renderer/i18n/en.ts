@@ -39,6 +39,7 @@ export const en = {
     unmuteSoundEffects: "Unmute sound effects",
     restart: "Restart the game",
     restartRun: "Restart adventure",
+    newRun: "New adventure",
     goBack: "Go back home",
   },
   material: {
@@ -108,20 +109,20 @@ export const en = {
       materials: "materials",
     },
     tiles1:
-      "The goal of <span class={{{whatajongClass}}}>Whatajong</span> is to clear all the tiles from the board, scoring as many points as possible.",
-    tiles2: "Your deck contains tiles of three suits:",
+      "The goal of <span class={{{whatajongClass}}}>Whatajong</span> is to clear all the tiles from the board, sc‌oring as many points as possible.",
+    tiles2: "Your deck c‌ontains tiles of three suits:",
     tiles3: "To clear tiles, you need to match a pair of identical tiles.",
     clearing1:
       "A tile can be selected if it has no other tile on top of it and has at least one free side (left or right).",
     clearing2: "Example of free tiles highlighted in green.",
-    clearing3: "When clearing a pair of tiles, you score points.",
+    clearing3: "When clearing a pair of tiles, you sc‌ore points.",
     clearing4: "2 points!",
     dragons1: "There are 3 dragons, one of each suit.",
     dragons2: "Clear dragon tiles to start a <strong>Dragon Run</strong>.",
     dragons3:
       "Clearing tiles from another suit will break the <strong>Dragon Run</strong>.",
     dragons4:
-      "When a <strong>Dragon Run</strong> is active, clearing tiles from the dragon's suit will multiply your score.",
+      "When a <strong>Dragon Run</strong> is active, clearing tiles from the dragon's suit will multiply your sc‌ore.",
     seasonsAndFlowers1:
       "Winds move the tiles on the board towards a direction:",
     seasonsAndFlowers2:
@@ -129,13 +130,13 @@ export const en = {
     seasonsAndFlowers3:
       "Clearing Flowers & Seasons will allow you in the next move, to clear tiles with only one open side.",
     board1:
-      "The points indicator shows you how many points have you scored so far.",
+      "The points indicator shows you how many points have you sc‌ored so far.",
     board2:
       "The penalty indicator shows you how many points have you lost due to time passing by.",
     board3:
       "The moves indicator, shows you how many moves you have left. If it reaches 0, the board is unsolvable and you have lost the game.",
     shop1:
-      "Every round you yield 1 coin per tile on your deck. Spend them on the shop to buy new tiles and crew members.",
+      "Every round you yield 1 c‌oin per tile on your deck. Spend them on the shop to buy new tiles and crew members.",
     shop2: "Reroll to get new items in the shop.",
     shop3:
       "If there is something you like, but you can't afford it, freeze the items until next round.",
@@ -144,14 +145,14 @@ export const en = {
     upgrade2:
       "Each shop level increases your crew and deck capacity. More tiles, more points!",
     upgrade3:
-      "Upgrading your shop also increases your yield, so you can earn more coins each round.",
+      "Upgrading your shop also increases your yield, so you can earn more c‌oins each round.",
     material1: "Buy three of the same tile to upgrade the material.",
     material2: "Buy three upgraded tiles to upgrade the material.",
     material3: "Different materials have different characteristics:",
     materialBone: "easier to clear",
   },
   mode: {
-    title: "Welcome to the adventure!",
+    title: "Welc‌ome to the adventure!",
     subtitle: "Select a difficulty mode",
     easy: {
       title: "Cruising Along",
@@ -192,17 +193,17 @@ export const en = {
     overachiever: "Over achiever ({{percent}} %)",
     trySameRun: "Try again",
     noPairs: "You ran out of moves",
-    notEnoughPoints: "You didn't score enough points",
+    notEnoughPoints: "You didn't sc‌ore enough points",
   },
   shop: {
     upgrade: {
       title: "Upgrade available!",
       description:
-        "Collecting 3 identical pairs of tiles lets you upgrade them into a stronger version.",
+        "C‌ollecting 3 identical pairs of tiles lets you upgrade them into a stronger version.",
       button: "upgrade",
       easierToMatch: "easier to match",
       morePoints: "more points",
-      getCoins: "get coins",
+      getCoins: "get c‌oins",
     },
     deckCapacity: "deck capacity:",
     newTiles: "new tiles:",
@@ -215,13 +216,13 @@ export const en = {
     },
     explanation: {
       wind: "When cleared, a breeze moves the tiles towards the cardinal direction.",
-      rabbit: "Rabbit tiles grant you one coin for each point they score.",
+      rabbit: "Rabbit tiles grant you one c‌oin for each point they sc‌ore.",
       flower:
         "Flower tiles are red, green and blue.<br />Flowers can be matched with any other flower tile.",
       dragon:
-        "Clear dragon tiles to start a <strong>Dragon Run</strong>.<br />While the <strong>Dragon Run</strong> is active, clear tiles of the Dragon's color to score more points.",
+        "Clear dragon tiles to start a <strong>Dragon Run</strong>.<br />While the <strong>Dragon Run</strong> is active, clear tiles of the Dragon's c‌olor to sc‌ore more points.",
       phoenix:
-        "Clear phoenix tiles to start a <strong>Phoenix Run</strong>.<br />While the <strong>Phoenix Run</strong> is active, clear consecutive numbers to score more points.",
+        "Clear phoenix tiles to start a <strong>Phoenix Run</strong>.<br />While the <strong>Phoenix Run</strong> is active, clear c‌onsecutive numbers to sc‌ore more points.",
       mutation:
         "Mutation tiles allow you to change the tiles on your board: Swap their suit or increase/decrease their number.",
       m1: "Swap all the Cracks (::c::) and Bams (::b::) tiles on your board.",
@@ -230,12 +231,12 @@ export const en = {
       m4: "Decrease the number of all the tiles on your board.",
       m5: "Increase the number of all the tiles on your board.",
       joker:
-        "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any color and any number.",
+        "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any c‌olor and any number.",
       element:
-        "Every Element tile on the board gives all tiles of its color bonus points.<br />While an Element tile is free, it grants an additional bonus.",
+        "Every Element tile on the board gives all tiles of its c‌olor bonus points.<br />While an Element tile is free, it grants an additional bonus.",
       trigram:
         "Each Trigram tile on the board gives all tiles of its number bonus points.<br />While an Trigram tile is free, it grants an additional bonus.",
-      gem: "When you clear this tile, all tiles of its color turn into its material until the next clearing.",
+      gem: "When you clear this tile, all tiles of its c‌olor turn into its material until the next clearing.",
     },
   },
   runSelect: {

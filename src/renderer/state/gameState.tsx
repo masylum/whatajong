@@ -2,7 +2,7 @@ import type { Color, Material } from "@/lib/game"
 import { type ParentProps, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-const GAME_STATE_NAMESPACE = "game-state-v2"
+export const GAME_STATE_NAMESPACE = "game-state-v2"
 
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 

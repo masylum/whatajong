@@ -334,7 +334,7 @@ export function isTrigram(cardId: CardId) {
   return checkSuit(cardId, "t")
 }
 
-function isGem(cardId: CardId) {
+export function isGem(cardId: CardId) {
   return checkSuit(cardId, "g")
 }
 
@@ -453,7 +453,7 @@ export function getFinder(tileDb: TileDb, position: Position) {
   }
 }
 
-function isCovered(tileDb: TileDb, tile: Tile) {
+export function isCovered(tileDb: TileDb, tile: Tile) {
   return overlaps(tileDb, tile, 1)
 }
 
@@ -703,71 +703,71 @@ export const dragons = [
 type DragonCard = (typeof dragons)[number]
 
 export const rabbits = [
-  { id: "rr", suit: "r", rank: "r", colors: ["r"], points: 1, level: 4 },
-  { id: "rg", suit: "r", rank: "g", colors: ["g"], points: 1, level: 4 },
-  { id: "rb", suit: "r", rank: "b", colors: ["b"], points: 1, level: 4 },
+  { id: "rr", suit: "r", rank: "r", colors: ["r"], points: 1, level: 5 },
+  { id: "rg", suit: "r", rank: "g", colors: ["g"], points: 1, level: 5 },
+  { id: "rb", suit: "r", rank: "b", colors: ["b"], points: 1, level: 5 },
 ] as const
 type RabbitCard = (typeof rabbits)[number]
 
 // biome-ignore format:
 export const flowers = [
-  { id: "f1", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 5, },
-  { id: "f2", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 5, },
-  { id: "f3", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 5, },
+  { id: "f1", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
+  { id: "f2", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
+  { id: "f3", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
 ] as const
 type FlowerCard = (typeof flowers)[number]
 
 const phoenixes = [
-  { id: "pr", suit: "p", rank: "r", colors: ["r"], points: 2, level: 6 },
-  { id: "pg", suit: "p", rank: "g", colors: ["g"], points: 2, level: 6 },
-  { id: "pb", suit: "p", rank: "b", colors: ["b"], points: 2, level: 6 },
+  { id: "pr", suit: "p", rank: "r", colors: ["r"], points: 2, level: 9 },
+  { id: "pg", suit: "p", rank: "g", colors: ["g"], points: 2, level: 9 },
+  { id: "pb", suit: "p", rank: "b", colors: ["b"], points: 2, level: 9 },
 ] as const
 type PhoenixCard = (typeof phoenixes)[number]
 
 // biome-ignore format:
 const mutations = [
-  { id: "m1", suit: "m", rank: "", colors: ["r", "g"], points: 2, level: 7 },
-  { id: "m2", suit: "m", rank: "", colors: ["b", "r"], points: 2, level: 7 },
-  { id: "m3", suit: "m", rank: "", colors: ["g", "b"], points: 2, level: 7 },
-  { id: "m4", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 7 },
-  { id: "m5", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 7 },
+  { id: "m1", suit: "m", rank: "", colors: ["r", "g"], points: 2, level: 11 },
+  { id: "m2", suit: "m", rank: "", colors: ["b", "r"], points: 2, level: 11 },
+  { id: "m3", suit: "m", rank: "", colors: ["g", "b"], points: 2, level: 11 },
+  { id: "m4", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 11 },
+  { id: "m5", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 11 },
 ] as const
 type MutationCard = (typeof mutations)[number]
 
-// biome-ignore format:
-export const jokers = [
-  { id: "j1", suit: "j", rank: "x", colors: ["g", "r", "b", "k"], points: 4, level: 8 },
-] as const
-type JokerCard = (typeof jokers)[number]
-
 const elements = [
-  { id: "er", suit: "e", rank: "r", colors: ["r"], points: 4, level: 9 },
-  { id: "eg", suit: "e", rank: "g", colors: ["g"], points: 4, level: 9 },
-  { id: "eb", suit: "e", rank: "b", colors: ["b"], points: 4, level: 9 },
-  { id: "ek", suit: "e", rank: "k", colors: ["k"], points: 4, level: 9 },
+  { id: "er", suit: "e", rank: "r", colors: ["r"], points: 4, level: 13 },
+  { id: "eg", suit: "e", rank: "g", colors: ["g"], points: 4, level: 13 },
+  { id: "eb", suit: "e", rank: "b", colors: ["b"], points: 4, level: 13 },
+  { id: "ek", suit: "e", rank: "k", colors: ["k"], points: 4, level: 13 },
 ] as const
 type ElementCard = (typeof elements)[number]
 
 const trigrams = [
-  { id: "t1", suit: "t", rank: "1", colors: ["k"], points: 2, level: 10 },
-  { id: "t2", suit: "t", rank: "2", colors: ["k"], points: 2, level: 10 },
-  { id: "t3", suit: "t", rank: "3", colors: ["k"], points: 2, level: 10 },
-  { id: "t4", suit: "t", rank: "4", colors: ["k"], points: 2, level: 10 },
-  { id: "t5", suit: "t", rank: "5", colors: ["k"], points: 2, level: 10 },
-  { id: "t6", suit: "t", rank: "6", colors: ["k"], points: 2, level: 10 },
-  { id: "t7", suit: "t", rank: "7", colors: ["k"], points: 2, level: 10 },
-  { id: "t8", suit: "t", rank: "8", colors: ["k"], points: 2, level: 10 },
-  { id: "t9", suit: "t", rank: "9", colors: ["k"], points: 2, level: 10 },
+  { id: "t1", suit: "t", rank: "1", colors: ["k"], points: 2, level: 15 },
+  { id: "t2", suit: "t", rank: "2", colors: ["k"], points: 2, level: 15 },
+  { id: "t3", suit: "t", rank: "3", colors: ["k"], points: 2, level: 15 },
+  { id: "t4", suit: "t", rank: "4", colors: ["k"], points: 2, level: 15 },
+  { id: "t5", suit: "t", rank: "5", colors: ["k"], points: 2, level: 15 },
+  { id: "t6", suit: "t", rank: "6", colors: ["k"], points: 2, level: 15 },
+  { id: "t7", suit: "t", rank: "7", colors: ["k"], points: 2, level: 15 },
+  { id: "t8", suit: "t", rank: "8", colors: ["k"], points: 2, level: 15 },
+  { id: "t9", suit: "t", rank: "9", colors: ["k"], points: 2, level: 15 },
 ] as const
 type TrigramCard = (typeof trigrams)[number]
 
 const gems = [
-  { id: "gr", suit: "g", rank: "r", colors: ["r"], points: 8, level: 11 },
-  { id: "gg", suit: "g", rank: "g", colors: ["g"], points: 8, level: 11 },
-  { id: "gb", suit: "g", rank: "b", colors: ["b"], points: 8, level: 11 },
-  { id: "gk", suit: "g", rank: "k", colors: ["k"], points: 8, level: 11 },
+  { id: "gr", suit: "g", rank: "r", colors: ["r"], points: 8, level: 17 },
+  { id: "gg", suit: "g", rank: "g", colors: ["g"], points: 8, level: 17 },
+  { id: "gb", suit: "g", rank: "b", colors: ["b"], points: 8, level: 17 },
+  { id: "gk", suit: "g", rank: "k", colors: ["k"], points: 8, level: 17 },
 ] as const
 type GemCard = (typeof gems)[number]
+
+// biome-ignore format:
+export const jokers = [
+  { id: "j1", suit: "j", rank: "x", colors: ["g", "r", "b", "k"], points: 4, level: 19 },
+] as const
+type JokerCard = (typeof jokers)[number]
 
 export type WindDirection = "n" | "s" | "e" | "w"
 export type Card =

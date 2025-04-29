@@ -13,14 +13,14 @@ export const TUTORIAL_SEED = "tutorial-seed"
 export const REWARDS = {
   2: "w",
   3: "d",
-  4: "r",
-  5: "f",
-  6: "p",
-  7: "m",
-  8: "j",
-  9: "e",
-  10: "t",
-  11: "g",
+  5: "r",
+  7: "f",
+  9: "p",
+  11: "m",
+  13: "e",
+  15: "t",
+  17: "g",
+  19: "j",
 } as const
 
 export type RunState = {
@@ -32,6 +32,7 @@ export type RunState = {
   difficulty?: Difficulty
   createdAt: number
   retries: number
+  attempts: number
   totalPoints: number
   freeze?: {
     round: number
@@ -86,20 +87,22 @@ export function createRunState(params: CreateRunStateParams) {
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
-    init: () => {
-      return {
-        runId: params.id(),
-        money: 0,
-        round: 1,
-        reward: 1,
-        stage: "intro",
-        retries: 0,
-        totalPoints: 0,
-        createdAt: Date.now(),
-        items: [],
-      }
-    },
+    init: () => initialRunState(params.id()),
   })
+}
+
+export function initialRunState(id: string): RunState {
+  return {
+    runId: id,
+    money: 0,
+    round: 1,
+    stage: "intro",
+    retries: 0,
+    attempts: 0,
+    totalPoints: 0,
+    createdAt: Date.now(),
+    items: [],
+  }
 }
 
 const DIFFICULTY = {
@@ -146,4 +149,8 @@ export function generateRound(id: number, run: RunState): Round {
 
 export function calculateIncome(run: RunState) {
   return 3 + run.round
+}
+
+export function roundPersistentKey(run: RunState) {
+  return `${run.runId}-${run.round}-${run.attempts}`
 }

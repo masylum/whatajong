@@ -77,7 +77,6 @@ import {
   pairClass,
   rotation,
   shopClass,
-  shopContainerClass,
   shopHeaderClass,
   shopHeaderItemsClass,
   shopItemButtonClass,
@@ -439,7 +438,7 @@ function Deck() {
   )
 
   return (
-    <div class={areaClass({ hue: "dot" })}>
+    <div class={areaClass({ hue: "dot", full: true })}>
       <div class={areaTitleClass({ hue: "dot" })}>
         {t.common.deck()}
         {" ("}
@@ -516,7 +515,7 @@ function Items() {
   }
 
   return (
-    <div class={shopContainerClass}>
+    <div class={areaClass({ hue: "crack" })}>
       <div class={areaTitleClass({ hue: "crack" })}>
         {t.common.shop()}
         <span class={coinsClass}>${run.money}</span>

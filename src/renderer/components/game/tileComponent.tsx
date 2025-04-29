@@ -5,6 +5,7 @@ import {
   isDragon,
   isElement,
   isFree,
+  isGem,
   isJoker,
   isMutation,
   isPhoenix,
@@ -138,7 +139,7 @@ export function TileComponent(iProps: Props) {
   createEffect((prevSource: string) => {
     const source = mutateSource()
 
-    if (source !== prevSource) {
+    if (source !== prevSource && !props.tile.deleted) {
       setAnimation("mutate")
       setTimeout(() => {
         setAnimation(undefined)
@@ -185,6 +186,8 @@ export function TileComponent(iProps: Props) {
         play("mutation")
       } else if (isJoker(props.tile.cardId)) {
         play("joker")
+      } else if (isGem(props.tile.cardId)) {
+        play("gemstone")
       } else {
         play("ding")
       }
@@ -193,10 +196,13 @@ export function TileComponent(iProps: Props) {
       setTimeout(() => {
         setAnimation(undefined)
         setDeleted(true)
-        if (props.tile.coins) {
-          play("coin")
-        }
       }, FLOATING_NUMBER_DURATION)
+
+      if (props.tile.coins) {
+        setTimeout(() => {
+          play("coin")
+        }, 100)
+      }
     }
 
     return currentState
@@ -219,17 +225,6 @@ export function TileComponent(iProps: Props) {
             {(points) => <span class={scorePointsClass}>+{points()}</span>}
           </Show>
         </div>
-      </Show>
-      <Show when={pulsingColor()}>
-        {(color) => (
-          <div
-            class={pulseClass({ hue: hueFromColor(color()) })}
-            style={{
-              left: `${coords().x + tileSize().width / 2}px`,
-              top: `${coords().y + tileSize().height / 2}px`,
-            }}
-          />
-        )}
       </Show>
       <Show when={!deleted()}>
         <div
@@ -284,6 +279,20 @@ export function TileComponent(iProps: Props) {
             </g>
           </svg>
         </div>
+      </Show>
+      <Show when={pulsingColor()}>
+        {(color) => (
+          <div
+            class={pulseClass({ hue: hueFromColor(color()) })}
+            style={{
+              left: `${coords().x + tileSize().width / 2}px`,
+              top: `${coords().y + tileSize().height / 2}px`,
+              "z-index": zIndex(),
+              width: `${tileSize().width}px`,
+              height: `${tileSize().height}px`,
+            }}
+          />
+        )}
       </Show>
     </>
   )

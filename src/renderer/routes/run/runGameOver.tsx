@@ -7,15 +7,25 @@ import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { initialGameState, useGameState } from "@/state/gameState"
-import { setMutable } from "@/state/persistantMutable"
+import {
+  GAME_STATE_NAMESPACE,
+  initialGameState,
+  useGameState,
+} from "@/state/gameState"
+import { cleanMutable, setMutable } from "@/state/persistantMutable"
+import { cleanPersistentDatabase } from "@/state/persistentDatabase"
 import {
   REWARDS,
   calculateIncome,
+  roundPersistentKey,
   useRound,
   useRunState,
 } from "@/state/runState"
-import { initializeTileState, useTileState } from "@/state/tileState"
+import {
+  TILE_STATE_NAMESPACE,
+  initializeTileState,
+  useTileState,
+} from "@/state/tileState"
 import type { AccentHue } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
@@ -58,7 +68,6 @@ const DEFEAT_TITLES = [ "defeat", "gameOver", "oops", "failed", "crushed", "wast
 export default function RunGameOver() {
   const run = useRunState()
   const round = useRound()
-  const id = createMemo(() => `${run.runId}-${round().id}`)
   const game = useGameState()
   const deck = useDeckState()
   const tiles = useTileState()
@@ -108,15 +117,19 @@ export default function RunGameOver() {
       run.stage = isRewardRound() ? "reward" : "shop"
       run.money += income() + tileCoins() + overAchievementCoins()
       run.totalPoints += totalPoints()
+
+      const key = roundPersistentKey(run)
+      cleanMutable(GAME_STATE_NAMESPACE, key)
+      cleanPersistentDatabase(TILE_STATE_NAMESPACE, key)
     })
   }
 
   function retrySameRound() {
     batch(() => {
       run.retries += 1
+      const key = roundPersistentKey(run)
       setMutable(game, initialGameState())
-      tiles.update({})
-      initializeTileState(id(), deck.all, tiles)
+      initializeTileState(key, deck.all, tiles)
     })
   }
 
@@ -175,35 +188,34 @@ export default function RunGameOver() {
             <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
             <Item label={t.common.objective()}>{round().pointObjective}</Item>
           </List>
-
-          <div class={buttonsClass}>
-            <Show
-              when={win()}
-              fallback={
-                <Button hue="bam" onClick={retrySameRound}>
-                  {t.gameOver.trySameRun()}
-                  <Rotate />
-                </Button>
-              }
-            >
-              <Button hue="bam" onClick={() => goToNextRound()}>
-                <Show
-                  when={isRewardRound()}
-                  fallback={
-                    <>
-                      <Shop />
-                      {t.common.goToShop()}
-                    </>
-                  }
-                >
-                  <>
-                    {t.common.next()}
-                    <ArrowRight />
-                  </>
-                </Show>
+        </div>
+        <div class={buttonsClass}>
+          <Show
+            when={win()}
+            fallback={
+              <Button hue="bam" onClick={retrySameRound}>
+                {t.gameOver.trySameRun()}
+                <Rotate />
               </Button>
-            </Show>
-          </div>
+            }
+          >
+            <Button hue="bam" onClick={() => goToNextRound()}>
+              <Show
+                when={isRewardRound()}
+                fallback={
+                  <>
+                    <Shop />
+                    {t.common.goToShop()}
+                  </>
+                }
+              >
+                <>
+                  {t.common.next()}
+                  <ArrowRight />
+                </>
+              </Show>
+            </Button>
+          </Show>
         </div>
         <Show when={!win()}>
           <div class={gameOverInfoClass}>

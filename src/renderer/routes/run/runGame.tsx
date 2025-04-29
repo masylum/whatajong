@@ -12,25 +12,30 @@ import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
 import { TileComponent } from "@/components/game/tileComponent"
 import { GameTutorial } from "@/components/gameTutorial"
-import { Bell, Gear, Help, Home, Rotate } from "@/components/icon"
-import { BellOff } from "@/components/icon"
+import { ArrowRight, Gear, Help, Home, Rotate } from "@/components/icon"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type Tile,
   type TileDb,
   getAvailablePairs,
+  isWind,
   selectTile,
 } from "@/lib/game"
 import { useLayoutSize } from "@/state/constants"
-import { useDeckState } from "@/state/deckState"
+import { initializeDeckState, useDeckState } from "@/state/deckState"
 import {
   GameStateProvider,
   createGameState,
   useGameState,
 } from "@/state/gameState"
-import { useGlobalState } from "@/state/globalState"
-import { useRound, useRunState } from "@/state/runState"
+import { setMutable } from "@/state/persistantMutable"
+import {
+  initialRunState,
+  roundPersistentKey,
+  useRound,
+  useRunState,
+} from "@/state/runState"
 import {
   TileStateProvider,
   createTileState,
@@ -43,6 +48,7 @@ import {
   type Accessor,
   For,
   Show,
+  batch,
   createEffect,
   createMemo,
   createSelector,
@@ -66,9 +72,8 @@ import RunGameOver from "./runGameOver"
 
 export default function RunGame() {
   const run = useRunState()
-  const round = useRound()
   const deck = useDeckState()
-  const id = createMemo(() => `${run.runId}-${round().id}`)
+  const id = createMemo(() => roundPersistentKey(run))
   const [tutorial, setTutorial] = createSignal(false)
 
   const tiles = createTileState({ id, deck: deck.all })
@@ -93,11 +98,17 @@ export default function RunGame() {
     setInterval,
   )
 
-  function handleComboEffect(getCombo: Accessor<number>, soundEffect: Track) {
-    return createEffect((prevCombo: number) => {
+  function handleComboEffect(
+    getCombo: Accessor<number>,
+    soundEffect: Track,
+    endSound: Track,
+  ) {
+    createEffect((prevCombo: number) => {
       const combo = getCombo()
 
-      if (combo > prevCombo) {
+      if (combo === 0) {
+        play(endSound)
+      } else if (combo > prevCombo) {
         setComboAnimation(combo)
         play(soundEffect)
 
@@ -110,15 +121,23 @@ export default function RunGame() {
     }, getCombo())
   }
 
-  handleComboEffect(getDragonCombo, "grunt")
-  handleComboEffect(getPhoenixCombo, "screech")
+  handleComboEffect(getDragonCombo, "grunt", "end_dragon")
+  handleComboEffect(getPhoenixCombo, "screech", "end_phoenix")
 
   // Cheat Code!
   createShortcut(["Shift", "K"], () => {
     console.log("cheat!")
     const pairs = getAvailablePairs(tiles(), game).sort(
-      // remove top to bottom, since this is the easiest heuristic to solve the game
-      (a, b) => b[0]!.z + b[1]!.z - (a[0]!.z + a[1]!.z),
+      // remove top to bottom and winds last
+      // this is the easiest heuristic to solve the game
+      (a, b) => {
+        const aIsWind = isWind(a[0]!.cardId)
+        const bIsWind = isWind(b[0]!.cardId)
+        if (aIsWind && !bIsWind) return 1
+        if (!aIsWind && bIsWind) return -1
+
+        return b[0]!.z + b[1]!.z - (a[0]!.z + a[1]!.z)
+      },
     )[0]
     if (!pairs) return
     for (const tile of pairs) {
@@ -211,9 +230,9 @@ export default function RunGame() {
 
 function TopRight(props: { setTutorial: (tutorial: boolean) => void }) {
   const run = useRunState()
-  const globalState = useGlobalState()
   const [open, setOpen] = createSignal(false)
   const t = useTranslation()
+  const deck = useDeckState()
 
   // Close the menu when the run changes
   createEffect((prevRunId: string) => {
@@ -223,6 +242,15 @@ function TopRight(props: { setTutorial: (tutorial: boolean) => void }) {
 
     return run.runId
   }, run.runId)
+
+  function onRestartRun() {
+    batch(() => {
+      const attempts = run.attempts + 1
+      setMutable(run, initialRunState(run.runId))
+      run.attempts = attempts
+      initializeDeckState(deck)
+    })
+  }
 
   return (
     <Dialog
@@ -249,31 +277,16 @@ function TopRight(props: { setTutorial: (tutorial: boolean) => void }) {
               </LinkButton>
             </div>
             <div class={dialogItemClass}>
-              <Button
-                type="button"
-                hue="dot"
-                suave
-                title="silence"
-                onClick={() => {
-                  globalState.muted = !globalState.muted
-                }}
-              >
-                <Show when={globalState.muted} fallback={<Bell />}>
-                  <BellOff />
-                </Show>
-                <Show
-                  when={globalState.muted}
-                  fallback={t.settings.muteSoundEffects()}
-                >
-                  {t.settings.unmuteSoundEffects()}
-                </Show>
-              </Button>
+              <LinkButton href={`/run/${nanoid()}`} hue="dot" suave>
+                <ArrowRight />
+                {t.settings.newRun()}
+              </LinkButton>
             </div>
             <div class={dialogItemClass}>
-              <LinkButton href={`/run/${nanoid()}`} hue="crack" suave>
+              <Button hue="crack" suave onClick={onRestartRun}>
                 <Rotate />
                 {t.settings.restartRun()}
-              </LinkButton>
+              </Button>
             </div>
             <div class={dialogItemClass}>
               <Button hue="bone" suave onClick={() => props.setTutorial(true)}>

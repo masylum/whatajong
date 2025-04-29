@@ -5,7 +5,7 @@ import { useParams } from "@solidjs/router"
 import { Match, Switch, createEffect, createMemo, onMount } from "solid-js"
 import { RunStateProvider, createRunState } from "../state/runState"
 import RunGame from "./run/runGame"
-import RunMode from "./run/runMode"
+import RunIntro from "./run/runIntro"
 import RunReward from "./run/runReward"
 import RunShop from "./run/runShop"
 
@@ -31,7 +31,7 @@ export function Run() {
         <ShopStateProvider shop={shop}>
           <Switch>
             <Match when={run.stage === "intro"}>
-              <RunMode />
+              <RunIntro />
             </Match>
             <Match when={run.stage === "game"}>
               <RunGame />

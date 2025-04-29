@@ -31,6 +31,9 @@ const SoundFiles = [
   "freeze",
   "joker",
   "dice",
+  "gemstone",
+  "end_phoenix",
+  "end_dragon",
 ] as const
 export type Track = (typeof SoundFiles)[number]
 

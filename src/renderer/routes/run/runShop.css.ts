@@ -4,6 +4,7 @@ import {
   easeBounce,
   fromBelowAnimation,
   fromLeftAnimation,
+  mildFloatAnimation,
 } from "@/styles/animations.css"
 import { heightQueries, mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
@@ -34,6 +35,7 @@ export const shopClass = style({
   flexDirection: "column",
   margin: "0 auto",
   fontFamily: secondary,
+  background: `linear-gradient(to bottom, ${alpha(color.bone60, 0.1)}, ${alpha(color.bone60, 0.3)})`,
   gap: 12,
   padding: 12,
   height: "100%",
@@ -125,30 +127,6 @@ export const coinsClass = style({
   },
 })
 
-export const shopContainerClass = style({
-  width: "100%",
-  display: "flex",
-  flexDirection: "column",
-  background: `linear-gradient(to bottom, ${alpha(color.crack70, 0.2)}, ${alpha(color.crack70, 0.3)})`,
-  padding: 8,
-  borderRadius: 12,
-  gap: 12,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 20,
-      padding: 12,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 24,
-      padding: 16,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 28,
-      padding: 20,
-    },
-  },
-})
-
 export const shopItemsClass = style({
   display: "flex",
   justifyContent: "center",
@@ -170,12 +148,6 @@ export const shopItemsClass = style({
 })
 
 export const rotation = createVar()
-
-const float = keyframes({
-  "0%": { transform: "translateY(0px) rotate(0deg)" },
-  "50%": { transform: "translateY(-5px) rotate(3deg)" },
-  "100%": { transform: "translateY(0px) rotate(0deg)" },
-})
 
 export const shopItemClass = recipe({
   base: {
@@ -199,7 +171,7 @@ export const shopItemClass = recipe({
         {
           animation: `
             ${ANIMATION_FAST} ease-in-out ${i * 50}ms 1 backwards ${fromLeftAnimation},
-            ${float} 4s ease-in-out ${-i * 1}s infinite
+            ${mildFloatAnimation} 4s ease-in-out ${-i * 1}s infinite
           `,
         },
       ]),
@@ -511,8 +483,7 @@ export const areaClass = recipe({
     display: "flex",
     flexDirection: "column",
     padding: 8,
-    gap: 8,
-    flex: 1,
+    gap: 20,
     borderRadius: 12,
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
@@ -528,8 +499,13 @@ export const areaClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(70), 0.2)}, ${alpha(kolor(70), 0.3)})`,
+      background: alpha(kolor(70), 0.3),
     })),
+    full: {
+      true: {
+        flex: 1,
+      },
+    },
   },
 })
 

@@ -1,22 +1,30 @@
+import { floatAnimation } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
-import { color } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const containerClass = style({
+  height: "100dvh",
+  width: "100dvw",
+  background: 'url("/halftone.png")',
+})
+
+export const contentClass = style({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
   padding: 24,
   gap: 12,
-  height: "100dvh",
   boxSizing: "border-box",
-  background: color.dot10,
-  color: color.dot90,
+  background: `linear-gradient(to bottom, ${alpha(color.dot60, 0.1)}, ${alpha(color.dot60, 0.3)})`,
+  color: color.dot30,
   textAlign: "center",
+  width: "100%",
+  height: "100%",
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 32,
@@ -35,7 +43,7 @@ export const containerClass = style({
 
 export const titleClass = style({
   ...fontSize.h2,
-  color: color.dot50,
+  color: color.dot40,
   fontFamily: primary,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
@@ -56,7 +64,7 @@ export const titleClass = style({
 export const subtitleClass = style([
   titleClass,
   {
-    color: color.dot80,
+    color: color.dot50,
   },
 ])
 
@@ -81,12 +89,6 @@ export const tilesContainerClass = style({
   justifyContent: "center",
   alignItems: "center",
   paddingTop: 24,
-})
-
-const float = keyframes({
-  "0%": { transform: "translateY(0px) rotate(0deg)" },
-  "50%": { transform: "translateY(-15px) rotate(5deg)" },
-  "100%": { transform: "translateY(0px) rotate(0deg)" },
 })
 
 const pulseSelected = keyframes({
@@ -122,7 +124,7 @@ export const floatingTileClass = recipe({
         animation: `${pulseSelected} 4s ease-in-out infinite`,
       },
       false: {
-        animation: `${float} 4s ease-in-out infinite`,
+        animation: `${floatAnimation} 4s ease-in-out infinite`,
         opacity: 0.6,
       },
     },

@@ -15,6 +15,7 @@ import {
   buttonContainerClass,
   columnsClass,
   containerClass,
+  contentClass,
   explanationClass,
   floatingTileClass,
   subtitleClass,
@@ -49,31 +50,33 @@ export default function RunReward() {
 
   return (
     <div class={containerClass}>
-      <h1 class={titleClass}>
-        {t.runReward.title()}{" "}
-        <Show when={info().reward === "one"}>{t.runReward.subtitle()}</Show>
-      </h1>
-      <div class={columnsClass}>
-        <h2 class={subtitleClass}>{info().title}</h2>
-        <div class={tilesContainerClass}>
-          <For each={info().tiles}>
-            {(cardId, i) => (
-              <FloatingTile
-                cardId={cardId}
-                i={i()}
-                isSelected={info().reward === "all" || isSelected(cardId)}
-              />
-            )}
-          </For>
+      <div class={contentClass}>
+        <h1 class={titleClass}>
+          {t.runReward.title()}{" "}
+          <Show when={info().reward === "one"}>{t.runReward.subtitle()}</Show>
+        </h1>
+        <div class={columnsClass}>
+          <h2 class={subtitleClass}>{info().title}</h2>
+          <div class={tilesContainerClass}>
+            <For each={info().tiles}>
+              {(cardId, i) => (
+                <FloatingTile
+                  cardId={cardId}
+                  i={i()}
+                  isSelected={info().reward === "all" || isSelected(cardId)}
+                />
+              )}
+            </For>
+          </div>
+          <p class={explanationClass} innerHTML={info().explanation} />
+          <CardVideo suit={reward()} class={videoClass} />
         </div>
-        <p class={explanationClass} innerHTML={info().explanation} />
-        <CardVideo suit={reward()} class={videoClass} />
-      </div>
-      <div class={buttonContainerClass}>
-        <Button hue="bam" kind="dark" onClick={onContinue}>
-          {t.common.goToShop()}
-          <ArrowRight />
-        </Button>
+        <div class={buttonContainerClass}>
+          <Button hue="dot" onClick={onContinue}>
+            {t.common.goToShop()}
+            <ArrowRight />
+          </Button>
+        </div>
       </div>
     </div>
   )

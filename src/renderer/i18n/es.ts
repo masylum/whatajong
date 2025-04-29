@@ -39,6 +39,7 @@ export const es = {
     unmuteSoundEffects: "Activar efectos de sonido",
     restart: "Reiniciar el juego",
     restartRun: "Reiniciar aventura",
+    newRun: "Nueva aventura",
     goBack: "Volver al inicio",
   },
   material: {

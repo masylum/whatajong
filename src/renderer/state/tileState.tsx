@@ -8,10 +8,11 @@ import {
 import { Database } from "@/lib/in-memoriam"
 import { setupTiles } from "@/lib/setupTiles"
 import Rand from "rand-seed"
-import { type ParentProps, createContext, useContext } from "solid-js"
+import { type ParentProps, batch, createContext, useContext } from "solid-js"
 import { persistentDatabase } from "./persistentDatabase"
 
 const TileStateContext = createContext<TileDb | undefined>()
+export const TILE_STATE_NAMESPACE = "tile-state"
 
 export function TileStateProvider(props: { tileDb: TileDb } & ParentProps) {
   return (
@@ -33,7 +34,7 @@ export function createTileState({
   deck,
 }: { id: () => string; deck: DeckTile[] }) {
   return persistentDatabase({
-    namespace: "tile-state",
+    namespace: TILE_STATE_NAMESPACE,
     id,
     db: () => new Database<Tile, TileIndexes>(tileIndexes),
     init: (db, id) => {
@@ -49,7 +50,11 @@ export function initializeTileState(
 ) {
   const rng = new Rand(id)
   const newTiles = setupTiles({ rng, deck })
-  for (const tile of Object.values(newTiles)) {
-    db.set(tile.id, tile)
-  }
+
+  batch(() => {
+    db.update({})
+    for (const tile of Object.values(newTiles)) {
+      db.set(tile.id, tile)
+    }
+  })
 }
