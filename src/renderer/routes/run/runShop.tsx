@@ -1,69 +1,46 @@
-import {
-  DECK_CAPACITY_PER_LEVEL,
-  generateRound,
-  useRunState,
-} from "@/state/runState"
-import { Dialog } from "@kobalte/core/dialog"
-import { assignInlineVars } from "@vanilla-extract/dynamic"
-
-import { play } from "@/components/audio"
-import { BasicEmperor } from "@/components/basicEmperor"
+import { play, toggleMusic } from "@/components/audio"
 import { ShopButton } from "@/components/button"
 import { LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import {
-  CardMultiplier,
   CardPoints,
+  CardVideo,
   Explanation,
-  MaterialCoins,
-  MaterialFreedom,
+  MaterialExplanation,
+  MaterialExplanationDescription,
 } from "@/components/game/tileDetails"
-import {
-  ArrowRight,
-  Buy,
-  Coins,
-  Dices,
-  Freeze,
-  Home,
-  Upgrade,
-  X,
-} from "@/components/icon"
+import { ArrowRight, Buy, Dices, Freeze, Home, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type DeckTile,
-  type Level,
   type Material,
+  type Suit,
   cardName,
-  getRank,
-  getSuit,
+  getCard,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
-import { getSideSize, useSmallerTileSize, useTileSize } from "@/state/constants"
+import { throttle } from "@/lib/throttle"
+import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { EmperorDescription, EmperorTitle } from "@/state/emperors"
+import { generateRound, useRunState } from "@/state/runState"
 import {
   type DeckTileItem,
-  type EmperorItem,
-  type Item,
   type Path,
-  ShopStateProvider,
+  REROLL_COST,
   type TileItem,
-  type UpgradeItem,
-  buyItem,
-  createShopState,
+  buyTile,
   generateItems,
-  generateShopItems,
   getNextMaterial,
-  getTransformation,
   isTile,
   itemCost,
-  maxEmperors,
-  sellEmperor,
+  upgradeTile,
   useShopState,
 } from "@/state/shopState"
-import type { AccentHue } from "@/styles/colors"
-import { nanoid } from "nanoid"
-import { chunk, entries, uniqueBy } from "remeda"
+import { hueFromMaterial } from "@/styles/colors"
+import { Dialog } from "@kobalte/core/dialog"
+import { Key } from "@solid-primitives/keyed"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import { isDeepEqual } from "remeda"
 import {
   For,
   Match,
@@ -73,31 +50,24 @@ import {
   batch,
   createEffect,
   createMemo,
+  createSelector,
   on,
 } from "solid-js"
-import { RunPickEmperor } from "./runPickEmperor"
+import { onMount } from "solid-js"
 import {
-  MINI_TILE_SIZE,
   areaClass,
   areaTitleClass,
   backgroundClass,
   buttonsClass,
   closeButtonClass,
+  coinsClass,
   continueClass,
   deckItemClass,
   deckRowsClass,
-  detailDescriptionClass,
-  detailListClass,
-  detailTermClass,
   detailTitleClass,
   dialogContentClass,
   dialogOverlayClass,
   dialogPositionerClass,
-  emperorClass,
-  emperorDetailsDescriptionClass,
-  emperorDetailsTitleClass,
-  emptyEmperorClass,
-  fullExplanationClass,
   materialUpgradeBlockClass,
   materialUpgradeClass,
   materialUpgradeTextClass,
@@ -105,42 +75,28 @@ import {
   materialUpgradesClass,
   modalDetailsClass,
   modalDetailsContentClass,
-  modalEmperorClass,
-  ownedEmperorsListClass,
-  pillClass,
+  pairClass,
   rotation,
   shopClass,
-  shopContainerClass,
   shopHeaderClass,
-  shopHeaderItemClass,
   shopHeaderItemsClass,
+  shopItemButtonClass,
   shopItemClass,
   shopItemContentClass,
-  shopItemCostClass,
   shopItemsClass,
-  upgradeCardPreviewClass,
   upgradeDescriptionClass,
   upgradeTitleClass,
+  videoContainerClass,
 } from "./runShop.css"
 
-const MAX_COLS = 12
+const DECK_CAPACITY = 165
+
+const onHoverTile = throttle(() => {
+  play("click2")
+}, 30)
 
 export default function RunShop() {
-  const run = useRunState()
-  const shop = createShopState({ id: () => run.runId })
-
-  return (
-    <ShopStateProvider shop={shop}>
-      <Shop />
-    </ShopStateProvider>
-  )
-}
-
-function Shop() {
   const shop = useShopState()
-  const run = useRunState()
-  const hasEmperor = createMemo(() => run.items.length > 0)
-  const shouldPickEmperor = createMemo(() => !hasEmperor() && run.round === 1)
 
   createEffect(
     on(
@@ -149,50 +105,45 @@ function Shop() {
     ),
   )
 
+  onMount(() => {
+    toggleMusic("shop")
+  })
+
   return (
-    <Show when={!shouldPickEmperor()} fallback={<RunPickEmperor />}>
-      <div class={backgroundClass}>
-        <div class={shopClass}>
-          <Header />
-          <Items />
-          <Crew />
-          <Deck />
-          <Show when={shop.currentItem}>
-            {(currentItem) => (
-              <Dialog
-                defaultOpen
-                onOpenChange={() => {
-                  shop.currentItem = null
-                }}
-              >
-                <Dialog.Portal>
-                  <Dialog.Overlay class={dialogOverlayClass} />
-                  <div class={dialogPositionerClass}>
-                    <Switch>
-                      <Match when={currentItem()?.type === "tile"}>
-                        <TileItemDetails item={currentItem() as TileItem} />
-                      </Match>
-                      <Match when={currentItem()?.type === "deckTile"}>
-                        <CardDetails
-                          item={currentItem() as DeckTileItem}
-                          material={(currentItem() as DeckTileItem).material}
-                        />
-                      </Match>
-                      <Match when={currentItem()?.type === "upgrade"}>
-                        <UpgradeItemDetails />
-                      </Match>
-                      <Match when={currentItem()?.type === "emperor"}>
-                        <EmperorItemDetails />
-                      </Match>
-                    </Switch>
-                  </div>
-                </Dialog.Portal>
-              </Dialog>
-            )}
-          </Show>
-        </div>
+    <div class={backgroundClass}>
+      <div class={shopClass}>
+        <Header />
+        <Items />
+        <Deck />
+        <Show when={shop.currentItem}>
+          {(currentItem) => (
+            <Dialog
+              defaultOpen
+              onOpenChange={() => {
+                shop.currentItem = null
+              }}
+            >
+              <Dialog.Portal>
+                <Dialog.Overlay class={dialogOverlayClass} />
+                <div class={dialogPositionerClass}>
+                  <Switch>
+                    <Match when={currentItem()?.type === "tile"}>
+                      <TileItemDetails item={currentItem() as TileItem} />
+                    </Match>
+                    <Match when={currentItem()?.type === "deckTile"}>
+                      <CardDetails
+                        item={currentItem() as DeckTileItem}
+                        material={(currentItem() as DeckTileItem).material}
+                      />
+                    </Match>
+                  </Switch>
+                </div>
+              </Dialog.Portal>
+            </Dialog>
+          )}
+        </Show>
       </div>
-    </Show>
+    </div>
   )
 }
 
@@ -205,12 +156,12 @@ function DeckTileComponent(props: {
 
   function onClick() {
     const deckTile = props.deckTile
-    const card = deckTile.card
+    const cardId = deckTile.cardId
 
     shop.currentItem = {
       id: deckTile.id,
       type: "deckTile",
-      card,
+      cardId,
       material: deckTile.material,
     }
   }
@@ -221,13 +172,22 @@ function DeckTileComponent(props: {
       style={{
         "z-index": props.zIndex,
       }}
-      onMouseEnter={() => play("click2")}
+      onMouseEnter={onHoverTile}
       onClick={onClick}
     >
       <BasicTile
-        card={props.deckTile.card}
+        cardId={props.deckTile.cardId}
         material={props.deckTile.material}
         width={tileSize().width}
+      />
+      <BasicTile
+        class={pairClass}
+        cardId={props.deckTile.cardId}
+        material={props.deckTile.material}
+        width={tileSize().width}
+        style={{
+          transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
+        }}
       />
     </div>
   )
@@ -235,59 +195,39 @@ function DeckTileComponent(props: {
 
 export function ItemTile(props: {
   item: TileItem
+  selected: boolean
   onClick?: (item: TileItem) => void
 }) {
   const run = useRunState()
   const deck = useDeckState()
   const frozen = createMemo(() => run.freeze?.active)
-  const cost = createMemo(() => itemCost(props.item, run))
+  const cost = createMemo(() => itemCost(props.item))
+  const tileSize = useSmallerTileSize(0.75)
 
   const disabled = createMemo(
-    () =>
-      frozen() ||
-      cost() > run.money ||
-      deck.size >=
-        DECK_CAPACITY_PER_LEVEL[
-          run.shopLevel as keyof typeof DECK_CAPACITY_PER_LEVEL
-        ],
+    () => frozen() || cost() > run.money || deck.size >= DECK_CAPACITY,
   )
 
   return (
     <ShopItem
-      hue="bone"
       frozen={frozen()}
       cost={cost()}
       disabled={disabled()}
+      selected={props.selected}
       onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
     >
-      <img src={`/tiles/xs/${props.item.card}.webp`} alt={props.item.card} />
-    </ShopItem>
-  )
-}
-
-export function EmperorItemComponent(props: {
-  item: EmperorItem
-  onClick?: (item: EmperorItem) => void
-}) {
-  const run = useRunState()
-  const frozen = createMemo(() => run.freeze?.active)
-  const emperorCount = createMemo(
-    () => run.items.filter((item) => item.type === "emperor").length,
-  )
-  const cost = createMemo(() => itemCost(props.item, run))
-  const disabled = createMemo(
-    () => frozen() || cost() > run.money || emperorCount() >= maxEmperors(run),
-  )
-
-  return (
-    <ShopItem
-      hue="wood"
-      frozen={frozen()}
-      cost={cost()}
-      disabled={disabled()}
-      onClick={props.onClick ? () => props.onClick?.(props.item) : undefined}
-    >
-      <BasicEmperor name={props.item.name} />
+      <BasicTile
+        cardId={props.item.cardId}
+        width={tileSize().width}
+        style={{
+          transform: `translate(${-tileSize().sideSize}px, ${-tileSize().sideSize}px)`,
+        }}
+      />
+      <BasicTile
+        class={pairClass}
+        cardId={props.item.cardId}
+        width={tileSize().width}
+      />
     </ShopItem>
   )
 }
@@ -296,36 +236,26 @@ function CardDetails(props: {
   item: TileItem | DeckTileItem
   material: Material
 }) {
-  const card = createMemo(() => props.item.card)
+  const cardId = createMemo(() => props.item.cardId)
   const shop = useShopState()
   const run = useRunState()
   const deck = useDeckState()
   const t = useTranslation()
 
-  function buyTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
-      const id = nanoid()
-      deck.set(id, { id, material: "bone", card: item.card })
-    })
-  }
-
   return (
     <Dialog.Content class={dialogContentClass({ type: "tile" })}>
       <CloseButton />
       <div class={modalDetailsClass}>
-        <BasicTile card={card()} material={props.material} />
+        <BasicTile cardId={cardId()} material={props.material} />
         <div class={modalDetailsContentClass}>
-          <div class={detailTitleClass}>
-            {cardName(t, card())}{" "}
-            <Show when={props.material !== "bone"}>
-              ({t.material[props.material]()})
-            </Show>
-          </div>
-          <CardPoints card={card()} material={props.material} />
-          <CardMultiplier card={card()} material={props.material} />
-          <MaterialCoins material={props.material} />
-          <MaterialFreedom material={props.material} />
-          <Explanation card={card()} />
+          <div class={detailTitleClass}>{cardName(t, cardId())}</div>
+          <CardPoints cardId={cardId()} material={props.material} />
+          <MaterialExplanation material={props.material} />
+          <Explanation cardId={cardId()} />
+          <CardVideo
+            suit={getCard(cardId()).suit}
+            class={videoContainerClass}
+          />
         </div>
       </div>
       <div class={buttonsClass}>
@@ -334,13 +264,13 @@ function CardDetails(props: {
             <ShopButton
               type="button"
               hue="bam"
-              disabled={itemCost(item(), run) > run.money}
+              disabled={itemCost(item()) > run.money}
               onClick={() => {
-                buyTile(item())
+                buyTile({ run, shop, item: item(), deck })
               }}
             >
               <Buy />
-              {t.common.buy()} ${itemCost(item(), run)}
+              {t.common.buy()} ${itemCost(item())}
             </ShopButton>
           )}
         </Show>
@@ -355,22 +285,16 @@ function TileItemDetails(props: { item: TileItem }) {
 
   const item = createMemo(() => props.item)
   const tilesWithSameCard = createMemo(() =>
-    deck.filterBy({ card: item().card }),
+    deck.filterBy({ cardId: item().cardId }),
   )
-  const freedomUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "freedom"),
+  const upgrades = createMemo(() =>
+    getCard(item().cardId).colors.map((color) => ({
+      path: color,
+      material: getNextMaterial(tilesWithSameCard(), color),
+    })),
   )
-  const pointsUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "points"),
-  )
-  const coinsUpgrade = createMemo(() =>
-    getNextMaterial(tilesWithSameCard(), "coins"),
-  )
-  const isUpgrading = createMemo(
-    () =>
-      freedomUpgrade() !== "bone" ||
-      pointsUpgrade() !== "bone" ||
-      coinsUpgrade() !== "bone",
+  const isUpgrading = createMemo(() =>
+    upgrades().some((upgrade) => upgrade.material !== "bone"),
   )
 
   return (
@@ -386,203 +310,19 @@ function TileItemDetails(props: { item: TileItem }) {
             {t.shop.upgrade.description()}
           </div>
           <div class={materialUpgradesClass}>
-            <Show when={freedomUpgrade()}>
-              {(material) => (
+            <For each={upgrades()}>
+              {({ material, path }) => (
                 <MaterialUpgradeButton
-                  material={material()}
+                  material={material}
                   item={item()}
-                  path="freedom"
+                  path={path}
                 />
-              )}
-            </Show>
-            <Show when={pointsUpgrade()}>
-              {(material) => (
-                <MaterialUpgradeButton
-                  material={material()}
-                  item={item()}
-                  path="points"
-                />
-              )}
-            </Show>
-            <Show when={coinsUpgrade()}>
-              {(material) => (
-                <MaterialUpgradeButton
-                  material={material()}
-                  item={item()}
-                  path="coins"
-                />
-              )}
-            </Show>
-          </div>
-        </div>
-      </Dialog.Content>
-    </Show>
-  )
-}
-
-function EmperorItemDetails() {
-  const t = useTranslation()
-  const shop = useShopState()
-  const run = useRunState()
-  const item = createMemo(() => shop.currentItem as EmperorItem)
-  const cost = createMemo(() => itemCost(item(), run))
-  const emperorCount = createMemo(
-    () => run.items.filter((item) => item.type === "emperor").length,
-  )
-  const disabled = createMemo(
-    () => cost() > run.money || emperorCount() >= maxEmperors(run),
-  )
-  const isOwned = createMemo(() =>
-    run.items.some((i) => i.id === item().id && i.type === "emperor"),
-  )
-
-  function buyEmperor() {
-    buyItem(run, shop, item(), () => {})
-  }
-
-  function sellCurrentEmperor() {
-    sellEmperor(run, shop, item())
-  }
-
-  return (
-    <Dialog.Content class={dialogContentClass({ type: "emperor" })}>
-      <CloseButton />
-      <div class={modalDetailsClass}>
-        <BasicEmperor name={item().name} class={modalEmperorClass} />
-        <div class={modalDetailsContentClass}>
-          <div class={emperorDetailsTitleClass}>
-            <EmperorTitle name={item().name} />
-          </div>
-
-          <div class={emperorDetailsDescriptionClass}>
-            <EmperorDescription name={item().name} />
-          </div>
-        </div>
-      </div>
-
-      <div class={buttonsClass}>
-        <Show
-          when={isOwned()}
-          fallback={
-            <ShopButton
-              type="button"
-              hue="bam"
-              disabled={disabled()}
-              onClick={buyEmperor}
-            >
-              <Buy />
-              {t.common.recruit()}
-            </ShopButton>
-          }
-        >
-          <ShopButton type="button" hue="dot" onClick={sellCurrentEmperor}>
-            <Buy />
-            {t.common.sell()} (${cost()})
-          </ShopButton>
-        </Show>
-      </div>
-    </Dialog.Content>
-  )
-}
-
-function UpgradeItemDetails() {
-  const run = useRunState()
-  const shop = useShopState()
-  const item = createMemo(() => shop.currentItem as UpgradeItem)
-  const cost = createMemo(() => itemCost(item(), run))
-  const disabled = createMemo(() => cost() > run.money)
-
-  function buyUpgrade() {
-    const money = run.money
-    if (money < cost()) return
-
-    batch(() => {
-      run.money = money - cost()
-      run.shopLevel = item().level
-      shop.currentItem = null
-    })
-    play("coin2")
-  }
-
-  const tileItems = createMemo(() =>
-    uniqueBy(
-      generateShopItems().filter(
-        (i) => i.type === "tile" && i.level === item().level,
-      ) as TileItem[],
-      (i) => i.card,
-    ).sort((a, b) => a.card.localeCompare(b.card)),
-  )
-  const tileSize = useTileSize()
-  const sideSize = createMemo(() => getSideSize(tileSize().height))
-  const t = useTranslation()
-
-  return (
-    <Dialog.Content class={dialogContentClass({ type: "upgrade" })}>
-      <CloseButton />
-      <div class={modalDetailsContentClass}>
-        <div class={detailTitleClass}>
-          {t.shop.shopLevel({ num: item().level })}
-        </div>
-        <dl class={detailListClass({ type: "gold" })}>
-          <dt class={detailTermClass}>{t.shop.yieldPerTiles()}</dt>
-          <dd class={detailDescriptionClass}>
-            <span class={pillClass()}>${item().level}</span>{" "}
-          </dd>
-        </dl>
-        <dl class={detailListClass({ type: "dot" })}>
-          <dt class={detailTermClass}>{t.shop.deckCapacity()}</dt>
-          <dd class={detailDescriptionClass}>
-            {
-              DECK_CAPACITY_PER_LEVEL[
-                item().level as keyof typeof DECK_CAPACITY_PER_LEVEL
-              ]
-            }{" "}
-            {t.common.pairs()}
-          </dd>
-        </dl>
-        <dl class={detailListClass({ type: "crack" })}>
-          <dt class={detailTermClass}>{t.shop.crewCapacity()}</dt>
-          <dd class={detailDescriptionClass}>{1 + item().level}</dd>
-        </dl>
-        <div class={detailListClass({ type: "bam" })}>
-          <span class={detailTermClass}>{t.shop.newTiles()}</span>
-          <div
-            class={deckRowsClass}
-            style={{
-              "padding-bottom": `${sideSize() * 2}px`,
-              "padding-right": `${sideSize() * 2}px`,
-            }}
-          >
-            <For each={chunk(tileItems(), 18)}>
-              {(chunk, i) => (
-                <div class={upgradeCardPreviewClass}>
-                  <For each={chunk}>
-                    {(item, j) => (
-                      <BasicTile
-                        card={item.card}
-                        width={MINI_TILE_SIZE}
-                        style={{ "z-index": i() * MAX_COLS + 9 + j() }}
-                      />
-                    )}
-                  </For>
-                </div>
               )}
             </For>
           </div>
         </div>
-      </div>
-      <div class={buttonsClass}>
-        <ShopButton
-          type="button"
-          hue="bam"
-          disabled={disabled()}
-          onClick={buyUpgrade}
-        >
-          <Buy />
-          {t.common.buy()} (${cost()})
-        </ShopButton>
-      </div>
-    </Dialog.Content>
+      </Dialog.Content>
+    </Show>
   )
 }
 
@@ -593,37 +333,30 @@ export function RerollButton(props: {
 }) {
   return (
     <ShopItem
-      hue="diamond"
       cost={props.cost}
       onClick={props.onClick}
       disabled={props.disabled}
+      selected={false}
     >
-      <Dices />
+      <div class={shopItemButtonClass({ hue: "bam" })}>
+        <Dices />
+      </div>
     </ShopItem>
   )
 }
 
 export function FreezeButton(props: { onClick?: () => void }) {
-  return (
-    <ShopItem hue="glass" cost={0} onClick={props.onClick} disabled={false}>
-      <Freeze />
-    </ShopItem>
-  )
-}
-
-export function UpgradeButton(props: {
-  onClick?: () => void
-  cost: number
-  disabled: boolean
-}) {
+  const run = useRunState()
   return (
     <ShopItem
-      hue="bam"
-      cost={props.cost}
-      disabled={props.disabled}
+      cost={0}
       onClick={props.onClick}
+      disabled={false}
+      selected={!!run.freeze?.active}
     >
-      <Upgrade />
+      <div class={shopItemButtonClass({ hue: "dot" })}>
+        <Freeze />
+      </div>
     </ShopItem>
   )
 }
@@ -638,69 +371,35 @@ function MaterialUpgradeButton(props: {
   const deck = useDeckState()
   const t = useTranslation()
 
-  const tilesWithSameCard = createMemo(() =>
-    deck.filterBy({ card: props.item.card }),
-  )
-  const transformation = createMemo(() =>
-    getTransformation(tilesWithSameCard(), props.path),
-  )
-
-  function upgradeTile(item: TileItem) {
-    buyItem(run, shop, item, () => {
-      const { updates, removes } = transformation()
-
-      for (const [id, material] of entries(updates)) {
-        deck.set(id, { id, material, card: item.card })
-      }
-
-      for (const id of removes) {
-        deck.del(id)
-      }
-    })
-    captureEvent("tile_upgraded", {
-      material: props.material,
-      card: props.item.card,
-      path: props.path,
-    })
-  }
-
   return (
-    <div class={materialUpgradeClass({ hue: props.material })}>
+    <div class={materialUpgradeClass({ hue: hueFromMaterial(props.material) })}>
       <div class={materialUpgradeBlockClass}>
         <BasicTile
-          card={props.item.card}
+          cardId={props.item.cardId}
           material={props.material}
           width={30}
         />
-        <div class={materialUpgradeTextClass({ hue: props.material })}>
-          <span class={materialUpgradeTitleClass({ hue: props.material })}>
+        <div
+          class={materialUpgradeTextClass({
+            hue: hueFromMaterial(props.material),
+          })}
+        >
+          <span
+            class={materialUpgradeTitleClass({
+              hue: hueFromMaterial(props.material),
+            })}
+          >
             {t.material[props.material]()}
           </span>
-          <Switch>
-            <Match
-              when={props.material === "glass" || props.material === "diamond"}
-            >
-              {t.shop.upgrade.easierToMatch()}
-            </Match>
-            <Match
-              when={props.material === "ivory" || props.material === "jade"}
-            >
-              {t.shop.upgrade.morePoints()}
-            </Match>
-            <Match
-              when={props.material === "bronze" || props.material === "gold"}
-            >
-              {t.shop.upgrade.getCoins()}
-            </Match>
-          </Switch>
+          <MaterialExplanationDescription material={props.material} />
         </div>
       </div>
       <ShopButton
         type="button"
-        hue={props.material}
+        hue={hueFromMaterial(props.material)}
         disabled={false}
         onClick={() => {
-          upgradeTile(props.item)
+          upgradeTile({ run, shop, item: props.item, deck, path: props.path })
         }}
       >
         <Buy />
@@ -710,76 +409,55 @@ function MaterialUpgradeButton(props: {
   )
 }
 
-function Crew() {
-  const run = useRunState()
-  const shop = useShopState()
-  const t = useTranslation()
-
-  const ownedEmperors = createMemo(
-    () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
-  )
-  const capacity = createMemo(() => maxEmperors(run))
-  const full = createMemo(() => ownedEmperors().length === capacity())
-  const empty = createMemo(() => maxEmperors(run) - ownedEmperors().length)
-  const ghost = createMemo(() => 7 - empty())
-
-  function selectEmperor(emperor: EmperorItem) {
-    shop.currentItem = emperor
-  }
-
-  return (
-    <div class={areaClass({ hue: "crack" })}>
-      <div class={areaTitleClass({ hue: "crack" })}>
-        {t.common.crew()} <Show when={full()}>{t.common.isFull()}</Show> (
-        {ownedEmperors().length} / {capacity()})
-      </div>
-      <div class={ownedEmperorsListClass}>
-        <For each={ownedEmperors()}>
-          {(emperor) => (
-            <BasicEmperor
-              name={emperor.name}
-              class={emperorClass}
-              onClick={() => selectEmperor(emperor)}
-            />
-          )}
-        </For>
-        <For each={Array.from({ length: empty() })}>
-          {() => <div class={emptyEmperorClass} />}
-        </For>
-        <For each={Array.from({ length: ghost() })}>{() => <div />}</For>
-      </div>
-    </div>
-  )
-}
-
 function Deck() {
-  const run = useRunState()
   const deck = useDeckState()
+  const t = useTranslation()
+  const totalPairs = createMemo(() => deck.all.length * 2)
 
   const sortedDeck = createMemo(() =>
     deck.all.sort((a, b) => {
-      const suitA = getSuit(a.card)
-      const suitB = getSuit(b.card)
+      const cardA = getCard(a.cardId)
+      const cardB = getCard(b.cardId)
+      const suitA = cardA.suit
+      const suitB = cardB.suit
       if (suitA !== suitB) {
-        const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
+        const suitOrder: Suit[] = [
+          "b",
+          "c",
+          "o",
+          "t",
+          "w",
+          "d",
+          "r",
+          "f",
+          "p",
+          "m",
+          "j",
+          "e",
+          "g",
+        ]
         return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
       }
-      return getRank(a.card).localeCompare(getRank(b.card))
+      return cardA.rank.localeCompare(cardB.rank)
     }),
   )
-  const totalPairs = createMemo(() => deck.all.length)
-  const shopLevel = createMemo(() => run.shopLevel)
-  const capacity = createMemo(() => DECK_CAPACITY_PER_LEVEL[shopLevel()])
 
   return (
-    <div class={areaClass({ hue: "dot" })}>
-      <DeckTitle pairs={totalPairs()} capacity={capacity()} />
+    <div class={areaClass({ hue: "dot", full: true })}>
+      <div class={areaTitleClass({ hue: "dot" })}>
+        {t.common.yourDeck()}
+        {" ("}
+        {totalPairs()}
+        {" / "}
+        {DECK_CAPACITY}
+        {")"}
+      </div>
       <div class={deckRowsClass}>
-        <For each={sortedDeck()}>
+        <Key each={sortedDeck()} by={(deckTile) => deckTile.id}>
           {(deckTile, i) => (
-            <DeckTileComponent deckTile={deckTile} zIndex={i()} />
+            <DeckTileComponent deckTile={deckTile()} zIndex={i()} />
           )}
-        </For>
+        </Key>
       </div>
     </div>
   )
@@ -789,25 +467,13 @@ function Items() {
   const run = useRunState()
   const shop = useShopState()
   const t = useTranslation()
-  const items = createMemo(() => generateItems(run, shop))
-  const rerollCost = createMemo(() =>
-    itemCost({ type: "reroll", id: "reroll", level: 1 }, run),
-  )
-  const rerollDisabled = createMemo(() => rerollCost() > run.money)
-  const shopLevel = createMemo(() => run.shopLevel)
-  const upgradeCost = createMemo(() =>
-    itemCost(
-      {
-        type: "upgrade",
-        level: shopLevel() + 1,
-        id: `upgrade-${shopLevel() + 1}`,
-      },
-      run,
-    ),
-  )
-  const upgradeDisabled = createMemo(() => upgradeCost() > run.money)
+  const items = createMemo(() => generateItems(run, shop), {
+    equals: isDeepEqual,
+  })
+  const rerollDisabled = createMemo(() => REROLL_COST > run.money)
+  const isSelected = createSelector(() => shop.currentItem?.id)
 
-  function selectItem(item: Item | null) {
+  function selectItem(item: TileItem | null) {
     if (item?.id === shop.currentItem?.id) {
       shop.currentItem = null
     } else {
@@ -817,7 +483,7 @@ function Items() {
 
   function reroll() {
     const money = run.money
-    if (rerollCost() > money) throw Error("You don't have enough money")
+    if (REROLL_COST > money) throw Error("You don't have enough money")
 
     batch(() => {
       const freeze = run.freeze
@@ -826,7 +492,7 @@ function Items() {
         run.freeze = undefined
       }
 
-      run.money = money - rerollCost()
+      run.money = money - REROLL_COST
       shop.reroll++
     })
 
@@ -853,52 +519,26 @@ function Items() {
     captureEvent("freeze", { reroll: shop.reroll })
   }
 
-  function selectUpgrade(level: Level) {
-    const item: UpgradeItem = {
-      id: `upgrade-${level}`,
-      type: "upgrade",
-      level,
-    }
-
-    shop.currentItem = item
-  }
-
   return (
-    <div class={shopContainerClass}>
-      <div class={areaTitleClass({ hue: "bam" })}>
-        {t.common.shop()} {t.common.levelN({ level: shopLevel() })}
+    <div class={areaClass({ hue: "crack" })}>
+      <div class={areaTitleClass({ hue: "crack" })}>
+        {t.common.shop()}
+        <span class={coinsClass}>${run.money}</span>
       </div>
       <div class={shopItemsClass}>
-        <Show when={shopLevel() < 5}>
-          <UpgradeButton
-            onClick={() => selectUpgrade((shopLevel() + 1) as Level)}
-            cost={upgradeCost()}
-            disabled={upgradeDisabled()}
-          />
-        </Show>
-        <For each={items()}>
-          {(item) => (
-            <Switch>
-              <Match when={item.type === "tile" && item}>
-                {(tileItem) => (
-                  <ItemTile item={tileItem()} onClick={selectItem} />
-                )}
-              </Match>
-              <Match when={item.type === "emperor" && item}>
-                {(emperorItem) => (
-                  <EmperorItemComponent
-                    item={emperorItem()}
-                    onClick={selectItem}
-                  />
-                )}
-              </Match>
-            </Switch>
+        <Key each={items()} by={(item) => item.id}>
+          {(tileItem) => (
+            <ItemTile
+              item={tileItem()}
+              selected={isSelected(tileItem().id as any)}
+              onClick={selectItem}
+            />
           )}
-        </For>
+        </Key>
         <RerollButton
           onClick={reroll}
           disabled={rerollDisabled()}
-          cost={rerollCost()}
+          cost={REROLL_COST}
         />
         <FreezeButton onClick={freeze} />
       </div>
@@ -909,26 +549,20 @@ function Items() {
 function Header() {
   const run = useRunState()
   const t = useTranslation()
-  const nextRound = createMemo(() => generateRound(run.round + 1, run))
+  const nextRound = createMemo(() => generateRound(run.round, run))
 
   function continueRun() {
-    batch(() => {
-      run.round = run.round + 1
-      run.stage = "select"
-    })
+    run.stage = "game"
   }
 
   return (
     <div class={shopHeaderClass}>
       <div class={shopHeaderItemsClass}>
-        <LinkButton hue="glass" href="/">
+        <LinkButton hue="dot" href="/">
           <Home />
         </LinkButton>
       </div>
 
-      <div class={shopHeaderItemsClass}>
-        <CoinCounter money={run.money} />
-      </div>
       <div class={continueClass}>
         <ShopButton hue="bone" onClick={continueRun}>
           {t.common.roundN({ round: nextRound().id })}
@@ -956,21 +590,21 @@ function CloseButton() {
 
 function ShopItem(
   props: {
-    hue: AccentHue
     frozen?: boolean
     cost: number
     disabled: boolean
+    selected: boolean
     onClick?: () => void
   } & ParentProps,
 ) {
   return (
     <button
       type="button"
-      onMouseEnter={() => !props.disabled && props.onClick && play("click2")}
+      onMouseEnter={() => !props.disabled && props.onClick && onHoverTile()}
       class={shopItemClass({
         disabled: props.disabled,
-        hue: props.hue,
         hoverable: !!props.onClick,
+        selected: props.selected,
         frozen: props.frozen,
       })}
       onClick={props.onClick}
@@ -979,38 +613,7 @@ function ShopItem(
       })}
     >
       <div class={shopItemContentClass}>{props.children}</div>
-      <div class={shopItemCostClass}>${props.cost}</div>
+      <div class={coinsClass}>${props.cost}</div>
     </button>
-  )
-}
-
-export function CoinCounter(props: { money: number }) {
-  const t = useTranslation()
-
-  return (
-    <div class={shopHeaderItemClass({ hue: "gold" })}>
-      <Coins />
-      {t.common.coins()}
-      <span class={pillClass()}>${props.money}</span>
-    </div>
-  )
-}
-
-export function DeckTitle(props: { pairs: number; capacity: number }) {
-  const full = createMemo(() => props.pairs === props.capacity)
-  const t = useTranslation()
-
-  return (
-    <div class={areaTitleClass({ hue: "dot" })}>
-      {t.common.deck()}
-      <Show when={full()}> {t.common.isFull()}</Show> ({props.pairs}
-      {" / "}
-      {props.capacity})
-      <Show when={full()}>
-        <span class={fullExplanationClass({ hue: "bam" })}>
-          {t.shop.fullDeck()}
-        </span>
-      </Show>
-    </div>
   )
 }

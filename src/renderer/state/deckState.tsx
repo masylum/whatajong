@@ -3,11 +3,11 @@ import {
   type DeckTile,
   type DeckTileIndexes,
   deckTileIndexes,
-  getRunPairs,
+  getInitialPairs,
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
 import { nanoid } from "nanoid"
-import { type ParentProps, useContext } from "solid-js"
+import { type ParentProps, batch, useContext } from "solid-js"
 import { createContext } from "solid-js"
 import { persistentDatabase } from "./persistentDatabase"
 
@@ -18,15 +18,21 @@ export function createDeckState(params: CreateDeckStateParams) {
     id: params.id,
     db: () => new Database<DeckTile, DeckTileIndexes>(deckTileIndexes),
     init: (db) => {
-      for (const tiles of getRunPairs()) {
-        const id = nanoid()
-        db.set(id, {
-          id,
-          card: tiles[0],
-          material: "bone",
-        })
-      }
+      initializeDeckState(db)
     },
+  })
+}
+export function initializeDeckState(deck: Deck) {
+  batch(() => {
+    deck.update({})
+    for (const cards of getInitialPairs()) {
+      const id = nanoid()
+      deck.set(id, {
+        id,
+        cardId: cards[0].id,
+        material: "bone",
+      })
+    }
   })
 }
 

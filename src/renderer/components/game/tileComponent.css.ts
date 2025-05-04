@@ -1,9 +1,11 @@
 import {
   ANIMATION_MEDIUM,
+  ANIMATION_SLOW,
   easeBounce,
+  overshot,
   tileFallingAnimation,
 } from "@/styles/animations.css"
-import { color } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
@@ -11,13 +13,29 @@ import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
-const DELETED_DURATION = 300
-export const FLOATING_NUMBER_DURATION = 1000
+export const DELETED_DURATION = 300
+export const MUTATE_DURATION = 500
+export const FLOATING_NUMBER_DURATION = 1_500
 
 const shakeKeyframes = keyframes({
   "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
   "25%": { transform: "translate(-2px, 0) rotate(-1deg)" },
   "75%": { transform: "translate(2px, 0) rotate(1deg)" },
+})
+
+const mutateKeyframes = keyframes({
+  "0%": {
+    transform: "scale(1, 1)",
+  },
+  "20%": {
+    transform: "scale(1.05, 0.9)",
+  },
+  "50%": {
+    transform: "scale(0.9, 1.05)",
+  },
+  "100%": {
+    transform: "scale(1, 1)",
+  },
 })
 
 const deletedKeyframes = keyframes({
@@ -41,24 +59,40 @@ const deletedKeyframes = keyframes({
 
 const floatingNumberKeyframes = keyframes({
   "0%": {
-    transform: "translate(0, 0)",
+    transform: "translate(-50%, -50%)",
     opacity: 1,
   },
-  "80%": {
+  "50%": {
     opacity: 0.8,
   },
   "100%": {
-    transform: "translate(0, -80px)",
+    transform: "translate(-50%, calc(-50% - 100px))",
     opacity: 0,
+  },
+})
+
+const pulseVar = createVar()
+const pulseKeyframes = keyframes({
+  "0%": {
+    boxShadow: `0 0 0 0px rgba(from ${pulseVar} r g b / 0.1)`,
+    backgroundColor: `rgba(from ${pulseVar} r g b / 0)`,
+  },
+  "50%": {
+    boxShadow: `0 0 0px 20px rgba(from ${pulseVar} r g b / 0)`,
+    backgroundColor: `rgba(from ${pulseVar} r g b / 0.2)`,
+    opacity: 1,
+  },
+  "100%": {
+    boxShadow: `0 0 0 0px rgba(from ${pulseVar} r g b / 0.1)`,
+    backgroundColor: `rgba(from ${pulseVar} r g b / 0)`,
   },
 })
 
 export const scoreClass = style({
   position: "absolute",
   zIndex: 9999,
-  animation: `${floatingNumberKeyframes} ${FLOATING_NUMBER_DURATION}ms ease-out forwards`,
-  ...fontSize.m,
-  fontSize: "24px",
+  animation: `${floatingNumberKeyframes} ${FLOATING_NUMBER_DURATION}ms ${overshot} forwards`,
+  ...fontSize.h3,
   lineHeight: 1,
   fontWeight: "bold",
   userSelect: "none",
@@ -74,22 +108,47 @@ export const scoreClass = style({
 export const scoreCoinsClass = style({
   borderRadius: 24,
   padding: "4px 8px",
-  background: `linear-gradient(to bottom, ${color.gold90}, ${color.gold80})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.gold90},
-    0px 0px 0px 1px ${color.gold60},
-    0px 0px 3px -1px ${color.gold30},
-    0px 0px 10px -5px ${color.gold30}`,
-  color: color.bone10,
+  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.9)}, ${alpha(color.crack40, 0.9)})`,
+  boxShadow: `
+    1px -1px 1px 0 inset ${color.crack60},
+    0px 0px 0px 1px ${color.crack30},
+    0px 0px 3px -1px ${color.crack10},
+    0px 0px 10px -5px ${color.crack10}
+  `,
+  color: color.crack90,
+})
+
+export const pulseClass = recipe({
+  base: {
+    borderRadius: 4,
+    position: "absolute",
+    animation: `${pulseKeyframes} 2000ms ease-in-out infinite`,
+    mixBlendMode: "multiply",
+    pointerEvents: "none",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      vars: {
+        [pulseVar]: kolor(50),
+      },
+    })),
+  },
 })
 
 export const scorePointsClass = style({
   borderRadius: 8,
   padding: "4px 8px",
-  background: `linear-gradient(to bottom, ${color.bam60}, ${color.bam50})`,
-  boxShadow: `1px -1px 0px 0 inset ${color.bam60},
-    0px 0px 0px 1px ${color.bam40},
+  background: `linear-gradient(to bottom, ${color.bam50}, ${color.bam40})`,
+  boxShadow: `
+    1px -1px 0px 0 inset ${color.bam50},
+    0px 0px 0px 1px ${color.bam30},
     0px 0px 3px -1px ${color.bam10},
-    0px 0px 10px -5px ${color.bam10}`,
+    0px 0px 10px -5px ${color.bam10}
+  `,
   color: "white",
 })
 
@@ -101,33 +160,38 @@ export const tileClass = recipe({
     outline: "none",
     transformOrigin: "50% 50%",
     WebkitTapHighlightColor: "transparent",
-    // for the winds animation
     transitionProperty: "top, left",
     transitionDuration: `${DELETED_DURATION}ms`,
     transitionTimingFunction: "ease-in",
   },
   variants: {
-    rabbit: {
-      true: {
-        filter: "saturate(1.2) hue-rotate(8deg)",
-      },
-      false: {
-        filter: "saturate(0.9) brightness(0.9)",
-      },
-    },
     animation: {
+      joker: {
+        animationName: tileFallingAnimation,
+        animationTimingFunction: easeBounce,
+        animationDuration: ANIMATION_SLOW,
+        animationDirection: "reverse",
+        animationDelay: tileAnimationDelayVar,
+        animationFillMode: "forwards",
+        pointerEvents: "none",
+      },
       fall: {
         animationName: tileFallingAnimation,
         animationTimingFunction: easeBounce,
         animationDuration: ANIMATION_MEDIUM,
         animationDelay: tileAnimationDelayVar,
         animationFillMode: "backwards",
+        pointerEvents: "none",
       },
       shake: {
         animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
       },
+      mutate: {
+        animation: `${mutateKeyframes} ${MUTATE_DURATION}ms ease-in-out forwards`,
+      },
       deleted: {
         animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
+        pointerEvents: "none",
       },
     },
   },
@@ -139,7 +203,14 @@ export const tileSvgClass = style({
 })
 
 export const clickableClass = recipe({
-  base: { pointerEvents: "auto" },
+  base: {
+    pointerEvents: "auto",
+    selectors: {
+      [`${tileClass.classNames.variants.animation.deleted} &`]: {
+        pointerEvents: "none",
+      },
+    },
+  },
   variants: {
     canBeSelected: {
       true: { cursor: "pointer" },

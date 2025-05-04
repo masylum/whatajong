@@ -1,3 +1,6 @@
+import type { Material } from "@/lib/game"
+import type { Color as GameColor } from "@/lib/game"
+
 const huesAndShades = {
   base: {
     "0": "oklch(99.85% 0.002 85)",
@@ -40,30 +43,6 @@ const huesAndShades = {
     10: "#010d26",
   },
 
-  glass: {
-    90: "#e9f3f9",
-    80: "#d1e8f5",
-    70: "#aecde0",
-    60: "#95bbd4",
-    50: "#74aacf",
-    40: "#5384a3",
-    30: "#385669",
-    20: "#20333e",
-    10: "#061015",
-  },
-
-  jade: {
-    90: "#e5f9ed",
-    80: "#c5f0d8",
-    70: "#96ddb6",
-    60: "#73ca9d",
-    50: "#5eb489",
-    40: "#4e8f6f",
-    30: "#305a4b",
-    20: "#1a342d",
-    10: "#051110",
-  },
-
   bone: {
     90: "#fef1d4",
     80: "#fee1b7",
@@ -76,85 +55,62 @@ const huesAndShades = {
     10: "#1a0805",
   },
 
-  bronze: {
-    90: "#fdebe3",
-    80: "#ffd4c2",
-    70: "#feb195",
-    60: "#fe956f",
-    50: "#f96e3c",
-    40: "#d5491c",
-    30: "#90250f",
-    20: "#580e0a",
-    10: "#1d0606",
-  },
-
-  gold: {
-    90: "#fff1c8",
-    80: "#ffe086",
-    70: "#efc41f",
-    60: "#d8b01c",
-    50: "#ba9e2f",
-    40: "#947d12",
-    30: "#5f5008",
-    20: "#392d05",
-    10: "#130e01",
-  },
-
-  wood: {
-    90: "#f5d7a8",
-    80: "#e6bb7e",
-    70: "#daa55e",
-    60: "#cf9045",
-    50: "#b47732",
-    40: "#8d5c2a",
-    30: "#5f3b1e",
-    20: "#371c10",
-    10: "#100604",
-  },
-
-  ivory: {
-    90: "#fbf8f1",
-    80: "#f1eee3",
-    70: "#dad6c7",
-    60: "#cec8b6",
-    50: "#b0aa99",
-    40: "#8a8370",
-    30: "#595240",
-    20: "#342e1d",
+  black: {
+    90: "#f6f3ec",
+    80: "#eae7dc",
+    70: "#d7d3c4",
+    60: "#b3ad9b",
+    50: "#888272",
+    40: "#4c4635",
+    30: "#352e1e",
+    20: "#221c0b",
     10: "#120e05",
-  },
-
-  diamond: {
-    90: "#faeef1",
-    80: "#f6dce3",
-    70: "#e1bdc7",
-    60: "#d4a7b4",
-    50: "#cc8ea1",
-    40: "#a16c7c",
-    30: "#684751",
-    20: "#3e2a30",
-    10: "#150b0e",
   },
 } as const
 
-const accentHues = [
-  "bam",
-  "crack",
-  "dot",
-  "glass",
-  "jade",
-  "bone",
-  "bronze",
-  "gold",
-  "wood",
-  "ivory",
-  "diamond",
-] as const
+const accentHues = ["bam", "crack", "dot", "bone", "black"] as const
+
+export function hueFromSuit(suit: "b" | "c" | "o") {
+  return (
+    {
+      b: "bam",
+      c: "crack",
+      o: "dot",
+    } as const
+  )[suit]
+}
+
+export function hueFromColor(color: GameColor) {
+  return (
+    {
+      r: "crack",
+      g: "bam",
+      b: "dot",
+      k: "black",
+    } as const
+  )[color]
+}
+
+export function hueFromMaterial(material: Material) {
+  return (
+    {
+      bone: "bone",
+      topaz: "dot",
+      sapphire: "dot",
+      garnet: "crack",
+      ruby: "crack",
+      jade: "bam",
+      emerald: "bam",
+      quartz: "black",
+      obsidian: "black",
+    } as const
+  )[material]
+}
 
 type Hue = keyof typeof huesAndShades
 export type AccentHue = (typeof accentHues)[number]
 type BaseHue = Exclude<Hue, AccentHue>
-type ShadeTypes<H extends Hue> = keyof (typeof huesAndShades)[H]
+export type ShadeTypes<H extends Hue> = keyof (typeof huesAndShades)[H]
 
 type BaseColor = `${BaseHue}${ShadeTypes<BaseHue>}`
 type AccentColor = `${AccentHue}${ShadeTypes<AccentHue>}`

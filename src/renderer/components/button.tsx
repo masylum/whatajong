@@ -3,37 +3,36 @@ import { type JSX, splitProps } from "solid-js"
 import { play } from "./audio"
 import { buttonClass, shopButtonClass } from "./button.css"
 
-type Kind = "light" | "dark"
-type Props = {
+type ButtonProps = {
   hue: AccentHue
-  kind?: Kind
-} & JSX.IntrinsicElements["a"]
+  suave?: boolean
+}
 
-export function LinkButton(iProps: Props) {
-  const [props, aProps] = splitProps(iProps, ["hue", "kind"])
+export function LinkButton(iProps: ButtonProps & JSX.IntrinsicElements["a"]) {
+  const [props, aProps] = splitProps(iProps, ["hue", "suave"])
 
   return (
     <a
       onMouseEnter={() => play("click2")}
-      class={buttonClass({ hue: props.hue, kind: props.kind, clickable: true })}
+      class={buttonClass({
+        hue: props.hue,
+        suave: props.suave,
+        clickable: true,
+      })}
       {...aProps}
     />
   )
 }
 
-type ButtonProps = {
-  hue: AccentHue
-  kind?: Kind
-} & JSX.IntrinsicElements["button"]
-export function Button(iProps: ButtonProps) {
-  const [props, buttonProps] = splitProps(iProps, ["hue", "kind"])
+export function Button(iProps: ButtonProps & JSX.IntrinsicElements["button"]) {
+  const [props, buttonProps] = splitProps(iProps, ["hue", "suave"])
 
   return (
     <button
       onMouseEnter={() => !buttonProps.disabled && play("click2")}
       class={buttonClass({
         hue: props.hue,
-        kind: props.kind,
+        suave: props.suave,
         clickable: !!buttonProps.onClick,
       })}
       {...buttonProps}

@@ -1,71 +1,95 @@
-import { BasicEmperor } from "@/components/basicEmperor"
-import { Button, LinkButton } from "@/components/button"
+import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
-import { GameOver } from "@/components/game/gameOver"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { getRank, getSuit } from "@/lib/game"
+import { type Card, type CardId, getAllTiles } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
+import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import {
-  GameStateProvider,
-  calculateSeconds,
-  createGameState,
+  GAME_STATE_NAMESPACE,
+  initialGameState,
+  useGameState,
 } from "@/state/gameState"
-import { getIncome, runGameWin, useRound, useRunState } from "@/state/runState"
-import type { EmperorItem } from "@/state/shopState"
-import { createTileState } from "@/state/tileState"
-import { nanoid } from "nanoid"
-import { sumBy } from "remeda"
-import { For, Show, batch, createMemo, onMount } from "solid-js"
+import { cleanMutable, setMutable } from "@/state/persistantMutable"
+import { cleanPersistentDatabase } from "@/state/persistentDatabase"
 import {
-  deckClass,
-  deckItemClass,
-  deckRowsClass,
-  emperorClass,
+  REWARDS,
+  calculateIncome,
+  roundPersistentKey,
+  useRound,
+  useRunState,
+} from "@/state/runState"
+import {
+  TILE_STATE_NAMESPACE,
+  initializeTileState,
+  useTileState,
+} from "@/state/tileState"
+import type { AccentHue } from "@/styles/colors"
+import { assignInlineVars } from "@vanilla-extract/dynamic"
+import Rand from "rand-seed"
+import {
+  For,
+  type ParentProps,
+  Show,
+  batch,
+  createMemo,
+  onMount,
+} from "solid-js"
+import {
+  bouncingCardClass,
+  buttonsClass,
+  detailListClass,
+  duration,
+  endX,
   gameOverClass,
-  gameOverInfoClass,
-  moneyClass,
-  ownedEmperorsClass,
-  ownedEmperorsListClass,
-  pairClass,
+  itemKeyClass,
+  itemValueClass,
+  rotation,
+  scoreClass,
+  screenClass,
+  startX,
+  subtitleClass,
+  titleClass,
 } from "./runGameOver.css"
+
+// biome-ignore format:
+const WIN_TITLES = [ "victory", "success", "champion", "awesome", "winner", "glorious", "wellPlayed" ] as const
+// biome-ignore format:
+const DEFEAT_TITLES = [ "defeat", "gameOver", "oops", "failed", "crushed", "wasted" ] as const
 
 export default function RunGameOver() {
   const run = useRunState()
   const round = useRound()
-  const id = createMemo(() => `${run.runId}-${round().id}`)
-  const game = createGameState({ id })
+  const game = useGameState()
   const deck = useDeckState()
-  const tiles = createTileState({ id, deck: deck.all })
+  const tiles = useTileState()
 
-  const time = createMemo(() => calculateSeconds(game))
+  const time = createMemo(() => game.time)
   const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
-  const win = createMemo(() => runGameWin(game, run))
+  const win = createMemo(() => {
+    if (game.endCondition !== "empty-board") return false
+    const enoughPoints = totalPoints() >= round().pointObjective
+    if (!enoughPoints) return false
+
+    return true
+  })
+
   const achievement = createMemo(() => totalPoints() / round().pointObjective)
   const t = useTranslation()
 
-  const tileCoins = createMemo(() =>
-    sumBy(tiles().filterBy({ deleted: true }), (tile) => tile.coins ?? 0),
-  )
+  const tileCoins = createMemo(() => game.coins)
   const overAchievementCoins = createMemo(() => {
     const overAchievement = achievement() - 1
     if (overAchievement <= 0) return 0
 
-    return Math.min(Math.floor((overAchievement * 10) / 2), 100)
+    return Math.min(Math.floor(overAchievement * 2), 12)
   })
-
-  const income = createMemo(() => getIncome(deck, run))
-
-  function onShop() {
-    batch(() => {
-      run.stage = "shop"
-      run.money = run.money + income() + tileCoins() + overAchievementCoins()
-    })
-  }
+  const income = createMemo(() => calculateIncome(run))
+  const isRewardRound = createMemo(() => run.round in REWARDS)
 
   onMount(() => {
     captureEvent("game_over", {
@@ -81,171 +105,184 @@ export default function RunGameOver() {
     })
   })
 
+  function goToNextRound() {
+    batch(() => {
+      run.money += income() + tileCoins() + overAchievementCoins()
+      run.round += 1
+      run.stage = isRewardRound() ? "reward" : "shop"
+      run.totalPoints += totalPoints()
+
+      const key = roundPersistentKey(run)
+      cleanMutable(GAME_STATE_NAMESPACE, key)
+      cleanPersistentDatabase(TILE_STATE_NAMESPACE, key)
+    })
+  }
+
+  function retrySameRound() {
+    batch(() => {
+      run.retries += 1
+      const key = roundPersistentKey(run)
+      setMutable(game, initialGameState())
+      initializeTileState(key, deck.all, tiles)
+    })
+  }
+
   return (
-    <GameStateProvider game={game}>
-      <GameOver win={win()} round={run.round}>
-        <div class={gameOverClass}>
-          <GameOver.Score>
-            <Show when={win()}>
-              <GameOver.List hue="gold">
-                <GameOver.Item
-                  label={t.gameOver.deckIncome({ deckSize: deck.size })}
-                >
-                  + ${income()}
-                </GameOver.Item>
-                <Show when={tileCoins()}>
-                  {(coins) => (
-                    <GameOver.Item label={t.gameOver.tileCoins()}>
-                      + ${coins()}
-                    </GameOver.Item>
-                  )}
-                </Show>
-                <Show when={overAchievementCoins()}>
-                  {(coins) => (
-                    <GameOver.Item
-                      label={t.gameOver.overachiever({
-                        percent: Math.round(achievement() * 100),
-                      })}
-                    >
-                      + ${coins()}
-                    </GameOver.Item>
-                  )}
-                </Show>
-              </GameOver.List>
-            </Show>
-
-            <GameOver.List hue="bam">
-              <GameOver.Item label={t.common.points()}>
-                {points()}
-              </GameOver.Item>
-            </GameOver.List>
-
-            <Show when={round().timerPoints}>
-              <GameOver.List hue="crack">
-                <GameOver.Item label={t.gameOver.timePenalty({ time: time() })}>
-                  {penalty()}
-                </GameOver.Item>
-              </GameOver.List>
-            </Show>
-
-            <GameOver.List hue="dot">
-              <GameOver.Item label={t.gameOver.totalPoints()}>
-                {totalPoints()}
-              </GameOver.Item>
-              <GameOver.Item label={t.common.objective()}>
-                {round().pointObjective}
-              </GameOver.Item>
-            </GameOver.List>
-
-            <GameOver.Buttons>
-              <Show
-                when={win()}
-                fallback={
-                  <>
-                    <LinkButton hue="crack" kind="dark" href={`/run/${id()}`}>
-                      <Rotate />
-                      {t.gameOver.trySameRun()}
-                    </LinkButton>
-                    <LinkButton hue="bam" kind="dark" href={`/run/${nanoid()}`}>
-                      {t.gameOver.startNewRun()}
-                      <ArrowRight />
-                    </LinkButton>
-                  </>
-                }
-              >
-                <Button hue="bam" kind="dark" onClick={() => onShop()}>
-                  <Shop />
-                  {t.common.goToShop()}
-                </Button>
-              </Show>
-            </GameOver.Buttons>
-          </GameOver.Score>
+    <div class={gameOverClass}>
+      <div class={screenClass({ win: win() })}>
+        <div>
+          <Title win={win()} round={run.round} />
           <Show when={!win()}>
-            <div class={gameOverInfoClass}>
-              <span class={moneyClass}>${run.money}</span>
-              <OwnedEmperors />
-              <Deck />
+            <div class={subtitleClass}>
+              <Show
+                when={game.endCondition === "no-pairs"}
+                fallback={t.gameOver.notEnoughPoints()}
+              >
+                {t.gameOver.noPairs()}
+              </Show>
             </div>
           </Show>
         </div>
-        <GameOver.BouncingCards />
-      </GameOver>
-    </GameStateProvider>
+        <div class={scoreClass}>
+          <Show when={win()}>
+            <List hue="crack">
+              <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
+              <Show when={tileCoins()}>
+                {(coins) => (
+                  <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
+                )}
+              </Show>
+              <Show when={overAchievementCoins()}>
+                {(coins) => (
+                  <Item
+                    label={t.gameOver.overachiever({
+                      percent: Math.round(achievement() * 100),
+                    })}
+                  >
+                    + ${coins()}
+                  </Item>
+                )}
+              </Show>
+            </List>
+          </Show>
+
+          <List hue="bam">
+            <Item label={t.common.points()}>{points()}</Item>
+          </List>
+
+          <Show when={round().timerPoints}>
+            <List hue="black">
+              <Item label={t.gameOver.timePenalty({ time: time() })}>
+                {penalty()}
+              </Item>
+            </List>
+          </Show>
+
+          <List hue="dot">
+            <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
+            <Item label={t.common.objective()}>{round().pointObjective}</Item>
+          </List>
+        </div>
+        <div class={buttonsClass}>
+          <Show
+            when={win()}
+            fallback={
+              <Button hue="crack" onClick={retrySameRound}>
+                {t.gameOver.trySameRun()}
+                <Rotate />
+              </Button>
+            }
+          >
+            <Button hue="bam" onClick={() => goToNextRound()}>
+              <Show
+                when={isRewardRound()}
+                fallback={
+                  <>
+                    <Shop />
+                    {t.common.goToShop()}
+                  </>
+                }
+              >
+                <>
+                  {t.common.next()}
+                  <ArrowRight />
+                </>
+              </Show>
+            </Button>
+          </Show>
+        </div>
+      </div>
+      <FallingTiles />
+    </div>
   )
 }
 
-function Deck() {
-  const deck = useDeckState()
+function FallingTile(props: { cardId: CardId }) {
+  const cardStartX = createMemo(() => Math.random() * window.innerWidth)
+  const cardEndX = createMemo(() => cardStartX() + (Math.random() - 0.5) * 400)
+  const cardRotation = createMemo(() => (Math.random() - 0.5) * 720)
+  const cardDuration = createMemo(() => 7 + Math.random() * 12)
+  const delay = createMemo(() => Math.random() * 10)
+  const tileSize = useSmallerTileSize(0.8)
 
-  const sortedDeck = createMemo(() =>
-    deck.all.sort((a, b) => {
-      const suitA = getSuit(a.card)
-      const suitB = getSuit(b.card)
-      if (suitA !== suitB) {
-        const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
-        return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
+  return (
+    <div
+      style={{
+        ...assignInlineVars({
+          [startX]: `${cardStartX()}px`,
+          [endX]: `${cardEndX()}px`,
+          [rotation]: `${cardRotation()}deg`,
+          [duration]: `${cardDuration()}s`,
+        }),
+        "animation-delay": `${delay()}s`,
+      }}
+      class={bouncingCardClass}
+    >
+      <BasicTile width={tileSize().width} cardId={props.cardId} />
+    </div>
+  )
+}
+
+function FallingTiles() {
+  const cards = createMemo<Card[]>(() => {
+    const rng = new Rand()
+    return shuffle(getAllTiles(), rng).slice(0, 10)
+  })
+  return <For each={cards()}>{(card) => <FallingTile cardId={card.id} />}</For>
+}
+
+function Title(props: { win: boolean; round?: number }) {
+  const t = useTranslation()
+  const round = createMemo(() =>
+    props.round ? `${t.common.roundN({ round: props.round })}: ` : "",
+  )
+
+  return (
+    <Show
+      when={props.win}
+      fallback={
+        <h1 class={titleClass}>
+          {round()} {t.gameOver.defeat[pick(DEFEAT_TITLES)]()}
+        </h1>
       }
-      return getRank(a.card).localeCompare(getRank(b.card))
-    }),
-  )
-  const tileSize = useSmallerTileSize(0.5)
-
-  return (
-    <div class={deckClass}>
-      <div
-        class={deckRowsClass}
-        style={{
-          "padding-bottom": `${tileSize().sideSize * 2}px`,
-          "padding-right": `${tileSize().sideSize * 2}px`,
-        }}
-      >
-        <For each={sortedDeck()}>
-          {(deckTile, i) => (
-            <div
-              class={deckItemClass}
-              style={{
-                "z-index": i(),
-              }}
-            >
-              <BasicTile
-                card={deckTile.card}
-                material={deckTile.material}
-                width={tileSize().width}
-              />
-              <BasicTile
-                class={pairClass}
-                style={{
-                  transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
-                }}
-                material={deckTile.material}
-                width={tileSize().width}
-              />
-            </div>
-          )}
-        </For>
-      </div>
-    </div>
+    >
+      <h1 class={titleClass}>
+        {round()}
+        {t.gameOver.win[pick(WIN_TITLES)]()}
+      </h1>
+    </Show>
   )
 }
 
-function OwnedEmperors() {
-  const run = useRunState()
+function List(props: { hue: AccentHue } & ParentProps) {
+  return <dl class={detailListClass({ hue: props.hue })}>{props.children}</dl>
+}
 
-  const ownedEmperors = createMemo(
-    () => run.items.filter((item) => item.type === "emperor") as EmperorItem[],
-  )
-
+function Item(props: { label: string } & ParentProps) {
   return (
-    <div class={ownedEmperorsClass}>
-      <div class={ownedEmperorsListClass}>
-        <For each={ownedEmperors()}>
-          {(emperor) => (
-            <div class={emperorClass}>
-              <BasicEmperor name={emperor.name} />
-            </div>
-          )}
-        </For>
-      </div>
-    </div>
+    <>
+      <dt class={itemKeyClass}>{props.label}</dt>
+      <dd class={itemValueClass}>{props.children}</dd>
+    </>
   )
 }

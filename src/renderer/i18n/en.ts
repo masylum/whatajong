@@ -2,13 +2,9 @@ export const en = {
   layout: {
     rotate: "Please rotate your device to play on your phone",
   },
-  home: {
-    classicGame: "classic game",
-    adventureGame: "adventure game",
-  },
   common: {
     points: "Points",
-    penalty: "Penalty",
+    penalty: "Time",
     moves: "Moves",
     play: "play",
     prev: "previous",
@@ -22,11 +18,9 @@ export const en = {
     no: "no",
     roundN: "Round {{round}}",
     pointsN: "{{points}} points",
-    levelN: "level {{level}}",
     objective: "Objective",
     deck: "Deck",
     yourDeck: "Your Deck",
-    yourCrew: "Your Crew",
     coins: "C‌oins",
     buy: "buy",
     recruit: "recruit",
@@ -34,39 +28,51 @@ export const en = {
     pairs: "pairs",
     multiplier: "Multiplier",
     upgrade: "upgrade",
-    crew: "Crew",
-    isFull: "is full",
     shop: "shop",
+    close: "close",
+    paused: "paused",
+    help: "Help",
+  },
+  intro: {
+    goal: "Play through 24 Mahjong Solitaire rounds to reach your goal!",
+    difficulty:
+      "Each level gets a little tougher, with bigger point goals and faster time.",
+    upgrade: "Unlock fresh tiles and fun upgrades along the way.",
   },
   settings: {
     title: "Settings",
-    soundEffects: "Sound effects",
+    soundVolume: "Sound volume",
+    musicVolume: "Music volume",
     restart: "Restart the game",
     restartRun: "Restart adventure",
+    newRun: "New adventure",
+    goBack: "Go back home",
   },
   material: {
-    glass: "glass",
-    diamond: "diamond",
+    quartz: "quartz",
+    obsidian: "obsidian",
     jade: "jade",
-    ivory: "ivory",
-    bronze: "bronze",
-    gold: "gold",
+    emerald: "emerald",
+    garnet: "garnet",
+    ruby: "ruby",
+    topaz: "topaz",
+    sapphire: "sapphire",
     bone: "bone",
-    wood: "wood",
   },
   suit: {
-    f: "flower",
-    s: "season",
-    b: "bam",
-    c: "crack",
-    o: "dot",
-    d: "dragon",
-    w: "wind",
-    r: "rabbit",
-    p: "phoenix",
-    j: "joker",
-    m: "mutation",
-    t: "transport",
+    f: "Flower",
+    b: "Bam",
+    c: "Crack",
+    o: "Dot",
+    d: "Dragon",
+    w: "Wind",
+    r: "Rabbit",
+    p: "Phoenix",
+    j: "Joker",
+    m: "Mutation",
+    t: "Trigram",
+    e: "Element",
+    g: "Gemstone",
   },
   windDirections: {
     n: "north",
@@ -74,83 +80,67 @@ export const en = {
     e: "east",
     w: "west",
   },
+  color: {
+    r: "Red",
+    g: "Green",
+    b: "Blue",
+    k: "Black",
+  },
   cardName: {
-    db: "bam dragon",
-    dc: "crack dragon",
-    do: "dot dragon",
-    pb: "bam phoenix",
-    pc: "crack phoenix",
-    po: "dot phoenix",
-    m4: "+1 mutation",
-    m5: "-1 mutation",
-    mutation: "{{from}} / {{to}} mutation",
-    wind: "{{direction}} wind",
+    m1: "Crack / Bam mutation",
+    m2: "Dot / Crack mutation",
+    m3: "Bam / Dot mutation",
+    m4: "-1 Mutation",
+    m5: "+1 Mutation",
+    w: "{{direction}} Wind",
+    d: "{{color}} Dragon",
+    p: "{{color}} Phoenix",
+    r: "{{color}} Rabbit",
+    e: "{{color}} Element",
+    gr: "Garnet",
+    gg: "Jade",
+    gb: "Topaz",
+    gk: "Quartz",
   },
   tutorial: {
-    title: "Tutorial: {{stage}}",
     stages: {
       tiles: "tiles",
       clearing: "clearing",
       dragons: "dragons",
       seasonsAndFlowers: "winds & flowers",
       board: "board",
-      crew: "crew",
       shop: "shop",
       upgrade: "upgrade",
       materials: "materials",
     },
     tiles1:
-      "The goal of <span class={{{whatajongClass}}}>Whatajong</span> is to clear all the tiles from the board, scoring as many points as possible.",
-    tiles2: "Your deck contains tiles of three suits:",
-    tiles3: "To clear tiles, you need to match a pair of identical tiles.",
-    clearing1:
+      "To win one round of <span class={{{whatajongClass}}}>Whatajong</span> you have to clear all the tiles from the board.",
+    tiles2: "To clear tiles, you need to match a pair of identical tiles.",
+    tiles3:
       "A tile can be selected if it has no other tile on top of it and has at least one free side (left or right).",
-    clearing2: "Example of free tiles highlighted in green.",
-    clearing3: "When clearing a pair of tiles, you score points.",
-    clearing4: "2 points!",
-    dragons1: "There are 3 dragons, one of each suit.",
-    dragons2: "Clear dragon tiles to start a <strong>Dragon Run</strong>.",
-    dragons3:
-      "Clearing tiles from another suit will break the <strong>Dragon Run</strong>.",
-    dragons4:
-      "When a <strong>Dragon Run</strong> is active, clearing tiles from the dragon's suit will multiply your score.",
-    seasonsAndFlowers1:
-      "Winds move the tiles on the board towards a direction:",
-    seasonsAndFlowers2:
-      "Flowers & Seasons can be matched among themselves, regardless of their number.",
-    seasonsAndFlowers3:
-      "Clearing Flowers & Seasons will allow you in the next move, to clear tiles with only one open side.",
+    tiles4: "When clearing a pair of tiles, you sc‌ore points.",
+    tiles5: "2 points!",
     board1:
-      "The points indicator shows you how many points have you scored so far.",
+      "The points and time indicators show you how many points have you sc‌ored so far, and how many points you have lost due to time passing by.",
     board2:
-      "The penalty indicator shows you how many points have you lost due to time passing by.",
+      "The coins indicator shows you how many coins you have earned this round.",
     board3:
       "The moves indicator, shows you how many moves you have left. If it reaches 0, the board is unsolvable and you have lost the game.",
-    crew1: "To help you on this journey, you can recruit crew members.",
-    crew2:
-      "Each crew member has a unique ability. Be creative and combine them to unlock powerful combinations.",
-    crew3:
-      "During a game, if you are running out of moves, discard a crew member to shuffle the board.",
     shop1:
-      "Every round you yield 1 coin per tile on your deck. Spend them on the shop to buy new tiles and crew members.",
+      "Every round you will be rewarded with coins. Spend them on the shop to buy new tiles.",
     shop2: "Reroll to get new items in the shop.",
     shop3:
       "If there is something you like, but you can't afford it, freeze the items until next round.",
-    upgrade1:
-      "You can upgrade your shop level to unlock new items and crew members.",
-    upgrade2:
-      "Each shop level increases your crew and deck capacity. More tiles, more points!",
-    upgrade3:
-      "Upgrading your shop also increases your yield, so you can earn more coins each round.",
     material1: "Buy three of the same tile to upgrade the material.",
-    material2: "Buy three upgraded tiles to upgrade the material.",
-    material3: "Different materials have different characteristics:",
-    materialGlass: "easier to clear",
-    materialIvory: "give more points.",
-    materialBronze: "give coins.",
+    material: {
+      b: "You can clear this tile even if none of its sides are open.",
+      g: "These tiles give extra points.",
+      r: "These tiles give coins.",
+      k: "Clear this tile to stop the time.",
+    },
   },
   mode: {
-    title: "Welcome to the adventure!",
+    title: "Welc‌ome to the adventure!",
     subtitle: "Select a difficulty mode",
     easy: {
       title: "Cruising Along",
@@ -164,9 +154,6 @@ export const en = {
       title: "Against the Maelstrom",
       tag: "hard",
     },
-  },
-  pickEmperor: {
-    title: "Pick your first crew member",
   },
   gameOver: {
     win: {
@@ -186,324 +173,66 @@ export const en = {
       crushed: "Crushed!",
       wasted: "Wasted!",
     },
-    timePenalty: "Time penalty ({{time}} s)",
+    timePenalty: "Time Points ({{time}} s)",
     totalPoints: "Total Points",
     playAgain: "Play again",
-    deckIncome: "Deck inc‌ome ({{deckSize}})",
+    roundReward: "Round reward",
     tileCoins: "Tile c‌oins",
     overachiever: "Over achiever ({{percent}} %)",
-    trySameRun: "Try same run",
-    startNewRun: "Start new run",
+    trySameRun: "Try again",
+    noPairs: "You ran out of moves",
+    notEnoughPoints: "You didn't sc‌ore enough points",
   },
   shop: {
     upgrade: {
       title: "Upgrade available!",
       description:
-        "Collecting 3 identical pairs of tiles lets you upgrade them into a stronger version.",
+        "C‌ollecting 3 identical pairs of tiles lets you upgrade them into a stronger version.",
       button: "upgrade",
       easierToMatch: "easier to match",
       morePoints: "more points",
-      getCoins: "get coins",
+      getCoins: "get c‌oins",
     },
-    shopLevel: "Shop level {{num}}",
-    yieldPerTiles: "yield per tiles:",
     deckCapacity: "deck capacity:",
-    crewCapacity: "crew capacity:",
     newTiles: "new tiles:",
-    fullDeck: "Upgrade your shop to buy more tiles",
-  },
-  emperors: {
-    astronomer: {
-      name: "Astronomer",
-      description: "Add 3 points when clearing any Crack tiles (::c::)",
-    },
-    mathematician: {
-      name: "Mathematician",
-      description: "Add 1 mult when clearing any Crack tiles (::c::)",
-    },
-    gardener: {
-      name: "Gardener",
-      description: "Add 3 points when clearing any Bam tiles (::b::)",
-    },
-    herbolist: {
-      name: "Herbolist",
-      description: "Add 1 mult when clearing any Bam tiles (::b::)",
-    },
-    wheelwright: {
-      name: "Wheelwright",
-      description: "Add 3 points when clearing any Dot tiles (::o::)",
-    },
-    treasurer: {
-      name: "Treasurer",
-      description: "Add 1 mult when clearing any Dot tiles (::o::)",
-    },
-    birdwatcher: {
-      name: "Birdwatcher",
-      description: "Add 20 points when clearing the tile 'Bam 1' (::b1::)",
-    },
-    caligrapher: {
-      name: "Caligrapher",
-      description: "Add 20 points when clearing the tile 'Crack 1' (::c1::)",
-    },
-    numismatic: {
-      name: "Numismatic",
-      description: "Add 20 points when clearing the tile 'Dot 1' (::o1::)",
-    },
-    woodworker: {
-      name: "Woodworker",
-      description: "Reduce the cost of Bam cards (::b::) by 25%",
-    },
-    librarian: {
-      name: "Librarian",
-      description: "Reduce the cost of Crack cards (::c::) by 25%",
-    },
-    cooper: {
-      name: "Cooper",
-      description: "Reduce the cost of Dot cards (::o::) by 25%",
-    },
-    barterer: {
-      name: "Barterer",
-      description: "Add 100 coins when discarded",
-    },
-    food_vendor: {
-      name: "Food Vendor",
-      description:
-        "When discarded, permanently transform 3 random Bam tiles (::b::) into Dot tiles (::o::)",
-    },
-    retailer: {
-      name: "Retailer",
-      description:
-        "When discarded, permanently transform 3 random Bam tiles (::b::) into Crack tiles (::c::)",
-    },
-    fisherwoman: {
-      name: "Fisherwoman",
-      description:
-        "When discarded, permanently transform 3 random Dot tiles (::o::) into Crack tiles (::c::)",
-    },
-    shopkeeper: {
-      name: "Shopkeeper",
-      description:
-        "When discarded, permanently transform 3 random Dot tiles (::o::) into Bam tiles (::b::)",
-    },
-    trader: {
-      name: "Trader",
-      description:
-        "When discarded, permanently transform 3 random Crack tiles (::c::) into Bam tiles (::b::)",
-    },
-    fishmonger: {
-      name: "Fishmonger",
-      description:
-        "When discarded, permanently transform 3 random Crack tiles (::c::) into Dot tiles (::o::)",
-    },
-    martyr: {
-      name: "Martyr",
-      description: "Double your points when discarded",
-    },
-    warrior: {
-      name: "Warrior",
-      description: "Add 2 points when clearing any tiles",
-    },
-    combatant: {
-      name: "Combatant",
-      description: "Add 0.5 mult when clearing any tiles",
-    },
-    gambler: {
-      name: "Gambler",
-      description: "Reduce the cost of shop rerolls by 50%",
-    },
-    builder: {
-      name: "Builder",
-      description: "Reduce the cost of shop upgrades by 25%",
-    },
-    wizard: {
-      name: "Wizard",
-      description: "Add 6 points when clearing odd tiles",
-    },
-    sorcerer: {
-      name: "Sorcerer",
-      description: "Add 8 points when clearing even tiles",
-    },
-    biologist: {
-      name: "Biologist",
-      description: "Add 1 mult when clearing Flower tiles (::f::)",
-    },
-    florist: {
-      name: "Florist",
-      description: "Add 10 points when clearing Flower tiles (::f::)",
-    },
-    botanist: {
-      name: "Botanist",
-      description: "Add 4 coins when clearing Flower tiles (::f::)",
-    },
-    breeder: {
-      name: "Breeder",
-      description: "Add 1 mult when clearing Rabbit tiles (::r::)",
-    },
-    veterinarian: {
-      name: "Veterinarian",
-      description: "Add 10 points when clearing Rabbit tiles (::r::)",
-    },
-    butcher: {
-      name: "Butcher",
-      description: "Add 4 coins when clearing Rabbit tiles (::r::)",
-    },
-    drakologist: {
-      name: "Drakologist",
-      description: "Add 16 points when clearing Dragon tiles (::d::)",
-    },
-    dragon_rider: {
-      name: "Dragon Rider",
-      description: "Add 2 mult when clearing Dragon tiles (::d::)",
-    },
-    warden: {
-      name: "Warden",
-      description: "Add 6 coins when clearing Dragon tiles (::d::)",
-    },
-    phoenixologist: {
-      name: "Phoenixologist",
-      description: "Add 16 points when clearing Phoenix tiles (::p::)",
-    },
-    phoenix_rider: {
-      name: "Phoenix Rider",
-      description: "Add 2 mult when clearing Phoenix tiles (::p::)",
-    },
-    keeper: {
-      name: "Keeper",
-      description: "Add 6 coins when clearing Phoenix tiles (::p::)",
-    },
-    glassblower: {
-      name: "Glassblower",
-      description: "Add 20 points when clearing Glass tiles",
-    },
-    stonemason: {
-      name: "Stonemason",
-      description: "Add 10 coins when clearing Ivory tiles",
-    },
-    smith: {
-      name: "Smith",
-      description: "Add 2 mult when clearing Bronze tiles",
-    },
-    recruiter: {
-      name: "Recruiter",
-      description: "Reduce the cost of crew members by 33%",
-    },
-    climatologist: {
-      name: "Climatologist",
-      description: "Add 3 mult when clearing Wind tiles (::w::)",
-    },
-    millwright: {
-      name: "Millwright",
-      description: "Add 24 points when clearing Wind tiles (::w::)",
-    },
-    aerologist: {
-      name: "Aerologist",
-      description: "Add 10 coins when clearing Wind tiles (::w::)",
-    },
-    jeweler: {
-      name: "Jeweler",
-      description: "Add 100 points when clearing Diamond tiles",
-    },
-    lapidarist: {
-      name: "Lapidarist",
-      description: "Add 40 coins when clearing Jade tiles",
-    },
-    miner: {
-      name: "Miner",
-      description: "Add 6 mult when clearing Gold tiles",
-    },
-    kamikaze: {
-      name: "Kamikaze",
-      description: "Add 3 multiplier when there is only 1 pair left",
-    },
-    prepper: {
-      name: "Prepper",
-      description: "Add 10 points when there are less than 3 pairs left",
-    },
-    insurer: {
-      name: "Insurer",
-      description: "Add 2 coins when there are more than 10 pairs left",
-    },
-    timekeeper: {
-      name: "Timekeeper",
-      description: "When discarded, reset the time penalty to 0",
-    },
-    alchemist: {
-      name: "Alchemist",
-      description:
-        "When cleared, convert all tiles to gold until the next clearing",
-    },
-    meteorologist: {
-      name: "Meteorologist",
-      description:
-        "When cleared, convert all tiles to diamond until the next clearing",
-    },
-    clown: {
-      name: "Clown",
-      description:
-        "When cleared, convert all tiles to jade until the next clearing",
-    },
-    sailor: {
-      name: "Sailor",
-      description:
-        "When clearing a boat, convert all wind tiles to glass for the rest of the game",
-    },
-    buffon: {
-      name: "Buffon",
-      description: "When clearing a joker, add 1 mult for each available move",
-    },
-    horologist: {
-      name: "Horologist",
-      description:
-        "When clearing any tile, remove 2 seconds from the time penalty",
-    },
-    occultist: {
-      name: "Occultist",
-      description:
-        "Add 30 points when clearing tiles that are not Bam, Cracks or Dots",
-    },
-    governor: {
-      name: "Governor",
-      description:
-        "Add 10 points when clearing tiles that are Bam, Cracks or Dots",
-    },
   },
   tileDetails: {
-    freedom: {
-      relaxed: "Free if at least 1 side is open.",
-      diamond: "Always free.",
-      standard: "Free if the left or right side is open.",
-      gold: "Free if at least 3 sides are open.",
+    materialExtraPoints: "{{material}} bonus points",
+    materialExplanation: {
+      blue: "Clear this tile even if none of its sides are open.",
+      black: "Clear this tile to stop the time.",
     },
     explanation: {
-      wind: "Wind tiles move the pieces in the direction of the wind.",
-      rabbit1:
-        "Rabbit Tiles (::r::) grant you one coin for each point that you score in the next clearing.",
-      flower1:
-        "Flower tiles can be cleared with other Flower tiles, regardless of their numbers.",
-      flower2:
-        "Clearing Flowers makes it easier to clear tiles on the next turn.",
-      season1:
-        "Season tiles can be cleared with other Season tiles, regardless of their numbers.",
-      season2:
-        "Clearing Seasons makes it easier to clear tiles on the next turn.",
-      dragon1: "Clearing Dragon Tiles starts a <strong>Dragon Run</strong>.",
-      dragon2:
-        "Clear {{suitName}} (::{{suit}}::) tiles to get a multiplier bonus.",
-      phoenix1: "Clearing Phoenix Tiles starts a <strong>Phoenix Run</strong>.",
-      phoenix2:
-        "Clear tiles in consecutive number order (1, 2, 3...) to get a multiplier bonus.",
-      mutation1:
-        "Increase the number of all the bam/crack/dot cards on your board.",
-      mutation2:
-        "Decrease the number of all the bam/crack/dot cards on your board.",
-      mutation3:
-        "Swap all the {{fromSuitName}} (::{{fromSuit}}::) and {{toSuitName}} (::{{toSuit}}::) cards on your board.",
-      joker1: "Clearing Joker Tiles shuffles your board.",
-      joker2: "Score 1 point per shuffled tile.",
+      wind: "When cleared, a breeze moves the tiles towards the cardinal direction.",
+      rabbit: "Rabbit tiles grant you one c‌oin for each point they sc‌ore.",
+      flower:
+        "Flower tiles are red, green and blue.<br />Flowers can be matched with any other flower tile.",
+      dragon:
+        "Clear dragon tiles to start a <strong>Dragon Run</strong>.<br />While the <strong>Dragon Run</strong> is active, clear tiles of the Dragon's c‌olor to sc‌ore more points.",
+      phoenix:
+        "Clear phoenix tiles to start a <strong>Phoenix Run</strong>.<br />While the <strong>Phoenix Run</strong> is active, clear c‌onsecutive numbers to sc‌ore more points.",
+      mutation:
+        "Mutation tiles allow you to change the tiles on your board: Swap their suit or increase/decrease their number.",
+      m1: "Swap all the Cracks (::c::) and Bams (::b::) tiles on your board.",
+      m2: "Swap all the Dots (::o::) and Cracks (::c::) tiles on your board.",
+      m3: "Swap all the Bams (::b::) and Dots (::o::) tiles on your board.",
+      m4: "Decrease the number of all the tiles on your board.",
+      m5: "Increase the number of all the tiles on your board.",
+      joker:
+        "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any c‌olor and any number.",
+      element:
+        "Every Element tile on the board gives all tiles of its c‌olor bonus points.<br />While an Element tile is free, it grants an additional bonus.",
+      trigram:
+        "Each Trigram tile on the board gives all tiles of its number bonus points.<br />While an Trigram tile is free, it grants an additional bonus.",
+      gem: "When you clear this tile, all tiles of its c‌olor turn into its material until the next clearing.",
     },
   },
   runSelect: {
     title: "Get ready!",
     subtitle: "Win the current round to unlock the next ones.",
+  },
+  runReward: {
+    title: "New tiles!",
+    subtitle: "get one free",
   },
 }

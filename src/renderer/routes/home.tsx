@@ -1,8 +1,17 @@
-import { play } from "@/components/audio"
+import { play, toggleMusic } from "@/components/audio"
 import { BasicTile } from "@/components/game/basicTile"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
-import { getStandardPairs } from "@/lib/game"
+import {
+  bams,
+  cracks,
+  dots,
+  dragons,
+  flowers,
+  jokers,
+  rabbits,
+  winds,
+} from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useImageSrc, useSmallerTileSize } from "@/state/constants"
 import { fetchRuns } from "@/state/runState"
@@ -10,7 +19,7 @@ import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
-import { For, createMemo } from "solid-js"
+import { For, createMemo, onMount } from "solid-js"
 import {
   buttonAnimationDelayVar,
   buttonClass,
@@ -28,18 +37,41 @@ import {
 
 function cards() {
   const rng = new Rand()
-  return shuffle(getStandardPairs(), rng).flatMap(([c, _]) => c)
+  const basicTiles = [
+    ...bams,
+    ...cracks,
+    ...dots,
+    ...dragons,
+    ...rabbits,
+    ...jokers,
+    ...winds,
+    ...flowers,
+  ]
+  return shuffle([...basicTiles, ...basicTiles], rng)
 }
 
 export function Home() {
   const t = useTranslation()
   const runs = createMemo(() => fetchRuns())
-  const db = useImageSrc()
-  const dc = useImageSrc()
+  const dg = useImageSrc()
+  const dr = useImageSrc()
+
+  const runId = createMemo(() => {
+    const run = runs()[0]
+    if (run) {
+      return run.runId
+    }
+
+    return nanoid()
+  })
 
   function onHover() {
     play("click2")
   }
+
+  onMount(() => {
+    toggleMusic("game")
+  })
 
   return (
     <div class={homeClass}>
@@ -48,28 +80,7 @@ export function Home() {
       <nav class={navClass}>
         <a
           onMouseEnter={onHover}
-          href={`/play/${nanoid()}`}
-          class={buttonClass({ hue: "bam" })}
-          style={{
-            ...assignInlineVars({
-              [buttonAnimationDelayVar]: "100ms",
-            }),
-          }}
-        >
-          <img
-            class={buttonIconClass}
-            src={`${db()}/db.webp`}
-            alt="classic"
-            width={36}
-            height={52}
-          />
-          {t.home.classicGame()}
-        </a>
-        <a
-          onMouseEnter={onHover}
-          href={
-            runs().length > 0 ? `/run/${runs()[0].runId}` : `/run/${nanoid()}`
-          }
+          href={`/run/${runId()}`}
           class={buttonClass({ hue: "crack" })}
           style={{
             ...assignInlineVars({
@@ -79,12 +90,31 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${dc()}/dc.webp`}
+            src={`${dr()}/dr.webp`}
             alt="duel"
             width={36}
             height={52}
           />
-          {t.home.adventureGame()}
+          {t.common.play()}
+        </a>
+        <a
+          onMouseEnter={onHover}
+          href="/settings"
+          class={buttonClass({ hue: "bam" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "400ms",
+            }),
+          }}
+        >
+          <img
+            class={buttonIconClass}
+            src={`${dg()}/dg.webp`}
+            alt="classic"
+            width={36}
+            height={52}
+          />
+          {t.settings.title()}
         </a>
       </nav>
       <Mountains />
@@ -129,7 +159,7 @@ function Frame() {
                 "z-index": j(),
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -156,7 +186,7 @@ function Frame() {
                     : "visible",
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -183,7 +213,7 @@ function Frame() {
                     : "visible",
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>
@@ -206,7 +236,7 @@ function Frame() {
                 "z-index": horizontalTiles() + verticalTiles() + j(),
               }}
             >
-              <BasicTile width={tileSize().width} card={card} />
+              <BasicTile width={tileSize().width} cardId={card.id} />
             </div>
           )}
         </For>

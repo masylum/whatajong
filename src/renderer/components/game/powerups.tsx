@@ -1,13 +1,13 @@
 import { useTranslation } from "@/i18n/useTranslation"
 import {
-  type BoatRun,
   type DragonRun,
   type PhoenixRun,
-  getRank,
-} from "@/lib/game"
-import { useGameState } from "@/state/gameState"
+  useGameState,
+} from "@/state/gameState"
+import { hueFromColor } from "@/styles/colors"
 import { Show, createMemo } from "solid-js"
 import {
+  comboMultiplierClass,
   comboRecipe,
   phoenixComboClass,
   playerPowerupsClass,
@@ -25,27 +25,13 @@ export function Powerups() {
       <Show when={game.phoenixRun}>
         {(phoenixRun) => <PhoenixRunComponent phoenixRun={phoenixRun()} />}
       </Show>
-      <Show when={game.boatRun}>
-        {(boatRun) => <BoatRunComponent boatRun={boatRun()} />}
-      </Show>
     </div>
   )
 }
 
 function DragonRunComponent(props: { dragonRun: DragonRun }) {
-  const rank = createMemo(() => getRank(props.dragonRun.card))
-  const hue = createMemo(() => {
-    switch (rank()) {
-      case "c":
-        return "crack"
-      case "b":
-        return "bam"
-      case "o":
-        return "dot"
-      default:
-        return undefined
-    }
-  })
+  const color = createMemo(() => props.dragonRun.color)
+  const hue = createMemo(() => hueFromColor(color()))
   const combo = createMemo(() => props.dragonRun.combo)
   const t = useTranslation()
 
@@ -58,7 +44,8 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
       })}
     >
       <span class={comboRecipe({ hue: hue() })}>
-        {t.common.dragonRun()} +{combo()} mult
+        {t.common.dragonRun()}
+        <span class={comboMultiplierClass}>x{combo() + 1}</span>
       </span>
     </div>
   )
@@ -66,39 +53,23 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
 
 function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
   const combo = createMemo(() => props.phoenixRun.combo)
-  const number = createMemo(() => props.phoenixRun.number ?? 0)
+  const number = createMemo(() => props.phoenixRun.number)
   const t = useTranslation()
 
   return (
     <div
       class={powerupRecipe({
         size: combo() as any,
-        hue: "bronze",
+        hue: "bone",
         side: "right",
       })}
     >
-      <span class={phoenixComboClass}>{number() + 1}</span>
-      <span class={comboRecipe({ hue: "bronze" })}>
-        {t.common.phoenixRun()} +{combo()} mult
-      </span>
-    </div>
-  )
-}
-
-function BoatRunComponent(props: { boatRun: BoatRun }) {
-  const combo = createMemo(() => props.boatRun.combo)
-  const t = useTranslation()
-
-  return (
-    <div
-      class={powerupRecipe({
-        size: props.boatRun.combo as any,
-        hue: "gold",
-        side: "top",
-      })}
-    >
-      <span class={comboRecipe({ hue: "gold" })}>
-        {t.common.boatRun()} +{combo()} mult
+      <Show when={number()}>
+        {(number) => <span class={phoenixComboClass}>{number()}</span>}
+      </Show>
+      <span class={comboRecipe({ hue: "bone" })}>
+        {t.common.phoenixRun()}
+        <span class={comboMultiplierClass}>x{combo() + 1}</span>
       </span>
     </div>
   )

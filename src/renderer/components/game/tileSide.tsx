@@ -1,4 +1,4 @@
-import { type Material, isTransparent } from "@/lib/game"
+import { type Material, opacity } from "@/lib/game"
 import { createMemo, mergeProps } from "solid-js"
 import { MATERIALS } from "./defs"
 
@@ -13,7 +13,7 @@ export function TileSide(iProps: Props) {
   return (
     <path
       d={props.d}
-      fill-opacity={isTransparent(props.material) ? 0.6 : 1}
+      fill-opacity={opacity(props.material) * 1.7}
       fill={`url(#${sideGradientId()})`}
     />
   )

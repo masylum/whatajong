@@ -2,7 +2,6 @@ import {
   type Tile,
   type TileDb,
   fullyOverlaps,
-  getRank,
   isWind,
   mapGetHeight,
   mapGetWidth,
@@ -43,12 +42,11 @@ const BIASES = {
   w: ["x", -2],
 } as const
 
-export function resolveWinds(tileDb: TileDb, tile: Tile) {
-  const windCard = isWind(tile.card)
+export function resolveWinds({ tileDb, tile }: { tileDb: TileDb; tile: Tile }) {
+  const windCard = isWind(tile.cardId)
   if (!windCard) return
 
-  const wind = getRank(windCard) as keyof typeof BIASES
-
+  const wind = windCard.rank
   const [axis, bias] = BIASES[wind]
   const highestLevel = tileDb.all.reduce(
     (max, tile) => Math.max(max, tile.z),

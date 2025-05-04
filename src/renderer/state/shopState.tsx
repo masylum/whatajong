@@ -1,71 +1,36 @@
 import { play } from "@/components/audio"
 import {
   type Card,
+  type CardId,
+  type Deck,
   type DeckTile,
-  type Level,
   type Material,
-  bams,
-  cracks,
-  dots,
-  dragons,
-  flowers,
-  jokers,
-  mutations,
-  phoenix,
-  rabbits,
-  seasons,
-  transports,
-  winds,
+  getAllTiles,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
-import { type RunState, ownedEmperors } from "@/state/runState"
+import type { RunState } from "@/state/runState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { countBy, entries } from "remeda"
 import { type ParentProps, batch, createContext, useContext } from "solid-js"
-import { EMPERORS, type Emperor, type EmperorName } from "./emperors"
 import { createPersistantMutable } from "./persistantMutable"
 
-const SHOP_STATE_NAMESPACE = "shop-state-v2"
-const ITEM_COST = 20
-const EMPEROR_COST = 60
-const REROLL_COST = 10
-const SELL_EMPEROR_AMOUNT = 30
+const SHOP_STATE_NAMESPACE = "shop-state-v3"
+const ITEM_COST = 3
+export const REROLL_COST = 1
+const ITEM_COUNT = 5
+const ITEM_POOL_SIZE = 8
 
-function itemRawCost(item: Item) {
-  switch (item.type) {
-    case "tile":
-      return ITEM_COST + 10 * (item.level - 1)
-    case "emperor":
-      return EMPEROR_COST + 10 * (item.level - 1)
-    case "reroll":
-      return REROLL_COST
-    case "upgrade":
-      return (item.level - 1) * 100
-    default:
-      throw new Error(`Unknown item type: ${item.type}`)
-  }
-}
-
-export function itemCost(item: Item, run?: RunState) {
-  const raw = itemRawCost(item)
-  if (!run) return raw
-  const emperors = ownedEmperors(run)
-
-  let cost = raw
-  for (const emperor of emperors) {
-    if (!emperor.getDiscount) continue
-    cost *= emperor.getDiscount({ item })
-  }
-
-  return cost
+export function itemCost(item: TileItem) {
+  return ITEM_COST + item.level - 1
 }
 
 const PATHS = {
-  freedom: ["glass", "diamond"],
-  points: ["ivory", "jade"],
-  coins: ["bronze", "gold"],
+  r: ["garnet", "ruby"],
+  g: ["jade", "emerald"],
+  b: ["topaz", "sapphire"],
+  k: ["quartz", "obsidian"],
 } as const
 export type Path = keyof typeof PATHS
 
@@ -73,51 +38,24 @@ type BaseItem = {
   id: string
 }
 
-export type EmperorItem = BaseItem & {
-  type: "emperor"
-  name: EmperorName
-  level: Level
-}
-
 export type TileItem = BaseItem & {
-  card: Card
+  cardId: CardId
   type: "tile"
-  level: Level
+  level: number
 }
 
 export type DeckTileItem = BaseItem & {
-  card: Card
+  cardId: CardId
   material: Material
   type: "deckTile"
 }
 
-type FreezeItem = BaseItem & {
-  type: "freeze"
-  level: Level
-}
-
-type RerollItem = BaseItem & {
-  type: "reroll"
-  level: Level
-}
-
-export type UpgradeItem = BaseItem & {
-  type: "upgrade"
-  level: Level
-}
-
-export type Item =
-  | TileItem
-  | UpgradeItem
-  | EmperorItem
-  | FreezeItem
-  | RerollItem
 type ShopState = {
   reroll: number
-  currentItem: Item | DeckTileItem | null
+  currentItem: TileItem | DeckTileItem | null
 }
 
-export function isTile(item: Item | DeckTileItem) {
+export function isTile(item: TileItem | DeckTileItem) {
   if (item.type === "tile") return item
 
   return null
@@ -155,85 +93,41 @@ export function createShopState(params: CreateShopStateParams) {
   })
 }
 
-function generateTileItems(level: Level, num: number, cards: Card[]) {
-  return Array.from({ length: num }, (_, i) =>
-    cards.flatMap(
-      (card, j) =>
-        ({ id: `tile-${level}-${i}-${j}`, card, type: "tile", level }) as const,
-    ),
-  ).flat()
-}
-
-export function generateEmperorItem(emperor: Emperor) {
+export function generateTileItem({ card, i }: { card: Card; i: number }) {
   return {
-    id: nanoid(),
-    name: emperor.name,
-    type: "emperor" as const,
-    level: emperor.level,
-  }
-}
-
-function generateEmperorItems() {
-  return EMPERORS.map(generateEmperorItem)
-}
-
-export function generateShopItems(): Item[] {
-  return [
-    ...generateTileItems(1, 9, [...bams, ...cracks, ...dots]),
-    ...generateTileItems(2, 9, [...rabbits, ...flowers, ...seasons]),
-    ...generateTileItems(3, 9, [...dragons, ...phoenix]),
-    ...generateTileItems(4, 9, [...winds, ...mutations]),
-    ...generateTileItems(5, 9, [...jokers, ...jokers, ...transports]),
-    // emperors
-    ...generateEmperorItems(),
-  ]
+    id: `tile-${card.id}-${i}`,
+    cardId: card.id,
+    type: "tile",
+    level: card.level,
+  } as TileItem
 }
 
 export function generateItems(run: RunState, shop: ShopState) {
   const runId = run.runId
-  const shopLevel = run.shopLevel
   const round = run.freeze?.round || run.round
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
-  const initialPool = run.shopItems.filter((item) => item.level <= shopLevel)
+  const initialPool = Array.from({ length: ITEM_POOL_SIZE }, (_, i) =>
+    getAllTiles()
+      .filter((t) => t.level <= round)
+      .flatMap((card) => generateTileItem({ card, i })),
+  ).flat()
+
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
-
-  const start = (5 * reroll) % poolSize
-
+  const start = (ITEM_COUNT * reroll) % poolSize
   const shuffled = shuffle(initialPool, rng).filter(
     (item) => !itemIds.has(item.id),
   )
 
   const items = []
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < ITEM_COUNT; i++) {
     const index = (start + i) % shuffled.length
     items.push(shuffled[index]!)
   }
 
   return items
-}
-
-export function buyItem(
-  run: RunState,
-  shop: ShopState,
-  item: Item,
-  fn: () => void,
-) {
-  const cost = itemCost(item, run)
-  const money = run.money
-  if (cost > money) throw Error("You don't have enough money")
-
-  batch(() => {
-    run.money = money - cost
-    run.items.push(item)
-    shop.currentItem = null
-    fn()
-  })
-
-  captureEvent("item_bought", item)
-  play("coin2")
 }
 
 function mergeCounts(
@@ -277,7 +171,7 @@ export function getNextMaterials(tiles: DeckTile[], path: Path) {
 
 export function getNextMaterial(tiles: DeckTile[], path: Path) {
   const materials = getNextMaterials(tiles, path)
-  return materials[materials.length - 1]
+  return materials[materials.length - 1]!
 }
 
 type MaterialTransformation = {
@@ -314,23 +208,72 @@ export function getTransformation(
   return { adds, updates, removes }
 }
 
-export function sellEmperor(
-  run: RunState,
-  shop: ShopState,
-  emperor: EmperorItem,
-) {
-  const cost = SELL_EMPEROR_AMOUNT
+export function buyTile({
+  run,
+  shop,
+  item,
+  deck,
+  reward = false,
+}: {
+  run: RunState
+  shop: ShopState
+  item: TileItem
+  deck: Deck
+  reward?: boolean
+}) {
+  const cost = reward ? 0 : itemCost(item)
   const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
 
   batch(() => {
-    run.money = money + cost
+    run.money = money - cost
+    run.items.push(item)
     shop.currentItem = null
-    run.items = run.items.filter((item) => item.id !== emperor.id)
+    const id = nanoid()
+    deck.set(id, { id, material: "bone", cardId: item.cardId })
+  })
+
+  if (!reward) {
+    play("coin2")
+    captureEvent("tile_bought", { cardId: item.cardId })
+  }
+}
+
+export function upgradeTile({
+  run,
+  shop,
+  item,
+  deck,
+  path,
+}: {
+  run: RunState
+  shop: ShopState
+  item: TileItem
+  deck: Deck
+  path: Path
+}) {
+  const cost = itemCost(item)
+  const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
+
+  batch(() => {
+    run.money = money - cost
+    run.items.push(item)
+    shop.currentItem = null
+    const { updates, removes } = getTransformation(
+      deck.filterBy({ cardId: item.cardId }),
+      path,
+    )
+
+    for (const [id, material] of entries(updates)) {
+      deck.set(id, { id, material, cardId: item.cardId })
+    }
+
+    for (const id of removes) {
+      deck.del(id)
+    }
   })
 
   play("coin2")
-}
-
-export function maxEmperors(run: RunState) {
-  return 1 + run.shopLevel
+  captureEvent("tile_upgraded", { cardId: item.cardId, path })
 }

@@ -1,12 +1,12 @@
-import { GameTutorial, RunTutorial } from "@/components/gameTutorial"
 import { captureEvent, captureRun } from "@/lib/observability"
 import { DeckStateProvider, createDeckState } from "@/state/deckState"
+import { ShopStateProvider, createShopState } from "@/state/shopState"
 import { useParams } from "@solidjs/router"
 import { Match, Switch, createEffect, createMemo, onMount } from "solid-js"
 import { RunStateProvider, createRunState } from "../state/runState"
 import RunGame from "./run/runGame"
-import RunIntro from "./run/runMode"
-import RunSelect from "./run/runSelect"
+import RunIntro from "./run/runIntro"
+import RunReward from "./run/runReward"
 import RunShop from "./run/runShop"
 
 export function Run() {
@@ -15,6 +15,7 @@ export function Run() {
 
   const run = createRunState({ id })
   const newDeck = createDeckState({ id })
+  const shop = createShopState({ id })
 
   onMount(() => {
     captureRun(id(), "adventure")
@@ -27,24 +28,22 @@ export function Run() {
   return (
     <RunStateProvider run={run}>
       <DeckStateProvider deck={newDeck()}>
-        <Switch>
-          <Match when={run.stage === "intro"}>
-            <RunIntro />
-          </Match>
-          <Match when={run.stage === "select"}>
-            <RunSelect />
-          </Match>
-          <Match when={run.stage === "game"}>
-            <GameTutorial>
+        <ShopStateProvider shop={shop}>
+          <Switch>
+            <Match when={run.stage === "intro"}>
+              <RunIntro />
+            </Match>
+            <Match when={run.stage === "game"}>
               <RunGame />
-            </GameTutorial>
-          </Match>
-          <Match when={run.stage === "shop"}>
-            <RunTutorial>
+            </Match>
+            <Match when={run.stage === "reward"}>
+              <RunReward />
+            </Match>
+            <Match when={run.stage === "shop"}>
               <RunShop />
-            </RunTutorial>
-          </Match>
-        </Switch>
+            </Match>
+          </Switch>
+        </ShopStateProvider>
       </DeckStateProvider>
     </RunStateProvider>
   )

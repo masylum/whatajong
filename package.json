@@ -47,6 +47,7 @@
     "@kobalte/core": "^0.13.9",
     "@solid-primitives/i18n": "^2.2.0",
     "@solid-primitives/keyboard": "^1.3.0",
+    "@solid-primitives/keyed": "^1.5.0",
     "@solid-primitives/map": "^0.6.0",
     "@solid-primitives/media": "^2.3.0",
     "@solid-primitives/resize-observer": "^2.1.0",
@@ -71,6 +72,9 @@
     "wrangler": "^3.101.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["electron", "esbuild"]
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ]
   }
 }

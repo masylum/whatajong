@@ -1,17 +1,28 @@
+import {
+  ANIMATION_MEDIUM,
+  easeBounce,
+  fromAboveAnimation,
+} from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
-import { color, hueSelectors, hueVariants } from "@/styles/colors"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const containerClass = style({
+  background: 'url("./halftone.png")',
+  height: "100dvh",
+  width: "100dvw",
+})
+
+export const contentClass = style({
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  height: "100dvh",
-  width: "100dvw",
-  background: `linear-gradient(to bottom, ${color.dot10}, black)`,
+  height: "100%",
+  width: "100%",
+  background: `linear-gradient(to bottom, ${alpha(color.dot60, 0.1)}, ${alpha(color.dot60, 0.3)})`,
   position: "relative",
   gap: 12,
   padding: 12,
@@ -88,9 +99,13 @@ export const buttonsClass = style({
 export const titleClass = style({
   ...fontSize.h1,
   fontFamily: primary,
-  color: color.dot90,
+  color: color.dot40,
   fontVariantLigatures: "none",
   textAlign: "center",
+  animationName: fromAboveAnimation,
+  animationFillMode: "backwards",
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_MEDIUM,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.hero4,
@@ -107,6 +122,8 @@ export const columnsClass = style({
   justifyContent: "center",
   gap: 24,
   minHeight: 0,
+  maxWidth: 800,
+  margin: "0 auto",
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       gap: 28,
@@ -119,17 +136,35 @@ export const columnsClass = style({
 
 export const whatajongClass = style({
   fontFamily: primary,
-  color: color.crack60,
+  color: color.crack50,
 })
 
 export const columnClass = style({
   display: "flex",
   flexDirection: "column",
-  color: color.dot70,
-  gap: 12,
+  color: color.dot30,
+  gap: 8,
   ...fontSize.m,
   fontFamily: secondary,
   flex: 1,
+  animationName: fromAboveAnimation,
+  animationFillMode: "backwards",
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_MEDIUM,
+  selectors: {
+    "&:nth-child(1)": {
+      animationDelay: "50ms",
+    },
+    "&:nth-child(2)": {
+      animationDelay: "100ms",
+    },
+    "&:nth-child(3)": {
+      animationDelay: "150ms",
+    },
+    "&:nth-child(4)": {
+      animationDelay: "200ms",
+    },
+  },
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.l,
@@ -163,7 +198,7 @@ export const cardTitleClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      color: kolor(60),
+      color: kolor(40),
     })),
   },
 })
@@ -179,103 +214,43 @@ export const rowClass = style({
 })
 
 export const boardClass = style({
-  background: color.bone90,
-  padding: 12,
-  borderRadius: 8,
-  position: "relative",
-  maxWidth: 200,
   margin: "0 auto",
-})
-
-export const emperorContainerClass = style({
   display: "flex",
-  justifyContent: "center",
-})
-
-export const emperorClass = recipe({
-  base: {
-    borderRadius: 12,
-    padding: 0,
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    maxWidth: 100,
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      background: kolor(20),
-      border: `4px solid ${kolor(30)}`,
-    })),
-  },
-})
-
-export const emperorImageClass = style({
-  width: "100%",
-  minHeight: 0,
-  objectFit: "cover",
-  objectPosition: "top center",
-})
-
-export const emperorTextClass = style({
-  ...fontSize.xs,
-  fontFamily: primary,
-  display: "flex",
-  flexDirection: "column",
-  flex: 1,
+  alignItems: "center",
+  gap: 12,
   padding: 8,
-  gap: 8,
-  "@media": {
-    [mediaQuery({ p: "m", l: "xs" })]: {
-      padding: 12,
-      gap: 12,
-      ...fontSize.m,
-    },
-    [mediaQuery({ p: "l", l: "s" })]: {
-      ...fontSize.l,
-    },
-    [mediaQuery({ p: "xl", l: "m" })]: {
-      ...fontSize.h3,
-    },
-  },
-  selectors: {
-    ...hueSelectors(
-      (hue) => `${emperorClass.classNames.variants.hue[hue]} &`,
-      (kolor) => ({
-        color: kolor(70),
-      }),
-    ),
-  },
+  overflow: "hidden",
 })
 
 export const shopItemContainerClass = style({
   display: "flex",
-  alignItems: "flex-start",
   justifyContent: "center",
-  gap: 4,
+  margin: "0 auto",
+  gap: 24,
   height: "100%",
   width: "100%",
-  maxWidth: 300,
+  minHeight: 80,
 })
 
-export const materialListClass = style({
-  padding: 0,
-  margin: 0,
-})
-
-export const materialListItemClass = style({
-  margin: 0,
-  padding: 0,
-})
-
-export const materialNameClass = recipe({
+export const materialClass = recipe({
   base: {
-    fontFamily: primary,
-    ...fontSize.s,
+    padding: 12,
+    borderRadius: 8,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      color: kolor(60),
+      background: alpha(kolor(60), 0.2),
+      color: kolor(30),
     })),
   },
+})
+
+export const materialHeaderClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
 })

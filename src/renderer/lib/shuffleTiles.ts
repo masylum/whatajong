@@ -16,7 +16,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
     // Copy all tiles from the old tileDb to the new one, but with dumb tiles
     for (const tile of currentTiles) {
       newTileDb.set(tile.id, {
-        card: "x1",
+        cardId: "b1",
         material: "bone",
         id: tile.id,
         x: tile.x,
@@ -68,7 +68,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
         const tile2 = currentTiles[j]!
         if (usedTileIds.has(tile2.id)) continue
 
-        if (cardsMatch(tile1.card, tile2.card)) {
+        if (cardsMatch(tile1.cardId, tile2.cardId)) {
           pairs.push([tile1, tile2])
           usedTileIds.add(tile1.id)
           usedTileIds.add(tile2.id)
@@ -96,7 +96,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
 
       tileDb.set(id1, {
         id: id1,
-        card: deckTile1.card,
+        cardId: deckTile1.cardId,
         material: deckTile1.material,
         x: tile1.x,
         y: tile1.y,
@@ -107,7 +107,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
 
       tileDb.set(id2, {
         id: id2,
-        card: deckTile2.card,
+        cardId: deckTile2.cardId,
         material: deckTile2.material,
         x: tile2.x,
         y: tile2.y,

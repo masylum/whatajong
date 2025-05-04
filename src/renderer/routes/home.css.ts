@@ -156,6 +156,6 @@ export const cardClass = style({
   animationName: fromBelowAnimation,
   animationTimingFunction: easeBounce,
   animationDuration: ANIMATION_FAST,
-  animationDelay: cardAnimationDelayVar,
+  animationDelay: `calc(300ms + ${cardAnimationDelayVar})`,
   animationFillMode: "backwards",
 })

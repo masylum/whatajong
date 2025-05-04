@@ -1,33 +1,9 @@
-import { EMPEROR_RATIO } from "@/components/basicEmperor"
-import { heightQueries, mediaQuery, widthQueries } from "@/styles/breakpoints"
-import { alpha, color } from "@/styles/colors"
+import { mediaQuery } from "@/styles/breakpoints"
+import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { style } from "@vanilla-extract/css"
-import { keyframes } from "@vanilla-extract/css"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
-
-export const FLIP_DURATION = 1000
-const DELETED_DURATION = 300
-
-const deletedKeyframes = keyframes({
-  "0%": {
-    transform: "scale(1, 1)",
-    opacity: 1,
-  },
-  "20%": {
-    transform: "scale(1.05, 0.9)",
-    opacity: 0.9,
-  },
-  "50%": {
-    transform: "scale(0.9, 1.05)",
-    opacity: 0.5,
-  },
-  "100%": {
-    transform: "scale(0.3, 1) translate(0, 10px)",
-    opacity: 0,
-  },
-})
 
 export const roundClass = style({
   display: "flex",
@@ -77,103 +53,328 @@ export const roundObjectiveClass = style({
   flex: 1,
 })
 
-export const menuContainerClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 12,
-  "@media": {
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 16,
+export const COMBO_ANIMATION_DURATION = 200
+
+const shakeIntensity = createVar()
+
+const shakeAnimation = keyframes({
+  "0%, 100%": { transform: "translate(0, 0)" },
+  "25%": {
+    transform: `translate(calc(${shakeIntensity} * -1px), calc(${shakeIntensity} * 1px))`,
+  },
+  "50%": {
+    transform: `translate(calc(${shakeIntensity} * 1px), calc(${shakeIntensity} * -1px))`,
+  },
+  "75%": {
+    transform: `translate(calc(${shakeIntensity} * -1px), calc(${shakeIntensity} * -1px))`,
+  },
+})
+
+export const gameRecipe = recipe({
+  base: {
+    vars: {
+      [shakeIntensity]: "7",
     },
-    [mediaQuery({ p: "xl", l: "l" })]: {
-      gap: 24,
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100dvh",
+    width: "100dvw",
+    animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
+    transition: "all 0.2s ease-in-out",
+    overflow: "hidden",
+    ":before": {
+      backgroundImage: "url(/halftone.png)",
+      content: "",
+      position: "fixed",
+      height: "100dvh",
+      width: "100dvw",
+      mixBlendMode: "overlay",
+      top: 0,
+      left: 0,
+      zIndex: 1,
+      pointerEvents: "none",
+    },
+  },
+  variants: {
+    comboAnimation: {
+      0: { vars: { [shakeIntensity]: "0" }, animation: "none" },
+      1: { vars: { [shakeIntensity]: "1" } },
+      2: { vars: { [shakeIntensity]: "2" } },
+      3: { vars: { [shakeIntensity]: "3" } },
+      4: { vars: { [shakeIntensity]: "4" } },
+      5: { vars: { [shakeIntensity]: "5" } },
+      6: { vars: { [shakeIntensity]: "6" } },
+      7: { vars: { [shakeIntensity]: "7" } },
     },
   },
 })
 
-export const emperorCardClass = recipe({
+export const containerClass = recipe({
   base: {
-    cursor: "pointer",
-    width: 40 * EMPEROR_RATIO,
-    height: 40,
-    borderRadius: 8,
-    overflow: "hidden",
-    border: `1px solid ${color.bone40}`,
-    backgroundColor: color.bone90,
-    padding: 0,
-    outline: "none",
-    ":hover": {
-      filter: "brightness(1.1)",
-    },
-    ":focus": {
-      outline: `2px solid ${color.bone30}`,
-      outlineOffset: 2,
+    display: "flex",
+    flexWrap: "wrap-reverse",
+    position: "absolute",
+    zIndex: 3,
+    gap: 12,
+    padding: 8,
+    flexDirection: "row",
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
+        padding: 12,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        gap: 16,
+        padding: 16,
+      },
+      [mediaQuery({ p: "xl", l: "l" })]: {
+        padding: 24,
+        gap: 24,
+      },
     },
   },
   variants: {
     orientation: {
-      landscape: {
-        "@media": {
-          [widthQueries.xs]: {
-            width: 50 * EMPEROR_RATIO,
-            height: 50,
-          },
-          [widthQueries.s]: {
-            width: 60 * EMPEROR_RATIO,
-            height: 60,
-          },
-          [widthQueries.m]: {
-            width: 70 * EMPEROR_RATIO,
-            height: 70,
-          },
-          [widthQueries.l]: {
-            width: 80 * EMPEROR_RATIO,
-            height: 80,
-          },
-        },
-      },
       portrait: {
-        "@media": {
-          [heightQueries.xs]: {
-            height: 50,
-            width: 50 * EMPEROR_RATIO,
-          },
-          [heightQueries.s]: {
-            height: 60,
-            width: 60 * EMPEROR_RATIO,
-          },
-          [heightQueries.m]: {
-            height: 70,
-            width: 70 * EMPEROR_RATIO,
-          },
-          [heightQueries.l]: {
-            height: 80,
-            width: 80 * EMPEROR_RATIO,
-          },
-        },
+        flexDirection: "column",
+      },
+      landscape: {
+        flexDirection: "row",
       },
     },
-    deleted: {
-      true: {
-        animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
-        transformOrigin: "center",
+    position: {
+      topLeft: {
+        left: 0,
+        top: 0,
+      },
+      topRight: {
+        right: 0,
+        top: 0,
+      },
+      bottomLeft: {
+        left: 0,
+        bottom: 0,
+      },
+      bottomRight: {
+        right: 0,
+        bottom: 0,
       },
     },
   },
 })
 
-export const emperorDialogClass = style({
+const statItem = style({
   display: "flex",
   flexDirection: "column",
-  gap: 32,
+  fontFamily: primary,
+  userSelect: "none",
+  gap: 4,
+  ...fontSize.s,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.m,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.l,
+      gap: 8,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h3,
+      gap: 12,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.h2,
+    },
+  },
 })
 
-export const emperorDialogButtonsClass = style({
-  display: "flex",
-  fontFamily: primary,
-  justifyContent: "flex-end",
-  alignItems: "center",
-  color: color.bone20,
-  gap: 12,
+export const pillClass = recipe({
+  base: {
+    ...fontSize.m,
+    textAlign: "center",
+    borderRadius: 8,
+    paddingInline: 4,
+    paddingBlock: 0,
+    color: "white",
+    "@media": {
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h3,
+        paddingInline: 8,
+        paddingBlock: 2,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h2,
+        paddingInline: 12,
+        paddingBlock: 4,
+      },
+    },
+  },
+  variants: {
+    hue: hueVariants((kolor) => ({
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.6)}, ${alpha(kolor(40), 0.9)})`,
+      boxShadow: `1px 1px 2px 0 inset ${alpha(kolor(60), 0.9)},
+        -1px -1px 2px 0px inset ${alpha(kolor(30), 0.9)},
+        0px 0px 0px 1px ${kolor(30)},
+        0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
+        0px 0px 5px -3px ${kolor(10)},
+        0px 0px 10px -5px ${kolor(10)}
+      `,
+    })),
+  },
+})
+
+const pulsePaused = keyframes({
+  "0%": {
+    transform: "translate(-50%, -50%) scale(0.9) ",
+    boxShadow: `0 0 0 0 ${alpha(color.black60, 0.2)}`,
+  },
+  "50%": {
+    transform: "translate(-50%, -50%) scale(1)",
+    boxShadow: `0 0 10px 100px ${alpha(color.black60, 0)}`,
+  },
+  "100%": {
+    transform: "translate(-50%, -50%) scale(0.9)",
+    boxShadow: `0 0 0 0 ${alpha(color.black60, 0)}`,
+  },
+})
+
+const pulseMild = keyframes({
+  "0%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0.1)}`,
+  },
+  "50%": {
+    transform: "scale(1) translate(50%, 50%)",
+    boxShadow: `0 0 10px 100px ${alpha(color.bone60, 0)}`,
+  },
+  "100%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0)}`,
+  },
+})
+
+const pulseModerate = keyframes({
+  "0%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0.2)}`,
+  },
+  "50%": {
+    transform: "scale(1) translate(50%, 50%)",
+    boxShadow: `0 0 10px 100px ${alpha(color.bone60, 0)}`,
+  },
+  "100%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.bone60, 0)}`,
+  },
+})
+
+const pulseUrgent = keyframes({
+  "0%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.crack60, 0.3)}`,
+  },
+  "50%": {
+    transform: "scale(1) translate(50%, 50%)",
+    boxShadow: `0 0 10px 100px ${alpha(color.crack60, 0)}`,
+  },
+  "100%": {
+    transform: "scale(0.9) translate(50%, 50%)",
+    boxShadow: `0 0 0 0 ${alpha(color.crack60, 0)}`,
+  },
+})
+
+export const pointsClass = style([
+  statItem,
+  {
+    color: color.bam30,
+  },
+])
+
+export const coinsClass = style([
+  statItem,
+  {
+    color: color.crack30,
+  },
+])
+
+export const penaltyClass = recipe({
+  base: [
+    statItem,
+    {
+      color: color.black30,
+      transition: "color 0.3s ease",
+      position: "relative",
+      "::before": {
+        content: "",
+        position: "absolute",
+        zIndex: -1,
+        left: "50%",
+        top: "50%",
+        width: 200,
+        height: 200,
+        pointerEvents: "none",
+        borderRadius: "50%",
+      },
+    },
+  ],
+  variants: {
+    paused: {
+      true: {
+        color: color.black30,
+        "::before": {
+          background: `radial-gradient(circle, ${alpha(color.black60, 0.3)}, ${alpha(color.black60, 0)})`,
+          animation: `${pulsePaused} 1.5s infinite ease-in-out`,
+        },
+      },
+    },
+  },
+})
+
+export const movesClass = recipe({
+  base: [
+    statItem,
+    {
+      color: color.dot30,
+      transition: "color 0.3s ease",
+      "::before": {
+        content: "",
+        position: "absolute",
+        zIndex: -1,
+        right: 0,
+        bottom: 0,
+        width: 400,
+        height: 400,
+        pointerEvents: "none",
+        transformOrigin: "bottom right",
+        borderRadius: "50%",
+      },
+    },
+  ],
+  variants: {
+    urgency: {
+      normal: {},
+      mild: {
+        color: color.bone30,
+        "::before": {
+          background: `radial-gradient(circle, ${alpha(color.bone60, 0.1)}, ${alpha(color.bone60, 0)})`,
+          animation: `${pulseMild} 1.5s infinite ease-in-out`,
+        },
+      },
+      moderate: {
+        color: color.bone30,
+        "::before": {
+          background: `radial-gradient(circle, ${alpha(color.bone60, 0.2)}, ${alpha(color.bone60, 0)})`,
+          animation: `${pulseModerate} 1.5s infinite ease-in-out`,
+        },
+      },
+      urgent: {
+        color: color.crack30,
+        "::before": {
+          background: `radial-gradient(circle, ${alpha(color.crack60, 0.3)}, ${alpha(color.crack60, 0)})`,
+          animation: `${pulseUrgent} 1.5s infinite ease-in-out`,
+        },
+      },
+    },
+  },
 })

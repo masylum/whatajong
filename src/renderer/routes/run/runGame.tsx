@@ -1,58 +1,69 @@
-import { play } from "@/components/audio"
-import { BasicEmperor } from "@/components/basicEmperor"
-import { Button, LinkButton, ShopButton } from "@/components/button"
+import { play, toggleMusic } from "@/components/audio"
+import type { Track } from "@/components/audio"
+import { Button, LinkButton } from "@/components/button"
 import { Dialog } from "@/components/dialog"
 import {
   dialogContentClass,
   dialogItemClass,
-  dialogItemTitleClass,
   dialogItemsClass,
   dialogTitleClass,
 } from "@/components/dialog.css"
-import { Board } from "@/components/game/board"
-import { EmperorDetailsDialog } from "@/components/game/emperorDetails"
-import { Frame } from "@/components/game/frame"
-import { Moves, PointsAndPenalty } from "@/components/game/stats"
-import { Bell, Gear, Home, Rotate, Skull } from "@/components/icon"
-import { BellOff } from "@/components/icon"
+import { DustParticles } from "@/components/game/dustParticles"
+import { Powerups } from "@/components/game/powerups"
+import { TileComponent } from "@/components/game/tileComponent"
+import { GameTutorial } from "@/components/gameTutorial"
+import { ArrowRight, Gear, Help, Home, Rotate } from "@/components/icon"
+import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
-import { selectTile } from "@/lib/game"
-import { captureEvent } from "@/lib/observability"
-import { shuffleTiles } from "@/lib/shuffleTiles"
+import {
+  type Tile,
+  type TileDb,
+  getAvailablePairs,
+  isWind,
+  selectTile,
+} from "@/lib/game"
 import { useLayoutSize } from "@/state/constants"
-import { useDeckState } from "@/state/deckState"
-import { EMPERORS } from "@/state/emperors"
+import { initializeDeckState, useDeckState } from "@/state/deckState"
 import {
   GameStateProvider,
   createGameState,
   useGameState,
 } from "@/state/gameState"
-import { useGlobalState } from "@/state/globalState"
-import { ownedEmperors, useRound, useRunState } from "@/state/runState"
-import { type EmperorItem, itemCost } from "@/state/shopState"
+import { setMutable } from "@/state/persistantMutable"
+import {
+  initialRunState,
+  roundPersistentKey,
+  useRound,
+  useRunState,
+} from "@/state/runState"
 import {
   TileStateProvider,
   createTileState,
   useTileState,
 } from "@/state/tileState"
-import { Dialog as KobalteDialog } from "@kobalte/core/dialog"
+import { createShortcut } from "@solid-primitives/keyboard"
+import { createTimer } from "@solid-primitives/timer"
 import { nanoid } from "nanoid"
-import Rand from "rand-seed"
 import {
+  type Accessor,
   For,
   Show,
   batch,
   createEffect,
   createMemo,
+  createSelector,
   createSignal,
-  onCleanup,
+  onMount,
 } from "solid-js"
 import {
-  FLIP_DURATION,
-  emperorCardClass,
-  emperorDialogButtonsClass,
-  emperorDialogClass,
-  menuContainerClass,
+  COMBO_ANIMATION_DURATION,
+  coinsClass,
+  containerClass,
+  gameRecipe,
+  movesClass,
+  penaltyClass,
+  pillClass,
+  pointsClass,
   roundClass,
   roundObjectiveClass,
   roundTitleClass,
@@ -61,36 +72,145 @@ import RunGameOver from "./runGameOver"
 
 export default function RunGame() {
   const run = useRunState()
-  const round = useRound()
   const deck = useDeckState()
-  const id = createMemo(() => `${run.runId}-${round().id}`)
+  const id = createMemo(() => roundPersistentKey(run))
+  const [tutorial, setTutorial] = createSignal(false)
 
   const tiles = createTileState({ id, deck: deck.all })
   const game = createGameState({ id })
 
+  const [comboAnimation, setComboAnimation] = createSignal(0)
+
+  const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
+  const layout = useLayoutSize()
+  const orientation = createMemo(() => layout().orientation)
+
+  createVoicesEffect(tiles())
+
+  createTimer(
+    () => {
+      game.time += 1
+    },
+    () => !game.pause && 1000,
+    setInterval,
+  )
+
+  function handleComboEffect(
+    getCombo: Accessor<number>,
+    soundEffect: Track,
+    endSound: Track,
+  ) {
+    createEffect((prevCombo: number) => {
+      const combo = getCombo()
+
+      if (prevCombo && !combo) {
+        play(endSound)
+      } else if (combo > prevCombo) {
+        setComboAnimation(combo)
+        play(soundEffect)
+
+        setTimeout(() => {
+          setComboAnimation(0)
+        }, COMBO_ANIMATION_DURATION)
+      }
+
+      return combo
+    }, getCombo())
+  }
+
+  onMount(() => {
+    toggleMusic("game")
+  })
+
+  handleComboEffect(getDragonCombo, "grunt", "end_dragon")
+  handleComboEffect(getPhoenixCombo, "screech", "end_phoenix")
+
+  // Cheat Code!
+  createShortcut(["Shift", "K"], () => {
+    console.log("cheat!")
+    const pairs = getAvailablePairs(tiles(), game).sort(
+      // remove top to bottom and winds last
+      // this is the easiest heuristic to solve the game
+      (a, b) => {
+        const aIsWind = isWind(a[0]!.cardId)
+        const bIsWind = isWind(b[0]!.cardId)
+        if (aIsWind && !bIsWind) return 1
+        if (!aIsWind && bIsWind) return -1
+
+        return b[0]!.z + b[1]!.z - (a[0]!.z + a[1]!.z)
+      },
+    )[0]
+    if (!pairs) return
+    for (const tile of pairs) {
+      selectTile({ tileDb: tiles(), game, tileId: tile.id })
+    }
+    game.points += 100
+  })
+
+  onMount(() => {
+    play("gong")
+  })
+
   return (
     <GameStateProvider game={game}>
       <TileStateProvider tileDb={tiles()}>
-        <Show when={game.startedAt}>
-          <Show when={!game.endCondition} fallback={<RunGameOver />}>
-            <Frame
-              board={
-                <Board
-                  onSelectTile={(tileId) =>
-                    selectTile({
-                      tileDb: tiles(),
-                      run,
-                      game,
-                      tileId,
-                    })
-                  }
-                />
-              }
-              bottomLeft={<BottomLeft />}
-              bottomRight={<BottomRight />}
-              topLeft={<TopLeft />}
-              topRight={<TopRight />}
-            />
+        <Show when={!game.endCondition} fallback={<RunGameOver />}>
+          <Show
+            when={!tutorial()}
+            fallback={<GameTutorial onClose={() => setTutorial(false)} />}
+          >
+            <div
+              class={gameRecipe({
+                comboAnimation: comboAnimation() as any,
+              })}
+            >
+              <div
+                class={containerClass({
+                  position: "topLeft",
+                  orientation: orientation(),
+                })}
+              >
+                <TopLeft />
+              </div>
+              <div
+                class={containerClass({
+                  position: "topRight",
+                  orientation: orientation(),
+                })}
+              >
+                <TopRight setTutorial={setTutorial} />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  width: `${layout().width}px`,
+                  height: `${layout().height}px`,
+                  "z-index": 3,
+                }}
+              >
+                <Board />
+              </div>
+              <div
+                class={containerClass({
+                  position: "bottomLeft",
+                  orientation: orientation(),
+                })}
+              >
+                <BottomLeft />
+              </div>
+              <div
+                class={containerClass({
+                  position: "bottomRight",
+                  orientation: orientation(),
+                })}
+              >
+                <BottomRight />
+              </div>
+              <Mountains />
+              <DustParticles />
+              <Powerups />
+            </div>
           </Show>
         </Show>
       </TileStateProvider>
@@ -98,12 +218,13 @@ export default function RunGame() {
   )
 }
 
-function TopLeft() {
+function TopRight(props: { setTutorial: (tutorial: boolean) => void }) {
   const run = useRunState()
-  const globalState = useGlobalState()
   const [open, setOpen] = createSignal(false)
   const t = useTranslation()
+  const deck = useDeckState()
 
+  // Close the menu when the run changes
   createEffect((prevRunId: string) => {
     if (prevRunId !== run.runId) {
       setOpen(false)
@@ -112,121 +233,12 @@ function TopLeft() {
     return run.runId
   }, run.runId)
 
-  return (
-    <>
-      <nav class={menuContainerClass}>
-        <LinkButton href="/" hue="bam">
-          <Home />
-        </LinkButton>
-        <Dialog
-          open={open()}
-          onOpenChange={setOpen}
-          trigger={
-            <Button
-              type="button"
-              hue="dot"
-              title="settings"
-              onClick={() => setOpen(true)}
-            >
-              <Gear />
-            </Button>
-          }
-          content={
-            <div class={dialogContentClass}>
-              <h1 class={dialogTitleClass}>{t.settings.title()}</h1>
-              <div class={dialogItemsClass}>
-                <div class={dialogItemClass}>
-                  <Button
-                    type="button"
-                    hue="dot"
-                    title="silence"
-                    onClick={() => {
-                      globalState.muted = !globalState.muted
-                    }}
-                  >
-                    <Show when={globalState.muted} fallback={<Bell />}>
-                      <BellOff />
-                    </Show>
-                  </Button>
-                  <span class={dialogItemTitleClass}>
-                    {t.settings.soundEffects()}
-                  </span>
-                </div>
-                <div class={dialogItemClass}>
-                  <LinkButton href={`/run/${nanoid()}`} hue="crack">
-                    <Rotate />
-                  </LinkButton>
-                  <span class={dialogItemTitleClass}>
-                    {t.settings.restartRun()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          }
-        />
-      </nav>
-    </>
-  )
-}
-
-function TopRight() {
-  const run = useRunState()
-  const items = createMemo(() =>
-    run.items.filter((item) => item.type === "emperor"),
-  )
-
-  return <For each={items()}>{(item) => <EmperorCard item={item} />}</For>
-}
-
-function EmperorCard(props: { item: EmperorItem }) {
-  const [deleted, setDeleted] = createSignal(false)
-  const tiles = useTileState()
-  const run = useRunState()
-  const deck = useDeckState()
-  const game = useGameState()
-  const layout = useLayoutSize()
-  const emperor = createMemo(
-    () => EMPERORS.find((emperor) => emperor.name === props.item.name)!,
-  )
-  const [open, setOpen] = createSignal(false)
-  const t = useTranslation()
-
-  function onDiscard() {
-    const rng = new Rand()
-    play("discard")
-    setOpen(false)
-
+  function onRestartRun() {
     batch(() => {
-      shuffleTiles({ rng, tileDb: tiles })
-
-      for (const emperor of ownedEmperors(run)) {
-        emperor.whenDiscarded?.({ run, deck, game, tileDb: tiles })
-      }
-    })
-
-    setDeleted(true)
-
-    const sideEffectTimeout = setTimeout(() => {
-      batch(() => {
-        run.items = run.items.filter((item) => item.id !== props.item.id)
-        run.money =
-          run.money +
-          itemCost(
-            {
-              type: "emperor",
-              id: props.item.id,
-              level: props.item.level,
-              name: props.item.name,
-            },
-            run,
-          )
-      })
-    }, FLIP_DURATION)
-
-    onCleanup(() => clearTimeout(sideEffectTimeout))
-
-    captureEvent("emperor_discarded", {
-      emperor: props.item.name,
+      const attempts = run.attempts + 1
+      setMutable(run, initialRunState(run.runId))
+      run.attempts = attempts
+      initializeDeckState(deck)
     })
   }
 
@@ -235,23 +247,43 @@ function EmperorCard(props: { item: EmperorItem }) {
       open={open()}
       onOpenChange={setOpen}
       trigger={
-        <KobalteDialog.Trigger
-          class={emperorCardClass({
-            deleted: deleted(),
-            orientation: layout().orientation,
-          })}
+        <Button
+          type="button"
+          hue="dot"
+          title="settings"
+          onClick={() => setOpen(true)}
         >
-          <BasicEmperor name={props.item.name} />
-        </KobalteDialog.Trigger>
+          <Gear />
+        </Button>
       }
       content={
-        <div class={emperorDialogClass}>
-          <EmperorDetailsDialog emperor={emperor()} />
-          <div class={emperorDialogButtonsClass}>
-            <ShopButton hue="dot" onClick={onDiscard}>
-              <Skull />
-              {t.common.discardAndShuffle()}
-            </ShopButton>
+        <div class={dialogContentClass}>
+          <h1 class={dialogTitleClass}>{t.settings.title()}</h1>
+          <div class={dialogItemsClass}>
+            <div class={dialogItemClass}>
+              <LinkButton href="/" hue="bam" suave>
+                <Home />
+                {t.settings.goBack()}
+              </LinkButton>
+            </div>
+            <div class={dialogItemClass}>
+              <LinkButton href={`/run/${nanoid()}`} hue="dot" suave>
+                <ArrowRight />
+                {t.settings.newRun()}
+              </LinkButton>
+            </div>
+            <div class={dialogItemClass}>
+              <Button hue="crack" suave onClick={onRestartRun}>
+                <Rotate />
+                {t.settings.restartRun()}
+              </Button>
+            </div>
+            <div class={dialogItemClass}>
+              <Button hue="bone" suave onClick={() => props.setTutorial(true)}>
+                <Help />
+                {t.common.help()}
+              </Button>
+            </div>
           </div>
         </div>
       }
@@ -259,24 +291,225 @@ function EmperorCard(props: { item: EmperorItem }) {
   )
 }
 
-function BottomLeft() {
-  const round = useRound()
+function TopLeft() {
   const run = useRunState()
+  const round = useRound()
   const t = useTranslation()
 
   return (
+    <div class={roundClass}>
+      <div class={roundTitleClass}>{t.common.roundN({ round: run.round })}</div>
+      <div class={roundObjectiveClass}>{round().pointObjective}</div>
+    </div>
+  )
+}
+
+function BottomLeft() {
+  const round = useRound()
+  const game = useGameState()
+
+  return (
     <>
-      <div class={roundClass}>
-        <div class={roundTitleClass}>
-          {t.common.roundN({ round: run.round })}
-        </div>
-        <div class={roundObjectiveClass}>{round().pointObjective}</div>
-      </div>
-      <PointsAndPenalty timerPoints={round().timerPoints} />
+      <Points points={game.points} />
+      <Penalty points={Math.floor(game.time * round().timerPoints)} />
     </>
   )
 }
 
 function BottomRight() {
-  return <Moves />
+  const game = useGameState()
+
+  return (
+    <>
+      <Coins coins={game.coins} />
+      <Moves />
+    </>
+  )
+}
+
+const EXPRESSIONS = [
+  "great",
+  "nice",
+  "super",
+  "awesome",
+  "amazing",
+  "unreal",
+  "fantastic",
+  "legendary",
+] as const
+
+const FAST_SELECTION_THRESHOLD = 3000
+
+function createVoicesEffect(tiles: TileDb) {
+  const [lastTileTime, setLastTileTime] = createSignal<number>(0)
+  const [speedStreak, setSpeedStreak] = createSignal<number>(0)
+  const userDeletions = createMemo(() => tiles.filterBy({ deleted: true }))
+
+  createEffect((prevDeletions: Tile[]) => {
+    const deletions = userDeletions()
+    if (deletions.length === prevDeletions.length) return deletions
+
+    // Only process if selection count has increased (a new selection was made)
+    // We use the length as a proxy for a new selection being added
+    const now = Date.now()
+    const lastTime = lastTileTime()
+    const timeDiff = now - lastTime
+
+    if (lastTime === 0 || timeDiff > FAST_SELECTION_THRESHOLD) {
+      setSpeedStreak(0)
+    } else {
+      const newStreak = speedStreak() + 1
+      setSpeedStreak(newStreak)
+
+      if (newStreak >= 3) {
+        const expressionIndex = newStreak - 3
+        const expressionSound = EXPRESSIONS[expressionIndex]
+        if (expressionSound) {
+          play(expressionSound)
+        }
+      }
+    }
+
+    setLastTileTime(now)
+    return deletions
+  }, userDeletions())
+}
+
+export function Points(props: { points: number }) {
+  const t = useTranslation()
+
+  return (
+    <div data-tour="points" class={pointsClass}>
+      <span>{t.common.points()}</span>
+      <div class={pillClass({ hue: "bam" })}>{props.points}</div>
+    </div>
+  )
+}
+
+export function Coins(props: { coins: number }) {
+  const t = useTranslation()
+
+  return (
+    <div data-tour="coins" class={coinsClass}>
+      <span>{t.common.coins()}</span>
+      <div class={pillClass({ hue: "crack" })}>{props.coins}</div>
+    </div>
+  )
+}
+
+export function Penalty(props: { points: number }) {
+  const t = useTranslation()
+  const game = useGameState()
+
+  return (
+    <div data-tour="penalty" class={penaltyClass({ paused: game.pause })}>
+      <span>{game.pause ? t.common.paused() : t.common.penalty()}</span>
+      <div class={pillClass({ hue: "black" })}>{props.points}</div>
+    </div>
+  )
+}
+
+type Urgency = "normal" | "mild" | "moderate" | "urgent"
+
+function Moves() {
+  const tiles = useTileState()
+  const game = useGameState()
+  const pairs = createMemo(() => getAvailablePairs(tiles, game).length)
+
+  const urgencyLevel = createMemo(() => {
+    const pairsCount = pairs()
+    const tilesAlive = tiles.filterBy({ deleted: false })
+
+    if (tilesAlive.length <= 6) {
+      return "normal"
+    }
+
+    if (pairsCount <= 1) {
+      return "urgent"
+    }
+
+    if (pairsCount <= 2) {
+      return "moderate"
+    }
+
+    if (pairsCount <= 3) {
+      return "mild"
+    }
+
+    return "normal"
+  })
+
+  createEffect((prevPairs: number) => {
+    const newPairs = pairs()
+    const tilesAlive = tiles.filterBy({ deleted: false })
+
+    // do not alarm for the last few moves
+    if (tilesAlive.length <= 6) {
+      return newPairs
+    }
+
+    if (prevPairs > 1 && newPairs === 1) {
+      play("alarm3")
+    } else if (prevPairs > 2 && newPairs === 2) {
+      play("alarm2")
+    } else if (prevPairs > 3 && newPairs === 3) {
+      play("alarm1")
+    }
+
+    return newPairs
+  }, pairs())
+
+  return <MovesIndicator urgency={urgencyLevel()} pairs={pairs()} />
+}
+
+export function MovesIndicator(props: {
+  urgency: Urgency
+  pairs: number
+}) {
+  const t = useTranslation()
+  const hueForUrgency = createMemo(() => {
+    switch (props.urgency) {
+      case "mild":
+        return "bone"
+      case "moderate":
+        return "bone"
+      case "urgent":
+        return "crack"
+      default:
+        return "dot"
+    }
+  })
+
+  return (
+    <div data-tour="moves" class={movesClass({ urgency: props.urgency })}>
+      <span>{t.common.moves()}</span>
+      <div class={pillClass({ hue: hueForUrgency() })}>{props.pairs}</div>
+    </div>
+  )
+}
+
+function Board() {
+  const [hover, setHover] = createSignal<string | null>(null)
+  const isHovered = createSelector(hover)
+  const game = useGameState()
+  const tileDb = useTileState()
+
+  onMount(() => {
+    play("tiles")
+    performance.mark("sound")
+  })
+
+  return (
+    <For each={tileDb.all}>
+      {(tile) => (
+        <TileComponent
+          tile={tile}
+          hovered={isHovered(tile.id)}
+          onSelect={() => selectTile({ tileDb, game, tileId: tile.id })}
+          onMouseEnter={() => setHover(tile.id)}
+          onMouseLeave={() => setHover(null)}
+        />
+      )}
+    </For>
+  )
 }

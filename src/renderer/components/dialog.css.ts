@@ -4,7 +4,7 @@ import {
   fromBelowAnimation,
 } from "@/styles/animations.css"
 import { alpha, color } from "@/styles/colors"
-import { primary, secondary } from "@/styles/fontFamily.css"
+import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { style } from "@vanilla-extract/css"
 import { keyframes } from "@vanilla-extract/css"
@@ -99,11 +99,4 @@ export const dialogItemClass = style({
   display: "flex",
   alignItems: "center",
   gap: 16,
-})
-
-export const dialogItemTitleClass = style({
-  ...fontSize.m,
-  fontWeight: 500,
-  fontFamily: secondary,
-  color: color.bone20,
 })

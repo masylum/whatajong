@@ -114,11 +114,11 @@ export const comboRecipe = recipe({
     },
     selectors: {
       [`${powerupRecipe.classNames.variants.side.left} &`]: {
-        transform: "rotate(-90deg) translateX(-50%) translateY(20%)",
+        transform: "rotate(-90deg) translate(-50%, 50%)",
         transformOrigin: "center left",
       },
       [`${powerupRecipe.classNames.variants.side.right} &`]: {
-        transform: "rotate(-90deg) translateX(-50%) translateY(20%)",
+        transform: "rotate(-90deg) translate(50%, -50%)",
         transformOrigin: "center right",
       },
     },
@@ -126,7 +126,7 @@ export const comboRecipe = recipe({
   variants: {
     hue: hueVariants((kolor) => ({
       background: alpha(kolor(40), 0.8),
-      textShadow: `2px 2px 0px ${alpha(kolor(70), 0.5)}`,
+      textShadow: `1px 1px 0px ${alpha(kolor(60), 0.5)}`,
       ":after": {
         background: alpha(kolor(70), 0.5),
       },
@@ -134,25 +134,36 @@ export const comboRecipe = recipe({
   },
 })
 
+export const comboMultiplierClass = style({
+  ...fontSize.m,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      ...fontSize.l,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h3,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h2,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.h1,
+    },
+  },
+})
+
 export const phoenixComboClass = style({
-  ...fontSize.hero2,
+  ...fontSize.hero3,
   position: "absolute",
   transform: "translateY(-120%)",
   zIndex: -1,
-  color: alpha(color.bronze40, 0.3),
+  color: alpha(color.bone40, 0.5),
   fontFamily: primary,
-  top: "50%",
+  top: "40%",
   right: 20,
   "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      right: 40,
-    },
     [mediaQuery({ p: "l", l: "m" })]: {
-      right: 60,
-      ...fontSize.hero1,
-    },
-    [mediaQuery({ p: "xl", l: "l" })]: {
-      right: 80,
+      ...fontSize.hero2,
     },
   },
 })

@@ -1,6 +1,6 @@
-import type { Card, Material } from "@/lib/game"
+import type { CardId, Material } from "@/lib/game"
 import { TILE_RATIO, useTileSize } from "@/state/constants"
-import { type AccentHue, getHueColor } from "@/styles/colors"
+import { type AccentHue, getHueColor, hueFromMaterial } from "@/styles/colors"
 import { type JSX, Show, createMemo, splitProps } from "solid-js"
 import { tileClass } from "./basicTile.css"
 import { TileBody } from "./tileBody"
@@ -9,13 +9,17 @@ import { TileImage } from "./tileImage"
 import { TileSide } from "./tileSide"
 
 type Props = {
-  card?: Card
+  cardId?: CardId
   highlighted?: AccentHue | "white"
   material?: Material
   width?: number
 } & JSX.SvgSVGAttributes<SVGSVGElement>
 export function BasicTile(props: Props) {
-  const [local, other] = splitProps(props, ["card", "highlighted", "material"])
+  const [local, other] = splitProps(props, [
+    "cardId",
+    "highlighted",
+    "material",
+  ])
   const tileSize = useTileSize()
   const width = createMemo(() => props.width ?? tileSize().width)
   const height = createMemo(() => width() * TILE_RATIO)
@@ -32,9 +36,14 @@ export function BasicTile(props: Props) {
     >
       <TileSide d={dPath()} material={local.material} />
       <TileBody material={local.material} width={width()} height={height()} />
-      <Show when={local.card}>
-        {(card) => (
-          <TileImage width={width()} height={height()} card={card()} />
+      <Show when={local.cardId}>
+        {(cardId) => (
+          <TileImage
+            width={width()}
+            height={height()}
+            cardId={cardId()}
+            material={local.material}
+          />
         )}
       </Show>
       <Show when={local.highlighted}>
@@ -52,7 +61,7 @@ export function BasicTile(props: Props) {
       <path
         d={dPath()}
         fill="none"
-        stroke={getHueColor(local.material ?? "bone")(40)}
+        stroke={getHueColor(hueFromMaterial(local.material ?? "bone"))(40)}
         stroke-width="1"
       />
     </svg>

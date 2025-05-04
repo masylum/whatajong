@@ -1,4 +1,3 @@
-import type { Deck, Game, Level } from "@/lib/game"
 import Rand from "rand-seed"
 import {
   type ParentProps,
@@ -6,23 +5,35 @@ import {
   createMemo,
   useContext,
 } from "solid-js"
-import { EMPERORS } from "./emperors"
-import { calculateSeconds } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
-import { type Item, generateShopItems } from "./shopState"
+import type { TileItem } from "./shopState"
 
-const RUN_STATE_NAMESPACE = "run-state-v2"
+const RUN_STATE_NAMESPACE = "run-state-v3"
+export const TUTORIAL_SEED = "tutorial-seed"
+export const REWARDS = {
+  2: "w",
+  3: "d",
+  5: "r",
+  7: "f",
+  9: "p",
+  11: "m",
+  13: "e",
+  15: "t",
+  17: "g",
+  19: "j",
+} as const
 
 export type RunState = {
   runId: string
   money: number
   round: number
   stage: RoundStage
-  shopLevel: Level
-  shopItems: Item[]
-  items: Item[]
+  items: TileItem[]
   difficulty?: Difficulty
   createdAt: number
+  retries: number
+  attempts: number
+  totalPoints: number
   freeze?: {
     round: number
     reroll: number
@@ -31,8 +42,8 @@ export type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-type RoundStage = "intro" | "select" | "game" | "shop" | "gameOver"
-export type Round = {
+type RoundStage = "intro" | "game" | "shop" | "gameOver" | "reward"
+type Round = {
   id: number
   pointObjective: number
   timerPoints: number
@@ -76,33 +87,36 @@ export function createRunState(params: CreateRunStateParams) {
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
     id: params.id,
-    init: () => {
-      return {
-        runId: params.id(),
-        money: 0,
-        round: 1,
-        stage: "intro",
-        shopLevel: 1,
-        shopItems: generateShopItems(),
-        createdAt: Date.now(),
-        items: [],
-      }
-    },
+    init: () => initialRunState(params.id()),
   })
+}
+
+export function initialRunState(id: string): RunState {
+  return {
+    runId: id,
+    money: 0,
+    round: 1,
+    stage: "intro",
+    retries: 0,
+    attempts: 0,
+    totalPoints: 0,
+    createdAt: Date.now(),
+    items: [],
+  }
 }
 
 const DIFFICULTY = {
   easy: {
-    timer: { exp: 1.2, lin: 0.5 },
-    point: { exp: 2.4, lin: 20 },
+    timer: { exp: 1.1, lin: 1 },
+    point: { initial: 40, exp: 2.1, lin: 5 },
   },
   medium: {
-    timer: { exp: 1.3, lin: 1 },
-    point: { exp: 2.8, lin: 30 },
+    timer: { exp: 1.15, lin: 2 },
+    point: { initial: 40, exp: 2.2, lin: 10 },
   },
   hard: {
-    timer: { exp: 1.4, lin: 2 },
-    point: { exp: 3, lin: 60 },
+    timer: { exp: 1.2, lin: 3 },
+    point: { initial: 40, exp: 2.3, lin: 15 },
   },
 } as const
 
@@ -121,7 +135,7 @@ export function generateRound(id: number, run: RunState): Round {
   const level = id - 1
   const timerPoints = ((level * timer.lin + timer.exp ** level) / 20) * var1 // Grows level + 1.3^level
   const pointObjective = Math.round(
-    (100 + level * point.lin + level ** point.exp) * var2,
+    (point.initial + level * point.lin + level ** point.exp) * var2,
   ) // Grows 30*level + level^2.8
 
   const round: Round = {
@@ -133,42 +147,10 @@ export function generateRound(id: number, run: RunState): Round {
   return round
 }
 
-export const DECK_CAPACITY_PER_LEVEL = {
-  1: 36,
-  2: 42,
-  3: 52,
-  4: 64,
-  5: 77,
-} as const
-
-export function getIncome(deck: Deck, run: RunState) {
-  return deck.size * run.shopLevel
+export function calculateIncome(run: RunState) {
+  return 3 + run.round
 }
 
-function totalPoints(game: Game, round: Round) {
-  const time = calculateSeconds(game)
-  const penalty = Math.floor(time * round.timerPoints)
-  return game.points - penalty
-}
-
-export function runGameWin(game: Game, run: RunState) {
-  const round = generateRound(run.round, run)
-  if (game.endCondition !== "empty-board") return false
-  const enoughPoints = totalPoints(game, round) >= round.pointObjective
-  if (!enoughPoints) return false
-
-  return true
-}
-
-export function ownedEmperors(run?: RunState) {
-  if (!run) return []
-
-  const names = new Set(
-    (run.items as Item[])
-      .filter((item) => item.type === "emperor")
-      .map((item) => item.name),
-  )
-  if (!names.size) return []
-
-  return EMPERORS.filter((emperor) => names.has(emperor.name))
+export function roundPersistentKey(run: RunState) {
+  return `${run.runId}-${run.round}`
 }

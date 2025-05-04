@@ -1,49 +1,17 @@
+import { play } from "@/components/audio"
+import { DELETED_DURATION } from "@/components/game/tileComponent.css"
 import type { Translator } from "@/i18n/useTranslation"
-import { type RunState, ownedEmperors } from "@/state/runState"
-import { nanoid } from "nanoid"
+import type { Game } from "@/state/gameState"
 import Rand from "rand-seed"
-import { sumBy } from "remeda"
+import { indexBy } from "remeda"
 import { batch } from "solid-js"
 import { Database } from "./in-memoriam"
 import { RESPONSIVE_MAP } from "./maps/responsive"
-import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
+import { resolveDragons } from "./resolveDragons"
 import { resolveMutations } from "./resolveMutations"
 import { resolvePhoenixRun } from "./resolvePhoenixes"
-import { resolveRabbits } from "./resolveRabbits"
 import { resolveWinds } from "./resolveWinds"
 import { shuffleTiles } from "./shuffleTiles"
-
-const END_CONDITIONS = ["empty-board", "no-pairs"] as const
-type EndConditions = (typeof END_CONDITIONS)[number]
-
-export type PhoenixRun = {
-  number: number
-  combo: number
-}
-
-export type DragonRun = {
-  card: Dragon
-  combo: number
-}
-
-export type BoatRun = {
-  score: boolean
-  directions: WindDirection[]
-  combo: number
-}
-
-export type Game = {
-  startedAt?: number
-  endedAt?: number
-  points: number
-  endCondition?: EndConditions
-  transport?: Transport
-  temporaryMaterial?: Material
-  rabbitActive?: boolean
-  dragonRun?: DragonRun
-  phoenixRun?: PhoenixRun
-  boatRun?: BoatRun
-}
 
 export function gameOverCondition(tileDb: TileDb, game?: Game) {
   const tilesAlive = tileDb.filterBy({ deleted: false })
@@ -59,14 +27,15 @@ export function gameOverCondition(tileDb: TileDb, game?: Game) {
   return null
 }
 
-export function toPairs(tiles: Tile[]) {
+export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
+  const tiles = getFreeTiles(tileDb, game)
   const pairs: [Tile, Tile][] = []
 
   for (let i = 0; i < tiles.length; i++) {
     for (let j = i + 1; j < tiles.length; j++) {
       const tile1 = tiles[i]!
       const tile2 = tiles[j]!
-      if (!cardsMatch(tile1.card, tile2.card)) continue
+      if (tile1.cardId !== tile2.cardId) continue
 
       pairs.push([tile1, tile2])
     }
@@ -75,207 +44,104 @@ export function toPairs(tiles: Tile[]) {
   return pairs
 }
 
-export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
-  const freeTiles = getFreeTiles(tileDb, game)
-  return toPairs(freeTiles)
-}
-
-export function getCardPoints(card: Card) {
-  if (isDragon(card)) return 0
-  if (isFlower(card)) return 2
-  if (isPhoenix(card)) return 2
-  if (isRabbit(card)) return 2
-  if (isSeason(card)) return 2
-  if (isJoker(card)) return 8
-  if (isTransport(card)) return 8
-  if (isWind(card)) return 4
-
-  return 1
-}
-
-function getMaterialPoints(material: Material) {
+export function getMaterialPoints(material: Material) {
   switch (material) {
-    case "wood":
+    case "topaz":
+    case "quartz":
+    case "garnet":
       return 2
-    case "glass":
-    case "bronze":
-      return 4
-    case "diamond":
-    case "gold":
-      return 16
-    case "ivory":
-      return 8
     case "jade":
-      return 32
+      return 6
+    case "sapphire":
+    case "obsidian":
+    case "ruby":
+      return 24
+    case "emerald":
+      return 72
     default:
       return 0
   }
 }
 
-function getMaterialMultiplier(material: Material) {
-  switch (material) {
-    case "bronze":
-    case "glass":
-    case "ivory":
-      return 0.5
-    case "gold":
-    case "diamond":
-    case "jade":
-      return 2
-    default:
-      return 0
+function getElements(colors: Readonly<Color[]>, tileDb: TileDb) {
+  const elements = colors.flatMap((rank) =>
+    tileDb.filterBy({ deleted: false, cardId: `e${rank}` }),
+  )
+
+  return {
+    visibleElements: elements.filter((tile) => !isCovered(tileDb, tile)).length,
+    freeElements: elements.filter((tile) => isFree(tileDb, tile)).length,
+  }
+}
+
+function getTrigrams(card: Card, tileDb: TileDb) {
+  const suitCard = isSuit(card.id)
+  if (!suitCard) return { visibleTrigrams: 0, freeTrigrams: 0 }
+
+  const trigrams = tileDb.filterBy({
+    deleted: false,
+    cardId: `t${suitCard.rank}`,
+  })
+
+  return {
+    visibleTrigrams: trigrams.filter((tile) => !isCovered(tileDb, tile)).length,
+    freeTrigrams: trigrams.filter((tile) => isFree(tileDb, tile)).length,
   }
 }
 
 export function getPoints({
   game,
-  run,
-  tiles,
+  tile,
   tileDb,
-}: { game: Game; run?: RunState; tiles: Tile[]; tileDb?: TileDb }) {
-  let points = 0
-  let multiplier = 1
+}: { game: Game; tile: Tile; tileDb: TileDb }) {
+  const rawPoints = getRawPoints({
+    cardId: tile.cardId,
+    material: tile.material,
+  })
 
-  for (const tile of tiles) {
-    points += getRawPoints({
-      card: tile.card,
-      material: tile.material,
-      run,
-      tileDb,
-      game,
-    })
-    multiplier += getRawMultiplier({
-      game,
-      card: tile.card,
-      material: tile.material,
-      run,
-      tileDb,
-    })
-  }
+  const dragonRunMultiplier = getDragonMultiplier(game)
+  const phoenixRunMultiplier = getPhoenixRunMultiplier(game)
 
-  return points * multiplier
+  const card = getCard(tile.cardId)
+  const { visibleTrigrams, freeTrigrams } = getTrigrams(card, tileDb)
+  const { visibleElements, freeElements } = getElements(card.colors, tileDb)
+
+  return (
+    (rawPoints + visibleElements + visibleTrigrams) *
+    (1 +
+      dragonRunMultiplier +
+      phoenixRunMultiplier +
+      freeElements +
+      freeTrigrams)
+  )
 }
 
 export function getMaterialCoins(material: Material): number {
   switch (material) {
-    case "bronze":
-    case "jade":
-    case "diamond":
-      return 5
-    case "gold":
-      return 20
+    case "garnet":
+      return 1
+    case "ruby":
+      return 3
     default:
       return 0
   }
 }
 
-export function getCoins({
-  tiles,
-  run,
-  game,
-  newPoints,
-  tileDb,
-}: {
-  tiles: Tile[]
-  run?: RunState
-  game: Game
-  newPoints: number
-  tileDb?: TileDb
-}): number {
-  const materialCoins = sumBy(tiles, (tile) => getMaterialCoins(tile.material))
-  const rabbitCoins = Math.min(game.rabbitActive ? newPoints : 0, 300)
-  const emperorCoins = sumBy(ownedEmperors(run), (emperor) =>
-    sumBy(
-      tiles,
-      (tile) =>
-        emperor.getCoins?.({
-          card: tile.card,
-          material: tile.material,
-          tileDb,
-          game,
-        }) ?? 0,
-    ),
-  )
+export function getCoins({ tile }: { tile: Tile }): number {
+  const materialCoins = getMaterialCoins(tile.material)
+  const rabbitCoins = isRabbit(tile.cardId) ? 1 : 0
 
-  return materialCoins + emperorCoins + rabbitCoins
+  return materialCoins + rabbitCoins
 }
 
-function getJokerPoints(card: Card, tileDb: TileDb) {
-  if (!isJoker(card)) return 0
-
-  return tileDb.size
-}
-
-export function getRawPoints({
-  card,
+function getRawPoints({
+  cardId,
   material,
-  run,
-  tileDb,
-  game,
-}: {
-  card: Card
-  material: Material
-  run?: RunState
-  tileDb?: TileDb
-  game?: Game
-}) {
-  const cardPoints = getCardPoints(card)
+}: { cardId: CardId; material: Material }) {
+  const cardPoints = getCard(cardId).points
   const materialPoints = getMaterialPoints(material)
-  const emperorPoints = sumBy(
-    ownedEmperors(run),
-    (emperor) => emperor.getRawPoints?.({ card, material, tileDb, game }) ?? 0,
-  )
-  let jokerPoints = 0
 
-  if (tileDb) {
-    jokerPoints = getJokerPoints(card, tileDb)
-  }
-
-  return cardPoints + materialPoints + emperorPoints + jokerPoints
-}
-
-export function getRawMultiplier({
-  game,
-  card,
-  material,
-  run,
-  tileDb,
-}: {
-  game?: Game
-  card: Card
-  material: Material
-  run?: RunState
-  tileDb?: TileDb
-}) {
-  const materialMultiplier = getMaterialMultiplier(material)
-  let dragonRunMultiplier = 0
-  let rabbitMultiplier = 0
-  let phoenixRunMultiplier = 0
-
-  if (game) {
-    dragonRunMultiplier = getDragonMultiplier(game, card)
-    rabbitMultiplier = getBoatMultiplier(game)
-    phoenixRunMultiplier = getPhoenixRunMultiplier(game)
-  }
-
-  const emperorMultiplier = sumBy(
-    ownedEmperors(run),
-    (emperor) =>
-      emperor.getRawMultiplier?.({
-        card,
-        material,
-        tileDb,
-        game,
-      }) ?? 0,
-  )
-
-  return (
-    materialMultiplier +
-    dragonRunMultiplier +
-    phoenixRunMultiplier +
-    rabbitMultiplier +
-    emperorMultiplier
-  )
+  return cardPoints + materialPoints
 }
 
 export function getFreeTiles(tileDb: TileDb, game?: Game): Tile[] {
@@ -286,12 +152,10 @@ export function getFreeTiles(tileDb: TileDb, game?: Game): Tile[] {
 
 export function selectTile({
   tileDb,
-  run,
   game,
   tileId,
 }: {
   tileDb: TileDb
-  run?: RunState
   game: Game
   tileId: string
 }) {
@@ -317,42 +181,46 @@ export function selectTile({
 
     tileDb.set(firstTile.id, { ...firstTile, selected: false })
 
-    if (cardsMatch(firstTile.card, tile.card)) {
+    if (cardsMatch(firstTile.cardId, tile.cardId)) {
       const tiles = [tile, firstTile]
 
       deleteTiles(tileDb, tiles)
 
       // Special cards
-      resolveWinds(tileDb, tile)
-      resolveDragons(game, tile)
-      resolvePhoenixRun(game, tile)
-      resolveMutations(tileDb, tile)
-      resolveJokers(tileDb, tile)
+      resolveDragons({ game, tile })
+      resolvePhoenixRun({ game, tile })
+      resolveMutations({ tileDb, tile })
+      resolveGems({ tile, game })
+      resolveBlackMaterials({ tile, game })
 
-      const newPoints = getPoints({ game, run, tiles, tileDb })
-      const newCoins = getCoins({ tiles, run, game, newPoints, tileDb })
-
-      game.points = game.points + newPoints
-      tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
-
-      resolveRabbits(game, tile)
-      resolveTemporaryMaterial(game, tile)
-
-      if (run) {
-        for (const emperor of ownedEmperors(run)) {
-          emperor.whenMatched?.({ run, tile, tileDb, game })
-        }
+      for (const tile of tiles) {
+        const newPoints = getPoints({ game, tile, tileDb })
+        const newCoins = getCoins({ tile })
+        tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
+        game.points += newPoints
+        game.coins += newCoins
       }
+
+      resolveJokers({ tileDb, tile, game })
+      resolveWinds({ tileDb, tile })
     }
 
     const condition = gameOverCondition(tileDb, game)
 
     if (condition) {
-      game.endedAt = new Date().getTime()
+      game.pause = true
       game.endCondition = condition
       return
     }
   })
+}
+
+export function cardsMatch(cardId1: CardId, cardId2: CardId) {
+  if (isFlower(cardId1) && isFlower(cardId2)) {
+    return true
+  }
+
+  return cardId1 === cardId2
 }
 
 export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
@@ -361,101 +229,44 @@ export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
   }
 }
 
-const suits = [
-  "b",
-  "c",
-  "o",
-  "d",
-  "f",
-  "s",
-  "p",
-  "r",
-  "m",
-  "w",
-  "j",
-  "t",
-] as const
-export type Suit = (typeof suits)[number]
-
-// biome-ignore format:
-export const bams = [ "b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9" ] as const
-// biome-ignore format:
-export const cracks = [ "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9" ] as const
-// biome-ignore format:
-export const dots = [ "o1", "o2", "o3", "o4", "o5", "o6", "o7", "o8", "o9" ] as const
-export const winds = ["wn", "ww", "ws", "we"] as const
-export const flowers = ["f1", "f2", "f3", "f4"] as const
-export const seasons = ["s1", "s2", "s3", "s4"] as const
-export const dragons = ["dc", "db", "do"] as const
-export const rabbits = ["r1", "r2", "r3", "r4"] as const
-export const phoenix = ["pb", "pc", "po"] as const
-export const mutations = ["m1", "m2", "m3", "m4", "m5"] as const
-export const jokers = ["j1"] as const
-export const transports = ["tn", "tw", "ts", "te"] as const
-const dummy = ["x1"] as const
-
-type Bam = (typeof bams)[number]
-type Crack = (typeof cracks)[number]
-type Dot = (typeof dots)[number]
-export type Wind = (typeof winds)[number]
-type Flower = (typeof flowers)[number]
-type Season = (typeof seasons)[number]
-export type Dragon = (typeof dragons)[number]
-type Rabbit = (typeof rabbits)[number]
-type Phoenix = (typeof phoenix)[number]
-type Joker = (typeof jokers)[number]
-type Transport = (typeof transports)[number]
-type Dummy = (typeof dummy)[number]
-export type Mutation = (typeof mutations)[number]
-export type Card =
-  | Bam
-  | Crack
-  | Dot
-  | Wind
-  | Flower
-  | Season
-  | Dragon
-  | Dummy
-  | Phoenix
-  | Rabbit
-  | Mutation
-  | Joker
-  | Transport
-export type WindDirection = "n" | "s" | "e" | "w"
-
 export const deckTileIndexes = {
-  card: (tile: DeckTile) => tile.card,
+  cardId: (tile: DeckTile) => tile.cardId,
   material: (tile: DeckTile) => tile.material,
 } as const
 
 export type DeckTileIndexes = typeof deckTileIndexes
 export type DeckTile = {
   id: string
-  card: Card
+  cardId: CardId
   material: Material
 }
 
 export type Deck = Database<DeckTile, DeckTileIndexes>
 
-export function getStandardPairs(): [Card, Card][] {
-  const pairs: [Card, Card][] = []
-  const regularTiles = [...bams, ...cracks, ...dots, ...winds, ...dragons]
-
-  // Add 2 pairs of each regular tile
-  for (const tile of regularTiles) {
-    pairs.push([tile, tile], [tile, tile])
-  }
-  const [s1, s2, s3, s4] = seasons
-  const [f1, f2, f3, f4] = flowers
-  pairs.push([s1, s2], [s3, s4])
-  pairs.push([f1, f2], [f3, f4])
-
-  return pairs
+export function getAllTiles(): Card[] {
+  return [
+    ...bams,
+    ...bams,
+    ...cracks,
+    ...cracks,
+    ...dots,
+    ...dots,
+    ...winds,
+    ...dragons,
+    ...mutations,
+    ...jokers,
+    ...flowers,
+    ...rabbits,
+    ...phoenixes,
+    ...elements,
+    ...trigrams,
+    ...gems,
+  ]
 }
 
-export function getRunPairs(): [Card, Card][] {
+export function getInitialPairs(): [Card, Card][] {
   const pairs: [Card, Card][] = []
-  const regularTiles = [...bams, ...cracks, ...dots, ...winds, ...dragons]
+  const regularTiles = [...bams, ...cracks, ...dots]
 
   // Add 1 pair of each regular tile
   for (const tile of regularTiles) {
@@ -465,94 +276,68 @@ export function getRunPairs(): [Card, Card][] {
   return pairs
 }
 
-type ExtractSuit<T> = T extends `${infer S}${string}`
-  ? S extends Suit
-    ? S
-    : never
-  : never
-type ExtractNumber<T> = T extends `${Suit}${infer N}` ? N : never
-
-export function getSuit<T extends Card>(card: T): ExtractSuit<T> {
-  return card[0] as ExtractSuit<T>
+function checkSuit<S extends Suit>(
+  cardId: CardId,
+  suit: S,
+): Extract<Card, { suit: S }> | null {
+  const card = getCard(cardId)
+  return card.suit === suit ? (card as Extract<Card, { suit: S }>) : null
 }
 
-export function getRank<T extends Card>(card: T): ExtractNumber<T> {
-  return card.charAt(1) as ExtractNumber<T>
+export function isDragon(cardId: CardId) {
+  return checkSuit(cardId, "d")
 }
 
-export function matchesSuit(card: Card | Suit, suit: Suit) {
-  return card.startsWith(suit)
+export function isMutation(cardId: CardId) {
+  return checkSuit(cardId, "m")
 }
 
-export function cardsMatch(card1: Card, card2: Card) {
-  if (card1 === card2) return true
-  if (isFlower(card1) && isFlower(card2)) return true
-  if (isSeason(card1) && isSeason(card2)) return true
-
-  return false
+export function isFlower(cardId: CardId) {
+  return checkSuit(cardId, "f")
 }
 
-export function isDragon(card: Card | Suit) {
-  return matchesSuit(card, "d") ? (card as Dragon) : null
+export function isWind(cardId: CardId) {
+  return checkSuit(cardId, "w")
 }
 
-export function isMutation(card: Card | Suit) {
-  return matchesSuit(card, "m") ? (card as Mutation) : null
+export function isSuit(cardId: CardId) {
+  return isBam(cardId) || isCrack(cardId) || isDot(cardId)
 }
 
-export function isFlower(card: Card | Suit) {
-  return matchesSuit(card, "f") ? (card as Flower) : null
+export function isBam(cardId: CardId) {
+  return checkSuit(cardId, "b")
 }
 
-export function isSeason(card: Card | Suit) {
-  return matchesSuit(card, "s") ? (card as Season) : null
+export function isCrack(cardId: CardId) {
+  return checkSuit(cardId, "c")
 }
 
-export function isWind(card: Card | Suit) {
-  return matchesSuit(card, "w") ? (card as Wind) : null
+export function isDot(cardId: CardId) {
+  return checkSuit(cardId, "o")
 }
 
-export function isSuit(card: Card | Suit) {
-  return isBam(card) || isCrack(card) || isDot(card)
+export function isRabbit(cardId: CardId) {
+  return checkSuit(cardId, "r")
 }
 
-export function isBam(card: Card | Suit) {
-  return matchesSuit(card, "b") ? (card as Bam) : null
+export function isJoker(cardId: CardId) {
+  return checkSuit(cardId, "j")
 }
 
-export function isCrack(card: Card | Suit) {
-  return matchesSuit(card, "c") ? (card as Crack) : null
+export function isPhoenix(cardId: CardId) {
+  return checkSuit(cardId, "p")
 }
 
-export function isDot(card: Card | Suit) {
-  return matchesSuit(card, "o") ? (card as Dot) : null
+export function isElement(cardId: CardId) {
+  return checkSuit(cardId, "e")
 }
 
-export function isRabbit(card: Card | Suit) {
-  return matchesSuit(card, "r") ? (card as Rabbit) : null
+export function isTrigram(cardId: CardId) {
+  return checkSuit(cardId, "t")
 }
 
-export function isJoker(card: Card | Suit) {
-  return matchesSuit(card, "j") ? (card as Joker) : null
-}
-
-export function isTransport(card: Card | Suit) {
-  return matchesSuit(card, "t") ? (card as Transport) : null
-}
-
-export function isPhoenix(card: Card | Suit) {
-  return matchesSuit(card, "p") ? (card as Phoenix) : null
-}
-
-export function getStandardDeck() {
-  return getStandardPairs().map(
-    ([card1, _]) =>
-      ({
-        id: nanoid(),
-        card: card1,
-        material: "bone",
-      }) as DeckTile,
-  )
+export function isGem(cardId: CardId) {
+  return checkSuit(cardId, "g")
 }
 
 type Position = {
@@ -567,7 +352,7 @@ export function coord(position: Position) {
 
 export type Tile = {
   id: string
-  card: Card
+  cardId: CardId
   deleted: boolean
   selected: boolean
   material: Material
@@ -582,6 +367,7 @@ export const tileIndexes = {
   deleted: (tile: Tile) => tile.deleted,
   selected: (tile: Tile) => tile.selected,
   coord,
+  cardId: (tile: Tile) => tile.cardId,
 } as const
 export type TileIndexes = typeof tileIndexes
 export type TileDb = Database<Tile, TileIndexes>
@@ -669,161 +455,138 @@ export function getFinder(tileDb: TileDb, position: Position) {
   }
 }
 
-export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
-  const isCovered = overlaps(tileDb, tile, 1)
-  if (isCovered) return false
+export function isCovered(tileDb: TileDb, tile: Tile) {
+  return overlaps(tileDb, tile, 1)
+}
 
-  const material = getMaterial(tileDb, tile, game)
-  if (material === "diamond") return true
+export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
+  if (tile.deleted) return false
+  if (isCovered(tileDb, tile)) return false
+
+  const material = getMaterial(tile, game)
+  if (material === "topaz" || material === "sapphire") return true
 
   const freedoms = getFreedoms(tileDb, tile)
-  const countFreedoms = Object.values(freedoms).filter((v) => v).length
-
-  if (material === "glass" || material === "wood") {
-    return countFreedoms >= 1
-  }
-
-  if (material === "gold" || material === "jade") {
-    return countFreedoms >= 3
-  }
-
-  const isFreeH = freedoms.left || freedoms.right
-  return isFreeH
+  return freedoms.left || freedoms.right
 }
 
-export function getMaterial(tileDb: TileDb, tile: Tile, game?: Game): Material {
-  const tempMaterial = game?.temporaryMaterial
-  if (!tempMaterial) return tile.material
-  if (tile.material === tempMaterial) return tile.material
-  if (isFree(tileDb, { ...tile, material: tempMaterial }, game)) {
-    return tempMaterial
+export function getMaterial(tile: Tile, game?: Game): Material {
+  // testing code:
+  // const materialColors = {
+  //   g: ["bone", "jade", "emerald"],
+  //   r: ["bone", "ruby", "garnet"],
+  //   b: ["bone", "sapphire", "topaz"],
+  //   k: ["bone", "obsidian", "quartz"],
+  // } as const
+  // const materials = getCard(tile.cardId).colors.flatMap(
+  //   (color) => materialColors[color],
+  // )
+  // return materials[Math.floor(Math.random() * materials.length)]!
+  const temporaryMaterial = game?.temporaryMaterial
+  if (!temporaryMaterial) {
+    return tile.material
   }
-
-  return game?.temporaryMaterial ?? tile.material
+  const color = MATERIAL_COLOR[temporaryMaterial].color
+  const card = getCard(tile.cardId)
+  if ([...card.colors].includes(color)) {
+    return temporaryMaterial
+  }
+  return tile.material
 }
 
-export function suitName(card: Card | Suit) {
-  if (isFlower(card)) return "flower"
-  if (isSeason(card)) return "season"
-  if (isBam(card)) return "bam"
-  if (isCrack(card)) return "crack"
-  if (isDot(card)) return "dot"
-  if (isDragon(card)) return "dragon"
-  if (isWind(card)) return "wind"
-  if (isRabbit(card)) return "rabbit"
-  if (isPhoenix(card)) return "phoenix"
-  if (isJoker(card)) return "joker"
-  if (isMutation(card)) return "mutation"
-  if (isTransport(card)) return "transport"
+export function cardName(t: Translator, cardId: CardId) {
+  const colorCard =
+    isDragon(cardId) ||
+    isPhoenix(cardId) ||
+    isRabbit(cardId) ||
+    isElement(cardId)
 
-  throw Error("Unknown suit")
-}
-
-export const MUTATION_RANKS = {
-  1: ["o", "c"],
-  2: ["o", "b"],
-  3: ["b", "c"],
-} as const
-
-export function cardName(t: Translator, card: Card) {
-  const dragonCard = isDragon(card)
-
-  if (dragonCard) {
-    return t.cardName[dragonCard]()
+  if (colorCard) {
+    return t.cardName[colorCard.suit]({ color: t.color[colorCard.rank]() })
   }
 
-  const phoenixCard = isPhoenix(card)
-  if (phoenixCard) {
-    return t.cardName[phoenixCard]()
-  }
-
-  const mutationCard = isMutation(card)
+  const mutationCard = isMutation(cardId)
   if (mutationCard) {
-    const rank = getRank(mutationCard)
-    if (rank === "4") {
-      return t.cardName.m4()
-    }
+    return t.cardName[mutationCard.id]()
+  }
 
-    if (rank === "5") {
-      return t.cardName.m5()
-    }
-
-    const mutation = MUTATION_RANKS[rank]
-    return t.cardName.mutation({
-      from: suitName(mutation[0]),
-      to: suitName(mutation[1]),
+  const windCard = isWind(cardId)
+  if (windCard) {
+    return t.cardName[windCard.suit]({
+      direction: t.windDirections[windCard.rank](),
     })
   }
 
-  const windCard = isWind(card)
-  if (windCard) {
-    const direction = getWindDirection(t, windCard)
-    return t.cardName.wind({ direction })
+  const gemCard = isGem(cardId)
+  if (gemCard) {
+    return t.cardName[gemCard.id]()
   }
 
-  return `${t.suit[getSuit(card)]()} ${getRank(card)}`
-}
-
-export function getWindDirection(t: Translator, card: Wind) {
-  const direction = getRank(card)
-  return t.windDirections[direction]()
-}
-
-export function getMutationRanks(card: Mutation) {
-  const rank = getRank(card)
-  if (rank === "4" || rank === "5") return
-
-  return MUTATION_RANKS[rank]
+  const card = getCard(cardId)
+  return `${t.suit[card.suit]()} ${card.rank}`
 }
 
 export const materials = [
-  "glass",
-  "diamond",
-  "ivory",
-  "jade",
   "bone",
-  "bronze",
-  "gold",
-  "wood",
+  "topaz",
+  "sapphire",
+  "garnet",
+  "ruby",
+  "jade",
+  "emerald",
+  "quartz",
+  "obsidian",
 ] as const
 export type Material = (typeof materials)[number]
 
-function getDragonMultiplier(game: Game, card: Card) {
-  const dragonRun = game.dragonRun
-  if (!dragonRun) return 0
-
-  if (!cardMatchesDragon(dragonRun.card, card)) {
-    return 0
-  }
-
-  return dragonRun.combo
+function getDragonMultiplier(game: Game) {
+  return game.dragonRun?.combo ?? 0
 }
 
 function getPhoenixRunMultiplier(game: Game) {
   return game.phoenixRun?.combo ?? 0
 }
 
-function getBoatMultiplier(game: Game) {
-  const boatRun = game.boatRun
-  if (!boatRun) return 0
-
-  return boatRun.combo
-}
-
-export function resolveTemporaryMaterial(game: Game, tile: Tile) {
-  if (isFlower(tile.card) || isSeason(tile.card)) {
-    game.temporaryMaterial = "wood"
-  } else {
-    game.temporaryMaterial = undefined
-  }
-}
-
-function resolveJokers(tileDb: TileDb, tile: Tile) {
-  const jokerCard = isJoker(tile.card)
+function resolveJokers({
+  tileDb,
+  tile,
+  game,
+}: { tileDb: TileDb; tile: Tile; game: Game }) {
+  const jokerCard = isJoker(tile.cardId)
   if (!jokerCard) return
 
-  const rng = new Rand()
-  shuffleTiles({ rng, tileDb })
+  game.joker = true
+  setTimeout(() => {
+    const rng = new Rand()
+    batch(() => {
+      game.joker = false
+      shuffleTiles({ rng, tileDb })
+      play("tiles")
+    })
+  }, DELETED_DURATION + 100)
+}
+
+function resolveGems({ tile, game }: { tile: Tile; game: Game }) {
+  const gemCard = isGem(tile.cardId)
+  if (!gemCard) {
+    game.temporaryMaterial = undefined
+    return
+  }
+
+  const color = gemCard.colors[0]
+  const tempMaterial = (
+    {
+      r: "garnet",
+      g: "jade",
+      b: "topaz",
+      k: "quartz",
+    } as const
+  )[color]
+  game.temporaryMaterial = tempMaterial
+}
+
+function resolveBlackMaterials({ tile, game }: { tile: Tile; game: Game }) {
+  game.pause = tile.material === "obsidian" || tile.material === "quartz"
 }
 
 type MapType = (number | null)[][][]
@@ -846,8 +609,19 @@ export function mapGetLevels() {
   return RESPONSIVE_MAP.length
 }
 
-export function isTransparent(material: Material) {
-  return material === "glass" || material === "diamond"
+export function isShiny(material: Material) {
+  return (
+    material === "obsidian" ||
+    material === "sapphire" ||
+    material === "emerald" ||
+    material === "ruby"
+  )
+}
+
+export function opacity(material: Material) {
+  if (material === "bone") return 1
+
+  return 0.5
 }
 
 export function getMap(tiles: number) {
@@ -862,4 +636,161 @@ export function getMap(tiles: number) {
   )
 }
 
-export type Level = 1 | 2 | 3 | 4 | 5
+// biome-ignore format:
+export type Color = "g" | "r" | "b" | "k"
+
+const MATERIAL_COLOR = {
+  topaz: { color: "b" },
+  sapphire: { color: "b" },
+  garnet: { color: "r" },
+  ruby: { color: "r" },
+  jade: { color: "g" },
+  emerald: { color: "g" },
+  quartz: { color: "k" },
+  obsidian: { color: "k" },
+} as const
+
+export const bams = [
+  { id: "b1", suit: "b", rank: "1", colors: ["g"], points: 1, level: 1 },
+  { id: "b2", suit: "b", rank: "2", colors: ["g"], points: 1, level: 1 },
+  { id: "b3", suit: "b", rank: "3", colors: ["g"], points: 1, level: 1 },
+  { id: "b4", suit: "b", rank: "4", colors: ["g"], points: 1, level: 1 },
+  { id: "b5", suit: "b", rank: "5", colors: ["g"], points: 1, level: 1 },
+  { id: "b6", suit: "b", rank: "6", colors: ["g"], points: 1, level: 1 },
+  { id: "b7", suit: "b", rank: "7", colors: ["g"], points: 1, level: 1 },
+  { id: "b8", suit: "b", rank: "8", colors: ["g"], points: 1, level: 1 },
+  { id: "b9", suit: "b", rank: "9", colors: ["g"], points: 1, level: 1 },
+] as const
+type BamCard = (typeof bams)[number]
+
+export const cracks = [
+  { id: "c1", suit: "c", rank: "1", colors: ["r"], points: 1, level: 1 },
+  { id: "c2", suit: "c", rank: "2", colors: ["r"], points: 1, level: 1 },
+  { id: "c3", suit: "c", rank: "3", colors: ["r"], points: 1, level: 1 },
+  { id: "c4", suit: "c", rank: "4", colors: ["r"], points: 1, level: 1 },
+  { id: "c5", suit: "c", rank: "5", colors: ["r"], points: 1, level: 1 },
+  { id: "c6", suit: "c", rank: "6", colors: ["r"], points: 1, level: 1 },
+  { id: "c7", suit: "c", rank: "7", colors: ["r"], points: 1, level: 1 },
+  { id: "c8", suit: "c", rank: "8", colors: ["r"], points: 1, level: 1 },
+  { id: "c9", suit: "c", rank: "9", colors: ["r"], points: 1, level: 1 },
+] as const
+type CrackCard = (typeof cracks)[number]
+
+export const dots = [
+  { id: "o1", suit: "o", rank: "1", colors: ["b"], points: 1, level: 1 },
+  { id: "o2", suit: "o", rank: "2", colors: ["b"], points: 1, level: 1 },
+  { id: "o3", suit: "o", rank: "3", colors: ["b"], points: 1, level: 1 },
+  { id: "o4", suit: "o", rank: "4", colors: ["b"], points: 1, level: 1 },
+  { id: "o5", suit: "o", rank: "5", colors: ["b"], points: 1, level: 1 },
+  { id: "o6", suit: "o", rank: "6", colors: ["b"], points: 1, level: 1 },
+  { id: "o7", suit: "o", rank: "7", colors: ["b"], points: 1, level: 1 },
+  { id: "o8", suit: "o", rank: "8", colors: ["b"], points: 1, level: 1 },
+  { id: "o9", suit: "o", rank: "9", colors: ["b"], points: 1, level: 1 },
+] as const
+type DotCard = (typeof dots)[number]
+
+export const winds = [
+  { id: "wn", suit: "w", rank: "n", colors: ["k"], points: 4, level: 2 },
+  { id: "ww", suit: "w", rank: "w", colors: ["k"], points: 4, level: 2 },
+  { id: "ws", suit: "w", rank: "s", colors: ["k"], points: 4, level: 2 },
+  { id: "we", suit: "w", rank: "e", colors: ["k"], points: 4, level: 2 },
+] as const
+type WindCard = (typeof winds)[number]
+
+export const dragons = [
+  { id: "dr", suit: "d", rank: "r", colors: ["r"], points: 2, level: 3 },
+  { id: "dg", suit: "d", rank: "g", colors: ["g"], points: 2, level: 3 },
+  { id: "db", suit: "d", rank: "b", colors: ["b"], points: 2, level: 3 },
+  { id: "dk", suit: "d", rank: "k", colors: ["k"], points: 2, level: 3 },
+] as const
+type DragonCard = (typeof dragons)[number]
+
+export const rabbits = [
+  { id: "rr", suit: "r", rank: "r", colors: ["r"], points: 1, level: 5 },
+  { id: "rg", suit: "r", rank: "g", colors: ["g"], points: 1, level: 5 },
+  { id: "rb", suit: "r", rank: "b", colors: ["b"], points: 1, level: 5 },
+] as const
+type RabbitCard = (typeof rabbits)[number]
+
+// biome-ignore format:
+export const flowers = [
+  { id: "f1", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
+  { id: "f2", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
+  { id: "f3", suit: "f", rank: "", colors: ["r", "g", "b"], points: 2, level: 7, },
+] as const
+type FlowerCard = (typeof flowers)[number]
+
+const phoenixes = [
+  { id: "pr", suit: "p", rank: "r", colors: ["r"], points: 2, level: 9 },
+  { id: "pg", suit: "p", rank: "g", colors: ["g"], points: 2, level: 9 },
+  { id: "pb", suit: "p", rank: "b", colors: ["b"], points: 2, level: 9 },
+] as const
+type PhoenixCard = (typeof phoenixes)[number]
+
+// biome-ignore format:
+const mutations = [
+  { id: "m1", suit: "m", rank: "", colors: ["r", "g"], points: 2, level: 11 },
+  { id: "m2", suit: "m", rank: "", colors: ["b", "r"], points: 2, level: 11 },
+  { id: "m3", suit: "m", rank: "", colors: ["g", "b"], points: 2, level: 11 },
+  { id: "m4", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 11 },
+  { id: "m5", suit: "m", rank: "", colors: ["r", "g", "b", "k"], points: 2, level: 11 },
+] as const
+type MutationCard = (typeof mutations)[number]
+
+const elements = [
+  { id: "er", suit: "e", rank: "r", colors: ["r"], points: 4, level: 13 },
+  { id: "eg", suit: "e", rank: "g", colors: ["g"], points: 4, level: 13 },
+  { id: "eb", suit: "e", rank: "b", colors: ["b"], points: 4, level: 13 },
+  { id: "ek", suit: "e", rank: "k", colors: ["k"], points: 4, level: 13 },
+] as const
+type ElementCard = (typeof elements)[number]
+
+const trigrams = [
+  { id: "t1", suit: "t", rank: "1", colors: ["k"], points: 2, level: 15 },
+  { id: "t2", suit: "t", rank: "2", colors: ["k"], points: 2, level: 15 },
+  { id: "t3", suit: "t", rank: "3", colors: ["k"], points: 2, level: 15 },
+  { id: "t4", suit: "t", rank: "4", colors: ["k"], points: 2, level: 15 },
+  { id: "t5", suit: "t", rank: "5", colors: ["k"], points: 2, level: 15 },
+  { id: "t6", suit: "t", rank: "6", colors: ["k"], points: 2, level: 15 },
+  { id: "t7", suit: "t", rank: "7", colors: ["k"], points: 2, level: 15 },
+  { id: "t8", suit: "t", rank: "8", colors: ["k"], points: 2, level: 15 },
+  { id: "t9", suit: "t", rank: "9", colors: ["k"], points: 2, level: 15 },
+] as const
+type TrigramCard = (typeof trigrams)[number]
+
+const gems = [
+  { id: "gr", suit: "g", rank: "r", colors: ["r"], points: 8, level: 17 },
+  { id: "gg", suit: "g", rank: "g", colors: ["g"], points: 8, level: 17 },
+  { id: "gb", suit: "g", rank: "b", colors: ["b"], points: 8, level: 17 },
+  { id: "gk", suit: "g", rank: "k", colors: ["k"], points: 8, level: 17 },
+] as const
+type GemCard = (typeof gems)[number]
+
+// biome-ignore format:
+export const jokers = [
+  { id: "j1", suit: "j", rank: "x", colors: ["g", "r", "b", "k"], points: 4, level: 19 },
+] as const
+type JokerCard = (typeof jokers)[number]
+
+export type WindDirection = "n" | "s" | "e" | "w"
+export type Card =
+  | BamCard
+  | CrackCard
+  | DotCard
+  | WindCard
+  | DragonCard
+  | RabbitCard
+  | FlowerCard
+  | PhoenixCard
+  | MutationCard
+  | JokerCard
+  | ElementCard
+  | TrigramCard
+  | GemCard
+export type CardId = Card["id"]
+export type Suit = Card["suit"]
+
+const CARDS_BY_ID = indexBy(getAllTiles(), (c) => c.id)
+export function getCard(card: CardId) {
+  return CARDS_BY_ID[card]!
+}

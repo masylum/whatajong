@@ -1,5 +1,9 @@
 import type { Database } from "@/lib/in-memoriam"
-import { batch, createEffect, createMemo, on } from "solid-js"
+import { createEffect, createMemo, on } from "solid-js"
+
+function key(namespace: string, id: string) {
+  return `${namespace}-${id}`
+}
 
 type CreateDbParams<T> = {
   namespace: string
@@ -12,21 +16,14 @@ export function persistentDatabase<T extends Database<any, any>>(
 ) {
   const db = createMemo(params.db)
 
-  function key(id: string) {
-    return `${params.namespace}-${id}`
-  }
-
   createEffect(
     on(params.id, (id) => {
-      const persistedState = localStorage.getItem(key(id))
+      const persistedState = localStorage.getItem(key(params.namespace, id))
 
       if (persistedState) {
         db().update(JSON.parse(persistedState))
       } else {
-        batch(() => {
-          db().update({})
-          params.init(db(), id)
-        })
+        params.init(db(), id)
       }
     }),
   )
@@ -35,10 +32,14 @@ export function persistentDatabase<T extends Database<any, any>>(
     on(
       () => JSON.stringify(db().byId),
       (json) => {
-        localStorage.setItem(key(params.id()), json)
+        localStorage.setItem(key(params.namespace, params.id()), json)
       },
     ),
   )
 
   return db
+}
+
+export function cleanPersistentDatabase(namespace: string, id: string) {
+  localStorage.removeItem(key(namespace, id))
 }
