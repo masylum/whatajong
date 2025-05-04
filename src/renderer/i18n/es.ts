@@ -4,7 +4,7 @@ export const es = {
   },
   common: {
     points: "Puntos",
-    penalty: "Castigo",
+    penalty: "Tiempo",
     moves: "Jugadas",
     play: "jugar",
     prev: "atrás",
@@ -33,10 +33,17 @@ export const es = {
     help: "Ayuda",
     paused: "pausado",
   },
+  intro: {
+    goal: "Juega a través de 24 rondas de Mahjong Solitaire para alcanzar tu objetivo.",
+    difficulty:
+      "Cada nivel se vuelve un poco más difícil, con objetivos de puntos más grandes y tiempo más rápido.",
+    upgrade:
+      "Desbloquea nuevas fichas y mejoras divertidas a lo largo del camino.",
+  },
   settings: {
     title: "Opciones",
-    muteSoundEffects: "Silenciar efectos de sonido",
-    unmuteSoundEffects: "Activar efectos de sonido",
+    soundVolume: "Volumen de sonido",
+    musicVolume: "Volumen de música",
     restart: "Reiniciar el juego",
     restartRun: "Reiniciar aventura",
     newRun: "Nueva aventura",
@@ -98,7 +105,6 @@ export const es = {
     gk: "Cuarzo",
   },
   tutorial: {
-    title: "Tutorial: {{stage}}",
     stages: {
       tiles: "fichas",
       clearing: "despejar",
@@ -110,48 +116,30 @@ export const es = {
       materials: "materiales",
     },
     tiles1:
-      "El objetivo de <span class='{{whatajongClass}}'>Whatajong</span> es despejar todas las fichas del tablero, anotando la mayor cantidad de puntos posible.",
-    tiles2: "Tu mazo c‌ontiene fichas de tres palos:",
-    tiles3: "Para despejar fichas, necesitas emparejar dos fichas idénticas.",
-    clearing1:
+      "Para ganar una ronda de <span class='{{whatajongClass}}'>Whatajong</span> tienes que despejar todas las fichas del tablero.",
+    tiles2: "Para despejar fichas, necesitas emparejar dos fichas idénticas.",
+    tiles3:
       "Una ficha se puede seleccionar si no tiene otra ficha encima y al menos uno de sus lados (izquierdo o derecho) está libre.",
-    clearing2: "Ejemplo de fichas libres resaltadas en verde.",
-    clearing3: "Al despejar un par de fichas, ganas puntos.",
-    clearing4: "¡2 puntos!",
-    dragons1: "Hay 3 dragones, uno para cada palo.",
-    dragons2:
-      "Despeja fichas de dragón para iniciar un <strong>C‌ombo Dragón</strong>.",
-    dragons3:
-      "Despejar fichas de otro palo interrumpe el <strong>C‌ombo Dragón</strong>.",
-    dragons4:
-      "Cuando un <strong>C‌ombo Dragón</strong> está activo, despejar fichas del palo del dragón multiplicará tu puntuación.",
-    seasonsAndFlowers1:
-      "Los vientos mueven las fichas del tablero hacia una dirección:",
-    seasonsAndFlowers2:
-      "Las flores y estaciones pueden emparejarse entre sí, sin importar su número.",
-    seasonsAndFlowers3:
-      "Despejar flores y estaciones facilita despejar fichas en el siguiente turno.",
+    tiles4: "Al despejar un par de fichas, ganas puntos.",
+    tiles5: "¡2 puntos!",
     board1:
-      "El indicador de puntos muestra cuántos puntos has anotado hasta ahora.",
+      "El indicador de puntos y tiempo muestra cuántos puntos has anotado hasta ahora, y cuantos has perdido por el paso del tiempo.",
     board2:
-      "El indicador de castigo muestra cuántos puntos has perdido por el paso del tiempo.",
+      "El indicador de monedas muestra cuántas monedas has ganado esta ronda.",
     board3:
       "El indicador de jugadas muestra cuántas jugadas te quedan. Si llega a 0, el tablero no se puede resolver y has perdido la partida.",
     shop1:
-      "Cada ronda obtienes 1 moneda por cada ficha en tu mazo. Gástalas en la tienda para c‌omprar nuevas fichas y tripulantes.",
+      "Cada ronda recibirás monedas. Gástalas en la tienda para c‌omprar nuevas fichas.",
     shop2: "Vuelve a tirar para obtener nuevos artículos en la tienda.",
     shop3:
       "Si hay algo que te gusta pero no puedes pagarlo, c‌ongela los artículos hasta la siguiente ronda.",
-    upgrade1:
-      "Puedes mejorar el nivel de la tienda para desbloquear nuevos artículos y tripulantes.",
-    upgrade2:
-      "Cada nivel de tienda incrementa tu capacidad de mazo y tripulación. ¡Más fichas, más puntos!",
-    upgrade3:
-      "Mejorar tu tienda también incrementa tus ingresos, así puedes ganar más monedas en cada ronda.",
     material1: "C‌ompra tres fichas iguales para mejorar su material.",
-    material2: "C‌ompra tres fichas mejoradas para mejorar aún más su material.",
-    material3: "Los distintos materiales tienen características diferentes:",
-    materialBone: "son más fáciles de despejar",
+    material: {
+      b: "Puedes despejar esta ficha incluso si ninguno de sus lados está abierto.",
+      g: "Estas fichas dan puntos extra.",
+      r: "Estas fichas dan monedas.",
+      k: "Despeja esta ficha para detener el tiempo.",
+    },
   },
   mode: {
     title: "¡Bienvenido a la aventura!",
@@ -187,7 +175,7 @@ export const es = {
       crushed: "¡Aplastado!",
       wasted: "Has fracasado",
     },
-    timePenalty: "Castigo por tiempo ({{time}} s)",
+    timePenalty: "Puntos por tiempo ({{time}} s)",
     totalPoints: "Puntos totales",
     playAgain: "Jugar de nuevo",
     roundReward: "Recompensa de ronda",

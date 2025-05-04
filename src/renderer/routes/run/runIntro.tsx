@@ -50,20 +50,19 @@ function TutorialIntro(props: { onSelectMode: (mode: Difficulty) => void }) {
           <div class={tileClass({ stagger: 1 })}>
             <BasicTile cardId="b1" />
           </div>
-          Play through 24 Mahjong Solitaire rounds to reach your goal!
+          {t.intro.goal()}
         </div>
         <div class={subtitleClass({ hue: "crack" })}>
           <div class={tileClass({ stagger: 2 })}>
             <BasicTile cardId="c1" />
           </div>
-          Each level gets a little tougher, with bigger point goals and faster
-          timers.
+          {t.intro.difficulty()}
         </div>
         <div class={subtitleClass({ hue: "dot" })}>
           <div class={tileClass({ stagger: 3 })}>
             <BasicTile cardId="o1" />
           </div>
-          Unlock fresh tiles and fun upgrades along the way.
+          {t.intro.upgrade()}
         </div>
       </div>
       <Button hue="dot" onClick={() => props.onSelectMode("easy")}>

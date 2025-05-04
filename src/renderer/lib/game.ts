@@ -1,3 +1,5 @@
+import { play } from "@/components/audio"
+import { DELETED_DURATION } from "@/components/game/tileComponent.css"
 import type { Translator } from "@/i18n/useTranslation"
 import type { Game } from "@/state/gameState"
 import Rand from "rand-seed"
@@ -559,8 +561,9 @@ function resolveJokers({
     batch(() => {
       game.joker = false
       shuffleTiles({ rng, tileDb })
+      play("tiles")
     })
-  }, 500)
+  }, DELETED_DURATION + 100)
 }
 
 function resolveGems({ tile, game }: { tile: Tile; game: Game }) {

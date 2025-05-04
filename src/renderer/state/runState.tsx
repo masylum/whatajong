@@ -152,5 +152,5 @@ export function calculateIncome(run: RunState) {
 }
 
 export function roundPersistentKey(run: RunState) {
-  return `${run.runId}-${run.round}-${run.attempts}`
+  return `${run.runId}-${run.round}`
 }

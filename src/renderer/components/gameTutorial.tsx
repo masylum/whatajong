@@ -2,13 +2,12 @@ import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { type Material, type WindDirection, cardName } from "@/lib/game"
-import { MovesIndicator, Penalty, Points } from "@/routes/run/runGame"
+import type { CardId, Color, Material } from "@/lib/game"
+import { Coins, MovesIndicator, Penalty, Points } from "@/routes/run/runGame"
 import { FreezeButton, ItemTile, RerollButton } from "@/routes/run/runShop"
-import { getSideSize, useLayoutSize } from "@/state/constants"
-import { hueFromColor, hueFromMaterial, hueFromSuit } from "@/styles/colors"
-import { Match, Switch, createMemo, createSignal } from "solid-js"
-import { comboRecipe } from "./game/powerups.css"
+import { getSideSize, useSmallerTileSize } from "@/state/constants"
+import { hueFromColor } from "@/styles/colors"
+import { Match, Show, Switch, createMemo, createSignal } from "solid-js"
 import {
   backButtonClass,
   boardClass,
@@ -19,9 +18,9 @@ import {
   columnClass,
   columnsClass,
   containerClass,
-  materialListClass,
-  materialListItemClass,
-  materialNameClass,
+  contentClass,
+  materialClass,
+  materialHeaderClass,
   rowClass,
   rowsClass,
   shopItemContainerClass,
@@ -29,15 +28,7 @@ import {
   whatajongClass,
 } from "./gameTutorial.css"
 
-const STEPS = [
-  "tiles",
-  "clearing",
-  "dragons",
-  "seasonsAndFlowers",
-  "board",
-  "shop",
-  "materials",
-] as const
+const STEPS = ["tiles", "board", "shop", "materials"] as const
 
 export function GameTutorial(props: { onClose: () => void }) {
   const t = useTranslation()
@@ -56,58 +47,53 @@ export function GameTutorial(props: { onClose: () => void }) {
 
   return (
     <div class={containerClass}>
-      <div class={backButtonClass}>
-        <Button hue="dot" kind="dark" onClick={props.onClose}>
-          <X />
-          {t.common.close()}
-        </Button>
+      <div class={contentClass}>
+        <div class={backButtonClass}>
+          <Button hue="dot" onClick={props.onClose}>
+            <X />
+            {t.common.close()}
+          </Button>
+        </div>
+        <div class={buttonsClass}>
+          <Button hue="dot" onClick={onPrev} disabled={step() === 0}>
+            <ArrowLeft />
+            {t.common.prev()}
+          </Button>
+          <Button
+            hue="dot"
+            onClick={onNext}
+            disabled={step() >= STEPS.length - 1}
+          >
+            {t.common.next()}
+            <ArrowRight />
+          </Button>
+        </div>
+        <Show when={stage()} keyed>
+          <h1 class={titleClass}>{stage()}</h1>
+        </Show>
+        <Switch>
+          <Match when={step() === 0}>
+            <Tiles />
+          </Match>
+          <Match when={step() === 1}>
+            <Board />
+          </Match>
+          <Match when={step() === 2}>
+            <Shop />
+          </Match>
+          <Match when={step() === 3}>
+            <Materials />
+          </Match>
+        </Switch>
       </div>
-      <div class={buttonsClass}>
-        <Button hue="dot" kind="dark" onClick={onPrev} disabled={step() === 0}>
-          <ArrowLeft />
-          {t.common.prev()}
-        </Button>
-        <Button
-          hue="dot"
-          kind="dark"
-          onClick={onNext}
-          disabled={step() >= STEPS.length - 1}
-        >
-          {t.common.next()}
-          <ArrowRight />
-        </Button>
-      </div>
-      <h1 class={titleClass}>{t.tutorial.title({ stage: stage() })}</h1>
-      <Switch>
-        <Match when={step() === 0}>
-          <Tiles />
-        </Match>
-        <Match when={step() === 1}>
-          <Clearing />
-        </Match>
-        <Match when={step() === 2}>
-          <Dragons />
-        </Match>
-        <Match when={step() === 3}>
-          <SeasonsAndFlowers />
-        </Match>
-        <Match when={step() === 4}>
-          <Board />
-        </Match>
-        <Match when={step() === 5}>
-          <Shop />
-        </Match>
-        <Match when={step() === 6}>
-          <Materials />
-        </Match>
-      </Switch>
     </div>
   )
 }
 
 function Tiles() {
   const t = useTranslation()
-  const tileWidth = useTileSize()
+  const tileSize = useSmallerTileSize(0.6)
+  const tileSide = createMemo(() => getSideSize(tileSize().sideSize))
 
   return (
     <div class={columnsClass}>
@@ -116,211 +102,64 @@ function Tiles() {
       </div>
       <div class={columnClass}>
         {t.tutorial.tiles2()}
-        <div class={cardRowsClass}>
-          <SuitExplanation suit="b" />
-          <SuitExplanation suit="c" />
-          <SuitExplanation suit="o" />
-        </div>
-      </div>
-      <div class={columnClass}>
-        {t.tutorial.tiles3()}
         <div class={cardRowClass}>
           <BasicTile
-            width={tileWidth()}
+            width={tileSize().width}
             cardId="b8"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
-            width={tileWidth()}
+            width={tileSize().width}
             cardId="b8"
             style={{ transform: "rotate(7deg)" }}
           />
         </div>
       </div>
-    </div>
-  )
-}
-
-function Clearing() {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-  const tileSide = createMemo(() => getSideSize(tileWidth()))
-
-  return (
-    <div class={columnsClass}>
-      <div class={columnClass}>{t.tutorial.clearing1()}</div>
       <div class={columnClass}>
-        {t.tutorial.clearing2()}
+        {t.tutorial.tiles3()}
         <div class={rowsClass}>
           <div class={rowClass}>
-            <BasicTile width={tileWidth()} cardId="o6" highlighted="bam" />
-            <BasicTile width={tileWidth()} cardId="c2" />
-            <BasicTile width={tileWidth()} cardId="c2" />
-            <BasicTile width={tileWidth()} cardId="o6" highlighted="bam" />
+            <BasicTile width={tileSize().width} cardId="o6" highlighted="bam" />
+            <BasicTile width={tileSize().width} cardId="c2" />
+            <BasicTile width={tileSize().width} cardId="c2" />
+            <BasicTile width={tileSize().width} cardId="o6" highlighted="bam" />
           </div>
           <div class={rowClass}>
-            <BasicTile width={tileWidth()} cardId="o1" highlighted="bam" />
-            <BasicTile width={tileWidth()} cardId="b7" />
-            <BasicTile width={tileWidth()} cardId="c8" />
+            <BasicTile width={tileSize().width} cardId="o1" highlighted="bam" />
+            <BasicTile width={tileSize().width} cardId="b7" />
+            <BasicTile width={tileSize().width} cardId="c8" />
             <BasicTile
-              width={tileWidth()}
+              width={tileSize().width}
               cardId="o1"
               highlighted="bam"
               style={{
                 "z-index": 2,
                 transform: `
                     translate(
-                        -${tileWidth() * 1.5 - tileSide()}px,
-                        ${tileWidth() / 2 - tileSide()}px
+                        -${tileSize().width * 1.5 - tileSide()}px,
+                        -${tileSize().width - tileSide()}px
                     )
                 `,
               }}
             />
           </div>
-          <div class={rowClass}>
-            <BasicTile width={tileWidth()} cardId="b1" highlighted="bam" />
-            <BasicTile width={tileWidth()} cardId="o3" />
-            <BasicTile width={tileWidth()} cardId="o3" />
-          </div>
         </div>
       </div>
       <div class={columnClass}>
-        {t.tutorial.clearing3()}
+        {t.tutorial.tiles4()}
         <div class={cardRowClass}>
           <BasicTile
-            width={tileWidth()}
+            width={tileSize().width}
             cardId="o1"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
-            width={tileWidth()}
+            width={tileSize().width}
             cardId="o1"
             style={{ transform: "rotate(7deg)" }}
           />
-          <h3 class={cardTitleClass({ hue: "dot" })}>
-            {t.tutorial.clearing4()}
-          </h3>
+          <h3 class={cardTitleClass({ hue: "dot" })}>{t.tutorial.tiles5()}</h3>
         </div>
-      </div>
-    </div>
-  )
-}
-
-function Dragons() {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={columnsClass}>
-      <div class={columnClass}>
-        <p>{t.tutorial.dragons1()}</p>
-        <div class={cardRowsClass}>
-          <DragonExplanation color="r" />
-          <DragonExplanation color="g" />
-          <DragonExplanation color="b" />
-          <DragonExplanation color="k" />
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p innerHTML={t.tutorial.dragons2()} />
-        <p innerHTML={t.tutorial.dragons3()} />
-      </div>
-      <div class={columnClass}>
-        <p innerHTML={t.tutorial.dragons4()} />
-        <div class={cardRowsClass}>
-          <div class={cardRowClass}>
-            <BasicTile
-              width={tileWidth()}
-              cardId="b8"
-              style={{ transform: "rotate(5deg)" }}
-            />
-            <BasicTile
-              width={tileWidth()}
-              cardId="b8"
-              style={{ transform: "rotate(-7deg)" }}
-            />
-            <span class={comboRecipe({ hue: "bam" })}>x1</span>
-          </div>
-          <div class={cardRowClass}>
-            <BasicTile
-              width={tileWidth()}
-              cardId="b3"
-              style={{ transform: "rotate(5deg)" }}
-            />
-            <BasicTile
-              width={tileWidth()}
-              cardId="b3"
-              style={{ transform: "rotate(-7deg)" }}
-            />
-            <span class={comboRecipe({ hue: "bam" })}>x2</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function SeasonsAndFlowers() {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={columnsClass}>
-      <div class={columnClass}>
-        <p>{t.tutorial.seasonsAndFlowers1()}</p>
-        <div class={rowsClass}>
-          <WindExplanation direction="w" />
-          <WindExplanation direction="e" />
-          <WindExplanation direction="s" />
-          <WindExplanation direction="n" />
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.seasonsAndFlowers2()}</p>
-        <div class={rowsClass}>
-          <div class={cardRowClass}>
-            <BasicTile
-              width={tileWidth()}
-              cardId="f1"
-              style={{ transform: "rotate(5deg)" }}
-            />
-            <BasicTile
-              width={tileWidth()}
-              cardId="f2"
-              style={{ transform: "rotate(-7deg)" }}
-            />
-            <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
-          </div>
-          <div class={cardRowClass}>
-            <BasicTile
-              width={tileWidth()}
-              cardId="f1"
-              style={{ transform: "rotate(5deg)" }}
-            />
-            <BasicTile
-              width={tileWidth()}
-              cardId="f2"
-              style={{ transform: "rotate(-7deg)" }}
-            />
-            <span class={comboRecipe({ hue: "bam" })}>{t.common.yes()}</span>
-          </div>
-          <div class={cardRowClass}>
-            <BasicTile
-              width={tileWidth()}
-              cardId="f1"
-              style={{ transform: "rotate(5deg)" }}
-            />
-            <BasicTile
-              width={tileWidth()}
-              cardId="f1"
-              style={{ transform: "rotate(-7deg)" }}
-            />
-            <span class={comboRecipe({ hue: "crack" })}>{t.common.no()}</span>
-          </div>
-        </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.seasonsAndFlowers3()}</p>
       </div>
     </div>
   )
@@ -335,18 +174,19 @@ function Board() {
         <p>{t.tutorial.board1()}</p>
         <div class={boardClass}>
           <Points points={100} />
+          <Penalty points={100} />
         </div>
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.board2()}</p>
         <div class={boardClass}>
-          <Penalty points={100} />
+          <Coins coins={3} />
         </div>
       </div>
       <div class={columnClass}>
         <p>{t.tutorial.board3()}</p>
         <div class={boardClass}>
-          <MovesIndicator urgency="moderate" pairs={2} />
+          <MovesIndicator urgency="normal" pairs={4} />
         </div>
       </div>
     </div>
@@ -405,140 +245,61 @@ function Materials() {
       <div class={columnClass}>
         <p>{t.tutorial.material1()}</p>
         <div class={cardRowsClass}>
-          <MaterialExplanation material="bone" />
-          <MaterialExplanation material="topaz" />
-          <MaterialExplanation material="sapphire" />
+          <MaterialExplanation color="b" cardId="o1" m1="topaz" m2="sapphire" />
         </div>
-      </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.material2()}</p>
         <div class={cardRowsClass}>
-          <MaterialExplanation material="obsidian" />
-          <MaterialExplanation material="jade" />
-          <MaterialExplanation material="garnet" />
+          <MaterialExplanation color="g" cardId="b1" m1="jade" m2="emerald" />
+        </div>
+        <div class={cardRowsClass}>
+          <MaterialExplanation color="r" cardId="c1" m1="garnet" m2="ruby" />
+        </div>
+        <div class={cardRowsClass}>
+          <MaterialExplanation
+            color="k"
+            cardId="ww"
+            m1="quartz"
+            m2="obsidian"
+          />
         </div>
       </div>
-      <div class={columnClass}>
-        <p>{t.tutorial.material3()}</p>
-        <ul class={materialListClass}>
-          <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.quartz()}
-            </strong>
-            {" / "}
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.bone()}
-            </strong>{" "}
-            {t.tutorial.materialBone()}
-          </li>
-          <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.quartz()}
-            </strong>
-            {" / "}
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.jade()}
-            </strong>{" "}
-            {t.tutorial.materialBone()}
-          </li>
-          <li class={materialListItemClass}>
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.bone()}
-            </strong>
-            {" / "}
-            <strong class={materialNameClass({ hue: "bone" })}>
-              {t.material.bone()}
-            </strong>{" "}
-            {t.tutorial.materialBone()}
-          </li>
-        </ul>
+    </div>
+  )
+}
+
+function MaterialExplanation(props: {
+  color: Color
+  cardId: CardId
+  m1: Material
+  m2: Material
+}) {
+  const t = useTranslation()
+  const tileSize = useSmallerTileSize(0.7)
+
+  return (
+    <div class={materialClass({ hue: hueFromColor(props.color) })}>
+      <div class={materialHeaderClass}>
+        <h3 class={cardTitleClass({ hue: hueFromColor(props.color) })}>
+          {t.color[props.color]()}
+        </h3>
+        <p>{t.tutorial.material[props.color]()}</p>
       </div>
-    </div>
-  )
-}
-
-function SuitExplanation(props: { suit: "b" | "c" | "o" }) {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={cardRowClass}>
-      <h3 class={cardTitleClass({ hue: hueFromSuit(props.suit) })}>
-        {t.suit[props.suit]()}
-      </h3>
       <BasicTile
-        width={tileWidth()}
-        cardId={`${props.suit}1`}
+        cardId={props.cardId}
+        width={tileSize().width}
         style={{ transform: "rotate(5deg)" }}
       />
       <BasicTile
-        width={tileWidth()}
-        cardId={`${props.suit}5`}
-        style={{ transform: "rotate(-10deg)" }}
-      />
-      <BasicTile
-        width={tileWidth()}
-        cardId={`${props.suit}9`}
-        style={{ transform: "rotate(7deg)" }}
-      />
-    </div>
-  )
-}
-
-function DragonExplanation(props: { color: "r" | "g" | "b" | "k" }) {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={cardRowClass}>
-      <BasicTile width={tileWidth()} cardId={`d${props.color}`} />
-      <h3 class={cardTitleClass({ hue: hueFromColor(props.color) })}>
-        {cardName(t, `d${props.color}`)}
-      </h3>
-    </div>
-  )
-}
-
-function WindExplanation(props: { direction: WindDirection }) {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={cardRowClass}>
-      <BasicTile width={tileWidth()} cardId={`w${props.direction}`} />
-      <h3 class={cardTitleClass({ hue: "dot" })}>
-        {t.windDirections[props.direction]()}
-      </h3>
-    </div>
-  )
-}
-
-function MaterialExplanation(props: { material: Material }) {
-  const t = useTranslation()
-  const tileWidth = useTileSize()
-
-  return (
-    <div class={cardRowClass}>
-      <h3 class={cardTitleClass({ hue: hueFromMaterial(props.material) })}>
-        {t.material[props.material]()}
-      </h3>
-      <BasicTile
-        width={tileWidth()}
-        cardId="b1"
-        material={props.material}
+        cardId={props.cardId}
+        material={props.m1}
+        width={tileSize().width}
         style={{ transform: "rotate(5deg)" }}
       />
       <BasicTile
-        width={tileWidth()}
-        cardId="o1"
-        material={props.material}
+        cardId={props.cardId}
+        material={props.m2}
+        width={tileSize().width}
         style={{ transform: "rotate(5deg)" }}
       />
     </div>
   )
-}
-
-function useTileSize() {
-  const layout = useLayoutSize()
-  return createMemo(() => layout().width / 12)
 }

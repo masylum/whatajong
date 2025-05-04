@@ -1,4 +1,4 @@
-import { play } from "@/components/audio"
+import { play, toggleMusic } from "@/components/audio"
 import type { Track } from "@/components/audio"
 import { Button, LinkButton } from "@/components/button"
 import { Dialog } from "@/components/dialog"
@@ -85,8 +85,6 @@ export default function RunGame() {
   const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
-  const [hover, setHover] = createSignal<string | null>(null)
-  const isHovered = createSelector(hover)
 
   createVoicesEffect(tiles())
 
@@ -120,6 +118,10 @@ export default function RunGame() {
       return combo
     }, getCombo())
   }
+
+  onMount(() => {
+    toggleMusic("game")
+  })
 
   handleComboEffect(getDragonCombo, "grunt", "end_dragon")
   handleComboEffect(getPhoenixCombo, "screech", "end_phoenix")
@@ -187,19 +189,7 @@ export default function RunGame() {
                   "z-index": 3,
                 }}
               >
-                <For each={tiles().all}>
-                  {(tile) => (
-                    <TileComponent
-                      tile={tile}
-                      hovered={isHovered(tile.id)}
-                      onSelect={() =>
-                        selectTile({ tileDb: tiles(), game, tileId: tile.id })
-                      }
-                      onMouseEnter={() => setHover(tile.id)}
-                      onMouseLeave={() => setHover(null)}
-                    />
-                  )}
-                </For>
+                <Board />
               </div>
               <div
                 class={containerClass({
@@ -396,7 +386,7 @@ export function Points(props: { points: number }) {
   )
 }
 
-function Coins(props: { coins: number }) {
+export function Coins(props: { coins: number }) {
   const t = useTranslation()
 
   return (
@@ -495,5 +485,31 @@ export function MovesIndicator(props: {
       <span>{t.common.moves()}</span>
       <div class={pillClass({ hue: hueForUrgency() })}>{props.pairs}</div>
     </div>
+  )
+}
+
+function Board() {
+  const [hover, setHover] = createSignal<string | null>(null)
+  const isHovered = createSelector(hover)
+  const game = useGameState()
+  const tileDb = useTileState()
+
+  onMount(() => {
+    play("tiles")
+    performance.mark("sound")
+  })
+
+  return (
+    <For each={tileDb.all}>
+      {(tile) => (
+        <TileComponent
+          tile={tile}
+          hovered={isHovered(tile.id)}
+          onSelect={() => selectTile({ tileDb, game, tileId: tile.id })}
+          onMouseEnter={() => setHover(tile.id)}
+          onMouseLeave={() => setHover(null)}
+        />
+      )}
+    </For>
   )
 }

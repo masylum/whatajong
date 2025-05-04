@@ -2,7 +2,7 @@ import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { type Card, type CardId, getAllTiles, getCard } from "@/lib/game"
+import { type Card, type CardId, getAllTiles } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
@@ -40,18 +40,12 @@ import {
 import {
   bouncingCardClass,
   buttonsClass,
-  deckClass,
-  deckItemClass,
-  deckRowsClass,
   detailListClass,
   duration,
   endX,
   gameOverClass,
-  gameOverInfoClass,
   itemKeyClass,
   itemValueClass,
-  moneyClass,
-  pairClass,
   rotation,
   scoreClass,
   screenClass,
@@ -113,9 +107,9 @@ export default function RunGameOver() {
 
   function goToNextRound() {
     batch(() => {
+      run.money += income() + tileCoins() + overAchievementCoins()
       run.round += 1
       run.stage = isRewardRound() ? "reward" : "shop"
-      run.money += income() + tileCoins() + overAchievementCoins()
       run.totalPoints += totalPoints()
 
       const key = roundPersistentKey(run)
@@ -193,7 +187,7 @@ export default function RunGameOver() {
           <Show
             when={win()}
             fallback={
-              <Button hue="bam" onClick={retrySameRound}>
+              <Button hue="crack" onClick={retrySameRound}>
                 {t.gameOver.trySameRun()}
                 <Rotate />
               </Button>
@@ -217,68 +211,8 @@ export default function RunGameOver() {
             </Button>
           </Show>
         </div>
-        <Show when={!win()}>
-          <div class={gameOverInfoClass}>
-            <span class={moneyClass}>${run.money}</span>
-            <Deck />
-          </div>
-        </Show>
       </div>
       <FallingTiles />
-    </div>
-  )
-}
-
-function Deck() {
-  const deck = useDeckState()
-
-  const sortedDeck = createMemo(() =>
-    deck.all.sort((a, b) => {
-      const aCard = getCard(a.cardId)
-      const bCard = getCard(b.cardId)
-      if (aCard.suit !== bCard.suit) {
-        const suitOrder = ["b", "c", "o", "d", "w", "f", "s"]
-        return suitOrder.indexOf(aCard.suit) - suitOrder.indexOf(bCard.suit)
-      }
-      return aCard.rank.localeCompare(bCard.rank)
-    }),
-  )
-  const tileSize = useSmallerTileSize(0.5)
-
-  return (
-    <div class={deckClass}>
-      <div
-        class={deckRowsClass}
-        style={{
-          "padding-bottom": `${tileSize().sideSize * 2}px`,
-          "padding-right": `${tileSize().sideSize * 2}px`,
-        }}
-      >
-        <For each={sortedDeck()}>
-          {(deckTile, i) => (
-            <div
-              class={deckItemClass}
-              style={{
-                "z-index": i(),
-              }}
-            >
-              <BasicTile
-                cardId={deckTile.cardId}
-                material={deckTile.material}
-                width={tileSize().width}
-              />
-              <BasicTile
-                class={pairClass}
-                style={{
-                  transform: `translate(${tileSize().sideSize}px, ${tileSize().sideSize}px)`,
-                }}
-                material={deckTile.material}
-                width={tileSize().width}
-              />
-            </div>
-          )}
-        </For>
-      </div>
     </div>
   )
 }

@@ -31,86 +31,6 @@ export const gameOverClass = style({
   },
 })
 
-export const deckClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-})
-
-export const deckRowsClass = style({
-  display: "flex",
-  alignItems: "flex-start",
-  flexWrap: "wrap",
-  justifyContent: "flex-start",
-  position: "relative",
-  zIndex: 0,
-})
-
-export const deckItemClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-})
-
-export const pairClass = style({
-  position: "absolute",
-  zIndex: -1,
-})
-
-export const gameOverInfoClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 12,
-  maxWidth: 600,
-  margin: "0 auto",
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 16,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 24,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 32,
-    },
-  },
-})
-
-export const moneyClass = style({
-  alignSelf: "flex-start",
-  fontFamily: primary,
-  ...fontSize.m,
-  background: `linear-gradient(to bottom, ${alpha(color.crack50, 0.9)}, ${alpha(color.crack40, 0.9)})`,
-  boxShadow: `
-    1px -1px 1px 0 inset ${color.crack60},
-    0px 0px 0px 1px ${color.crack30},
-    0px 0px 3px -1px ${color.crack10},
-    0px 0px 10px -5px ${color.crack10}
-  `,
-  color: color.crack90,
-  display: "inline-block",
-  borderRadius: 999,
-  paddingInline: 8,
-  paddingBlock: 2,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.l,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.h3,
-      paddingInline: 12,
-      paddingBlock: 4,
-    },
-    [mediaQuery({ p: "s", l: "m" })]: {
-      ...fontSize.h2,
-      paddingInline: 16,
-      paddingBlock: 4,
-    },
-  },
-})
-
 export const startX = createVar()
 export const endX = createVar()
 export const rotation = createVar()
@@ -161,11 +81,11 @@ export const screenClass = recipe({
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.1)}, ${alpha(color.bam60, 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.2)}, ${alpha(color.bam60, 0.4)})`,
         color: color.bam90,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack60, 0.1)}, ${alpha(color.crack60, 0.3)})`,
+        background: `linear-gradient(to bottom, ${alpha(color.crack60, 0.2)}, ${alpha(color.crack60, 0.4)})`,
         color: color.crack90,
       },
     },
@@ -206,7 +126,7 @@ export const subtitleClass = style({
   animationName: fromBelowAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
-  color: color.crack40,
+  color: color.crack30,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h2,

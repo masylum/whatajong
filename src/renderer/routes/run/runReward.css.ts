@@ -55,9 +55,6 @@ export const titleClass = style({
     [mediaQuery({ p: "xl", l: "l" })]: {
       ...fontSize.hero3,
     },
-    [mediaQuery({ p: "xxl", l: "xl" })]: {
-      ...fontSize.hero2,
-    },
   },
 })
 
@@ -135,7 +132,7 @@ export const videoClass = style([
   {
     flex: 1,
     minHeight: 0,
-    maxHeight: 360,
+    maxHeight: 600,
   },
 ])
 

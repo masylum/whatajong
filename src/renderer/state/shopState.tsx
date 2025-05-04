@@ -108,12 +108,12 @@ export function generateItems(run: RunState, shop: ShopState) {
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
 
-  const level = run.round
   const initialPool = Array.from({ length: ITEM_POOL_SIZE }, (_, i) =>
     getAllTiles()
-      .filter((t) => t.level <= level)
+      .filter((t) => t.level <= round)
       .flatMap((card) => generateTileItem({ card, i })),
   ).flat()
+
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
   const start = (ITEM_COUNT * reroll) % poolSize

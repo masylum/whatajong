@@ -1,3 +1,4 @@
+import { musicVolume } from "@/components/audio"
 import {
   type ParentProps,
   createContext,
@@ -7,19 +8,23 @@ import {
 import { createPersistantMutable } from "./persistantMutable"
 
 type GlobalState = {
-  muted: boolean
+  soundVolume: number
+  musicVolume: number
   locale: string
-  tutorial: boolean
+  difficulty: "easy" | "medium" | "hard" | "impossible"
 }
+
+const NAMESPACE = "global-state-v2"
 
 export function createGlobalState() {
   return createPersistantMutable<GlobalState>({
-    namespace: "global-state",
+    namespace: NAMESPACE,
     id: () => "global-state",
     init: () => ({
-      muted: false,
+      soundVolume: 1,
+      musicVolume: 1,
+      difficulty: "easy",
       locale: navigator.language,
-      tutorial: false,
     }),
   })
 }
@@ -30,7 +35,8 @@ export function GlobalStateProvider(
   props: { globalState: GlobalState } & ParentProps,
 ) {
   createEffect(() => {
-    Howler.mute(props.globalState.muted)
+    musicVolume(props.globalState.musicVolume)
+    Howler.volume(props.globalState.soundVolume)
   })
 
   return (

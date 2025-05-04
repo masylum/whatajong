@@ -1,5 +1,6 @@
 import {
   ANIMATION_MEDIUM,
+  ANIMATION_SLOW,
   easeBounce,
   overshot,
   tileFallingAnimation,
@@ -12,7 +13,7 @@ import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
 
 export const SHAKE_DURATION = 150
 export const SHAKE_REPEAT = 3
-const DELETED_DURATION = 300
+export const DELETED_DURATION = 300
 export const MUTATE_DURATION = 500
 export const FLOATING_NUMBER_DURATION = 1_500
 
@@ -122,9 +123,12 @@ export const pulseClass = recipe({
     borderRadius: 4,
     position: "absolute",
     animation: `${pulseKeyframes} 2000ms ease-in-out infinite`,
-    transform: "translate(-50%, -50%)",
     mixBlendMode: "multiply",
     pointerEvents: "none",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -165,7 +169,7 @@ export const tileClass = recipe({
       joker: {
         animationName: tileFallingAnimation,
         animationTimingFunction: easeBounce,
-        animationDuration: ANIMATION_MEDIUM,
+        animationDuration: ANIMATION_SLOW,
         animationDirection: "reverse",
         animationDelay: tileAnimationDelayVar,
         animationFillMode: "forwards",

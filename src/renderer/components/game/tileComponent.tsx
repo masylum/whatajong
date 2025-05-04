@@ -170,9 +170,6 @@ export function TileComponent(iProps: Props) {
 
     if (prevState !== "shuffling" && currentState === "shuffling") {
       setAnimation("deleted")
-      setTimeout(() => {
-        setAnimation(undefined)
-      }, FLOATING_NUMBER_DURATION)
     }
 
     if (prevState !== "deleted" && currentState === "deleted") {
@@ -278,21 +275,12 @@ export function TileComponent(iProps: Props) {
               />
             </g>
           </svg>
+          <Show when={pulsingColor()}>
+            {(color) => (
+              <div class={pulseClass({ hue: hueFromColor(color()) })} />
+            )}
+          </Show>
         </div>
-      </Show>
-      <Show when={pulsingColor()}>
-        {(color) => (
-          <div
-            class={pulseClass({ hue: hueFromColor(color()) })}
-            style={{
-              left: `${coords().x + tileSize().width / 2}px`,
-              top: `${coords().y + tileSize().height / 2}px`,
-              "z-index": zIndex(),
-              width: `${tileSize().width}px`,
-              height: `${tileSize().height}px`,
-            }}
-          />
-        )}
       </Show>
     </>
   )

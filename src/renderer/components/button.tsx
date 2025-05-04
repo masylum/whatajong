@@ -5,20 +5,17 @@ import { buttonClass, shopButtonClass } from "./button.css"
 
 type ButtonProps = {
   hue: AccentHue
-  kind?: Kind
   suave?: boolean
 }
-type Kind = "light" | "dark"
 
 export function LinkButton(iProps: ButtonProps & JSX.IntrinsicElements["a"]) {
-  const [props, aProps] = splitProps(iProps, ["hue", "kind", "suave"])
+  const [props, aProps] = splitProps(iProps, ["hue", "suave"])
 
   return (
     <a
       onMouseEnter={() => play("click2")}
       class={buttonClass({
         hue: props.hue,
-        kind: props.kind,
         suave: props.suave,
         clickable: true,
       })}
@@ -28,14 +25,13 @@ export function LinkButton(iProps: ButtonProps & JSX.IntrinsicElements["a"]) {
 }
 
 export function Button(iProps: ButtonProps & JSX.IntrinsicElements["button"]) {
-  const [props, buttonProps] = splitProps(iProps, ["hue", "kind", "suave"])
+  const [props, buttonProps] = splitProps(iProps, ["hue", "suave"])
 
   return (
     <button
       onMouseEnter={() => !buttonProps.disabled && play("click2")}
       class={buttonClass({
         hue: props.hue,
-        kind: props.kind,
         suave: props.suave,
         clickable: !!buttonProps.onClick,
       })}

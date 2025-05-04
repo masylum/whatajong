@@ -1,4 +1,4 @@
-import { play } from "@/components/audio"
+import { play, toggleMusic } from "@/components/audio"
 import { ShopButton } from "@/components/button"
 import { LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
@@ -53,6 +53,7 @@ import {
   createSelector,
   on,
 } from "solid-js"
+import { onMount } from "solid-js"
 import {
   areaClass,
   areaTitleClass,
@@ -103,6 +104,10 @@ export default function RunShop() {
       () => play("click"),
     ),
   )
+
+  onMount(() => {
+    toggleMusic("shop")
+  })
 
   return (
     <div class={backgroundClass}>
@@ -440,7 +445,7 @@ function Deck() {
   return (
     <div class={areaClass({ hue: "dot", full: true })}>
       <div class={areaTitleClass({ hue: "dot" })}>
-        {t.common.deck()}
+        {t.common.yourDeck()}
         {" ("}
         {totalPairs()}
         {" / "}

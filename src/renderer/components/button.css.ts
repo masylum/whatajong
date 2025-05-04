@@ -1,5 +1,5 @@
 import { mediaQuery } from "@/styles/breakpoints"
-import { alpha, hueVariants, mapHues } from "@/styles/colors"
+import { alpha, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { globalStyle } from "@vanilla-extract/css"
@@ -45,54 +45,19 @@ export const buttonClass = recipe({
         fontFamily: secondary,
       },
     },
-    kind: {
-      dark: {},
-      light: {},
-    },
-    hue: hueVariants(() => ({})),
-  },
-  compoundVariants: mapHues((kolor, hue) => [
-    {
-      variants: {
-        kind: "light",
-        hue,
+    hue: hueVariants((kolor) => ({
+      backgroundColor: alpha(kolor(50), 0.2),
+      color: kolor(40),
+      ":focus": {
+        outline: `2px solid ${kolor(50)}`,
       },
-      style: {
-        backgroundColor: alpha(kolor(50), 0.2),
-        color: kolor(40),
-        ":focus": {
-          outline: `2px solid ${kolor(50)}`,
-        },
-        selectors: {
-          "&:hover:not(:disabled)": {
-            backgroundColor: alpha(kolor(50), 0.3),
-            color: kolor(30),
-          },
+      selectors: {
+        "&:hover:not(:disabled)": {
+          backgroundColor: alpha(kolor(50), 0.3),
+          color: kolor(30),
         },
       },
-    },
-    {
-      variants: {
-        kind: "dark",
-        hue,
-      },
-      style: {
-        backgroundColor: alpha(kolor(60), 0.2),
-        color: kolor(80),
-        ":focus": {
-          outline: `2px solid ${kolor(50)}`,
-        },
-        selectors: {
-          "&:hover:not(:disabled)": {
-            backgroundColor: alpha(kolor(60), 0.3),
-            color: kolor(90),
-          },
-        },
-      },
-    },
-  ]),
-  defaultVariants: {
-    kind: "light",
+    })),
   },
 })
 
@@ -153,15 +118,17 @@ export const shopButtonClass = recipe({
       },
     },
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
-      border: `1px solid ${kolor(40)}`,
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.7)}, ${alpha(kolor(40), 0.9)})`,
+      border: "none",
       color: kolor(90),
       ":focus": {
         outline: `2px solid ${kolor(50)}`,
       },
       boxShadow: `
-          -1px -1px 1px 0 inset ${alpha(kolor(30), 0.5)},
-          1px 1px 1px 0 inset ${alpha(kolor(60), 0.5)},
+          1px 1px 2px 1px inset ${alpha(kolor(80), 0.5)},
+          -1px -1px 2px 1px inset ${alpha(kolor(30), 0.5)},
+          0px 0px 0px 1px ${kolor(30)},
+          0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
           0px 0px 5px -3px ${alpha(kolor(20), 0.4)},
           0px 0px 10px -5px ${alpha(kolor(20), 0.4)}
         `,

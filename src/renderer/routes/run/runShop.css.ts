@@ -35,7 +35,6 @@ export const shopClass = style({
   flexDirection: "column",
   margin: "0 auto",
   fontFamily: secondary,
-  background: `linear-gradient(to bottom, ${alpha(color.bone60, 0.1)}, ${alpha(color.bone60, 0.3)})`,
   gap: 12,
   padding: 12,
   height: "100%",
@@ -246,11 +245,19 @@ export const shopItemButtonClass = recipe({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    maxWidth: 45,
   },
   variants: {
     hue: hueVariants((kolor) => ({
       background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.6)}, ${alpha(kolor(40), 0.9)})`,
-      border: `1px solid ${kolor(40)}`,
+      boxShadow: `
+        1px 1px 2px 1px inset ${alpha(kolor(80), 0.5)},
+        -1px -1px 2px 1px inset ${alpha(kolor(30), 0.5)},
+        0px 0px 0px 1px ${kolor(30)},
+        0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
+        0px 0px 5px -3px ${kolor(10)},
+        0px 0px 10px -5px ${kolor(10)}
+      `,
       color: kolor(90),
     })),
   },

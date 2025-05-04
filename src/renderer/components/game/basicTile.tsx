@@ -38,7 +38,12 @@ export function BasicTile(props: Props) {
       <TileBody material={local.material} width={width()} height={height()} />
       <Show when={local.cardId}>
         {(cardId) => (
-          <TileImage width={width()} height={height()} cardId={cardId()} />
+          <TileImage
+            width={width()}
+            height={height()}
+            cardId={cardId()}
+            material={local.material}
+          />
         )}
       </Show>
       <Show when={local.highlighted}>

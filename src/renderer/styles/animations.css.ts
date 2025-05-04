@@ -21,7 +21,7 @@ export const fromBelowAnimation = keyframes({
 
 export const fromAboveAnimation = keyframes({
   from: {
-    transform: "translateY(-50%) scale(0.8)",
+    transform: "translateY(-30px) scale(0.8)",
     opacity: 0,
   },
   to: {

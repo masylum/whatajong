@@ -212,9 +212,9 @@ export const pillClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${kolor(50)}, ${kolor(40)})`,
-      boxShadow: `1px 1px 2px 0 inset ${kolor(60)},
-        -1px -1px 2px 0px inset ${kolor(30)},
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.6)}, ${alpha(kolor(40), 0.9)})`,
+      boxShadow: `1px 1px 2px 0 inset ${alpha(kolor(60), 0.9)},
+        -1px -1px 2px 0px inset ${alpha(kolor(30), 0.9)},
         0px 0px 0px 1px ${kolor(30)},
         0px 0px 0px 3px ${alpha(kolor(30), 0.1)},
         0px 0px 5px -3px ${kolor(10)},

@@ -4,7 +4,7 @@ export const en = {
   },
   common: {
     points: "Points",
-    penalty: "Penalty",
+    penalty: "Time",
     moves: "Moves",
     play: "play",
     prev: "previous",
@@ -33,10 +33,16 @@ export const en = {
     paused: "paused",
     help: "Help",
   },
+  intro: {
+    goal: "Play through 24 Mahjong Solitaire rounds to reach your goal!",
+    difficulty:
+      "Each level gets a little tougher, with bigger point goals and faster time.",
+    upgrade: "Unlock fresh tiles and fun upgrades along the way.",
+  },
   settings: {
     title: "Settings",
-    muteSoundEffects: "Mute sound effects",
-    unmuteSoundEffects: "Unmute sound effects",
+    soundVolume: "Sound volume",
+    musicVolume: "Music volume",
     restart: "Restart the game",
     restartRun: "Restart adventure",
     newRun: "New adventure",
@@ -97,7 +103,6 @@ export const en = {
     gk: "Quartz",
   },
   tutorial: {
-    title: "Tutorial: {{stage}}",
     stages: {
       tiles: "tiles",
       clearing: "clearing",
@@ -109,47 +114,30 @@ export const en = {
       materials: "materials",
     },
     tiles1:
-      "The goal of <span class={{{whatajongClass}}}>Whatajong</span> is to clear all the tiles from the board, sc‌oring as many points as possible.",
-    tiles2: "Your deck c‌ontains tiles of three suits:",
-    tiles3: "To clear tiles, you need to match a pair of identical tiles.",
-    clearing1:
+      "To win one round of <span class={{{whatajongClass}}}>Whatajong</span> you have to clear all the tiles from the board.",
+    tiles2: "To clear tiles, you need to match a pair of identical tiles.",
+    tiles3:
       "A tile can be selected if it has no other tile on top of it and has at least one free side (left or right).",
-    clearing2: "Example of free tiles highlighted in green.",
-    clearing3: "When clearing a pair of tiles, you sc‌ore points.",
-    clearing4: "2 points!",
-    dragons1: "There are 3 dragons, one of each suit.",
-    dragons2: "Clear dragon tiles to start a <strong>Dragon Run</strong>.",
-    dragons3:
-      "Clearing tiles from another suit will break the <strong>Dragon Run</strong>.",
-    dragons4:
-      "When a <strong>Dragon Run</strong> is active, clearing tiles from the dragon's suit will multiply your sc‌ore.",
-    seasonsAndFlowers1:
-      "Winds move the tiles on the board towards a direction:",
-    seasonsAndFlowers2:
-      "Flowers & Seasons can be matched among themselves, regardless of their number.",
-    seasonsAndFlowers3:
-      "Clearing Flowers & Seasons will allow you in the next move, to clear tiles with only one open side.",
+    tiles4: "When clearing a pair of tiles, you sc‌ore points.",
+    tiles5: "2 points!",
     board1:
-      "The points indicator shows you how many points have you sc‌ored so far.",
+      "The points and time indicators show you how many points have you sc‌ored so far, and how many points you have lost due to time passing by.",
     board2:
-      "The penalty indicator shows you how many points have you lost due to time passing by.",
+      "The coins indicator shows you how many coins you have earned this round.",
     board3:
       "The moves indicator, shows you how many moves you have left. If it reaches 0, the board is unsolvable and you have lost the game.",
     shop1:
-      "Every round you yield 1 c‌oin per tile on your deck. Spend them on the shop to buy new tiles and crew members.",
+      "Every round you will be rewarded with coins. Spend them on the shop to buy new tiles.",
     shop2: "Reroll to get new items in the shop.",
     shop3:
       "If there is something you like, but you can't afford it, freeze the items until next round.",
-    upgrade1:
-      "You can upgrade your shop level to unlock new items and crew members.",
-    upgrade2:
-      "Each shop level increases your crew and deck capacity. More tiles, more points!",
-    upgrade3:
-      "Upgrading your shop also increases your yield, so you can earn more c‌oins each round.",
     material1: "Buy three of the same tile to upgrade the material.",
-    material2: "Buy three upgraded tiles to upgrade the material.",
-    material3: "Different materials have different characteristics:",
-    materialBone: "easier to clear",
+    material: {
+      b: "You can clear this tile even if none of its sides are open.",
+      g: "These tiles give extra points.",
+      r: "These tiles give coins.",
+      k: "Clear this tile to stop the time.",
+    },
   },
   mode: {
     title: "Welc‌ome to the adventure!",
@@ -185,7 +173,7 @@ export const en = {
       crushed: "Crushed!",
       wasted: "Wasted!",
     },
-    timePenalty: "Time penalty ({{time}} s)",
+    timePenalty: "Time Points ({{time}} s)",
     totalPoints: "Total Points",
     playAgain: "Play again",
     roundReward: "Round reward",
