@@ -14,7 +14,7 @@ type GlobalState = {
   difficulty: "easy" | "medium" | "hard" | "impossible"
 }
 
-const NAMESPACE = "global-state-v2"
+const NAMESPACE = "global-state-v3"
 
 export function createGlobalState() {
   return createPersistantMutable<GlobalState>({

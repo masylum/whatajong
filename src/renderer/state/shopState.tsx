@@ -16,7 +16,7 @@ import { countBy, entries } from "remeda"
 import { type ParentProps, batch, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
-const SHOP_STATE_NAMESPACE = "shop-state-v3"
+const SHOP_STATE_NAMESPACE = "shop-state-v4"
 const ITEM_COST = 3
 export const REROLL_COST = 1
 const ITEM_COUNT = 5
