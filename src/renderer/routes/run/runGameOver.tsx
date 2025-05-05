@@ -1,3 +1,4 @@
+import { play, useMusic } from "@/components/audio"
 import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
@@ -92,6 +93,7 @@ export default function RunGameOver() {
   const isRewardRound = createMemo(() => run.round in REWARDS)
 
   onMount(() => {
+    play(win() ? "won" : "lost")
     captureEvent("game_over", {
       win: win(),
       points: totalPoints(),
@@ -104,6 +106,8 @@ export default function RunGameOver() {
       time: time(),
     })
   })
+
+  useMusic("shop")
 
   function goToNextRound() {
     batch(() => {
@@ -122,7 +126,7 @@ export default function RunGameOver() {
     batch(() => {
       run.retries += 1
       const key = roundPersistentKey(run)
-      setMutable(game, initialGameState())
+      setMutable(game, initialGameState(run.runId))
       initializeTileState(key, deck.all, tiles)
     })
   }
@@ -167,13 +171,13 @@ export default function RunGameOver() {
           </Show>
 
           <List hue="bam">
-            <Item label={t.common.points()}>{points()}</Item>
+            <Item label={t.common.points()}>+{points()}</Item>
           </List>
 
           <Show when={round().timerPoints}>
             <List hue="black">
               <Item label={t.gameOver.timePenalty({ time: time() })}>
-                {penalty()}
+                -{penalty()}
               </Item>
             </List>
           </Show>
@@ -187,13 +191,13 @@ export default function RunGameOver() {
           <Show
             when={win()}
             fallback={
-              <Button hue="crack" onClick={retrySameRound}>
+              <Button hue="crack" onPointerDown={retrySameRound}>
                 {t.gameOver.trySameRun()}
                 <Rotate />
               </Button>
             }
           >
-            <Button hue="bam" onClick={() => goToNextRound()}>
+            <Button hue="bam" onPointerDown={() => goToNextRound()}>
               <Show
                 when={isRewardRound()}
                 fallback={

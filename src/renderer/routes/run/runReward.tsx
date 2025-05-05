@@ -1,3 +1,4 @@
+import { play, useMusic } from "@/components/audio"
 import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { CardVideo } from "@/components/game/tileDetails"
@@ -10,7 +11,7 @@ import { useDeckState } from "@/state/deckState"
 import { REWARDS, useRunState } from "@/state/runState"
 import { buyTile, generateTileItem, useShopState } from "@/state/shopState"
 import Rand from "rand-seed"
-import { For, Show, createMemo, createSelector } from "solid-js"
+import { For, Show, createMemo, createSelector, onMount } from "solid-js"
 import {
   buttonContainerClass,
   columnsClass,
@@ -48,6 +49,11 @@ export default function RunReward() {
     }
   }
 
+  onMount(() => {
+    play("reward")
+  })
+  useMusic("shop")
+
   return (
     <div class={containerClass}>
       <div class={contentClass}>
@@ -72,7 +78,7 @@ export default function RunReward() {
           <CardVideo suit={reward()} class={videoClass} />
         </div>
         <div class={buttonContainerClass}>
-          <Button hue="dot" onClick={onContinue}>
+          <Button hue="dot" onPointerDown={onContinue}>
             {t.common.goToShop()}
             <ArrowRight />
           </Button>

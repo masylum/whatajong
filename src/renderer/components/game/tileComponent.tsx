@@ -1,6 +1,7 @@
 import {
   type Tile,
   coord,
+  getCard,
   getMaterial,
   isDragon,
   isElement,
@@ -120,6 +121,9 @@ export function TileComponent(iProps: Props) {
 
   const pulsingColor = createMemo(() => {
     if (!canBeSelected()) return
+    if (game.tutorialStep && game.tutorialStep === 3)
+      return getCard(props.tile.cardId).colors[0]
+
     if (isTrigram(props.tile.cardId)) return "k"
     const elementCard = isElement(props.tile.cardId)
     if (elementCard) return elementCard.rank
@@ -230,6 +234,8 @@ export function TileComponent(iProps: Props) {
             left: `${coords().x}px`,
             top: `${coords().y}px`,
             overflow: "visible",
+            width: `${props.width + tileSize().sideSize}px`,
+            height: `${props.height + tileSize().sideSize}px`,
             "z-index": zIndex(),
             ...assignInlineVars({
               [tileAnimationDelayVar]: `${props.tile.z * 30 + (props.tile.x + props.tile.y) * 5}ms`,

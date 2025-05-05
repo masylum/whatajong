@@ -85,6 +85,7 @@ export const areaTitleClass = recipe({
     display: "flex",
     alignItems: "center",
     gap: 12,
+    position: "relative",
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         ...fontSize.m,
@@ -95,6 +96,11 @@ export const areaTitleClass = recipe({
     },
   },
   variants: {
+    sudo: {
+      true: {
+        zIndex: 9999,
+      },
+    },
     hue: hueVariants((kolor) => ({
       color: kolor(30),
     })),
@@ -177,6 +183,11 @@ export const shopItemClass = recipe({
     ),
   },
   variants: {
+    sudo: {
+      true: {
+        zIndex: 9999,
+      },
+    },
     hoverable: { true: {}, false: {} },
     selected: {
       true: {
@@ -246,6 +257,7 @@ export const shopItemButtonClass = recipe({
     justifyContent: "center",
     alignItems: "center",
     maxWidth: 45,
+    position: "relative",
   },
   variants: {
     hue: hueVariants((kolor) => ({
@@ -564,4 +576,78 @@ export const closeButtonClass = style({
 export const videoContainerClass = style({
   minHeight: 0,
   flex: 1,
+})
+
+const fadeIn = keyframes({
+  "0%": { opacity: 0 },
+  "100%": { opacity: 1 },
+})
+
+export const tutorialClass = style({
+  position: "absolute",
+  inset: 0,
+  background:
+    "radial-gradient(circle, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.6))",
+  zIndex: 2000,
+  display: "flex",
+  justifyContent: "center",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 32,
+  padding: 48,
+  textAlign: "center",
+  fontFamily: primary,
+  ...fontSize.h2,
+  lineHeight: 1.3,
+  color: color.bone10,
+  animation: `${fadeIn} 1s ease-in-out`,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h1,
+      lineHeight: 1.3,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero4,
+      lineHeight: 1.3,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.hero3,
+      lineHeight: 1.3,
+    },
+  },
+})
+
+export const shop1ArrowClass = style({
+  position: "absolute",
+  top: 0,
+  left: 100,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      left: 110,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      left: 120,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      left: 130,
+    },
+  },
+})
+
+export const shop2ArrowClass = style({
+  position: "absolute",
+  top: -50,
+  right: 30,
+})
+
+export const crackClass = style({
+  color: color.crack40,
+})
+
+export const dotClass = style({
+  color: color.dot40,
+})
+
+export const bamClass = style({
+  color: color.bam40,
 })

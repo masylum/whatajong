@@ -1,4 +1,9 @@
-import { floatAnimation } from "@/styles/animations.css"
+import {
+  ANIMATION_SLOW,
+  easeBounce,
+  floatAnimation,
+  fromAboveAnimation,
+} from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
@@ -25,6 +30,7 @@ export const contentClass = style({
   textAlign: "center",
   width: "100%",
   height: "100%",
+  animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 32,

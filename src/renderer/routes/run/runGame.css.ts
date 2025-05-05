@@ -143,6 +143,11 @@ export const containerClass = recipe({
         flexDirection: "row",
       },
     },
+    sudo: {
+      true: {
+        zIndex: 9999,
+      },
+    },
     position: {
       topLeft: {
         left: 0,
@@ -197,6 +202,8 @@ export const pillClass = recipe({
     paddingInline: 4,
     paddingBlock: 0,
     color: "white",
+    position: "relative",
+    overflow: "hidden",
     "@media": {
       [mediaQuery({ p: "l", l: "m" })]: {
         ...fontSize.h3,
@@ -212,7 +219,7 @@ export const pillClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.6)}, ${alpha(kolor(40), 0.9)})`,
+      background: `linear-gradient(to bottom, ${alpha(kolor(50), 0.8)}, ${alpha(kolor(40), 0.9)})`,
       boxShadow: `1px 1px 2px 0 inset ${alpha(kolor(60), 0.9)},
         -1px -1px 2px 0px inset ${alpha(kolor(30), 0.9)},
         0px 0px 0px 1px ${kolor(30)},
@@ -222,6 +229,13 @@ export const pillClass = recipe({
       `,
     })),
   },
+})
+
+export const timerClass = style({
+  background: "black",
+  position: "absolute",
+  inset: 0,
+  zIndex: -1,
 })
 
 const pulsePaused = keyframes({
@@ -377,4 +391,131 @@ export const movesClass = recipe({
       },
     },
   },
+})
+
+const fadeIn = keyframes({
+  "0%": { opacity: 0 },
+  "100%": { opacity: 1 },
+})
+
+export const tutorialClass = style({
+  position: "absolute",
+  inset: 0,
+  background:
+    "radial-gradient(circle, rgba(255, 255, 255, 0.95) 30%, rgba(255, 255, 255, 0.6))",
+  zIndex: 2000,
+  display: "flex",
+  justifyContent: "center",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 32,
+  padding: 48,
+  textAlign: "center",
+  fontFamily: primary,
+  ...fontSize.h2,
+  lineHeight: 1.3,
+  color: color.bone10,
+  animation: `${fadeIn} 1s ease-in-out`,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h1,
+      lineHeight: 1.3,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero4,
+      lineHeight: 1.3,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      ...fontSize.hero3,
+      lineHeight: 1.3,
+    },
+  },
+})
+
+export const tiles1ArrowClass = style({
+  position: "absolute",
+  top: 32,
+  left: 100,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      left: 120,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      top: 40,
+      left: 140,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      top: 64,
+      left: 220,
+    },
+  },
+})
+
+export const arrowBoard1Class = style({
+  position: "absolute",
+  bottom: 24,
+  left: 120,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      left: 140,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      bottom: 32,
+      left: 160,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      bottom: 64,
+      left: 240,
+    },
+  },
+})
+
+export const arrowBoard2Class = style({
+  position: "absolute",
+  bottom: 24,
+  right: 140,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      right: 160,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      bottom: 32,
+      right: 180,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      bottom: 64,
+      right: 260,
+    },
+  },
+})
+
+export const arrowBoard3Class = style({
+  position: "absolute",
+  bottom: 80,
+  right: 24,
+  "@media": {
+    [mediaQuery({ p: "s", l: "xs" })]: {
+      right: 32,
+    },
+    [mediaQuery({ p: "m", l: "s" })]: {
+      right: 40,
+      bottom: 100,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      right: 64,
+      bottom: 120,
+    },
+  },
+})
+
+export const crackClass = style({
+  color: color.crack40,
+})
+
+export const dotClass = style({
+  color: color.dot40,
+})
+
+export const bamClass = style({
+  color: color.bam40,
 })

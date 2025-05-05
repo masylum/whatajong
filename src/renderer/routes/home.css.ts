@@ -66,10 +66,9 @@ export const buttonAnimationDelayVar = createVar()
 export const buttonClass = recipe({
   base: {
     display: "flex",
-    width: "100%",
-    justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    gap: 12,
+    justifyContent: "center",
     textDecoration: "none",
     textAlign: "center",
     paddingInline: 8,
@@ -98,10 +97,10 @@ export const buttonClass = recipe({
   },
   variants: {
     hue: hueVariants((hue) => ({
-      background: `linear-gradient(to bottom, ${alpha(hue(60), 0.1)}, ${alpha(hue(60), 0.2)})`,
+      background: alpha(hue(50), 0.2),
       color: hue(40),
       ":hover": {
-        background: `linear-gradient(to bottom, ${alpha(hue(60), 0.3)}, ${alpha(hue(60), 0.2)})`,
+        background: alpha(hue(50), 0.3),
         color: hue(20),
       },
     })),

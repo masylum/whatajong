@@ -70,16 +70,6 @@ const huesAndShades = {
 
 const accentHues = ["bam", "crack", "dot", "bone", "black"] as const
 
-export function hueFromSuit(suit: "b" | "c" | "o") {
-  return (
-    {
-      b: "bam",
-      c: "crack",
-      o: "dot",
-    } as const
-  )[suit]
-}
-
 export function hueFromColor(color: GameColor) {
   return (
     {
@@ -151,10 +141,6 @@ export function hueSelectors<T>(
     },
     {} as Record<string, T>,
   )
-}
-
-export function mapHues<T>(map: (fn: HueShadeGetter, hue: AccentHue) => T[]) {
-  return accentHues.flatMap((hue) => map(getHueColor(hue), hue))
 }
 
 export function alpha(colorName: string, alpha: number) {

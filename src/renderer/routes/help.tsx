@@ -1,4 +1,4 @@
-import { Button } from "@/components/button"
+import { Button, LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight, X } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -26,11 +26,11 @@ import {
   shopItemContainerClass,
   titleClass,
   whatajongClass,
-} from "./gameTutorial.css"
+} from "./help.css"
 
 const STEPS = ["tiles", "board", "shop", "materials"] as const
 
-export function GameTutorial(props: { onClose: () => void }) {
+export function Help() {
   const t = useTranslation()
   const [step, setStep] = createSignal(0)
   const stage = createMemo(() =>
@@ -49,19 +49,19 @@ export function GameTutorial(props: { onClose: () => void }) {
     <div class={containerClass}>
       <div class={contentClass}>
         <div class={backButtonClass}>
-          <Button hue="dot" onClick={props.onClose}>
+          <LinkButton hue="dot" onPointerDown={() => history.back()}>
             <X />
             {t.common.close()}
-          </Button>
+          </LinkButton>
         </div>
         <div class={buttonsClass}>
-          <Button hue="dot" onClick={onPrev} disabled={step() === 0}>
+          <Button hue="dot" onPointerDown={onPrev} disabled={step() === 0}>
             <ArrowLeft />
             {t.common.prev()}
           </Button>
           <Button
             hue="dot"
-            onClick={onNext}
+            onPointerDown={onNext}
             disabled={step() >= STEPS.length - 1}
           >
             {t.common.next()}

@@ -1,4 +1,4 @@
-import { play, toggleMusic } from "@/components/audio"
+import { play, useMusic } from "@/components/audio"
 import { BasicTile } from "@/components/game/basicTile"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -14,12 +14,11 @@ import {
 } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useImageSrc, useSmallerTileSize } from "@/state/constants"
-import { fetchRuns } from "@/state/runState"
+import { TUTORIAL_SEED, fetchRuns } from "@/state/runState"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { nanoid } from "nanoid"
 import Rand from "rand-seed"
-import { For, createMemo, onMount } from "solid-js"
+import { For, createMemo } from "solid-js"
 import {
   buttonAnimationDelayVar,
   buttonClass,
@@ -53,8 +52,7 @@ function cards() {
 export function Home() {
   const t = useTranslation()
   const runs = createMemo(() => fetchRuns())
-  const dg = useImageSrc()
-  const dr = useImageSrc()
+  const img = useImageSrc()
 
   const runId = createMemo(() => {
     const run = runs()[0]
@@ -62,16 +60,14 @@ export function Home() {
       return run.runId
     }
 
-    return nanoid()
+    return TUTORIAL_SEED
   })
 
   function onHover() {
     play("click2")
   }
 
-  onMount(() => {
-    toggleMusic("game")
-  })
+  useMusic("game")
 
   return (
     <div class={homeClass}>
@@ -90,7 +86,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${dr()}/dr.webp`}
+            src={`${img()}/dr.webp`}
             alt="duel"
             width={36}
             height={52}
@@ -109,12 +105,31 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${dg()}/dg.webp`}
+            src={`${img()}/dg.webp`}
             alt="classic"
             width={36}
             height={52}
           />
           {t.settings.title()}
+        </a>
+        <a
+          onMouseEnter={onHover}
+          href="/help"
+          class={buttonClass({ hue: "dot" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "600ms",
+            }),
+          }}
+        >
+          <img
+            class={buttonIconClass}
+            src={`${img()}/db.webp`}
+            alt="help"
+            width={36}
+            height={52}
+          />
+          {t.common.help()}
         </a>
       </nav>
       <Mountains />

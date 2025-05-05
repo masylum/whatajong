@@ -1,5 +1,7 @@
+import { useGlobalState } from "@/state/globalState"
 import { Howl } from "howler"
 import { fromEntries } from "remeda"
+import { onMount } from "solid-js"
 
 const SoundFiles = [
   "click",
@@ -35,6 +37,9 @@ const SoundFiles = [
   "end_phoenix",
   "end_dragon",
   "tiles",
+  "reward",
+  "won",
+  "lost",
 ] as const
 export type Track = (typeof SoundFiles)[number]
 
@@ -60,8 +65,6 @@ const musicIds = {
 } as const
 
 let currentId = musicIds.game
-music.volume(0, musicIds.game)
-music.volume(0, musicIds.shop)
 music.loop(true)
 music.rate(0.95)
 music.fade(0, 1, 1000, currentId)
@@ -74,13 +77,16 @@ function play(track: Track) {
   }
 }
 
-export function toggleMusic(track: keyof typeof musicIds) {
-  const id = musicIds[track]
-  if (id === currentId) return
+export function useMusic(track: keyof typeof musicIds) {
+  const globalState = useGlobalState()
 
-  music.fade(1, 0, 1000, currentId)
-  currentId = id
-  music.fade(0, 1, 1000, id)
+  onMount(() => {
+    const id = musicIds[track]
+
+    music.fade(globalState.musicVolume, 0, 1000, currentId)
+    currentId = id
+    music.fade(0, globalState.musicVolume, 1000, id)
+  })
 }
 
 export function musicVolume(volume: number) {

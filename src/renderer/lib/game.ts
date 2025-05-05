@@ -455,7 +455,7 @@ export function getFinder(tileDb: TileDb, position: Position) {
   }
 }
 
-export function isCovered(tileDb: TileDb, tile: Tile) {
+function isCovered(tileDb: TileDb, tile: Tile) {
   return overlaps(tileDb, tile, 1)
 }
 

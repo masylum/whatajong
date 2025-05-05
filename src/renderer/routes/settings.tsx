@@ -1,4 +1,4 @@
-import { play, toggleMusic } from "@/components/audio"
+import { play, useMusic } from "@/components/audio"
 import { LinkButton } from "@/components/button"
 import { ArrowLeft, Check, ChevronUpAndDown } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -6,7 +6,6 @@ import { throttle } from "@/lib/throttle"
 import { useGlobalState } from "@/state/globalState"
 import { Select } from "@kobalte/core/select"
 import { Slider } from "@kobalte/core/slider"
-import { onMount } from "solid-js"
 import {
   backButtonClass,
   containerClass,
@@ -35,9 +34,7 @@ export function Settings() {
   const globalState = useGlobalState()
   const t = useTranslation()
 
-  onMount(() => {
-    toggleMusic("shop")
-  })
+  useMusic("shop")
 
   return (
     <div class={containerClass}>

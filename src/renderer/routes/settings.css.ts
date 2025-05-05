@@ -38,21 +38,6 @@ export const contentClass = style({
   },
 })
 
-export const subtitleContainerClass = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: 12,
-  maxWidth: 600,
-  "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 24,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 32,
-    },
-  },
-})
-
 export const backButtonClass = style({
   position: "absolute",
   top: 12,
@@ -82,48 +67,6 @@ export const titleClass = style({
     [mediaQuery({ p: "l", l: "m" })]: {
       ...fontSize.hero3,
     },
-  },
-})
-
-export const subtitleClass = recipe({
-  base: {
-    ...fontSize.l,
-    fontFamily: secondary,
-    display: "flex",
-    alignItems: "center",
-    gap: 24,
-    padding: 12,
-    borderRadius: 8,
-    animationName: fromAboveAnimation,
-    animationDuration: ANIMATION_SLOW,
-    animationFillMode: "backwards",
-    animationTimingFunction: easeBounce,
-    selectors: {
-      // Add staggered delay for a nicer effect
-      "&:nth-child(1n)": {
-        animationDelay: "200ms",
-      },
-      "&:nth-child(2n)": {
-        animationDelay: "400ms",
-      },
-      "&:nth-child(3n)": {
-        animationDelay: "600ms",
-      },
-    },
-    "@media": {
-      [mediaQuery({ p: "m", l: "s" })]: {
-        ...fontSize.h3,
-      },
-      [mediaQuery({ p: "l", l: "m" })]: {
-        ...fontSize.h2,
-      },
-    },
-  },
-  variants: {
-    hue: hueVariants((kolor) => ({
-      color: kolor(30),
-      backgroundColor: alpha(kolor(50), 0.1),
-    })),
   },
 })
 
@@ -169,15 +112,6 @@ export const sliderThumbClass = style({
   },
 })
 
-export const sliderThumbHoverClass = style({
-  boxShadow: `0 0 0 5px ${alpha(color.dot40, 0.6)}`,
-})
-
-export const sliderThumbFocusClass = style({
-  outline: "none",
-  boxShadow: `0 0 0 5px ${alpha(color.dot40, 0.6)}`,
-})
-
 export const sliderLabelClass = style({
   width: "100%",
   display: "flex",
@@ -213,8 +147,7 @@ export const selectTriggerClass = style({
   justifyContent: "space-between",
   width: 200,
   borderRadius: 4,
-  paddingLeft: 12,
-  paddingRight: 16,
+  padding: 4,
   ...fontSize.l,
   lineHeight: 1,
   height: 40,
@@ -296,13 +229,6 @@ export const selectItemClass = style({
       color: color.dot90,
     },
   },
-})
-
-export const selectSectionClass = style({
-  padding: "8px 0 0 8px",
-  fontSize: 14,
-  lineHeight: 32,
-  color: "hsl(240 4% 46%)",
 })
 
 export const selectItemIndicatorClass = style({

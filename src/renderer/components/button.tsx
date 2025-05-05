@@ -13,7 +13,7 @@ export function LinkButton(iProps: ButtonProps & JSX.IntrinsicElements["a"]) {
 
   return (
     <a
-      onMouseEnter={() => play("click2")}
+      onPointerDown={() => play("click2")}
       class={buttonClass({
         hue: props.hue,
         suave: props.suave,
@@ -29,11 +29,11 @@ export function Button(iProps: ButtonProps & JSX.IntrinsicElements["button"]) {
 
   return (
     <button
-      onMouseEnter={() => !buttonProps.disabled && play("click2")}
+      onPointerDown={() => !buttonProps.disabled && play("click2")}
       class={buttonClass({
         hue: props.hue,
         suave: props.suave,
-        clickable: !!buttonProps.onClick,
+        clickable: !!buttonProps.onPointerDown,
       })}
       {...buttonProps}
     />
@@ -48,12 +48,12 @@ export function ShopButton(iProps: ShopButtonProps) {
 
   return (
     <button
-      onMouseEnter={() =>
-        !buttonProps.disabled && buttonProps.onClick && play("click2")
+      onPointerDown={() =>
+        !buttonProps.disabled && buttonProps.onPointerDown && play("click2")
       }
       class={shopButtonClass({
         hue: props.hue,
-        clickable: !!buttonProps.onClick,
+        clickable: !!buttonProps.onPointerDown,
       })}
       {...buttonProps}
     />

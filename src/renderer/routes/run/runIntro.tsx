@@ -65,7 +65,7 @@ function TutorialIntro(props: { onSelectMode: (mode: Difficulty) => void }) {
           {t.intro.upgrade()}
         </div>
       </div>
-      <Button hue="dot" onClick={() => props.onSelectMode("easy")}>
+      <Button hue="dot" onPointerDown={() => props.onSelectMode("easy")}>
         start first round
         <ArrowRight />
       </Button>

@@ -8,6 +8,7 @@ import { Run } from "./routes/run"
 import "@fontsource-variable/nunito"
 import "./styles/reset.css"
 import { initObservability } from "./lib/observability"
+import { Help } from "./routes/help"
 import { Settings } from "./routes/settings"
 
 const root = document.getElementById("root")
@@ -20,6 +21,7 @@ render(
       <Route path="/" component={Home} />
       <Route path="/run/:id" component={Run} />
       <Route path="/settings" component={Settings} />
+      <Route path="/help" component={Help} />
     </Router>
   ),
   root!,

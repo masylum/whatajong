@@ -74,17 +74,14 @@ const floatingNumberKeyframes = keyframes({
 const pulseVar = createVar()
 const pulseKeyframes = keyframes({
   "0%": {
-    boxShadow: `0 0 0 0px rgba(from ${pulseVar} r g b / 0.1)`,
-    backgroundColor: `rgba(from ${pulseVar} r g b / 0)`,
+    backgroundColor: `rgba(from ${pulseVar} r g b / 0.05)`,
   },
   "50%": {
-    boxShadow: `0 0 0px 20px rgba(from ${pulseVar} r g b / 0)`,
     backgroundColor: `rgba(from ${pulseVar} r g b / 0.2)`,
     opacity: 1,
   },
   "100%": {
-    boxShadow: `0 0 0 0px rgba(from ${pulseVar} r g b / 0.1)`,
-    backgroundColor: `rgba(from ${pulseVar} r g b / 0)`,
+    backgroundColor: `rgba(from ${pulseVar} r g b / 0.05)`,
   },
 })
 
@@ -122,7 +119,7 @@ export const pulseClass = recipe({
   base: {
     borderRadius: 4,
     position: "absolute",
-    animation: `${pulseKeyframes} 2000ms ease-in-out infinite`,
+    animation: `${pulseKeyframes} 3000ms ease-in-out infinite`,
     mixBlendMode: "multiply",
     pointerEvents: "none",
     top: 0,

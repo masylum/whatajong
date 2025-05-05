@@ -1,8 +1,9 @@
 import type { Color, Material } from "@/lib/game"
 import { type ParentProps, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
+import { TUTORIAL_SEED } from "./runState"
 
-export const GAME_STATE_NAMESPACE = "game-state-v2"
+export const GAME_STATE_NAMESPACE = "game-state-v3"
 
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 
@@ -26,23 +27,25 @@ export type Game = {
   dragonRun?: DragonRun
   phoenixRun?: PhoenixRun
   joker?: boolean
+  tutorialStep?: number
 }
 
-type CreateGameStateParams = { id: () => string }
+type CreateGameStateParams = { id: () => string; round: number }
 export function createGameState(params: CreateGameStateParams) {
   return createPersistantMutable<Game>({
     namespace: GAME_STATE_NAMESPACE,
     id: params.id,
-    init: initialGameState,
+    init: (id) => initialGameState(id),
   })
 }
 
-export function initialGameState() {
+export function initialGameState(id: string) {
   return {
     points: 0,
     coins: 0,
     time: 0,
     pause: false,
+    tutorialStep: id === `${TUTORIAL_SEED}-1` ? 1 : undefined,
   }
 }
 

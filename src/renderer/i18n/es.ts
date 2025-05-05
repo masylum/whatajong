@@ -116,7 +116,7 @@ export const es = {
       materials: "materiales",
     },
     tiles1:
-      "Para ganar una ronda de <span class='{{whatajongClass}}'>Whatajong</span> tienes que despejar todas las fichas del tablero.",
+      "Para ganar una ronda de <span class='{{crackClass}}'>Whatajong</span> tienes que despejar todas las fichas del tablero.",
     tiles2: "Para despejar fichas, necesitas emparejar dos fichas idénticas.",
     tiles3:
       "Una ficha se puede seleccionar si no tiene otra ficha encima y al menos uno de sus lados (izquierdo o derecho) está libre.",
@@ -127,7 +127,9 @@ export const es = {
     board2:
       "El indicador de monedas muestra cuántas monedas has ganado esta ronda.",
     board3:
-      "El indicador de jugadas muestra cuántas jugadas te quedan. Si llega a 0, el tablero no se puede resolver y has perdido la partida.",
+      "El <span class={{dotClass}}>indicador de jugadas</span> muestra cuántas jugadas te quedan.",
+    board4:
+      "Si llega a 0, el tablero no se puede resolver y has perdido la partida.",
     shop1:
       "Cada ronda recibirás monedas. Gástalas en la tienda para c‌omprar nuevas fichas.",
     shop2: "Vuelve a tirar para obtener nuevos artículos en la tienda.",

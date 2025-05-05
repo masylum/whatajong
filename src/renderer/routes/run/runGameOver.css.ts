@@ -68,6 +68,7 @@ export const screenClass = recipe({
     gap: 32,
     width: "100%",
     height: "100%",
+    animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
         padding: 24,

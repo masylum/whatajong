@@ -8,12 +8,12 @@ function key(namespace: string, id: string) {
 type CreatePersistantParams<T> = {
   namespace: string
   id: () => string
-  init: () => T
+  init: (id: string) => T
 }
 export function createPersistantMutable<T extends Record<string, any>>(
   params: CreatePersistantParams<T>,
 ) {
-  const mutable = createMutable<T>(params.init())
+  const mutable = createMutable<T>(params.init(params.id()))
 
   createEffect(
     on(params.id, (id) => {
@@ -21,7 +21,7 @@ export function createPersistantMutable<T extends Record<string, any>>(
 
       setMutable(
         mutable,
-        persistedState ? JSON.parse(persistedState) : params.init(),
+        persistedState ? JSON.parse(persistedState) : params.init(id),
       )
     }),
   )

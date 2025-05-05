@@ -9,7 +9,7 @@ import {
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
-import type { RunState } from "@/state/runState"
+import { type RunState, TUTORIAL_SEED } from "@/state/runState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { countBy, entries } from "remeda"
@@ -53,6 +53,7 @@ export type DeckTileItem = BaseItem & {
 type ShopState = {
   reroll: number
   currentItem: TileItem | DeckTileItem | null
+  tutorialStep: number | null
 }
 
 export function isTile(item: TileItem | DeckTileItem) {
@@ -89,6 +90,7 @@ export function createShopState(params: CreateShopStateParams) {
     init: () => ({
       reroll: 0,
       currentItem: null,
+      tutorialStep: params.id() === TUTORIAL_SEED ? 1 : null,
     }),
   })
 }

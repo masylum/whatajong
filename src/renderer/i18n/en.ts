@@ -114,28 +114,32 @@ export const en = {
       materials: "materials",
     },
     tiles1:
-      "To win one round of <span class={{{whatajongClass}}}>Whatajong</span> you have to clear all the tiles from the board.",
-    tiles2: "To clear tiles, you need to match a pair of identical tiles.",
+      "To win a round of <span class={{crackClass}}>Whatajong</span>, clear all the tiles and sc‌ore at least the required number of points for that round.",
+    tiles2: "To clear tiles, match a pair of identical ones.",
     tiles3:
-      "A tile can be selected if it has no other tile on top of it and has at least one free side (left or right).",
+      "Each tile must be free on at least one side (left or right) and have no tile on top.",
     tiles4: "When clearing a pair of tiles, you sc‌ore points.",
     tiles5: "2 points!",
     board1:
-      "The points and time indicators show you how many points have you sc‌ored so far, and how many points you have lost due to time passing by.",
+      "The <span class={{bamClass}}>points and time indicators</span> show how many points you've earned so far, and how many you've lost as time ticks down.",
     board2:
-      "The coins indicator shows you how many coins you have earned this round.",
+      "The <span class={{crackClass}}>c‌oins</span> indicator shows you how many c‌oins you have earned this round.",
     board3:
-      "The moves indicator, shows you how many moves you have left. If it reaches 0, the board is unsolvable and you have lost the game.",
+      "The <span class={{dotClass}}>moves indicator</span>, shows you how many moves you have available.",
+    board4:
+      "If it reaches 0, the board is unsolvable and you have lost the game.",
     shop1:
-      "Every round you will be rewarded with coins. Spend them on the shop to buy new tiles.",
-    shop2: "Reroll to get new items in the shop.",
+      "Every round you will be rewarded with <span class={{crackClass}}>c‌oins</span>. Spend them on the shop to buy new tiles.",
+    shop2:
+      "<span class={{bamClass}}>Reroll</span> to get new items in the shop.",
     shop3:
-      "If there is something you like, but you can't afford it, freeze the items until next round.",
-    material1: "Buy three of the same tile to upgrade the material.",
+      "If there is something you like, but you can't afford it, <span class={{dotClass}}>freeze</span> the items until next round.",
+    material1:
+      "Buy three identical tiles to merge them into a more powerful one.",
     material: {
       b: "You can clear this tile even if none of its sides are open.",
       g: "These tiles give extra points.",
-      r: "These tiles give coins.",
+      r: "These tiles give c‌oins.",
       k: "Clear this tile to stop the time.",
     },
   },
