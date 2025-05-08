@@ -4,11 +4,10 @@ import {
   fromAboveAnimation,
 } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
-import { alpha, color, hueVariants } from "@/styles/colors"
+import { alpha, color } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { keyframes, style } from "@vanilla-extract/css"
-import { recipe } from "@vanilla-extract/recipes"
 
 export const containerClass = style({
   height: "100dvh",

@@ -65,6 +65,7 @@ export const navClass = style({
 export const buttonAnimationDelayVar = createVar()
 export const buttonClass = recipe({
   base: {
+    WebkitTapHighlightColor: "transparent",
     display: "flex",
     alignItems: "center",
     gap: 12,

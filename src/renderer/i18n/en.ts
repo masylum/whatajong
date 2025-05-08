@@ -60,19 +60,22 @@ export const en = {
     bone: "bone",
   },
   suit: {
-    f: "Flower",
-    b: "Bam",
-    c: "Crack",
-    o: "Dot",
-    d: "Dragon",
-    w: "Wind",
-    r: "Rabbit",
-    p: "Phoenix",
-    j: "Joker",
-    m: "Mutation",
-    t: "Trigram",
-    e: "Element",
-    g: "Gemstone",
+    flower: "Flower",
+    bam: "Bam",
+    crack: "Crack",
+    dot: "Dot",
+    dragon: "Dragon",
+    wind: "Wind",
+    rabbit: "Rabbit",
+    phoenix: "Phoenix",
+    joker: "Joker",
+    mutation: "Mutation",
+    taijitu: "Taijitu",
+    element: "Element",
+    gem: "Gemstone",
+    frog: "Frog",
+    lotus: "Lotus",
+    sparrow: "Sparrow",
   },
   windDirections: {
     n: "north",
@@ -87,20 +90,18 @@ export const en = {
     k: "Black",
   },
   cardName: {
-    m1: "Crack / Bam mutation",
-    m2: "Dot / Crack mutation",
-    m3: "Bam / Dot mutation",
-    m4: "-1 Mutation",
-    m5: "+1 Mutation",
-    w: "{{direction}} Wind",
-    d: "{{color}} Dragon",
-    p: "{{color}} Phoenix",
-    r: "{{color}} Rabbit",
-    e: "{{color}} Element",
-    gr: "Garnet",
-    gg: "Jade",
-    gb: "Topaz",
-    gk: "Quartz",
+    mutation1: "Crack / Bam mutation",
+    mutation2: "Dot / Crack mutation",
+    mutation3: "Bam / Dot mutation",
+    wind: "{{direction}} Wind",
+    dragon: "{{color}} Dragon",
+    phoenix: "{{color}} Phoenix",
+    rabbit: "{{color}} Rabbit",
+    element: "{{color}} Element",
+    gemr: "Garnet",
+    gemg: "Jade",
+    gemb: "Topaz",
+    gemk: "Quartz",
   },
   tutorial: {
     stages: {
@@ -135,7 +136,7 @@ export const en = {
     shop3:
       "If there is something you like, but you can't afford it, <span class={{dotClass}}>freeze</span> the items until next round.",
     material1:
-      "Buy three identical tiles to merge them into a more powerful one.",
+      "Buy three identical tiles to merge them into more powerful ones.",
     material: {
       b: "You can clear this tile even if none of its sides are open.",
       g: "These tiles give extra points.",
@@ -208,7 +209,7 @@ export const en = {
     },
     explanation: {
       wind: "When cleared, a breeze moves the tiles towards the cardinal direction.",
-      rabbit: "Rabbit tiles grant you one c‌oin for each point they sc‌ore.",
+      rabbit: "When cleared, Rabbit tiles grant you one c‌oin.",
       flower:
         "Flower tiles are red, green and blue.<br />Flowers can be matched with any other flower tile.",
       dragon:
@@ -216,18 +217,21 @@ export const en = {
       phoenix:
         "Clear phoenix tiles to start a <strong>Phoenix Run</strong>.<br />While the <strong>Phoenix Run</strong> is active, clear c‌onsecutive numbers to sc‌ore more points.",
       mutation:
-        "Mutation tiles allow you to change the tiles on your board: Swap their suit or increase/decrease their number.",
+        "Mutation tiles allow you to swap the suit of the tiles on your board.",
       m1: "Swap all the Cracks (::c::) and Bams (::b::) tiles on your board.",
       m2: "Swap all the Dots (::o::) and Cracks (::c::) tiles on your board.",
       m3: "Swap all the Bams (::b::) and Dots (::o::) tiles on your board.",
-      m4: "Decrease the number of all the tiles on your board.",
-      m5: "Increase the number of all the tiles on your board.",
       joker:
         "Clear a Joker tile to shuffle your board.<br />Jokers tiles match any c‌olor and any number.",
       element:
         "Every Element tile on the board gives all tiles of its c‌olor bonus points.<br />While an Element tile is free, it grants an additional bonus.",
-      trigram:
-        "Each Trigram tile on the board gives all tiles of its number bonus points.<br />While an Trigram tile is free, it grants an additional bonus.",
+      taijitu:
+        "When cleared, it grants bonus points for each adjacent Taijitu tile.",
+      frog: "Pair a Frog Tile with a free tile of the same color; the frog jumps onto the tile.",
+      lotus:
+        "Pair a free tile with a Lotus Tile of the same color; the tile jumps onto the lotus.",
+      sparrow:
+        "Pair a Sparrow Tile with any tile of the same color; they swap places.",
       gem: "When you clear this tile, all tiles of its c‌olor turn into its material until the next clearing.",
     },
   },

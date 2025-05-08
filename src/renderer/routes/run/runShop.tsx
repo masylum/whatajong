@@ -16,6 +16,7 @@ import {
   type Material,
   type Suit,
   cardName,
+  getAllTiles,
   getCard,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
@@ -459,6 +460,17 @@ function Deck() {
   const deck = useDeckState()
   const t = useTranslation()
   const totalPairs = createMemo(() => deck.all.length * 2)
+  const order = createMemo(() =>
+    getAllTiles().reduce(
+      (acc, card, index) => {
+        if (acc[card.suit] === undefined) {
+          acc[card.suit] = index
+        }
+        return acc
+      },
+      {} as Record<Suit, number>,
+    ),
+  )
 
   const sortedDeck = createMemo(() =>
     deck.all.sort((a, b) => {
@@ -467,22 +479,7 @@ function Deck() {
       const suitA = cardA.suit
       const suitB = cardB.suit
       if (suitA !== suitB) {
-        const suitOrder: Suit[] = [
-          "b",
-          "c",
-          "o",
-          "t",
-          "w",
-          "d",
-          "r",
-          "f",
-          "p",
-          "m",
-          "j",
-          "e",
-          "g",
-        ]
-        return suitOrder.indexOf(suitA) - suitOrder.indexOf(suitB)
+        return order()[suitA] - order()[suitB]
       }
       return cardA.rank.localeCompare(cardB.rank)
     }),
@@ -725,25 +722,25 @@ function MaterialTutorial() {
     <>
       <div class={cardRowClass}>
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         +
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         +
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         =
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           material="topaz"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
@@ -751,28 +748,28 @@ function MaterialTutorial() {
       </div>
       <div class={cardRowClass}>
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           material="topaz"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         +
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           material="topaz"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         +
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           material="topaz"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}
         />
         =
         <BasicTile
-          cardId="o1"
+          cardId="dot1"
           material="sapphire"
           width={tileSize().width}
           style={{ transform: "rotate(5deg)" }}

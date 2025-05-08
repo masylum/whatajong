@@ -10,18 +10,6 @@ import type { TileItem } from "./shopState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
-export const REWARDS = {
-  2: "w",
-  3: "d",
-  5: "r",
-  7: "f",
-  9: "p",
-  11: "m",
-  13: "e",
-  15: "t",
-  17: "g",
-  19: "j",
-} as const
 
 export type RunState = {
   runId: string
@@ -108,15 +96,15 @@ export function initialRunState(id: string): RunState {
 const DIFFICULTY = {
   easy: {
     timer: { exp: 1.1, lin: 1 },
-    point: { initial: 40, exp: 2.1, lin: 5 },
+    point: { initial: 40, exp: 2, lin: 5 },
   },
   medium: {
     timer: { exp: 1.15, lin: 2 },
-    point: { initial: 40, exp: 2.2, lin: 10 },
+    point: { initial: 40, exp: 2.1, lin: 10 },
   },
   hard: {
     timer: { exp: 1.2, lin: 3 },
-    point: { initial: 40, exp: 2.3, lin: 15 },
+    point: { initial: 40, exp: 2.2, lin: 15 },
   },
 } as const
 

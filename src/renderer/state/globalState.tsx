@@ -35,6 +35,7 @@ export function GlobalStateProvider(
   props: { globalState: GlobalState } & ParentProps,
 ) {
   createEffect(() => {
+    console.log("createEffect", props.globalState.musicVolume)
     musicVolume(props.globalState.musicVolume)
     Howler.volume(props.globalState.soundVolume)
   })

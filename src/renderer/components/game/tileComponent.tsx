@@ -3,17 +3,16 @@ import {
   coord,
   getCard,
   getMaterial,
-  isDragon,
+  getTaijituMultiplier,
   isElement,
   isFree,
+  isFrog,
   isGem,
   isJoker,
   isMutation,
-  isPhoenix,
-  isTrigram,
+  isSparrow,
+  isTaijitu,
   isWind,
-  mapGetHeight,
-  mapGetWidth,
 } from "@/lib/game"
 import { getSideSize, useTileSize } from "@/state/constants"
 import { useGameState } from "@/state/gameState"
@@ -58,7 +57,7 @@ type Props = {
   width?: number
   height?: number
 }
-type State = "idle" | "selected" | "deleted" | "shuffling"
+type State = "idle" | "selected" | "deleted" | "shuffling" | "jumping"
 
 export function TileComponent(iProps: Props) {
   const game = useGameState()
@@ -92,11 +91,14 @@ export function TileComponent(iProps: Props) {
 
   const material = createMemo(() => getMaterial(props.tile, game))
   const canBeSelected = createMemo(() => isFree(tiles, props.tile, game))
-  const mapWidth = createMemo(() => mapGetWidth())
-  const mapHeight = createMemo(() => mapGetHeight())
+  const taijituActive = createMemo(() =>
+    isTaijitu(props.tile.cardId)
+      ? getTaijituMultiplier(props.tile, tiles) > 0
+      : false,
+  )
 
   const zIndex = createMemo(() => {
-    const zLayer = props.tile.z * mapWidth() * mapHeight()
+    const zLayer = props.tile.z
     const xScore = props.tile.x * 2
     const yScore = props.tile.y * 3
     return zLayer + xScore + yScore
@@ -109,6 +111,7 @@ export function TileComponent(iProps: Props) {
     if (selected()) return "selected"
     if (props.tile.deleted) return "deleted"
     if (game.joker) return "shuffling"
+    if (props.tile.jumping) return "jumping"
 
     return "idle"
   })
@@ -124,9 +127,11 @@ export function TileComponent(iProps: Props) {
     if (game.tutorialStep && game.tutorialStep === 3)
       return getCard(props.tile.cardId).colors[0]
 
-    if (isTrigram(props.tile.cardId)) return "k"
     const elementCard = isElement(props.tile.cardId)
     if (elementCard) return elementCard.rank
+
+    const taijituCard = isTaijitu(props.tile.cardId)
+    if (taijituCard && taijituActive()) return taijituCard.rank
 
     return
   })
@@ -176,19 +181,33 @@ export function TileComponent(iProps: Props) {
       setAnimation("deleted")
     }
 
+    if (prevState !== "jumping" && currentState === "jumping") {
+      setAnimation("jumpingIn")
+
+      if (isFrog(props.tile.cardId)) {
+        play("frog")
+      } else if (isSparrow(props.tile.cardId)) {
+        play("sparrow")
+      }
+    } else if (prevState === "jumping" && currentState !== "jumping") {
+      if (!isFrog(props.tile.cardId)) {
+        play("lotus")
+      }
+      setAnimation("jumpingOut")
+    }
+
     if (prevState !== "deleted" && currentState === "deleted") {
-      if (isDragon(props.tile.cardId)) {
-        play("dragon")
-      } else if (isWind(props.tile.cardId)) {
+      if (isWind(props.tile.cardId)) {
         play("wind")
-      } else if (isPhoenix(props.tile.cardId)) {
-        play("phoenix")
       } else if (isMutation(props.tile.cardId)) {
         play("mutation")
       } else if (isJoker(props.tile.cardId)) {
         play("joker")
       } else if (isGem(props.tile.cardId)) {
         play("gemstone")
+        // TODO: only when they are together?
+      } else if (isTaijitu(props.tile.cardId)) {
+        play("gong2")
       } else {
         play("ding")
       }
@@ -259,6 +278,7 @@ export function TileComponent(iProps: Props) {
                 cardId={props.tile.cardId}
                 material={material()}
                 free={canBeSelected()}
+                taijituActive={taijituActive()}
               />
 
               {/* Clickable overlay with hover effect */}

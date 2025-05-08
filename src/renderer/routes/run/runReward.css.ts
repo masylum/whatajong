@@ -128,7 +128,8 @@ export const floatingTileClass = recipe({
       },
       false: {
         animation: `${floatAnimation} 4s ease-in-out infinite`,
-        opacity: 0.6,
+        filter: "brightness(0.8)",
+        opacity: 0.4,
       },
     },
   },

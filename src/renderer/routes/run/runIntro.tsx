@@ -48,19 +48,19 @@ function TutorialIntro(props: { onSelectMode: (mode: Difficulty) => void }) {
       <div class={subtitleContainerClass}>
         <div class={subtitleClass({ hue: "bam" })}>
           <div class={tileClass({ stagger: 1 })}>
-            <BasicTile cardId="b1" />
+            <BasicTile cardId="bam1" />
           </div>
           {t.intro.goal()}
         </div>
         <div class={subtitleClass({ hue: "crack" })}>
           <div class={tileClass({ stagger: 2 })}>
-            <BasicTile cardId="c1" />
+            <BasicTile cardId="crack1" />
           </div>
           {t.intro.difficulty()}
         </div>
         <div class={subtitleClass({ hue: "dot" })}>
           <div class={tileClass({ stagger: 3 })}>
-            <BasicTile cardId="o1" />
+            <BasicTile cardId="dot1" />
           </div>
           {t.intro.upgrade()}
         </div>

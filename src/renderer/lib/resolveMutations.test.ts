@@ -8,85 +8,59 @@ describe("resolveMutations", () => {
 
   beforeEach(() => {
     tileDb = initTileDb({
-      "1": createTile({ id: "1", cardId: "b1", x: 0, y: 0, z: 0 }),
-      "2": createTile({ id: "2", cardId: "b5", x: 1, y: 0, z: 0 }),
-      "3": createTile({ id: "3", cardId: "b9", x: 2, y: 0, z: 0 }),
-      "4": createTile({ id: "4", cardId: "c2", x: 0, y: 1, z: 0 }),
-      "5": createTile({ id: "5", cardId: "c5", x: 1, y: 1, z: 0 }),
-      "6": createTile({ id: "6", cardId: "o3", x: 0, y: 2, z: 0 }),
-      "7": createTile({ id: "7", cardId: "o8", x: 1, y: 2, z: 0 }),
+      "1": createTile({ id: "1", cardId: "bam1", x: 0, y: 0, z: 0 }),
+      "2": createTile({ id: "2", cardId: "bam5", x: 1, y: 0, z: 0 }),
+      "3": createTile({ id: "3", cardId: "bam9", x: 2, y: 0, z: 0 }),
+      "4": createTile({ id: "4", cardId: "crack2", x: 0, y: 1, z: 0 }),
+      "5": createTile({ id: "5", cardId: "crack5", x: 1, y: 1, z: 0 }),
+      "6": createTile({ id: "6", cardId: "dot3", x: 0, y: 2, z: 0 }),
+      "7": createTile({ id: "7", cardId: "dot8", x: 1, y: 2, z: 0 }),
     })
-  })
-
-  it("decreases all suit ranks by 1 with m4 mutation", () => {
-    const mutationTile = createTile({ cardId: "m4" })
-    resolveMutations({ tileDb, tile: mutationTile })
-
-    expect(tileDb.get("1")!.cardId).toBe("b1")
-    expect(tileDb.get("2")!.cardId).toBe("b4")
-    expect(tileDb.get("3")!.cardId).toBe("b8")
-    expect(tileDb.get("4")!.cardId).toBe("c1")
-    expect(tileDb.get("5")!.cardId).toBe("c4")
-    expect(tileDb.get("6")!.cardId).toBe("o2")
-    expect(tileDb.get("7")!.cardId).toBe("o7")
-  })
-
-  it("increases all suit ranks by 1 with m5 mutation", () => {
-    const mutationTile = createTile({ cardId: "m5" })
-    resolveMutations({ tileDb, tile: mutationTile })
-
-    expect(tileDb.get("1")!.cardId).toBe("b2")
-    expect(tileDb.get("2")!.cardId).toBe("b6")
-    expect(tileDb.get("3")!.cardId).toBe("b9")
-    expect(tileDb.get("4")!.cardId).toBe("c3")
-    expect(tileDb.get("5")!.cardId).toBe("c6")
-    expect(tileDb.get("6")!.cardId).toBe("o4")
-    expect(tileDb.get("7")!.cardId).toBe("o9")
   })
 
   it("swaps dots and crack suits with m1 mutation", () => {
     // Add dot cards
-    tileDb.set("8", createTile({ id: "8", cardId: "o1", x: 2, y: 1, z: 0 }))
+    tileDb.set("8", createTile({ id: "8", cardId: "dot8", x: 2, y: 1, z: 0 }))
 
-    const mutationTile = createTile({ cardId: "m1" })
+    const mutationTile = createTile({ cardId: "mutation2" })
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become crack cards
-    expect(tileDb.get("8")!.cardId).toBe("o1")
+    expect(tileDb.get("8")!.cardId).toBe("crack8")
 
     // Crack cards become dot cards
-    expect(tileDb.get("4")!.cardId).toBe("b2")
-    expect(tileDb.get("5")!.cardId).toBe("b5")
+    expect(tileDb.get("4")!.cardId).toBe("dot2")
+    expect(tileDb.get("5")!.cardId).toBe("dot5")
   })
 
   it("swaps dot and bamboo suits with m2 mutation", () => {
     // Add dot cards
-    tileDb.set("8", createTile({ id: "8", cardId: "o1", x: 2, y: 1, z: 0 }))
+    tileDb.set("8", createTile({ id: "8", cardId: "dot8", x: 2, y: 1, z: 0 }))
 
-    const mutationTile = createTile({ cardId: "m2" })
+    const mutationTile = createTile({ cardId: "mutation3" })
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Dot cards become bamboo cards
-    expect(tileDb.get("8")!.cardId).toBe("c1")
+    expect(tileDb.get("8")!.cardId).toBe("bam8")
 
     // Bamboo cards become dot cards
-    expect(tileDb.get("1")!.cardId).toBe("b1")
-    expect(tileDb.get("2")!.cardId).toBe("b5")
-    expect(tileDb.get("3")!.cardId).toBe("b9")
+    expect(tileDb.get("1")!.cardId).toBe("dot1")
+    expect(tileDb.get("2")!.cardId).toBe("dot5")
+    expect(tileDb.get("3")!.cardId).toBe("dot9")
   })
 
   it("swaps bamboo and crack suits with m3 mutation", () => {
-    const mutationTile = createTile({ cardId: "m3" })
+    const mutationTile = createTile({ cardId: "mutation1" })
     resolveMutations({ tileDb, tile: mutationTile })
 
     // Bamboo cards become crack cards
-    expect(tileDb.get("1")!.cardId).toBe("o1")
-    expect(tileDb.get("2")!.cardId).toBe("o5")
-    expect(tileDb.get("3")!.cardId).toBe("o9")
+    expect(tileDb.get("1")!.cardId).toBe("crack1")
+    expect(tileDb.get("2")!.cardId).toBe("crack5")
+    expect(tileDb.get("3")!.cardId).toBe("crack9")
 
-    // Crack cards become bamboo cards
-    expect(tileDb.get("4")!.cardId).toBe("c2")
-    expect(tileDb.get("5")!.cardId).toBe("c5")
+    // crack cards become bamboo cards
+    expect(tileDb.get("4")!.cardId).toBe("bam2")
+    expect(tileDb.get("5")!.cardId).toBe("bam5")
   })
 
   it("has no effect for non-mutation cards", () => {
@@ -95,7 +69,7 @@ describe("resolveMutations", () => {
       card: tile.cardId,
     }))
 
-    const regularTile = createTile({ cardId: "b1" })
+    const regularTile = createTile({ cardId: "bam1" })
     resolveMutations({ tileDb, tile: regularTile })
 
     // No cards should change
@@ -103,18 +77,5 @@ describe("resolveMutations", () => {
       const tile = tileDb.get(cardInfo.id)!
       expect(tile.cardId).toBe(cardInfo.card)
     }
-  })
-
-  it("only affects suit cards when changing ranks", () => {
-    // Add non-suit cards
-    tileDb.set("8", createTile({ id: "8", cardId: "wn", x: 2, y: 1, z: 0 }))
-    tileDb.set("9", createTile({ id: "9", cardId: "f1", x: 2, y: 2, z: 0 }))
-
-    const mutationTile = createTile({ cardId: "m4" }) // +1 mutation
-    resolveMutations({ tileDb, tile: mutationTile })
-
-    // Non-suit cards shouldn't change
-    expect(tileDb.get("8")!.cardId).toBe("wn")
-    expect(tileDb.get("9")!.cardId).toBe("f1")
   })
 })

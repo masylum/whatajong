@@ -3,7 +3,7 @@ import {
   type Material,
   isElement,
   isShiny,
-  isTrigram,
+  isTaijitu,
 } from "@/lib/game"
 import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
 import { createMemo, mergeProps } from "solid-js"
@@ -14,6 +14,7 @@ type Props = {
   cardId: CardId
   material?: Material
   free?: boolean
+  taijituActive?: boolean
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
@@ -24,9 +25,13 @@ export function TileImage(iProps: Props) {
   )
   const href = useImageSrc()
   const image = createMemo(() => {
-    const card = isTrigram(props.cardId) ?? isElement(props.cardId)
-    if (card) {
+    const elementCard = isElement(props.cardId)
+    if (elementCard) {
       return `${props.cardId}${props.free ? 1 : 2}`
+    }
+    const taijituCard = isTaijitu(props.cardId)
+    if (taijituCard) {
+      return `${props.cardId}${props.taijituActive ? 2 : 1}`
     }
 
     return props.cardId

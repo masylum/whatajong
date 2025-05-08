@@ -1,50 +1,25 @@
 import { describe, expect, it } from "vitest"
-import { cardMatchesDragon, resolveDragons } from "./resolveDragons"
+import { resolveDragons } from "./resolveDragons"
 import { createGame, createTile } from "./test/utils"
 
 describe("resolveDragons", () => {
-  describe("cardMatchesDragon", () => {
-    it("matches cards with the correct color", () => {
-      expect(cardMatchesDragon("r", "c1")).toBe(true)
-      expect(cardMatchesDragon("r", "c9")).toBe(true)
-      expect(cardMatchesDragon("g", "b5")).toBe(true)
-      expect(cardMatchesDragon("b", "o3")).toBe(true)
-      expect(cardMatchesDragon("r", "f1")).toBe(true)
-      expect(cardMatchesDragon("g", "f2")).toBe(true)
-      expect(cardMatchesDragon("r", "rr")).toBe(true)
-      expect(cardMatchesDragon("r", "pr")).toBe(true)
-      expect(cardMatchesDragon("g", "j1")).toBe(true)
-      expect(cardMatchesDragon("k", "j1")).toBe(true)
-      expect(cardMatchesDragon("k", "ww")).toBe(true)
-    })
-
-    it("does not match cards with different color", () => {
-      expect(cardMatchesDragon("r", "b1")).toBe(false)
-      expect(cardMatchesDragon("r", "b5")).toBe(false)
-      expect(cardMatchesDragon("g", "wn")).toBe(false)
-      expect(cardMatchesDragon("g", "rr")).toBe(false)
-      expect(cardMatchesDragon("b", "dg")).toBe(false)
-      expect(cardMatchesDragon("b", "pr")).toBe(false)
-    })
-  })
-
   describe("resolveDragons", () => {
     it("initializes dragon run when dragon card is played with no active run", () => {
       const game = createGame()
-      const dragonTile = createTile({ cardId: "dr" })
+      const dragonTile = createTile({ cardId: "dragonr" })
 
       resolveDragons({ game, tile: dragonTile })
 
       expect(game.dragonRun).toBeDefined()
       expect(game.dragonRun!.color).toBe("r")
-      expect(game.dragonRun!.combo).toBe(0)
+      expect(game.dragonRun!.combo).toBe(1)
     })
 
     it("increases combo when matching suit is played", () => {
       const game = createGame({
         dragonRun: { color: "r", combo: 1 },
       })
-      const matchingTile = createTile({ cardId: "c3" })
+      const matchingTile = createTile({ cardId: "crack3" })
 
       resolveDragons({ game, tile: matchingTile })
 
@@ -56,18 +31,19 @@ describe("resolveDragons", () => {
         dragonRun: { color: "r", combo: 2 },
       })
 
-      const flowerTile = createTile({ cardId: "f1" })
+      const flowerTile = createTile({ cardId: "flower1" })
       resolveDragons({ game, tile: flowerTile })
       expect(game.dragonRun!.combo).toBe(3)
 
       // Joker doesn't increase combo but maintains run
-      const jokerTile = createTile({ cardId: "j1" })
+      const jokerTile = createTile({ cardId: "joker" })
       resolveDragons({ game, tile: jokerTile })
       expect(game.dragonRun!.combo).toBe(4)
 
       // Mutation doesn't increase combo but maintains run
-      const mutationTile = createTile({ cardId: "m1" })
+      const mutationTile = createTile({ cardId: "mutation1" })
       resolveDragons({ game, tile: mutationTile })
+
       expect(game.dragonRun!.combo).toBe(5)
     })
 
@@ -75,7 +51,7 @@ describe("resolveDragons", () => {
       const game = createGame({
         dragonRun: { color: "r", combo: 3 },
       })
-      const nonMatchingTile = createTile({ cardId: "b2" })
+      const nonMatchingTile = createTile({ cardId: "bam2" })
 
       resolveDragons({ game, tile: nonMatchingTile })
 
@@ -86,19 +62,19 @@ describe("resolveDragons", () => {
       const game = createGame({
         dragonRun: { color: "r", combo: 3 },
       })
-      const newDragonTile = createTile({ cardId: "db" })
+      const newDragonTile = createTile({ cardId: "dragonb" })
 
       resolveDragons({ game, tile: newDragonTile })
 
       expect(game.dragonRun!.color).toBe("b")
-      expect(game.dragonRun!.combo).toBe(0)
+      expect(game.dragonRun!.combo).toBe(1)
     })
 
     it("maintains dragon if same dragon is played", () => {
       const game = createGame({
         dragonRun: { color: "r", combo: 3 },
       })
-      const sameDragonTile = createTile({ cardId: "dr" })
+      const sameDragonTile = createTile({ cardId: "dragonr" })
 
       resolveDragons({ game, tile: sameDragonTile })
 

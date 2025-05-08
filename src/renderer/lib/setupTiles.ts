@@ -20,7 +20,7 @@ export function setupTiles({ rng, deck }: { rng: Rand; deck: DeckTile[] }) {
 
         if (id !== null && !sameAsPrev && !sameAsAbove) {
           tileDb.set(id, {
-            cardId: "b1",
+            cardId: "bam1",
             material: "bone",
             id,
             x,

@@ -1,5 +1,5 @@
 import type { Game } from "@/state/gameState"
-import { type CardId, type Tile, getCard, isPhoenix } from "./game"
+import { type Card, type CardId, type Tile, getCard, isPhoenix } from "./game"
 import { captureEvent } from "./observability"
 
 function parseNumber(cardId: CardId) {
@@ -14,13 +14,16 @@ function nextNumber(number: number) {
 }
 
 function continuesPhoenixRun(number: number | undefined, cardId: CardId) {
-  if (number === undefined) return true
-  if (isPhoenix(cardId)) return false
-
   const rank = parseNumber(cardId)
-  if (rank === null) return true
+  if (rank === null) return false
+  if (number === undefined) return true
 
   return rank === nextNumber(number)
+}
+
+function maybeStartsPhoenixRun(game: Game, card: Card | null) {
+  const canStart = card && !game.dragonRun
+  game.phoenixRun = canStart ? { number: undefined, combo: 1 } : undefined
 }
 
 export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
@@ -29,15 +32,12 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
   const phoenixCard = isPhoenix(newCardId)
 
   if (!phoenixRun) {
-    if (phoenixCard) {
-      game.phoenixRun = { number: undefined, combo: 0 }
-    }
-
+    maybeStartsPhoenixRun(game, phoenixCard)
     return
   }
 
   if (!continuesPhoenixRun(phoenixRun.number, newCardId)) {
-    game.phoenixRun = phoenixCard ? { number: undefined, combo: 0 } : undefined
+    maybeStartsPhoenixRun(game, phoenixCard)
     captureEvent("phoenix_run_finished", {
       combo: phoenixRun.combo,
     })
@@ -47,6 +47,6 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
   const number = parseNumber(newCardId)
   if (number === null) return
 
-  phoenixRun.combo += 1
+  phoenixRun.combo = Math.min(phoenixRun.combo + 1, 10)
   phoenixRun.number = number
 }

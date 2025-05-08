@@ -9,20 +9,10 @@ import {
 } from "./game"
 
 const MUTATION_RANKS = {
-  m1: ["c", "b"],
-  m2: ["o", "c"],
-  m3: ["b", "o"],
+  mutation1: ["crack", "bam"],
+  mutation2: ["dot", "crack"],
+  mutation3: ["bam", "dot"],
 } as const
-
-function mapSuits(tileDb: TileDb, fn: (rank: string) => number) {
-  const tiles = tileDb.all.filter((tile) => isSuit(tile.cardId))
-  for (const tile of tiles) {
-    const oldRank = getCard(tile.cardId).rank
-    const newRank = fn(oldRank)
-    const newCardId = tile.cardId.replace(oldRank, newRank.toString()) as CardId
-    tileDb.set(tile.id, { ...tile, cardId: newCardId })
-  }
-}
 
 const MUTATION_MATERIALS = {
   r: ["bone", "garnet", "ruby"],
@@ -55,18 +45,6 @@ export function resolveMutations({
   if (!mutationCard) return
 
   const id = mutationCard.id
-
-  // - 1
-  if (id === "m4") {
-    mapSuits(tileDb, (rank) => Math.max(Number.parseInt(rank) - 1, 1))
-    return
-  }
-
-  // + 1
-  if (id === "m5") {
-    mapSuits(tileDb, (rank) => Math.min(Number.parseInt(rank) + 1, 9))
-    return
-  }
 
   const [aSuit, bSuit] = MUTATION_RANKS[id]
   const aTiles = tileDb.all.filter(

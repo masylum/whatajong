@@ -40,12 +40,11 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
       class={powerupRecipe({
         hue: hue(),
         size: combo() as any,
-        side: "left",
       })}
     >
       <span class={comboRecipe({ hue: hue() })}>
         {t.common.dragonRun()}
-        <span class={comboMultiplierClass}>x{combo() + 1}</span>
+        <span class={comboMultiplierClass}>x{combo()}</span>
       </span>
     </div>
   )
@@ -61,7 +60,6 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
       class={powerupRecipe({
         size: combo() as any,
         hue: "bone",
-        side: "right",
       })}
     >
       <Show when={number()}>
@@ -69,7 +67,7 @@ function PhoenixRunComponent(props: { phoenixRun: PhoenixRun }) {
       </Show>
       <span class={comboRecipe({ hue: "bone" })}>
         {t.common.phoenixRun()}
-        <span class={comboMultiplierClass}>x{combo() + 1}</span>
+        <span class={comboMultiplierClass}>x{combo()}</span>
       </span>
     </div>
   )

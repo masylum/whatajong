@@ -16,6 +16,7 @@ export const SHAKE_REPEAT = 3
 export const DELETED_DURATION = 300
 export const MUTATE_DURATION = 500
 export const FLOATING_NUMBER_DURATION = 1_500
+export const MOVE_DURATION = 300
 
 const shakeKeyframes = keyframes({
   "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
@@ -57,6 +58,28 @@ const deletedKeyframes = keyframes({
   },
 })
 
+const jumpingInKeyframes = keyframes({
+  "0%": {
+    transform: "scale(1, 1)",
+    opacity: 1,
+  },
+  "100%": {
+    transform: "scale(1.3, 1.3)",
+    opacity: 0.6,
+  },
+})
+
+const jumpingOutKeyframes = keyframes({
+  "0%": {
+    transform: "scale(1.3, 1.3)",
+    opacity: 0.6,
+  },
+  "100%": {
+    transform: "scale(1, 1)",
+    opacity: 1,
+  },
+})
+
 const floatingNumberKeyframes = keyframes({
   "0%": {
     transform: "translate(-50%, -50%)",
@@ -74,14 +97,14 @@ const floatingNumberKeyframes = keyframes({
 const pulseVar = createVar()
 const pulseKeyframes = keyframes({
   "0%": {
-    backgroundColor: `rgba(from ${pulseVar} r g b / 0.05)`,
+    background: `rgba(from ${pulseVar} r g b / 0.05)`,
   },
   "50%": {
-    backgroundColor: `rgba(from ${pulseVar} r g b / 0.2)`,
+    background: `rgba(from ${pulseVar} r g b / 0.2)`,
     opacity: 1,
   },
   "100%": {
-    backgroundColor: `rgba(from ${pulseVar} r g b / 0.05)`,
+    background: `rgba(from ${pulseVar} r g b / 0.05)`,
   },
 })
 
@@ -157,8 +180,9 @@ export const tileClass = recipe({
     outline: "none",
     transformOrigin: "50% 50%",
     WebkitTapHighlightColor: "transparent",
+    // TODO: optimize to use transform
     transitionProperty: "top, left",
-    transitionDuration: `${DELETED_DURATION}ms`,
+    transitionDuration: `${MOVE_DURATION}ms`,
     transitionTimingFunction: "ease-in",
   },
   variants: {
@@ -188,6 +212,14 @@ export const tileClass = recipe({
       },
       deleted: {
         animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
+        pointerEvents: "none",
+      },
+      jumpingIn: {
+        animation: `${jumpingInKeyframes} ${MOVE_DURATION}ms ease-in-out forwards`,
+        pointerEvents: "none",
+      },
+      jumpingOut: {
+        animation: `${jumpingOutKeyframes} ${MOVE_DURATION}ms ease-in-out forwards`,
         pointerEvents: "none",
       },
     },

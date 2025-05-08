@@ -16,7 +16,6 @@ import {
 import { cleanMutable, setMutable } from "@/state/persistantMutable"
 import { cleanPersistentDatabase } from "@/state/persistentDatabase"
 import {
-  REWARDS,
   calculateIncome,
   roundPersistentKey,
   useRound,
@@ -90,7 +89,9 @@ export default function RunGameOver() {
     return Math.min(Math.floor(overAchievement * 2), 12)
   })
   const income = createMemo(() => calculateIncome(run))
-  const isRewardRound = createMemo(() => run.round in REWARDS)
+  const isRewardRound = createMemo(() =>
+    getAllTiles().some((t) => t.level === run.round),
+  )
 
   onMount(() => {
     play(win() ? "won" : "lost")

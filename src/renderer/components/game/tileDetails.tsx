@@ -7,11 +7,12 @@ import {
   isDragon,
   isElement,
   isFlower,
+  isFrog,
   isJoker,
   isMutation,
   isPhoenix,
   isRabbit,
-  isTrigram,
+  isTaijitu,
   isWind,
 } from "@/lib/game"
 import { type AccentHue, hueFromMaterial } from "@/styles/colors"
@@ -118,9 +119,14 @@ export function Explanation(props: { cardId: CardId }) {
           <p innerHTML={t.tileDetails.explanation.element()} />
         </div>
       </Match>
-      <Match when={isTrigram(props.cardId)}>
+      <Match when={isTaijitu(props.cardId)}>
         <div class={detailInfoClass({ hue: "bone" })}>
-          <p innerHTML={t.tileDetails.explanation.trigram()} />
+          <p innerHTML={t.tileDetails.explanation.taijitu()} />
+        </div>
+      </Match>
+      <Match when={isFrog(props.cardId)}>
+        <div class={detailInfoClass({ hue: "bone" })}>
+          <p innerHTML={t.tileDetails.explanation.frog()} />
         </div>
       </Match>
     </Switch>
@@ -138,7 +144,7 @@ export function CardPoints(props: { cardId: CardId; material: Material }) {
   )
 }
 
-const NO_VIDEO = ["o", "b", "c"]
+const NO_VIDEO = ["dot", "bam", "crack"]
 export function CardVideo(props: { suit: Suit; class: string }) {
   if (NO_VIDEO.includes(props.suit)) {
     return null

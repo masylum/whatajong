@@ -74,8 +74,8 @@ export default function RunGame() {
 
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
-  const getDragonCombo = createMemo(() => game.dragonRun?.combo || 0)
-  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo || 0)
+  const getDragonCombo = createMemo(() => game.dragonRun?.combo)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
@@ -90,16 +90,19 @@ export default function RunGame() {
   )
 
   function handleComboEffect(
-    getCombo: Accessor<number>,
+    getCombo: Accessor<number | undefined>,
     soundEffect: Track,
+    startSound: Track,
     endSound: Track,
   ) {
-    createEffect((prevCombo: number) => {
+    createEffect((prevCombo: number | undefined) => {
       const combo = getCombo()
 
-      if (prevCombo && !combo) {
+      if (prevCombo === undefined && combo !== undefined) {
+        play(startSound)
+      } else if (prevCombo && !combo) {
         play(endSound)
-      } else if (combo > prevCombo) {
+      } else if (combo && prevCombo && combo > prevCombo) {
         setComboAnimation(combo)
         play(soundEffect)
 
@@ -114,8 +117,8 @@ export default function RunGame() {
 
   useMusic("game")
 
-  handleComboEffect(getDragonCombo, "grunt", "end_dragon")
-  handleComboEffect(getPhoenixCombo, "screech", "end_phoenix")
+  handleComboEffect(getDragonCombo, "grunt", "dragon", "end_dragon")
+  handleComboEffect(getPhoenixCombo, "screech", "phoenix", "end_phoenix")
 
   // Cheat Code!
   createShortcut(["Shift", "K"], () => {

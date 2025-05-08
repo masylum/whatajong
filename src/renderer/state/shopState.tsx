@@ -20,10 +20,10 @@ const SHOP_STATE_NAMESPACE = "shop-state-v4"
 const ITEM_COST = 3
 export const REROLL_COST = 1
 const ITEM_COUNT = 5
-const ITEM_POOL_SIZE = 8
+const ITEM_POOL_SIZE = 9
 
 export function itemCost(item: TileItem) {
-  return ITEM_COST + item.level - 1
+  return ITEM_COST + Math.round((item.level - 1) / 2)
 }
 
 const PATHS = {
@@ -109,12 +109,17 @@ export function generateItems(run: RunState, shop: ShopState) {
   const round = run.freeze?.round || run.round
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
+  const initialPool: TileItem[] = []
+  let i = 0
 
-  const initialPool = Array.from({ length: ITEM_POOL_SIZE }, (_, i) =>
-    getAllTiles()
-      .filter((t) => t.level <= round)
-      .flatMap((card) => generateTileItem({ card, i })),
-  ).flat()
+  Array.from({ length: ITEM_POOL_SIZE }, () => {
+    const tiles = getAllTiles().filter((t) => t.level <= round)
+
+    for (const card of tiles) {
+      initialPool.push(generateTileItem({ card, i }))
+      i++
+    }
+  })
 
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll

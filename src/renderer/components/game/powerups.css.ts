@@ -2,7 +2,7 @@ import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { createVar, fallbackVar, style } from "@vanilla-extract/css"
+import { createVar, fallbackVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 const opacity = createVar()
@@ -18,6 +18,7 @@ export const playerPowerupsClass = style({
 export const powerupRecipe = recipe({
   base: {
     display: "flex",
+    flexDirection: "column",
     padding: 12,
     alignItems: "center",
     gap: 8,
@@ -32,6 +33,11 @@ export const powerupRecipe = recipe({
       height: "100dvh",
       pointerEvents: "none",
       zIndex: -1,
+      top: 0,
+      background: `linear-gradient(
+        rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
+        rgba(from ${backgroundColor} r g b / 0%) 50%
+      )`,
     },
   },
   variants: {
@@ -47,43 +53,15 @@ export const powerupRecipe = recipe({
     hue: hueVariants((kolor) => ({
       vars: { [backgroundColor]: kolor(50) },
     })),
-    side: {
-      left: {
-        justifyContent: "flex-start",
-        ":before": {
-          top: 0,
-          left: 0,
-          background: `linear-gradient(
-            90deg,
-            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
-            rgba(from ${backgroundColor} r g b / 0%) 50%
-          )`,
-        },
-      },
-      right: {
-        justifyContent: "flex-end",
-        ":before": {
-          top: 0,
-          right: 0,
-          background: `linear-gradient(
-            -90deg,
-            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
-            rgba(from ${backgroundColor} r g b / 0%) 50%
-          )`,
-        },
-      },
-      top: {
-        flexDirection: "column",
-        ":before": {
-          top: 0,
-          background: `linear-gradient(
-            rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
-            rgba(from ${backgroundColor} r g b / 0%) 50%
-          )`,
-        },
-      },
-    },
   },
+})
+
+const pulseAnimation = keyframes({
+  "0%": { transform: "scale(0.98)" },
+  "10%": { transform: "scale(1)" },
+  "20%": { transform: "scale(0.98)" },
+  "30%": { transform: "scale(1)" },
+  "100%": { transform: "scale(0.98)" },
 })
 
 export const comboRecipe = recipe({
@@ -91,13 +69,14 @@ export const comboRecipe = recipe({
     display: "flex",
     alignItems: "center",
     gap: 8,
-    ...fontSize.xs,
+    ...fontSize.m,
     fontFamily: primary,
     fontWeight: "500",
     color: "white",
-    paddingInline: 8,
+    paddingInline: 12,
     paddingBlock: 2,
-    borderRadius: 8,
+    borderRadius: 12,
+    animation: `${pulseAnimation} 1s ease-in-out infinite`,
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         ...fontSize.s,
@@ -110,16 +89,6 @@ export const comboRecipe = recipe({
       },
       [mediaQuery({ p: "xl", l: "l" })]: {
         ...fontSize.h3,
-      },
-    },
-    selectors: {
-      [`${powerupRecipe.classNames.variants.side.left} &`]: {
-        transform: "rotate(-90deg) translate(-50%, 50%)",
-        transformOrigin: "center left",
-      },
-      [`${powerupRecipe.classNames.variants.side.right} &`]: {
-        transform: "rotate(-90deg) translate(50%, -50%)",
-        transformOrigin: "center right",
       },
     },
   },
@@ -159,7 +128,7 @@ export const phoenixComboClass = style({
   zIndex: -1,
   color: alpha(color.bone40, 0.5),
   fontFamily: primary,
-  top: "40%",
+  top: "37%",
   right: 20,
   "@media": {
     [mediaQuery({ p: "l", l: "m" })]: {

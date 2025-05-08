@@ -16,7 +16,7 @@ export function shuffleTiles({ rng, tileDb }: ResolveJokerArgs) {
     // Copy all tiles from the old tileDb to the new one, but with dumb tiles
     for (const tile of currentTiles) {
       newTileDb.set(tile.id, {
-        cardId: "b1",
+        cardId: "bam1",
         material: "bone",
         id: tile.id,
         x: tile.x,

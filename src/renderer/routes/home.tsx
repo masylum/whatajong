@@ -86,7 +86,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/dr.webp`}
+            src={`${img()}/dragonr.webp`}
             alt="duel"
             width={36}
             height={52}
@@ -105,7 +105,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/dg.webp`}
+            src={`${img()}/dragong.webp`}
             alt="classic"
             width={36}
             height={52}
@@ -124,7 +124,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/db.webp`}
+            src={`${img()}/dragonb.webp`}
             alt="help"
             width={36}
             height={52}

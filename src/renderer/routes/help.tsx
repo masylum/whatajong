@@ -105,12 +105,12 @@ function Tiles() {
         <div class={cardRowClass}>
           <BasicTile
             width={tileSize().width}
-            cardId="b8"
+            cardId="bam8"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
             width={tileSize().width}
-            cardId="b8"
+            cardId="bam8"
             style={{ transform: "rotate(7deg)" }}
           />
         </div>
@@ -119,18 +119,30 @@ function Tiles() {
         {t.tutorial.tiles3()}
         <div class={rowsClass}>
           <div class={rowClass}>
-            <BasicTile width={tileSize().width} cardId="o6" highlighted="bam" />
-            <BasicTile width={tileSize().width} cardId="c2" />
-            <BasicTile width={tileSize().width} cardId="c2" />
-            <BasicTile width={tileSize().width} cardId="o6" highlighted="bam" />
-          </div>
-          <div class={rowClass}>
-            <BasicTile width={tileSize().width} cardId="o1" highlighted="bam" />
-            <BasicTile width={tileSize().width} cardId="b7" />
-            <BasicTile width={tileSize().width} cardId="c8" />
             <BasicTile
               width={tileSize().width}
-              cardId="o1"
+              cardId="dot6"
+              highlighted="bam"
+            />
+            <BasicTile width={tileSize().width} cardId="crack2" />
+            <BasicTile width={tileSize().width} cardId="crack2" />
+            <BasicTile
+              width={tileSize().width}
+              cardId="dot6"
+              highlighted="bam"
+            />
+          </div>
+          <div class={rowClass}>
+            <BasicTile
+              width={tileSize().width}
+              cardId="dot1"
+              highlighted="bam"
+            />
+            <BasicTile width={tileSize().width} cardId="bam7" />
+            <BasicTile width={tileSize().width} cardId="crack8" />
+            <BasicTile
+              width={tileSize().width}
+              cardId="dot1"
               highlighted="bam"
               style={{
                 "z-index": 2,
@@ -150,12 +162,12 @@ function Tiles() {
         <div class={cardRowClass}>
           <BasicTile
             width={tileSize().width}
-            cardId="o1"
+            cardId="dot1"
             style={{ transform: "rotate(-10deg)" }}
           />
           <BasicTile
             width={tileSize().width}
-            cardId="o1"
+            cardId="dot1"
             style={{ transform: "rotate(7deg)" }}
           />
           <h3 class={cardTitleClass({ hue: "dot" })}>{t.tutorial.tiles5()}</h3>
@@ -203,19 +215,19 @@ function Shop() {
         <div class={shopItemContainerClass}>
           <ItemTile
             item={{
-              cardId: "b1",
+              cardId: "bam1",
               level: 1,
               type: "tile",
-              id: "b1",
+              id: "bam1",
             }}
             selected={false}
           />
           <ItemTile
             item={{
-              cardId: "dr",
+              cardId: "dragonr",
               level: 1,
               type: "tile",
-              id: "dc",
+              id: "dragonr",
             }}
             selected={false}
           />
@@ -245,18 +257,23 @@ function Materials() {
       <div class={columnClass}>
         <p>{t.tutorial.material1()}</p>
         <div class={cardRowsClass}>
-          <MaterialExplanation color="b" cardId="o1" m1="topaz" m2="sapphire" />
+          <MaterialExplanation
+            color="b"
+            cardId="dot1"
+            m1="topaz"
+            m2="sapphire"
+          />
         </div>
         <div class={cardRowsClass}>
-          <MaterialExplanation color="g" cardId="b1" m1="jade" m2="emerald" />
+          <MaterialExplanation color="g" cardId="dot1" m1="jade" m2="emerald" />
         </div>
         <div class={cardRowsClass}>
-          <MaterialExplanation color="r" cardId="c1" m1="garnet" m2="ruby" />
+          <MaterialExplanation color="r" cardId="dot1" m1="garnet" m2="ruby" />
         </div>
         <div class={cardRowsClass}>
           <MaterialExplanation
             color="k"
-            cardId="ww"
+            cardId="windw"
             m1="quartz"
             m2="obsidian"
           />
