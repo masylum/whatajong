@@ -33,7 +33,9 @@ let MUSIC_IDS: Record<keyof typeof SONGS, number> | undefined
 let currentId: number | undefined
 
 function play(track: Track) {
+  if (process.env.NODE_ENV === "test") return
   const audio = SOUNDS[track]
+
   if (audio) {
     audio.seek(0)
     audio.play()

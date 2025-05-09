@@ -76,6 +76,7 @@ export const en = {
     frog: "Frog",
     lotus: "Lotus",
     sparrow: "Sparrow",
+    brush: "Ink Brush",
   },
   windDirections: {
     n: "north",
@@ -231,8 +232,10 @@ export const en = {
       lotus:
         "Pair a free tile with a Lotus Tile of the same color; the tile jumps onto the lotus.",
       sparrow:
-        "Pair a Sparrow Tile with any tile of the same color; they swap places.",
+        "Pair a Sparrow Tile with any tile of the same color to swap places.",
       gem: "When you clear this tile, all tiles of its c‌olor turn into its material until the next clearing.",
+      brush:
+        "The Brush tile converts all tiles of its color into black tiles while it is free.",
     },
   },
   runSelect: {

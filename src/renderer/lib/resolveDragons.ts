@@ -1,8 +1,12 @@
 import type { Game } from "@/state/gameState"
-import { type Tile, cardMatchesColor, isDragon } from "./game"
+import { type Tile, type TileDb, cardMatchesColor, isDragon } from "./game"
 import { captureEvent } from "./observability"
 
-export function resolveDragons({ game, tile }: { game: Game; tile: Tile }) {
+export function resolveDragons({
+  game,
+  tile,
+  tileDb,
+}: { game: Game; tile: Tile; tileDb: TileDb }) {
   const dragonRun = game.dragonRun
   const newCard = tile.cardId
   const dragonCard = isDragon(newCard)
@@ -15,11 +19,12 @@ export function resolveDragons({ game, tile }: { game: Game; tile: Tile }) {
     return
   }
 
-  if (!cardMatchesColor(dragonRun.color, newCard)) {
+  if (!cardMatchesColor(dragonRun.color, newCard, tileDb)) {
     captureEvent("dragon_run_finished", {
       color: dragonRun.color,
       combo: dragonRun.combo,
     })
+
     game.dragonRun = dragonCard
       ? { color: dragonCard.rank, combo: 1 }
       : undefined

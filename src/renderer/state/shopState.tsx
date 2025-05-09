@@ -1,15 +1,8 @@
 import { play } from "@/components/audio"
-import {
-  type Card,
-  type CardId,
-  type Deck,
-  type DeckTile,
-  type Material,
-  getAllTiles,
-} from "@/lib/game"
+import type { CardId, Deck, DeckTile, Material } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
-import { type RunState, TUTORIAL_SEED } from "@/state/runState"
+import { type Levels, type RunState, TUTORIAL_SEED } from "@/state/runState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { countBy, entries } from "remeda"
@@ -17,14 +10,8 @@ import { type ParentProps, batch, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 
 const SHOP_STATE_NAMESPACE = "shop-state-v4"
-const ITEM_COST = 3
 export const REROLL_COST = 1
 const ITEM_COUNT = 5
-const ITEM_POOL_SIZE = 9
-
-export function itemCost(item: TileItem) {
-  return ITEM_COST + Math.round((item.level - 1) / 2)
-}
 
 const PATHS = {
   r: ["garnet", "ruby"],
@@ -41,7 +28,7 @@ type BaseItem = {
 export type TileItem = BaseItem & {
   cardId: CardId
   type: "tile"
-  level: number
+  cost: number
 }
 
 export type DeckTileItem = BaseItem & {
@@ -95,31 +82,14 @@ export function createShopState(params: CreateShopStateParams) {
   })
 }
 
-export function generateTileItem({ card, i }: { card: Card; i: number }) {
-  return {
-    id: `tile-${card.id}-${i}`,
-    cardId: card.id,
-    type: "tile",
-    level: card.level,
-  } as TileItem
-}
-
-export function generateItems(run: RunState, shop: ShopState) {
+export function generateItems(run: RunState, shop: ShopState, levels: Levels) {
   const runId = run.runId
   const round = run.freeze?.round || run.round
   const rng = new Rand(`items-${runId}-${round}`)
   const itemIds = new Set(run.items.map((i) => i.id))
-  const initialPool: TileItem[] = []
-  let i = 0
-
-  Array.from({ length: ITEM_POOL_SIZE }, () => {
-    const tiles = getAllTiles().filter((t) => t.level <= round)
-
-    for (const card of tiles) {
-      initialPool.push(generateTileItem({ card, i }))
-      i++
-    }
-  })
+  const initialPool = levels
+    .filter((l) => l.level <= round)
+    .flatMap((l) => l.tileItems)
 
   const poolSize = initialPool.length
   const reroll = run.freeze?.reroll || shop.reroll
@@ -228,7 +198,7 @@ export function buyTile({
   deck: Deck
   reward?: boolean
 }) {
-  const cost = reward ? 0 : itemCost(item)
+  const cost = reward ? 0 : item.cost
   const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 
@@ -259,7 +229,7 @@ export function upgradeTile({
   deck: Deck
   path: Path
 }) {
-  const cost = itemCost(item)
+  const cost = item.cost
   const money = run.money
   if (cost > money) throw Error("You don't have enough money")
 

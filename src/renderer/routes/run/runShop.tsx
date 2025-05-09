@@ -9,21 +9,20 @@ import {
   MaterialExplanationDescription,
 } from "@/components/game/tileDetails"
 import { ArrowRight, Buy, Dices, Freeze, X } from "@/components/icon"
-import { Settings } from "@/components/settings"
+import { Menu } from "@/components/menu"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type DeckTile,
   type Material,
   type Suit,
   cardName,
-  getAllTiles,
   getCard,
 } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { throttle } from "@/lib/throttle"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { generateRound, useRunState } from "@/state/runState"
+import { useLevels, useRunState } from "@/state/runState"
 import {
   type DeckTileItem,
   type Path,
@@ -33,7 +32,6 @@ import {
   generateItems,
   getNextMaterial,
   isTile,
-  itemCost,
   upgradeTile,
   useShopState,
 } from "@/state/shopState"
@@ -97,7 +95,7 @@ import {
   videoContainerClass,
 } from "./runShop.css"
 
-const DECK_CAPACITY = 165
+const DECK_CAPACITY = 163
 
 const onHoverTile = throttle(() => {
   play("click2")
@@ -208,7 +206,7 @@ export function ItemTile(props: {
   const run = useRunState()
   const deck = useDeckState()
   const frozen = createMemo(() => run.freeze?.active)
-  const cost = createMemo(() => itemCost(props.item))
+  const cost = createMemo(() => props.item.cost)
   const tileSize = useSmallerTileSize(0.75)
 
   const disabled = createMemo(
@@ -275,13 +273,13 @@ function CardDetails(props: {
             <ShopButton
               type="button"
               hue="bam"
-              disabled={itemCost(item()) > run.money}
+              disabled={item().cost > run.money}
               onPointerDown={() => {
                 buyTile({ run, shop, item: item(), deck })
               }}
             >
               <Buy />
-              {t.common.buy()} ${itemCost(item())}
+              {t.common.buy()} ${item().cost}
             </ShopButton>
           )}
         </Show>
@@ -460,11 +458,15 @@ function Deck() {
   const deck = useDeckState()
   const t = useTranslation()
   const totalPairs = createMemo(() => deck.all.length * 2)
+  const levels = useLevels()
   const order = createMemo(() =>
-    getAllTiles().reduce(
-      (acc, card, index) => {
-        if (acc[card.suit] === undefined) {
-          acc[card.suit] = index
+    levels().reduce(
+      (acc, level, index) => {
+        for (const item of level.tileItems) {
+          const card = getCard(item.cardId)
+          if (!(card.suit in acc)) {
+            acc[card.suit] = index
+          }
         }
         return acc
       },
@@ -510,7 +512,8 @@ function Items() {
   const run = useRunState()
   const shop = useShopState()
   const t = useTranslation()
-  const items = createMemo(() => generateItems(run, shop), {
+  const levels = useLevels()
+  const items = createMemo(() => generateItems(run, shop, levels()), {
     equals: isDeepEqual,
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
@@ -609,7 +612,6 @@ function Items() {
 function Header() {
   const run = useRunState()
   const t = useTranslation()
-  const nextRound = createMemo(() => generateRound(run.round, run))
 
   function continueRun() {
     run.stage = "game"
@@ -618,12 +620,12 @@ function Header() {
   return (
     <div class={shopHeaderClass}>
       <div class={shopHeaderItemsClass}>
-        <Settings />
+        <Menu />
       </div>
 
       <div class={continueClass}>
         <ShopButton hue="bone" onPointerDown={continueRun}>
-          {t.common.roundN({ round: nextRound().id })}
+          {t.common.roundN({ round: run.round + 1 })}
           <ArrowRight />
         </ShopButton>
       </div>

@@ -1,3 +1,4 @@
+import { easeBounce } from "@/styles/animations.css"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
@@ -138,7 +139,7 @@ export const windGustClass = recipe({
     left: 0,
     top: 0,
     pointerEvents: "none",
-    animation: `${animation} 1000ms ease-in`,
+    animation: `${animation} 1000ms ${easeBounce}`,
     mixBlendMode: "screen",
     width: "100dvw",
     height: "100dvh",

@@ -3,27 +3,32 @@ import type { Track } from "@/components/audio"
 import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
 import { TileComponent } from "@/components/game/tileComponent"
+import { Menu } from "@/components/menu"
 import { Mountains } from "@/components/mountains"
-import { Settings } from "@/components/settings"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type Tile,
   type TileDb,
+  getActiveBrushes,
   getAvailablePairs,
   isWind,
   selectTile,
 } from "@/lib/game"
+import { animate } from "@/state/animationState"
 import { useLayoutSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import {
   GameStateProvider,
   createGameState,
+  initialGameState,
   useGameState,
 } from "@/state/gameState"
+import { setMutable } from "@/state/persistantMutable"
 import { roundPersistentKey, useRound, useRunState } from "@/state/runState"
 import {
   TileStateProvider,
   createTileState,
+  initializeTileState,
   useTileState,
 } from "@/state/tileState"
 import { createShortcut } from "@solid-primitives/keyboard"
@@ -34,6 +39,7 @@ import {
   Match,
   Show,
   Switch,
+  batch,
   createEffect,
   createMemo,
   createSelector,
@@ -79,7 +85,7 @@ export default function RunGame() {
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
-  createVoicesEffect(tiles())
+  useSoundEffects(tiles())
 
   createTimer(
     () => {
@@ -120,7 +126,7 @@ export default function RunGame() {
   handleComboEffect(getDragonCombo, "grunt", "dragon", "end_dragon")
   handleComboEffect(getPhoenixCombo, "screech", "phoenix", "end_phoenix")
 
-  // Cheat Code!
+  // Cheat: Resolve pair
   createShortcut(["Shift", "K"], () => {
     console.log("cheat!")
     const pairs = getAvailablePairs(tiles(), game).sort(
@@ -142,8 +148,23 @@ export default function RunGame() {
     game.points += 100
   })
 
+  // Cheat: Provoke restart
+  createShortcut(["Shift", "R"], () => {
+    batch(() => {
+      run.retries += 1
+      const key = roundPersistentKey(run)
+      setMutable(game, initialGameState(run.runId))
+      initializeTileState(key, deck.all, tiles())
+    })
+  })
+
   onMount(() => {
     play("gong")
+    batch(() => {
+      for (const tile of tiles().all) {
+        animate({ id: tile.id, name: "fall" })
+      }
+    })
   })
 
   return (
@@ -170,7 +191,7 @@ export default function RunGame() {
                 orientation: orientation(),
               })}
             >
-              <Settings />
+              <Menu />
             </div>
             <div
               style={{
@@ -371,7 +392,7 @@ const EXPRESSIONS = [
 
 const FAST_SELECTION_THRESHOLD = 3000
 
-function createVoicesEffect(tiles: TileDb) {
+function useSoundEffects(tiles: TileDb) {
   const [lastTileTime, setLastTileTime] = createSignal<number>(0)
   const [speedStreak, setSpeedStreak] = createSignal<number>(0)
   const userDeletions = createMemo(() => tiles.filterBy({ deleted: true }))
@@ -530,6 +551,7 @@ function Board() {
   const isHovered = createSelector(hover)
   const game = useGameState()
   const tileDb = useTileState()
+  const activeBrushes = createMemo(() => getActiveBrushes(tileDb))
 
   onMount(() => {
     play("tiles")
@@ -544,6 +566,7 @@ function Board() {
           onSelect={() => selectTile({ tileDb, game, tileId: tile.id })}
           onMouseEnter={() => setHover(tile.id)}
           onMouseLeave={() => setHover(null)}
+          activeBrushes={activeBrushes()}
         />
       )}
     </For>

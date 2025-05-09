@@ -77,6 +77,7 @@ export const es = {
     frog: "Rana",
     lotus: "Loto",
     sparrow: "Gorrión",
+    brush: "Pincel",
   },
   windDirections: {
     n: "norte",
@@ -234,6 +235,8 @@ export const es = {
       sparrow:
         "Empareja una ficha de Gorrión c‌on cualquier ficha del mismo c‌olor; intercambiarán posiciones.",
       gem: "Cuando despejas esta ficha, todas las fichas de su c‌olor se c‌onvierten en su material hasta el siguiente despeje.",
+      brush:
+        "Cuando una ficha de Pincel está libre, convierte todas las fichas de su c‌olor en fichas de Negro.",
     },
   },
   runSelect: {

@@ -4,13 +4,14 @@ import { BasicTile } from "@/components/game/basicTile"
 import { CardVideo } from "@/components/game/tileDetails"
 import { ArrowRight } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { type CardId, type Suit, getAllTiles, getCard } from "@/lib/game"
-import { seedPick } from "@/lib/rand"
+import { type CardId, type Suit, getCard } from "@/lib/game"
+import { shuffle } from "@/lib/rand"
 import { useTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { useRunState } from "@/state/runState"
-import { buyTile, generateTileItem, useShopState } from "@/state/shopState"
+import { useLevels, useRunState } from "@/state/runState"
+import { type TileItem, buyTile, useShopState } from "@/state/shopState"
 import Rand from "rand-seed"
+import { uniqueBy } from "remeda"
 import { For, Show, createMemo, createSelector, onMount } from "solid-js"
 import {
   buttonContainerClass,
@@ -28,33 +29,42 @@ import {
 export default function RunReward() {
   const run = useRunState()
   const t = useTranslation()
-  const rewards = createMemo(() =>
-    getAllTiles().filter((t) => t.level === run.round),
+  const levels = useLevels()
+  const level = createMemo(() => levels().find((l) => l.level === run.round)!)
+  const cards = createMemo(() =>
+    level().tileItems.map((t) => getCard(t.cardId)),
   )
   const suit = createMemo(
-    () => rewards()[0]!.suit as Exclude<Suit, "bam" | "crack" | "dot">,
+    () => cards()[0]!.suit as Exclude<Suit, "bam" | "crack" | "dot">,
   )
   const rewardTitle = createMemo(() => t.suit[suit()]())
   const rewardExplanation = createMemo(() =>
     t.tileDetails.explanation[suit()](),
   )
-  const rewardAmount = createMemo(() => (suit() === "wind" ? "all" : "one"))
-  const randTile = createMemo(() => {
+  const shuffledTileItems = createMemo(() => {
     const rng = new Rand(`${run.runId}-${run.round}`)
-    return seedPick(rewards(), rng)!.id
+    return shuffle(
+      uniqueBy(level().tileItems, (t) => t.cardId),
+      rng,
+    )
   })
-  const isSelected = createSelector(randTile)
+  const randTileItems = createMemo(() =>
+    shuffledTileItems().slice(0, level().rewards),
+  )
+  const isSelected = createSelector<TileItem[], CardId>(
+    randTileItems,
+    (id, tileItems) => {
+      const ids = new Set(tileItems.map((t) => t.cardId))
+      return ids.has(id)
+    },
+  )
   const shop = useShopState()
   const deck = useDeckState()
 
   function onContinue() {
     run.stage = "shop"
 
-    const cardIds =
-      rewardAmount() === "all" ? rewards().map((t) => t.id) : [randTile()]
-
-    for (const cardId of cardIds) {
-      const item = generateTileItem({ card: getCard(cardId), i: 0 })
+    for (const item of randTileItems()) {
       buyTile({ run, shop, item, deck, reward: true })
     }
   }
@@ -69,17 +79,17 @@ export default function RunReward() {
       <div class={contentClass}>
         <h1 class={titleClass}>
           {t.runReward.title()}{" "}
-          <Show when={rewardAmount() === "one"}>{t.runReward.subtitle()}</Show>
+          <Show when={level().rewards === 1}>{t.runReward.subtitle()}</Show>
         </h1>
         <div class={columnsClass}>
           <h2 class={subtitleClass}>{rewardTitle()}</h2>
           <div class={tilesContainerClass}>
-            <For each={rewards()}>
-              {(card, i) => (
+            <For each={shuffledTileItems()}>
+              {(item, i) => (
                 <FloatingTile
-                  cardId={card.id}
+                  cardId={item.cardId}
                   i={i()}
-                  isSelected={rewardAmount() === "all" || isSelected(card.id)}
+                  isSelected={isSelected(item.cardId)}
                 />
               )}
             </For>

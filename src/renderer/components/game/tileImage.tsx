@@ -15,6 +15,7 @@ type Props = {
   material?: Material
   free?: boolean
   taijituActive?: boolean
+  isBrushed?: boolean
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
@@ -38,11 +39,15 @@ export function TileImage(iProps: Props) {
   })
 
   const filter = createMemo(() => {
-    if (!props.material || !isShiny(props.material)) {
-      return undefined
+    if (props.material && isShiny(props.material)) {
+      return "invert(1) sepia(0.3) brightness(1.05) hue-rotate(180deg)"
     }
 
-    return "invert(1) sepia(0.3) brightness(1.05) hue-rotate(180deg)"
+    if (props.isBrushed) {
+      return "brightness(0)"
+    }
+
+    return undefined
   })
 
   return (

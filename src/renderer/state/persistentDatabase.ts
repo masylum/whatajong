@@ -16,18 +16,18 @@ export function persistentDatabase<T extends Database<any, any>>(
 ) {
   const db = createMemo(params.db)
 
-  createEffect(
-    on(params.id, (id) => {
-      const persistedState = localStorage.getItem(key(params.namespace, id))
+  function initDb(id: string) {
+    const persistedState = localStorage.getItem(key(params.namespace, id))
 
-      if (persistedState) {
-        db().update(JSON.parse(persistedState))
-      } else {
-        params.init(db(), id)
-      }
-    }),
-  )
+    if (persistedState) {
+      db().update(JSON.parse(persistedState))
+    } else {
+      params.init(db(), id)
+    }
+  }
 
+  initDb(params.id())
+  createEffect(on(params.id, initDb))
   createEffect(
     on(
       () => JSON.stringify(db().byId),

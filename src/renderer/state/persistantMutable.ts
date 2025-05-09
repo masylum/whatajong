@@ -15,17 +15,17 @@ export function createPersistantMutable<T extends Record<string, any>>(
 ) {
   const mutable = createMutable<T>(params.init(params.id()))
 
-  createEffect(
-    on(params.id, (id) => {
-      const persistedState = localStorage.getItem(key(params.namespace, id))
+  function init(id: string) {
+    const persistedState = localStorage.getItem(key(params.namespace, id))
 
-      setMutable(
-        mutable,
-        persistedState ? JSON.parse(persistedState) : params.init(id),
-      )
-    }),
-  )
+    setMutable(
+      mutable,
+      persistedState ? JSON.parse(persistedState) : params.init(id),
+    )
+  }
 
+  init(params.id())
+  createEffect(on(params.id, init))
   createEffect(
     on(
       () => JSON.stringify(mutable),

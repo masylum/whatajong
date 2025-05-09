@@ -1,10 +1,7 @@
 import { Dialog } from "@/components/dialog"
 import { useTranslation } from "@/i18n/useTranslation"
-import { initializeDeckState, useDeckState } from "@/state/deckState"
-import { setMutable } from "@/state/persistantMutable"
-import { initialRunState, useRunState } from "@/state/runState"
-import { nanoid } from "nanoid"
-import { batch, createEffect } from "solid-js"
+import { useRunState } from "@/state/runState"
+import { createEffect } from "solid-js"
 import { createSignal } from "solid-js"
 import { Button, LinkButton } from "./button"
 import {
@@ -15,13 +12,12 @@ import {
 } from "./dialog.css"
 import { Home } from "./icon"
 import { ArrowRight } from "./icon"
-import { Gear, Help, Rotate } from "./icon"
+import { Gear, Help } from "./icon"
 
-export function Settings() {
+export function Menu() {
   const run = useRunState()
   const [open, setOpen] = createSignal(false)
   const t = useTranslation()
-  const deck = useDeckState()
 
   // close the menu when the run changes
   createEffect((prevRunId: string) => {
@@ -31,15 +27,6 @@ export function Settings() {
 
     return run.runId
   }, run.runId)
-
-  function onRestartRun() {
-    batch(() => {
-      const attempts = run.attempts + 1
-      setMutable(run, initialRunState(run.runId))
-      run.attempts = attempts
-      initializeDeckState(deck)
-    })
-  }
 
   return (
     <Dialog
@@ -66,16 +53,10 @@ export function Settings() {
               </LinkButton>
             </div>
             <div class={dialogItemClass}>
-              <LinkButton href={`/run/${nanoid()}`} hue="dot" suave>
+              <LinkButton href={"/new"} hue="dot" suave>
                 <ArrowRight />
                 {t.settings.newRun()}
               </LinkButton>
-            </div>
-            <div class={dialogItemClass}>
-              <Button hue="crack" suave onPointerDown={onRestartRun}>
-                <Rotate />
-                {t.settings.restartRun()}
-              </Button>
             </div>
             <div class={dialogItemClass}>
               <LinkButton hue="bone" suave href="/help">

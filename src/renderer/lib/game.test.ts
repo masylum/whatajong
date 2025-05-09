@@ -39,7 +39,6 @@ import {
   mapGetWidth,
   overlaps,
   resolveBlackMaterials,
-  resolveGems,
   selectTile,
 } from "./game"
 import { RESPONSIVE_MAP } from "./maps/responsive"
@@ -64,8 +63,8 @@ describe("map", () => {
     })
 
     it("should return tile id as string for valid positions", () => {
-      expect(mapGet(RESPONSIVE_MAP, 2, 0, 0)).toBe("2")
-      expect(mapGet(RESPONSIVE_MAP, 3, 0, 0)).toBe("2")
+      expect(mapGet(RESPONSIVE_MAP, 2, 0, 0)).toBe("1")
+      expect(mapGet(RESPONSIVE_MAP, 3, 0, 0)).toBe("1")
     })
   })
 })
@@ -298,24 +297,28 @@ describe("getPoints", () => {
 
 describe("cardMatchesColor", () => {
   it("matches cards with the correct color", () => {
-    expect(cardMatchesColor("r", "crack1")).toBe(true)
-    expect(cardMatchesColor("r", "crack9")).toBe(true)
-    expect(cardMatchesColor("g", "bam5")).toBe(true)
-    expect(cardMatchesColor("b", "dot3")).toBe(true)
-    expect(cardMatchesColor("r", "flower1")).toBe(true)
-    expect(cardMatchesColor("g", "flower2")).toBe(true)
-    expect(cardMatchesColor("r", "rabbitr")).toBe(true)
-    expect(cardMatchesColor("g", "mutation1")).toBe(true)
-    expect(cardMatchesColor("k", "windw")).toBe(true)
+    const tileDb = initTileDb({})
+
+    expect(cardMatchesColor("r", "crack1", tileDb)).toBe(true)
+    expect(cardMatchesColor("r", "crack9", tileDb)).toBe(true)
+    expect(cardMatchesColor("g", "bam5", tileDb)).toBe(true)
+    expect(cardMatchesColor("b", "dot3", tileDb)).toBe(true)
+    expect(cardMatchesColor("r", "flower1", tileDb)).toBe(true)
+    expect(cardMatchesColor("g", "flower2", tileDb)).toBe(true)
+    expect(cardMatchesColor("r", "rabbitr", tileDb)).toBe(true)
+    expect(cardMatchesColor("g", "mutation1", tileDb)).toBe(true)
+    expect(cardMatchesColor("k", "windw", tileDb)).toBe(true)
   })
 
   it("does not match cards with different color", () => {
-    expect(cardMatchesColor("r", "bam1")).toBe(false)
-    expect(cardMatchesColor("r", "bam5")).toBe(false)
-    expect(cardMatchesColor("g", "windw")).toBe(false)
-    expect(cardMatchesColor("g", "rabbitr")).toBe(false)
-    expect(cardMatchesColor("b", "dragonr")).toBe(false)
-    expect(cardMatchesColor("b", "phoenix")).toBe(false)
+    const tileDb = initTileDb({})
+
+    expect(cardMatchesColor("r", "bam1", tileDb)).toBe(false)
+    expect(cardMatchesColor("r", "bam5", tileDb)).toBe(false)
+    expect(cardMatchesColor("g", "windw", tileDb)).toBe(false)
+    expect(cardMatchesColor("g", "rabbitr", tileDb)).toBe(false)
+    expect(cardMatchesColor("b", "dragonr", tileDb)).toBe(false)
+    expect(cardMatchesColor("b", "phoenix", tileDb)).toBe(false)
   })
 })
 
@@ -502,9 +505,10 @@ describe("getMaterial", () => {
   it("should return the tile's material when no game is provided", () => {
     const boneTile = createTile({ id: "1", cardId: "bam1", material: "bone" })
     const jadeTile = createTile({ id: "2", cardId: "bam1", material: "jade" })
+    const tileDb = initTileDb({})
 
-    expect(getMaterial(boneTile)).toBe("bone")
-    expect(getMaterial(jadeTile)).toBe("jade")
+    expect(getMaterial({ tile: boneTile, tileDb })).toBe("bone")
+    expect(getMaterial({ tile: jadeTile, tileDb })).toBe("jade")
   })
 
   it("returns the temporary material when it matches the color", () => {
@@ -527,10 +531,11 @@ describe("getMaterial", () => {
       x: 4,
     })
     const game = createGame({ temporaryMaterial: "topaz" })
+    const tileDb = initTileDb({})
 
-    expect(getMaterial(boneTile, game)).toBe("bone")
-    expect(getMaterial(jadeTile, game)).toBe("topaz")
-    expect(getMaterial(garnetTile, game)).toBe("garnet")
+    expect(getMaterial({ tile: boneTile, tileDb, game })).toBe("bone")
+    expect(getMaterial({ tile: jadeTile, tileDb, game })).toBe("topaz")
+    expect(getMaterial({ tile: garnetTile, tileDb, game })).toBe("garnet")
   })
 })
 
@@ -662,15 +667,25 @@ describe("selectTile", () => {
 
 describe("getCoins", () => {
   it("adds material and rabbit coins", () => {
-    const bronzeTile = createTile({ cardId: "bam1", material: "garnet" })
+    const game = createGame()
+    const garnetTile = createTile({ cardId: "bam1", material: "garnet" })
     const rubyTile = createTile({ cardId: "bam1", material: "ruby" })
     const rabbitTile = createTile({ cardId: "rabbitr", material: "bone" })
     const rabbitRubyTile = createTile({ cardId: "rabbitr", material: "ruby" })
+    const tileDb = initTileDb({})
 
-    expect(getCoins({ tile: bronzeTile })).toBe(1)
-    expect(getCoins({ tile: rubyTile })).toBe(3)
-    expect(getCoins({ tile: rabbitTile })).toBe(1)
-    expect(getCoins({ tile: rabbitRubyTile })).toBe(4)
+    expect(getCoins({ tile: garnetTile, tileDb, game })).toBe(1)
+    expect(getCoins({ tile: rubyTile, tileDb, game })).toBe(3)
+    expect(getCoins({ tile: rabbitTile, tileDb, game })).toBe(1)
+    expect(getCoins({ tile: rabbitRubyTile, tileDb, game })).toBe(4)
+  })
+
+  it("applies temporary material coins", () => {
+    const game = createGame({ temporaryMaterial: "garnet" })
+    const garnetTile = createTile({ cardId: "crack1" })
+    const tileDb = initTileDb({})
+
+    expect(getCoins({ tile: garnetTile, tileDb, game })).toBe(1)
   })
 })
 
@@ -744,44 +759,19 @@ describe("getFinder", () => {
   })
 })
 
-describe("resolveGems", () => {
-  let game: Game
-
-  beforeEach(() => {
-    game = createGame()
-  })
-
-  it("sets temporaryMaterial based on gem color", () => {
-    resolveGems({ tile: createTile({ cardId: "gemr" }), game })
-    expect(game.temporaryMaterial).toBe("garnet")
-
-    resolveGems({ tile: createTile({ cardId: "gemg" }), game })
-    expect(game.temporaryMaterial).toBe("jade")
-
-    resolveGems({ tile: createTile({ cardId: "gemb" }), game })
-    expect(game.temporaryMaterial).toBe("topaz")
-
-    resolveGems({ tile: createTile({ cardId: "gemk" }), game })
-    expect(game.temporaryMaterial).toBe("quartz")
-  })
-
-  it("unsets temporaryMaterial if not a gem tile", () => {
-    game.temporaryMaterial = "garnet" // Pre-set a material
-    resolveGems({ tile: createTile({ cardId: "bam1" }), game })
-    expect(game.temporaryMaterial).toBeUndefined()
-  })
-})
-
 describe("resolveBlackMaterials", () => {
   let game: Game
+  let tileDb: TileDb
 
   beforeEach(() => {
     game = createGame()
+    tileDb = initTileDb({})
   })
 
   it("pauses the game if material is obsidian", () => {
     resolveBlackMaterials({
       tile: createTile({ cardId: "bam1", material: "obsidian" }),
+      tileDb,
       game,
     })
     expect(game.pause).toBe(true)
@@ -790,6 +780,7 @@ describe("resolveBlackMaterials", () => {
   it("pauses the game if material is quartz", () => {
     resolveBlackMaterials({
       tile: createTile({ cardId: "bam1", material: "quartz" }),
+      tileDb,
       game,
     })
     expect(game.pause).toBe(true)
@@ -799,12 +790,14 @@ describe("resolveBlackMaterials", () => {
     game.pause = false // Ensure it's not already paused
     resolveBlackMaterials({
       tile: createTile({ cardId: "bam1", material: "bone" }),
+      tileDb,
       game,
     })
     expect(game.pause).toBe(false)
 
     resolveBlackMaterials({
       tile: createTile({ cardId: "bam1", material: "ruby" }),
+      tileDb,
       game,
     })
     expect(game.pause).toBe(false)

@@ -216,7 +216,7 @@ function Shop() {
           <ItemTile
             item={{
               cardId: "bam1",
-              level: 1,
+              cost: 3,
               type: "tile",
               id: "bam1",
             }}
@@ -225,7 +225,7 @@ function Shop() {
           <ItemTile
             item={{
               cardId: "dragonr",
-              level: 1,
+              cost: 3,
               type: "tile",
               id: "dragonr",
             }}

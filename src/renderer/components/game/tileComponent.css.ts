@@ -1,5 +1,13 @@
 import {
-  ANIMATION_MEDIUM,
+  DELETED_DURATION,
+  FALL_DURATION,
+  FLOATING_NUMBER_DURATION,
+  MOVE_DURATION,
+  MUTATE_DURATION,
+  SHAKE_DURATION,
+  SHAKE_REPEAT,
+} from "@/state/animationState"
+import {
   ANIMATION_SLOW,
   easeBounce,
   overshot,
@@ -9,19 +17,81 @@ import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
+import { calc } from "@vanilla-extract/css-utils"
 import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
 
-export const SHAKE_DURATION = 150
-export const SHAKE_REPEAT = 3
-export const DELETED_DURATION = 300
-export const MUTATE_DURATION = 500
-export const FLOATING_NUMBER_DURATION = 1_500
-export const MOVE_DURATION = 300
+export const xVar = createVar()
+export const yVar = createVar()
+export const zVar = createVar()
+export const realXVar = createVar()
+export const realYVar = createVar()
+export const realZVar = createVar()
+export const widthVar = createVar()
+export const heightVar = createVar()
+export const sideSizeVar = createVar()
+
+function zOffset(z: any = zVar) {
+  return calc(z).multiply(-1).multiply(sideSizeVar)
+}
+
+function xCoord(x: any, z: any = zVar) {
+  return calc(x).multiply(widthVar).divide(2).add(zOffset(z))
+}
+
+function yCoord(y: any, z: any = zVar) {
+  return calc(y).multiply(heightVar).divide(2).add(zOffset(z))
+}
+
+function zIndex(x: any, y: any, z: any) {
+  return `calc(${z} * 100 + ${x} * 2 + ${y} * 3)`
+}
 
 const shakeKeyframes = keyframes({
   "0%, 100%": { transform: "translate(0, 0) rotate(0deg)" },
   "25%": { transform: "translate(-2px, 0) rotate(-1deg)" },
   "75%": { transform: "translate(2px, 0) rotate(1deg)" },
+})
+
+const windKeyframes = keyframes({
+  "0%": {
+    transform: `translate(${xCoord(xVar)}, ${yCoord(yVar)})`,
+  },
+  "100%": {
+    transform: `translate(${xCoord(realXVar)}, ${yCoord(realYVar)})`,
+  },
+})
+
+const zJump = 5
+const jumpKeyframes = keyframes({
+  "0%": {
+    animationTimingFunction: "ease-in",
+    zIndex: zIndex(xVar, yVar, zVar),
+    opacity: 1,
+  },
+  "20%": {
+    transform: `translate(${xCoord(xVar, zJump)}, ${yCoord(yVar, zJump)}) scale(1.1, 1.1)`,
+    animationTimingFunction: "cubic-bezier(0.121, 0.264, 0.561, 0.857)",
+    zIndex: zIndex(xVar, yVar, zJump),
+  },
+  "50%": {
+    transform: `translate(
+      ${xCoord(calc(realXVar).add(xVar).divide(2), zJump + 2)},
+      ${yCoord(calc(realYVar).add(yVar).divide(2), zJump + 2)}
+    ) scale(1.3, 1.3)`,
+    opacity: 0.2,
+    zIndex: zIndex(xVar, yVar, zJump + 2),
+    animationTimingFunction: "cubic-bezier(0.121, 0.264, 0.561, 0.857)",
+  },
+  "80%": {
+    transform: `translate(${xCoord(realXVar, zJump)}, ${yCoord(realYVar, zJump)}) scale(1.1, 1.1)`,
+    animationTimingFunction: easeBounce,
+    zIndex: zIndex(realXVar, realYVar, zJump),
+  },
+  "100%": {
+    transform: `translate(${xCoord(realXVar, realZVar)}, ${yCoord(realYVar, realZVar)}) scale(1, 1)`,
+    zIndex: zIndex(realXVar, realYVar, realZVar),
+    opacity: 1,
+  },
 })
 
 const mutateKeyframes = keyframes({
@@ -58,59 +128,40 @@ const deletedKeyframes = keyframes({
   },
 })
 
-const jumpingInKeyframes = keyframes({
-  "0%": {
-    transform: "scale(1, 1)",
-    opacity: 1,
-  },
-  "100%": {
-    transform: "scale(1.3, 1.3)",
-    opacity: 0.6,
-  },
-})
-
-const jumpingOutKeyframes = keyframes({
-  "0%": {
-    transform: "scale(1.3, 1.3)",
-    opacity: 0.6,
-  },
-  "100%": {
-    transform: "scale(1, 1)",
-    opacity: 1,
-  },
-})
-
 const floatingNumberKeyframes = keyframes({
   "0%": {
-    transform: "translate(-50%, -50%)",
+    transform: `translate(
+      ${xCoord(xVar).add(calc(widthVar).divide(2)).subtract("50%")},
+      ${yCoord(yVar).add(calc(heightVar).divide(2)).subtract("50%")}
+    )`,
     opacity: 1,
   },
   "50%": {
     opacity: 0.8,
   },
   "100%": {
-    transform: "translate(-50%, calc(-50% - 100px))",
+    transform: `translate(
+      ${xCoord(xVar).add(calc(widthVar).divide(2)).subtract("50%")},
+      ${yCoord(yVar).add(calc(heightVar).divide(2)).subtract(`${100}px`).subtract("50%")}
+    )`,
     opacity: 0,
   },
 })
 
 const pulseVar = createVar()
 const pulseKeyframes = keyframes({
-  "0%": {
-    background: `rgba(from ${pulseVar} r g b / 0.05)`,
+  "0%, 100%": {
+    transform: "scale(0.8, 0.8)",
   },
   "50%": {
-    background: `rgba(from ${pulseVar} r g b / 0.2)`,
-    opacity: 1,
-  },
-  "100%": {
-    background: `rgba(from ${pulseVar} r g b / 0.05)`,
+    transform: "scale(1.3, 1.3)",
   },
 })
 
 export const scoreClass = style({
   position: "absolute",
-  zIndex: 9999,
+  top: 0,
+  left: 0,
   animation: `${floatingNumberKeyframes} ${FLOATING_NUMBER_DURATION}ms ${overshot} forwards`,
   ...fontSize.h3,
   lineHeight: 1,
@@ -118,10 +169,10 @@ export const scoreClass = style({
   userSelect: "none",
   fontFamily: primary,
   transformOrigin: "50% 50%",
-  pointerEvents: "none",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  zIndex: 9999,
   gap: 8,
 })
 
@@ -143,7 +194,11 @@ export const pulseClass = recipe({
     borderRadius: 4,
     position: "absolute",
     animation: `${pulseKeyframes} 3000ms ease-in-out infinite`,
-    mixBlendMode: "multiply",
+    background: `radial-gradient(
+      ellipse,
+      rgba(from ${pulseVar} r g b / 0.3),
+      rgba(from ${pulseVar} r g b / 0) 90%
+    )`,
     pointerEvents: "none",
     top: 0,
     left: 0,
@@ -170,9 +225,36 @@ export const scorePointsClass = style({
     0px 0px 10px -5px ${color.bam10}
   `,
   color: "white",
+  pointerEvents: "none",
 })
 
-export const tileAnimationDelayVar = createVar()
+export const positionerClass = recipe({
+  base: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    overflow: "visible",
+    transform: `translate(${xCoord(xVar)}, ${yCoord(yVar)})`,
+    zIndex: zIndex(realXVar, realYVar, realZVar),
+    width: `calc(${widthVar} + ${sideSizeVar})`,
+    height: `calc(${heightVar} + ${sideSizeVar})`,
+    pointerEvents: "none",
+  },
+  variants: {
+    animation: {
+      wind: {
+        animation: `${windKeyframes} ${MOVE_DURATION}ms ${easeBounce} forwards`,
+      },
+      jump: {
+        animation: `${jumpKeyframes} ${MOVE_DURATION}ms ease-in-out forwards`,
+      },
+      shake: {},
+      deleted: {},
+      fall: {},
+      mutate: {},
+    },
+  },
+})
 
 export const tileClass = recipe({
   base: {
@@ -180,10 +262,8 @@ export const tileClass = recipe({
     outline: "none",
     transformOrigin: "50% 50%",
     WebkitTapHighlightColor: "transparent",
-    // TODO: optimize to use transform
-    transitionProperty: "top, left",
-    transitionDuration: `${MOVE_DURATION}ms`,
-    transitionTimingFunction: "ease-in",
+    width: "100%",
+    height: "100%",
   },
   variants: {
     animation: {
@@ -192,17 +272,15 @@ export const tileClass = recipe({
         animationTimingFunction: easeBounce,
         animationDuration: ANIMATION_SLOW,
         animationDirection: "reverse",
-        animationDelay: tileAnimationDelayVar,
+        animationDelay: `calc(${zVar} * 30ms + (${xVar} + ${yVar}) * 5ms)`,
         animationFillMode: "forwards",
-        pointerEvents: "none",
       },
       fall: {
         animationName: tileFallingAnimation,
         animationTimingFunction: easeBounce,
-        animationDuration: ANIMATION_MEDIUM,
-        animationDelay: tileAnimationDelayVar,
+        animationDuration: `${FALL_DURATION}ms`,
+        animationDelay: `calc(${zVar} * 20ms + (${xVar} + ${yVar}) * 4ms)`,
         animationFillMode: "backwards",
-        pointerEvents: "none",
       },
       shake: {
         animation: `${shakeKeyframes} ${SHAKE_DURATION}ms ease-in-out ${SHAKE_REPEAT}`,
@@ -212,16 +290,9 @@ export const tileClass = recipe({
       },
       deleted: {
         animation: `${deletedKeyframes} ${DELETED_DURATION}ms ease-out forwards`,
-        pointerEvents: "none",
       },
-      jumpingIn: {
-        animation: `${jumpingInKeyframes} ${MOVE_DURATION}ms ease-in-out forwards`,
-        pointerEvents: "none",
-      },
-      jumpingOut: {
-        animation: `${jumpingOutKeyframes} ${MOVE_DURATION}ms ease-in-out forwards`,
-        pointerEvents: "none",
-      },
+      wind: {},
+      jump: {},
     },
   },
 })
@@ -233,16 +304,11 @@ export const tileSvgClass = style({
 
 export const clickableClass = recipe({
   base: {
-    pointerEvents: "auto",
-    selectors: {
-      [`${tileClass.classNames.variants.animation.deleted} &`]: {
-        pointerEvents: "none",
-      },
-    },
+    pointerEvents: "none",
   },
   variants: {
     canBeSelected: {
-      true: { cursor: "pointer" },
+      true: { cursor: "pointer", pointerEvents: "auto" },
     },
   },
 })

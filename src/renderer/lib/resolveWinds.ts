@@ -1,3 +1,5 @@
+import { play } from "@/components/audio"
+import { animate } from "@/state/animationState"
 import {
   type Tile,
   type TileDb,
@@ -16,10 +18,10 @@ function getNewTile(tileDb: TileDb, tile: Tile, axis: "x" | "y", bias: number) {
   const value = tile[axis]
 
   if (bias === 0) return
-  if (tile[axis] === 0) return
-  if (tile[axis] === MAP_SIZE[axis] - 1) return
 
   const direction = Math.sign(bias)
+  if (tile[axis] === 0 && direction === -1) return
+  if (tile[axis] === MAP_SIZE[axis] - 1 && direction === 1) return
 
   for (let attempt = Math.abs(bias); attempt > 0; attempt--) {
     const displacement = attempt * direction
@@ -46,6 +48,7 @@ export function resolveWinds({ tileDb, tile }: { tileDb: TileDb; tile: Tile }) {
   const windCard = isWind(tile.cardId)
   if (!windCard) return
 
+  play("wind")
   const wind = windCard.rank
   const [axis, bias] = BIASES[wind]
   const highestLevel = tileDb.all.reduce(
@@ -63,7 +66,8 @@ export function resolveWinds({ tileDb, tile }: { tileDb: TileDb; tile: Tile }) {
       const newTile = getNewTile(tileDb, tile, axis, bias)
       if (!newTile) continue
 
-      tileDb.set(tile.id, newTile)
+      tileDb.set(tile.id, { ...newTile })
+      animate({ id: tile.id, name: "wind" })
     }
   }
 }

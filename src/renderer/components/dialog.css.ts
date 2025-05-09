@@ -92,6 +92,7 @@ export const dialogTitleClass = style({
 export const dialogItemsClass = style({
   display: "flex",
   flexDirection: "column",
+  justifyContent: "stretch",
   gap: 16,
 })
 

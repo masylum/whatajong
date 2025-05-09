@@ -9,6 +9,7 @@ import "@fontsource-variable/nunito"
 import "./styles/reset.css"
 import { initObservability } from "./lib/observability"
 import { Help } from "./routes/help"
+import New from "./routes/new"
 import { Settings } from "./routes/settings"
 
 const root = document.getElementById("root")
@@ -21,6 +22,7 @@ render(
       <Route path="/" component={Home} />
       <Route path="/run/:id" component={Run} />
       <Route path="/settings" component={Settings} />
+      <Route path="/new" component={New} />
       <Route path="/help" component={Help} />
     </Router>
   ),

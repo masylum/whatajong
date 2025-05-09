@@ -3,7 +3,7 @@ import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowRight, Rotate, Shop } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
-import { type Card, type CardId, getAllTiles } from "@/lib/game"
+import type { CardId } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
@@ -18,6 +18,7 @@ import { cleanPersistentDatabase } from "@/state/persistentDatabase"
 import {
   calculateIncome,
   roundPersistentKey,
+  useLevels,
   useRound,
   useRunState,
 } from "@/state/runState"
@@ -89,8 +90,9 @@ export default function RunGameOver() {
     return Math.min(Math.floor(overAchievement * 2), 12)
   })
   const income = createMemo(() => calculateIncome(run))
-  const isRewardRound = createMemo(() =>
-    getAllTiles().some((t) => t.level === run.round),
+  const levels = useLevels()
+  const isRewardRound = createMemo(
+    () => levels().find((level) => level.level === run.round)!.rewards > 0,
   )
 
   onMount(() => {
@@ -249,11 +251,19 @@ function FallingTile(props: { cardId: CardId }) {
 }
 
 function FallingTiles() {
-  const cards = createMemo<Card[]>(() => {
+  const run = useRunState()
+  const levels = useLevels()
+  const cardIds = createMemo<CardId[]>(() => {
     const rng = new Rand()
-    return shuffle(getAllTiles(), rng).slice(0, 10)
+    const cardIds = levels()
+      .filter((l) => l.level <= run.round)
+      .flatMap((l) => l.tileItems.map((i) => i.cardId))
+    return shuffle(cardIds, rng).slice(0, 10)
   })
-  return <For each={cards()}>{(card) => <FallingTile cardId={card.id} />}</For>
+
+  return (
+    <For each={cardIds()}>{(cardId) => <FallingTile cardId={cardId} />}</For>
+  )
 }
 
 function Title(props: { win: boolean; round?: number }) {

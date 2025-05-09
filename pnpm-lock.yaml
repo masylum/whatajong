@@ -59,6 +59,9 @@ importers:
       '@vanilla-extract/css':
         specifier: ^1.17.1
         version: 1.17.1
+      '@vanilla-extract/css-utils':
+        specifier: ^0.1.4
+        version: 0.1.4
       '@vanilla-extract/dynamic':
         specifier: ^2.1.2
         version: 2.1.2
@@ -1975,6 +1978,9 @@ packages:
 
   '@vanilla-extract/compiler@0.1.2':
     resolution: {integrity: sha512-B4T5P+Fz2Big0GRspQSi4BIyPF3cJ2/+/NWSI6Lw5Tq2JXv9nzjTGU4gKlWzyvaxt/0CLPE+Zo40fUsUv5lttQ==}
+
+  '@vanilla-extract/css-utils@0.1.4':
+    resolution: {integrity: sha512-3WRxMGa/VQaL32jZqRUpnnoVFSws5iPIUpQr+XlT4jXhtMeKYcA20rFK2k2Amkg04sqrO84A8hNMeABWZQesEg==}
 
   '@vanilla-extract/css@1.17.1':
     resolution: {integrity: sha512-tOHQXHm10FrJeXKFeWE09JfDGN/tvV6mbjwoNB9k03u930Vg021vTnbrCwVLkECj9Zvh/SHLBHJ4r2flGqfovw==}
@@ -5734,6 +5740,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  '@vanilla-extract/css-utils@0.1.4': {}
 
   '@vanilla-extract/css@1.17.1':
     dependencies:

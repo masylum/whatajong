@@ -1,3 +1,5 @@
+import { play } from "@/components/audio"
+import { animate } from "@/state/animationState"
 import {
   type CardId,
   type Suit,
@@ -34,6 +36,7 @@ function changeSuits(
     const newColor = isSuit(newCardId)!.colors[0]!
     const newMaterial = MUTATION_MATERIALS[newColor][materialIndex]!
     tileDb.set(tile.id, { ...tile, cardId: newCardId, material: newMaterial })
+    animate({ id: tile.id, name: "mutate" })
   }
 }
 
@@ -44,6 +47,7 @@ export function resolveMutations({
   const mutationCard = isMutation(tile.cardId)
   if (!mutationCard) return
 
+  play("mutation")
   const id = mutationCard.id
 
   const [aSuit, bSuit] = MUTATION_RANKS[id]

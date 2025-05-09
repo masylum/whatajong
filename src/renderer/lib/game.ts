@@ -1,20 +1,17 @@
 import { play } from "@/components/audio"
-import {
-  DELETED_DURATION,
-  MOVE_DURATION,
-} from "@/components/game/tileComponent.css"
 import type { Translator } from "@/i18n/useTranslation"
+import { animate } from "@/state/animationState"
 import type { Game } from "@/state/gameState"
-import Rand from "rand-seed"
 import { indexBy, isIncludedIn } from "remeda"
 import { batch } from "solid-js"
 import { Database } from "./in-memoriam"
 import { RESPONSIVE_MAP } from "./maps/responsive"
 import { resolveDragons } from "./resolveDragons"
+import { resolveGems } from "./resolveGems"
+import { resolveJokers } from "./resolveJokers"
 import { resolveMutations } from "./resolveMutations"
 import { resolvePhoenixRun } from "./resolvePhoenixes"
 import { resolveWinds } from "./resolveWinds"
-import { shuffleTiles } from "./shuffleTiles"
 
 export function gameOverCondition(tileDb: TileDb, game?: Game) {
   const tilesAlive = tileDb.filterBy({ deleted: false })
@@ -66,7 +63,8 @@ export function getMaterialPoints(material: Material) {
   }
 }
 
-function getElements(colors: Readonly<Color[]>, tileDb: TileDb) {
+function getElements(cardId: CardId, tileDb: TileDb) {
+  const colors = getColors(cardId, tileDb)
   const elements = colors.flatMap((rank) =>
     tileDb.filterBy({ deleted: false, cardId: `element${rank}` }),
   )
@@ -77,6 +75,25 @@ function getElements(colors: Readonly<Color[]>, tileDb: TileDb) {
   }
 }
 
+export function isTaijituActive(tile: Tile, tileDb: TileDb) {
+  const taijituCard = isTaijitu(tile.cardId)
+  if (!taijituCard) return false
+
+  const find = getFinder(tileDb, tile)
+  const leftTile = find(-2, -1) || find(-2, 0) || find(-2, 1)
+  const rightTile = find(2, -1) || find(2, 0) || find(2, 1)
+  const topTile = find(-1, -2) || find(0, -2) || find(1, -2)
+  const bottomTile = find(-1, 2) || find(0, 2) || find(1, 2)
+  return [leftTile, rightTile, topTile, bottomTile].some((adjacentTile) => {
+    if (!adjacentTile) return false
+
+    return (
+      cardsMatch(tile.cardId, adjacentTile.cardId) &&
+      isFree(tileDb, adjacentTile)
+    )
+  })
+}
+
 export function getTaijituMultiplier(tiles: readonly [Tile, Tile]) {
   const [tile1, tile2] = tiles
   if (tile1.z !== tile2.z) return 1
@@ -85,9 +102,29 @@ export function getTaijituMultiplier(tiles: readonly [Tile, Tile]) {
   const xDistance = Math.abs(tile1.x - tile2.x)
   const yDistance = Math.abs(tile1.y - tile2.y)
   const isAdjacent =
-    (xDistance === 2 && yDistance === 0) || (xDistance === 0 && yDistance === 2)
+    (xDistance === 2 && yDistance < 1) || (xDistance < 1 && yDistance === 2)
 
   return isAdjacent ? 3 : 1
+}
+
+export function getActiveBrushes(tileDb: TileDb) {
+  const cards = tileDb.filterBy({ deleted: false }).flatMap((tile) => {
+    const brushCard = isBrush(tile.cardId)
+    return brushCard && isFree(tileDb, tile) ? brushCard : []
+  })
+  const suits = [
+    ["bam", "g"],
+    ["crack", "r"],
+    ["dot", "b"],
+  ] as const
+  const result = new Set<Suit>([])
+
+  for (const [suit, color] of suits) {
+    if (!cards.some((card) => card.rank === color)) continue
+    result.add(suit)
+  }
+
+  return result
 }
 
 export function getPoints({
@@ -97,14 +134,12 @@ export function getPoints({
 }: { game: Game; tile: Tile; tileDb: TileDb }) {
   const rawPoints = getRawPoints({
     cardId: tile.cardId,
-    material: tile.material,
+    material: getMaterial({ tile, game, tileDb }),
   })
 
   const dragonRunMultiplier = getDragonMultiplier(game)
   const phoenixRunMultiplier = getPhoenixRunMultiplier(game)
-
-  const card = getCard(tile.cardId)
-  const { visibleElements, freeElements } = getElements(card.colors, tileDb)
+  const { visibleElements, freeElements } = getElements(tile.cardId, tileDb)
 
   return (
     (rawPoints + visibleElements) *
@@ -123,8 +158,12 @@ export function getMaterialCoins(material: Material): number {
   }
 }
 
-export function getCoins({ tile }: { tile: Tile }): number {
-  const materialCoins = getMaterialCoins(tile.material)
+export function getCoins({
+  tile,
+  game,
+  tileDb,
+}: { tile: Tile; game: Game; tileDb: TileDb }): number {
+  const materialCoins = getMaterialCoins(getMaterial({ tile, game, tileDb }))
   const rabbitCoins = isRabbit(tile.cardId) ? 1 : 0
 
   return materialCoins + rabbitCoins
@@ -159,11 +198,6 @@ export function selectTile({
     const tile = tileDb.get(tileId)
     if (!tile) throw new Error("Tile not found")
 
-    if (!isFree(tileDb, tile, game)) {
-      tileDb.set(tileId, { ...tile, selected: false })
-      return
-    }
-
     const firstTile = tileDb.findBy({ selected: true })
     if (!firstTile) {
       tileDb.set(tileId, { ...tile, selected: true })
@@ -172,35 +206,51 @@ export function selectTile({
 
     if (firstTile.id === tileId) {
       tileDb.set(tileId, { ...tile, selected: false })
+      animate({ id: tileId, name: "shake" })
+      play("shake")
       return
     }
 
     tileDb.set(firstTile.id, { ...firstTile, selected: false })
 
-    const tiles: [Tile, Tile] = [tile, firstTile]
+    const tiles: [Tile, Tile] = [firstTile, tile]
 
     if (cardsMatch(firstTile.cardId, tile.cardId)) {
       deleteTiles(tileDb, tiles)
 
-      // Special cards
-      resolveDragons({ game, tile })
+      resolveDragons({ game, tile, tileDb })
       resolvePhoenixRun({ game, tile })
       resolveMutations({ tileDb, tile })
-      resolveGems({ tile, game })
-      resolveBlackMaterials({ tile, game })
+      resolveBlackMaterials({ tile, game, tileDb })
 
       const taijituMultiplier = getTaijituMultiplier(tiles)
+      if (taijituMultiplier > 1) play("gong2")
 
       for (const tile of tiles) {
         const newPoints = getPoints({ game, tile, tileDb }) * taijituMultiplier
-        const newCoins = getCoins({ tile })
+        const newCoins = getCoins({ tile, game, tileDb })
+
+        if (newCoins) play("coin")
+
         tileDb.set(tile.id, { ...tile, points: newPoints, coins: newCoins })
         game.points += newPoints
         game.coins += newCoins
       }
 
+      resolveGems({ tile, game })
       resolveJokers({ tileDb, tile, game })
       resolveWinds({ tileDb, tile })
+
+      if (
+        !isMutation(tile.cardId) &&
+        !isDragon(tile.cardId) &&
+        !isPhoenix(tile.cardId) &&
+        !isGem(tile.cardId) &&
+        !isJoker(tile.cardId) &&
+        !isWind(tile.cardId)
+      ) {
+        play("ding")
+      }
     } else {
       resolveJumpingTiles({ tiles, tileDb })
     }
@@ -215,8 +265,24 @@ export function selectTile({
   })
 }
 
+function frogMatchesLotus(cardIds: [CardId, CardId]) {
+  const [cardId1, cardId2] = cardIds
+  const frog = isFrog(cardId1)
+  const lotus = isLotus(cardId2)
+  if (!frog || !lotus) return false
+
+  return frog.rank === lotus.rank
+}
+
 export function cardsMatch(cardId1: CardId, cardId2: CardId) {
   if (isFlower(cardId1) && isFlower(cardId2)) {
+    return true
+  }
+
+  if (
+    frogMatchesLotus([cardId1, cardId2]) ||
+    frogMatchesLotus([cardId2, cardId1])
+  ) {
     return true
   }
 
@@ -226,6 +292,7 @@ export function cardsMatch(cardId1: CardId, cardId2: CardId) {
 export function deleteTiles(tileDb: TileDb, tiles: Tile[]) {
   for (const tile of tiles) {
     tileDb.set(tile.id, { ...tile, deleted: true, selected: false })
+    animate({ id: tile.id, name: "deleted" })
   }
 }
 
@@ -242,31 +309,6 @@ export type DeckTile = {
 }
 
 export type Deck = Database<DeckTile, DeckTileIndexes>
-
-export function getAllTiles(): Card[] {
-  return [
-    ...bams,
-    ...bams,
-    ...cracks,
-    ...cracks,
-    ...dots,
-    ...dots,
-    ...winds,
-    ...dragons,
-    ...flowers,
-    ...jokers,
-    ...frogs,
-    ...lotuses,
-    ...sparrows,
-    ...rabbits,
-    ...phoenixes,
-    ...elements,
-    ...mutations,
-    ...taijitu,
-    ...gems,
-    ...brushes,
-  ]
-}
 
 export function getInitialPairs(): [Card, Card][] {
   const pairs: [Card, Card][] = []
@@ -356,6 +398,10 @@ export function isTaijitu(cardId: CardId) {
   return checkSuit(cardId, "taijitu")
 }
 
+export function isBrush(cardId: CardId) {
+  return checkSuit(cardId, "brush")
+}
+
 type Position = {
   x: number
   y: number
@@ -374,7 +420,6 @@ export type Tile = {
   material: Material
   points?: number
   coins?: number
-  jumping?: boolean
 } & Position
 type TileById = Record<string, Tile>
 export const tileIndexes = {
@@ -480,35 +525,45 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   if (tile.deleted) return false
   if (isCovered(tileDb, tile)) return false
 
-  const material = getMaterial(tile, game)
+  const material = getMaterial({ tile, game, tileDb })
   if (material === "topaz" || material === "sapphire") return true
 
   const freedoms = getFreedoms(tileDb, tile)
   return freedoms.left || freedoms.right
 }
 
-export function getMaterial(tile: Tile, game?: Game): Material {
-  // testing code:
-  // const materialColors = {
-  //   g: ["bone", "jade", "emerald"],
-  //   r: ["bone", "ruby", "garnet"],
-  //   b: ["bone", "sapphire", "topaz"],
-  //   k: ["bone", "obsidian", "quartz"],
-  // } as const
-  // const materials = getCard(tile.cardId).colors.flatMap(
-  //   (color) => materialColors[color],
-  // )
-  // return materials[Math.floor(Math.random() * materials.length)]!
+function getBrushedMaterial(
+  cardId: CardId,
+  material: Material,
+  tileDb: TileDb,
+) {
+  const suitCard = isSuit(cardId)
+  if (!suitCard) return material
+  if (material === "bone") return material
+
+  const activeBrushes = getActiveBrushes(tileDb)
+  if (activeBrushes.has(suitCard.suit)) {
+    return "quartz"
+  }
+
+  return material
+}
+
+export function getMaterial({
+  tile,
+  tileDb,
+  game,
+}: { tile: Tile; tileDb: TileDb; game?: Game }): Material {
   const temporaryMaterial = game?.temporaryMaterial
-  if (!temporaryMaterial) {
-    return tile.material
+  if (temporaryMaterial) {
+    const color = MATERIAL_COLOR[temporaryMaterial].color
+    const card = getCard(tile.cardId)
+    if (new Set(card.colors).has(color)) {
+      return getBrushedMaterial(tile.cardId, temporaryMaterial, tileDb)
+    }
   }
-  const color = MATERIAL_COLOR[temporaryMaterial].color
-  const card = getCard(tile.cardId)
-  if ([...card.colors].includes(color)) {
-    return temporaryMaterial
-  }
-  return tile.material
+
+  return getBrushedMaterial(tile.cardId, tile.material, tileDb)
 }
 
 export function cardName(t: Translator, cardId: CardId) {
@@ -560,54 +615,34 @@ function getPhoenixRunMultiplier(game: Game) {
   return game.phoenixRun?.combo ?? 0
 }
 
-export function resolveJokers({
-  tileDb,
-  tile,
-  game,
-}: { tileDb: TileDb; tile: Tile; game: Game }) {
-  const jokerCard = isJoker(tile.cardId)
-  if (!jokerCard) return
-
-  game.joker = true
-  setTimeout(() => {
-    const rng = new Rand()
-    batch(() => {
-      game.joker = false
-      shuffleTiles({ rng, tileDb })
-      play("tiles")
-    })
-  }, DELETED_DURATION + 100)
-}
-
-export function resolveGems({ tile, game }: { tile: Tile; game: Game }) {
-  const gemCard = isGem(tile.cardId)
-  if (!gemCard) {
-    game.temporaryMaterial = undefined
-    return
-  }
-
-  const color = gemCard.colors[0]
-  const tempMaterial = (
-    {
-      r: "garnet",
-      g: "jade",
-      b: "topaz",
-      k: "quartz",
-    } as const
-  )[color]
-  game.temporaryMaterial = tempMaterial
-}
-
 export function resolveBlackMaterials({
   tile,
   game,
-}: { tile: Tile; game: Game }) {
-  game.pause = tile.material === "obsidian" || tile.material === "quartz"
+  tileDb,
+}: { tile: Tile; game: Game; tileDb: TileDb }) {
+  game.pause =
+    getMaterial({ tile, game, tileDb }) === "obsidian" ||
+    getMaterial({ tile, game, tileDb }) === "quartz"
 }
 
-export function cardMatchesColor(color: Color, cardId: CardId) {
-  const colors = getCard(cardId).colors
-  return isIncludedIn(color, colors)
+export function getColors(cardId: CardId, tileDb: TileDb) {
+  const card = getCard(cardId)
+  const colors = card.colors
+
+  if (!isSuit(cardId)) {
+    return colors
+  }
+
+  const activeBrushes = getActiveBrushes(tileDb)
+  if (activeBrushes.has(card.suit)) {
+    return ["k"] as const
+  }
+
+  return colors
+}
+
+export function cardMatchesColor(color: Color, cardId: CardId, tileDb: TileDb) {
+  return isIncludedIn(color, getColors(cardId, tileDb))
 }
 
 function jump({
@@ -615,23 +650,9 @@ function jump({
   toPosition,
   tileDb,
 }: { fromTile: Tile; toPosition: Position; tileDb: TileDb }) {
-  // TODO: optimize and DRY
-  const highestZ =
-    tileDb.all.reduce((max, tile) => Math.max(max, tile.z), 0) + 1
-
-  tileDb.set(fromTile.id, {
-    ...fromTile,
-    z: highestZ,
-    jumping: true,
-  })
-
-  setTimeout(() => {
-    tileDb.set(fromTile.id, {
-      ...fromTile,
-      ...toPosition,
-      jumping: false,
-    })
-  }, MOVE_DURATION)
+  const newTile = { ...fromTile, ...toPosition }
+  tileDb.set(fromTile.id, { ...newTile })
+  animate({ id: fromTile.id, name: "jump" })
 }
 
 export function resolveJumpingTiles({
@@ -640,25 +661,33 @@ export function resolveJumpingTiles({
 }: { tiles: [Tile, Tile]; tileDb: TileDb }) {
   const [firstTile, tile] = tiles
   const frogCard = isFrog(firstTile.cardId)
-  if (frogCard && cardMatchesColor(frogCard.colors[0], tile.cardId)) {
+
+  function color(card: FrogCard | SparrowCard | LotusCard, tile: Tile) {
+    return cardMatchesColor(card.rank, tile.cardId, tileDb)
+  }
+
+  if (frogCard && color(frogCard, tile)) {
     const toPosition = { x: tile.x, y: tile.y, z: tile.z + 1 }
     jump({ fromTile: firstTile, toPosition, tileDb })
+    play("frog")
     return
   }
 
   const sparrowCard = isSparrow(firstTile.cardId)
-  if (sparrowCard && cardMatchesColor(sparrowCard.colors[0], tile.cardId)) {
+  if ((sparrowCard && color(sparrowCard, tile)) || isSparrow(tile.cardId)) {
     const fromPosition = { x: firstTile.x, y: firstTile.y, z: firstTile.z }
     const toPosition = { x: tile.x, y: tile.y, z: tile.z }
     jump({ fromTile: firstTile, toPosition, tileDb })
     jump({ fromTile: tile, toPosition: fromPosition, tileDb })
+    play("sparrow")
     return
   }
 
   const lotusCard = isLotus(tile.cardId)
-  if (lotusCard && cardMatchesColor(lotusCard.colors[0], firstTile.cardId)) {
+  if (lotusCard && color(lotusCard, firstTile)) {
     const toPosition = { x: tile.x, y: tile.y, z: tile.z + 1 }
     jump({ fromTile: firstTile, toPosition, tileDb })
+    play("lotus")
     return
   }
 }
@@ -725,154 +754,154 @@ const MATERIAL_COLOR = {
 } as const
 
 export const bams = [
-  { id: "bam1", suit: "bam", rank: "1", colors: ["g"], points: 1, level: 1 },
-  { id: "bam2", suit: "bam", rank: "2", colors: ["g"], points: 1, level: 1 },
-  { id: "bam3", suit: "bam", rank: "3", colors: ["g"], points: 1, level: 1 },
-  { id: "bam4", suit: "bam", rank: "4", colors: ["g"], points: 1, level: 1 },
-  { id: "bam5", suit: "bam", rank: "5", colors: ["g"], points: 1, level: 1 },
-  { id: "bam6", suit: "bam", rank: "6", colors: ["g"], points: 1, level: 1 },
-  { id: "bam7", suit: "bam", rank: "7", colors: ["g"], points: 1, level: 1 },
-  { id: "bam8", suit: "bam", rank: "8", colors: ["g"], points: 1, level: 1 },
-  { id: "bam9", suit: "bam", rank: "9", colors: ["g"], points: 1, level: 1 },
+  { id: "bam1", suit: "bam", rank: "1", colors: ["g"], points: 1 },
+  { id: "bam2", suit: "bam", rank: "2", colors: ["g"], points: 1 },
+  { id: "bam3", suit: "bam", rank: "3", colors: ["g"], points: 1 },
+  { id: "bam4", suit: "bam", rank: "4", colors: ["g"], points: 1 },
+  { id: "bam5", suit: "bam", rank: "5", colors: ["g"], points: 1 },
+  { id: "bam6", suit: "bam", rank: "6", colors: ["g"], points: 1 },
+  { id: "bam7", suit: "bam", rank: "7", colors: ["g"], points: 1 },
+  { id: "bam8", suit: "bam", rank: "8", colors: ["g"], points: 1 },
+  { id: "bam9", suit: "bam", rank: "9", colors: ["g"], points: 1 },
 ] as const
 type BamCard = (typeof bams)[number]
 
 // biome-ignore format:
 export const cracks = [
-  { id: "crack1", suit: "crack", rank: "1", colors: ["r"], points: 1, level: 1, },
-  { id: "crack2", suit: "crack", rank: "2", colors: ["r"], points: 1, level: 1, },
-  { id: "crack3", suit: "crack", rank: "3", colors: ["r"], points: 1, level: 1, },
-  { id: "crack4", suit: "crack", rank: "4", colors: ["r"], points: 1, level: 1, },
-  { id: "crack5", suit: "crack", rank: "5", colors: ["r"], points: 1, level: 1, },
-  { id: "crack6", suit: "crack", rank: "6", colors: ["r"], points: 1, level: 1, },
-  { id: "crack7", suit: "crack", rank: "7", colors: ["r"], points: 1, level: 1, },
-  { id: "crack8", suit: "crack", rank: "8", colors: ["r"], points: 1, level: 1, },
-  { id: "crack9", suit: "crack", rank: "9", colors: ["r"], points: 1, level: 1, },
+  { id: "crack1", suit: "crack", rank: "1", colors: ["r"], points: 1, },
+  { id: "crack2", suit: "crack", rank: "2", colors: ["r"], points: 1, },
+  { id: "crack3", suit: "crack", rank: "3", colors: ["r"], points: 1, },
+  { id: "crack4", suit: "crack", rank: "4", colors: ["r"], points: 1, },
+  { id: "crack5", suit: "crack", rank: "5", colors: ["r"], points: 1, },
+  { id: "crack6", suit: "crack", rank: "6", colors: ["r"], points: 1, },
+  { id: "crack7", suit: "crack", rank: "7", colors: ["r"], points: 1, },
+  { id: "crack8", suit: "crack", rank: "8", colors: ["r"], points: 1, },
+  { id: "crack9", suit: "crack", rank: "9", colors: ["r"], points: 1, },
 ] as const
 type CrackCard = (typeof cracks)[number]
 
 export const dots = [
-  { id: "dot1", suit: "dot", rank: "1", colors: ["b"], points: 1, level: 1 },
-  { id: "dot2", suit: "dot", rank: "2", colors: ["b"], points: 1, level: 1 },
-  { id: "dot3", suit: "dot", rank: "3", colors: ["b"], points: 1, level: 1 },
-  { id: "dot4", suit: "dot", rank: "4", colors: ["b"], points: 1, level: 1 },
-  { id: "dot5", suit: "dot", rank: "5", colors: ["b"], points: 1, level: 1 },
-  { id: "dot6", suit: "dot", rank: "6", colors: ["b"], points: 1, level: 1 },
-  { id: "dot7", suit: "dot", rank: "7", colors: ["b"], points: 1, level: 1 },
-  { id: "dot8", suit: "dot", rank: "8", colors: ["b"], points: 1, level: 1 },
-  { id: "dot9", suit: "dot", rank: "9", colors: ["b"], points: 1, level: 1 },
+  { id: "dot1", suit: "dot", rank: "1", colors: ["b"], points: 1 },
+  { id: "dot2", suit: "dot", rank: "2", colors: ["b"], points: 1 },
+  { id: "dot3", suit: "dot", rank: "3", colors: ["b"], points: 1 },
+  { id: "dot4", suit: "dot", rank: "4", colors: ["b"], points: 1 },
+  { id: "dot5", suit: "dot", rank: "5", colors: ["b"], points: 1 },
+  { id: "dot6", suit: "dot", rank: "6", colors: ["b"], points: 1 },
+  { id: "dot7", suit: "dot", rank: "7", colors: ["b"], points: 1 },
+  { id: "dot8", suit: "dot", rank: "8", colors: ["b"], points: 1 },
+  { id: "dot9", suit: "dot", rank: "9", colors: ["b"], points: 1 },
 ] as const
 type DotCard = (typeof dots)[number]
 
 export const winds = [
-  { id: "windn", suit: "wind", rank: "n", colors: ["k"], points: 3, level: 2 },
-  { id: "windw", suit: "wind", rank: "w", colors: ["k"], points: 3, level: 2 },
-  { id: "winds", suit: "wind", rank: "s", colors: ["k"], points: 3, level: 2 },
-  { id: "winde", suit: "wind", rank: "e", colors: ["k"], points: 3, level: 2 },
+  { id: "windn", suit: "wind", rank: "n", colors: ["k"], points: 3 },
+  { id: "windw", suit: "wind", rank: "w", colors: ["k"], points: 3 },
+  { id: "winds", suit: "wind", rank: "s", colors: ["k"], points: 3 },
+  { id: "winde", suit: "wind", rank: "e", colors: ["k"], points: 3 },
 ] as const
 type WindCard = (typeof winds)[number]
 
 // biome-ignore format:
 export const dragons = [
-  { id: "dragonr", suit: "dragon", rank: "r", colors: ["r"], points: 2, level: 3, },
-  { id: "dragong", suit: "dragon", rank: "g", colors: ["g"], points: 2, level: 3, },
-  { id: "dragonb", suit: "dragon", rank: "b", colors: ["b"], points: 2, level: 3, },
-  { id: "dragonk", suit: "dragon", rank: "k", colors: ["k"], points: 2, level: 3, },
+  { id: "dragonr", suit: "dragon", rank: "r", colors: ["r"], points: 2, },
+  { id: "dragong", suit: "dragon", rank: "g", colors: ["g"], points: 2, },
+  { id: "dragonb", suit: "dragon", rank: "b", colors: ["b"], points: 2, },
+  { id: "dragonk", suit: "dragon", rank: "k", colors: ["k"], points: 2, },
 ] as const
 type DragonCard = (typeof dragons)[number]
 
 // biome-ignore format:
 export const rabbits = [
-  { id: "rabbitr", suit: "rabbit", rank: "r", colors: ["r"], points: 2, level: 5, },
-  { id: "rabbitg", suit: "rabbit", rank: "g", colors: ["g"], points: 2, level: 5, },
-  { id: "rabbitb", suit: "rabbit", rank: "b", colors: ["b"], points: 2, level: 5, },
+  { id: "rabbitr", suit: "rabbit", rank: "r", colors: ["r"], points: 2, },
+  { id: "rabbitg", suit: "rabbit", rank: "g", colors: ["g"], points: 2, },
+  { id: "rabbitb", suit: "rabbit", rank: "b", colors: ["b"], points: 2, },
 ] as const
 type RabbitCard = (typeof rabbits)[number]
 
 // biome-ignore format:
 export const flowers = [
-  { id: "flower1", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, level: 6, },
-  { id: "flower2", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, level: 6, },
-  { id: "flower3", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, level: 6, },
+  { id: "flower1", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
+  { id: "flower2", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
+  { id: "flower3", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
 ] as const
 type FlowerCard = (typeof flowers)[number]
 
 // biome-ignore format:
-const frogs = [
-  { id: "frogr", suit: "frog", rank: "r", colors: ["r"], points: 2, level: 8 },
-  { id: "frogb", suit: "frog", rank: "b", colors: ["b"], points: 2, level: 8 },
-  { id: "frogg", suit: "frog", rank: "g", colors: ["g"], points: 2, level: 8 },
+export const frogs = [
+  { id: "frogr", suit: "frog", rank: "r", colors: ["r"], points: 2, },
+  { id: "frogb", suit: "frog", rank: "b", colors: ["b"], points: 2, },
+  { id: "frogg", suit: "frog", rank: "g", colors: ["g"], points: 2, },
 ] as const
 type FrogCard = (typeof frogs)[number]
 
 // biome-ignore format:
 export const lotuses = [
-  { id: "lotusr", suit: "lotus", rank: "r", colors: ["r"], points: 2, level: 9 },
-  { id: "lotusb", suit: "lotus", rank: "b", colors: ["b"], points: 2, level: 9 },
-  { id: "lotusg", suit: "lotus", rank: "g", colors: ["g"], points: 2, level: 9 },
+  { id: "lotusr", suit: "lotus", rank: "r", colors: ["r"], points: 2, },
+  { id: "lotusb", suit: "lotus", rank: "b", colors: ["b"], points: 2, },
+  { id: "lotusg", suit: "lotus", rank: "g", colors: ["g"], points: 2, },
 ] as const
 type LotusCard = (typeof lotuses)[number]
 
 // biome-ignore format:
 export const brushes = [
-  { id: "brushr", suit: "brush", rank: "r", colors: ["r", "k"], points: 2, level: 9 },
-  { id: "brushb", suit: "brush", rank: "b", colors: ["b", "k"], points: 2, level: 9 },
-  { id: "brushg", suit: "brush", rank: "g", colors: ["g", "k"], points: 2, level: 9 },
+  { id: "brushr", suit: "brush", rank: "r", colors: ["r", "k"], points: 2, },
+  { id: "brushb", suit: "brush", rank: "b", colors: ["b", "k"], points: 2, },
+  { id: "brushg", suit: "brush", rank: "g", colors: ["g", "k"], points: 2, },
 ] as const
 type BrushCard = (typeof brushes)[number]
 
 // biome-ignore format:
-const phoenixes = [
-  { id: "phoenix", suit: "phoenix", rank: "", colors: ["k"], points: 2, level: 11, },
+export const phoenixes = [
+  { id: "phoenix", suit: "phoenix", rank: "", colors: ["k"], points: 2, },
 ] as const
 type PhoenixCard = (typeof phoenixes)[number]
 
 // biome-ignore format:
-const taijitu = [
-  { id: "taijitur", suit: "taijitu", rank: "r", colors: ["r"], points: 2, level: 12 },
-  { id: "taijitug", suit: "taijitu", rank: "g", colors: ["g"], points: 2, level: 12 },
-  { id: "taijitub", suit: "taijitu", rank: "b", colors: ["b"], points: 2, level: 12 },
-  { id: "taijituk", suit: "taijitu", rank: "k", colors: ["k"], points: 2, level: 12 },
+export const taijitu = [
+  { id: "taijitur", suit: "taijitu", rank: "r", colors: ["r"], points: 2, },
+  { id: "taijitug", suit: "taijitu", rank: "g", colors: ["g"], points: 2, },
+  { id: "taijitub", suit: "taijitu", rank: "b", colors: ["b"], points: 2, },
+  { id: "taijituk", suit: "taijitu", rank: "k", colors: ["k"], points: 2, },
 ] as const
 type TaijituCard = (typeof taijitu)[number]
 
 // biome-ignore format:
 export const sparrows = [
-  { id: "sparrowr", suit: "sparrow", rank: "r", colors: ["r"], points: 2, level: 13 },
-  { id: "sparrowb", suit: "sparrow", rank: "b", colors: ["b"], points: 2, level: 13 },
-  { id: "sparrowg", suit: "sparrow", rank: "g", colors: ["g"], points: 2, level: 13 },
+  { id: "sparrowr", suit: "sparrow", rank: "r", colors: ["r"], points: 2, },
+  { id: "sparrowb", suit: "sparrow", rank: "b", colors: ["b"], points: 2, },
+  { id: "sparrowg", suit: "sparrow", rank: "g", colors: ["g"], points: 2, },
 ] as const
 type SparrowCard = (typeof sparrows)[number]
 
 // biome-ignore format:
-const mutations = [
-  { id: "mutation1", suit: "mutation", rank: "", colors: ["r", "g"], points: 2, level: 15 },
-  { id: "mutation2", suit: "mutation", rank: "", colors: ["b", "r"], points: 2, level: 15 },
-  { id: "mutation3", suit: "mutation", rank: "", colors: ["g", "b"], points: 2, level: 15 },
+export const mutations = [
+  { id: "mutation1", suit: "mutation", rank: "", colors: ["r", "g"], points: 2, },
+  { id: "mutation2", suit: "mutation", rank: "", colors: ["b", "r"], points: 2, },
+  { id: "mutation3", suit: "mutation", rank: "", colors: ["g", "b"], points: 2, },
 ] as const
 type MutationCard = (typeof mutations)[number]
 
 // biome-ignore format:
-const elements = [
-  { id: "elementr", suit: "element", rank: "r", colors: ["r"], points: 3, level: 16, },
-  { id: "elementg", suit: "element", rank: "g", colors: ["g"], points: 3, level: 16, },
-  { id: "elementb", suit: "element", rank: "b", colors: ["b"], points: 3, level: 16, },
-  { id: "elementk", suit: "element", rank: "k", colors: ["k"], points: 3, level: 16 },
+export const elements = [
+  { id: "elementr", suit: "element", rank: "r", colors: ["r"], points: 3, },
+  { id: "elementg", suit: "element", rank: "g", colors: ["g"], points: 3, },
+  { id: "elementb", suit: "element", rank: "b", colors: ["b"], points: 3, },
+  { id: "elementk", suit: "element", rank: "k", colors: ["k"], points: 3, },
 ] as const
 type ElementCard = (typeof elements)[number]
 
 // biome-ignore format:
-const gems = [
-  { id: "gemr", suit: "gem", rank: "r", colors: ["r"], points: 3, level: 18 },
-  { id: "gemg", suit: "gem", rank: "g", colors: ["g"], points: 3, level: 18 },
-  { id: "gemb", suit: "gem", rank: "b", colors: ["b"], points: 3, level: 18 },
-  { id: "gemk", suit: "gem", rank: "k", colors: ["k"], points: 3, level: 18 },
+export const gems = [
+  { id: "gemr", suit: "gem", rank: "r", colors: ["r"], points: 3, },
+  { id: "gemg", suit: "gem", rank: "g", colors: ["g"], points: 3, },
+  { id: "gemb", suit: "gem", rank: "b", colors: ["b"], points: 3, },
+  { id: "gemk", suit: "gem", rank: "k", colors: ["k"], points: 3, },
 ] as const
 type GemCard = (typeof gems)[number]
 
 // biome-ignore format:
 export const jokers = [
-  { id: "joker", suit: "joker", rank: "", colors: ["g", "r", "b", "k"], points: 1, level: 19 },
+  { id: "joker", suit: "joker", rank: "", colors: ["g", "r", "b", "k"], points: 1, },
 ] as const
 type JokerCard = (typeof jokers)[number]
 
@@ -898,7 +927,28 @@ export type Card =
 export type CardId = Card["id"]
 export type Suit = Card["suit"]
 
-const CARDS_BY_ID = indexBy(getAllTiles(), (c) => c.id)
+const CARDS_BY_ID = indexBy(
+  [
+    ...bams,
+    ...cracks,
+    ...dots,
+    ...winds,
+    ...dragons,
+    ...flowers,
+    ...jokers,
+    ...frogs,
+    ...lotuses,
+    ...sparrows,
+    ...rabbits,
+    ...phoenixes,
+    ...elements,
+    ...mutations,
+    ...taijitu,
+    ...gems,
+    ...brushes,
+  ],
+  (c) => c.id,
+)
 export function getCard(card: CardId) {
   return CARDS_BY_ID[card]!
 }
