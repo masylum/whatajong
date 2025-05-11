@@ -12,11 +12,9 @@ import { persistentDatabase } from "./persistentDatabase"
 
 const DECK_STATE_NAMESPACE = "deck-state-v3"
 
-type CreateDeckStateParams = { id: () => string }
-export function createDeckState(params: CreateDeckStateParams) {
+export function createDeckState() {
   return persistentDatabase({
     namespace: DECK_STATE_NAMESPACE,
-    id: params.id,
     db: () => new Database<DeckTile, DeckTileIndexes>(deckTileIndexes),
     init: (db) => {
       initializeDeckState(db)

@@ -7,6 +7,7 @@ import { createBreakpoints } from "@solid-primitives/media"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { Link, MetaProvider } from "@solidjs/meta"
 import { type ParentProps, Show, createMemo } from "solid-js"
+import { RunStateProvider, createRunState } from "../state/runState"
 import { Defs } from "./game/defs"
 import { portraitClass, subtitleClass, titleClass } from "./layout.css"
 
@@ -22,28 +23,31 @@ export function Layout(props: ParentProps) {
     }
     return false
   })
+  const run = createRunState()
 
   return (
     <MetaProvider>
       <GlobalStateProvider globalState={globalState}>
-        <Link
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          href={nunito}
-          crossorigin="anonymous"
-        />
-        <Link
-          rel="preload"
-          as="font"
-          type="font/woff2"
-          href={primaryUrl}
-          crossorigin="anonymous"
-        />
-        <Defs />
-        <Show when={forcePortrait()} fallback={props.children}>
-          <Portrait />
-        </Show>
+        <RunStateProvider run={run}>
+          <Link
+            rel="preload"
+            as="font"
+            type="font/woff2"
+            href={nunito}
+            crossorigin="anonymous"
+          />
+          <Link
+            rel="preload"
+            as="font"
+            type="font/woff2"
+            href={primaryUrl}
+            crossorigin="anonymous"
+          />
+          <Defs />
+          <Show when={forcePortrait()} fallback={props.children}>
+            <Portrait />
+          </Show>
+        </RunStateProvider>
       </GlobalStateProvider>
     </MetaProvider>
   )

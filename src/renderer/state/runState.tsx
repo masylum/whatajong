@@ -1,5 +1,10 @@
+import { play } from "@/components/audio"
 import {
   type Card,
+  type CardId,
+  type Deck,
+  type DeckTile,
+  type Material,
   bams,
   brushes,
   cracks,
@@ -18,22 +23,61 @@ import {
 } from "@/lib/game"
 import { frogs } from "@/lib/game"
 import { rabbits } from "@/lib/game"
+import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
+import { nanoid } from "nanoid"
 import Rand from "rand-seed"
+import { countBy, entries } from "remeda"
 import {
   type Accessor,
   type ParentProps,
+  batch,
   createContext,
+  createEffect,
   createMemo,
+  on,
   useContext,
 } from "solid-js"
+import {
+  DeckStateProvider,
+  createDeckState,
+  initializeDeckState,
+} from "./deckState"
+import { GameStateProvider, createGameState } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
-import type { TileItem } from "./shopState"
+import {
+  TileStateProvider,
+  createTileState,
+  initializeTileState,
+} from "./tileState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
 const ITEM_COST = 3
 const ITEM_POOL_SIZE = 9
+export const REROLL_COST = 1
+const ITEM_COUNT = 5
+
+const PATHS = {
+  r: ["garnet", "ruby"],
+  g: ["jade", "emerald"],
+  b: ["topaz", "sapphire"],
+  k: ["quartz", "obsidian"],
+} as const
+export type Path = keyof typeof PATHS
+
+type BaseItem = { id: string }
+export type TileItem = BaseItem & {
+  cardId: CardId
+  type: "tile"
+  cost: number
+}
+
+export type DeckTileItem = BaseItem & {
+  cardId: CardId
+  material: Material
+  type: "deckTile"
+}
 
 export type RunState = {
   runId: string
@@ -51,6 +95,9 @@ export type RunState = {
     reroll: number
     active: boolean
   }
+  reroll: number
+  currentItem: TileItem | DeckTileItem | null
+  tutorialStep: number | null
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
@@ -72,14 +119,32 @@ const RoundContext = createContext<Accessor<Round> | undefined>()
 const LevelsContext = createContext<Accessor<Levels> | undefined>()
 
 export function RunStateProvider(props: { run: RunState } & ParentProps) {
-  const levels = createMemo(() => getLevels(props.run.runId))
+  const runId = createMemo(() => props.run.runId)
+  const levels = createMemo(() => getLevels(runId()))
   const round = createMemo(() => generateRound(props.run.round, props.run))
+  const roundId = createMemo(() => `${props.run.runId}-${props.run.round}`)
+  const game = createMemo(() => createGameState({ id: roundId }))
+  const deck = createDeckState()
+  const tileDb = createTileState({ id: roundId(), deck: deck.all })
+
+  createEffect(
+    on(roundId, (roundId) => {
+      initializeDeckState(deck)
+      initializeTileState(roundId, deck.all, tileDb)
+    }),
+  )
 
   return (
     <RunStateContext.Provider value={props.run}>
       <RoundContext.Provider value={round}>
         <LevelsContext.Provider value={levels}>
-          {props.children}
+          <GameStateProvider game={game()}>
+            <DeckStateProvider deck={deck}>
+              <TileStateProvider tileDb={tileDb}>
+                {props.children}
+              </TileStateProvider>
+            </DeckStateProvider>
+          </GameStateProvider>
         </LevelsContext.Provider>
       </RoundContext.Provider>
     </RunStateContext.Provider>
@@ -107,19 +172,10 @@ export function useLevels() {
   return context
 }
 
-export function fetchRuns() {
-  return Object.entries(localStorage)
-    .filter(([key]) => key.startsWith(RUN_STATE_NAMESPACE))
-    .map(([_, value]) => JSON.parse(value))
-    .sort((a, b) => b.createdAt - a.createdAt)
-}
-
-type CreateRunStateParams = { id: () => string }
-export function createRunState(params: CreateRunStateParams) {
+export function createRunState() {
   return createPersistantMutable<RunState>({
     namespace: RUN_STATE_NAMESPACE,
-    id: params.id,
-    init: () => initialRunState(params.id()),
+    init: () => initialRunState(TUTORIAL_SEED),
   })
 }
 
@@ -151,6 +207,9 @@ export function initialRunState(id: string): RunState {
     totalPoints: 0,
     createdAt: Date.now(),
     items: [],
+    reroll: 0,
+    currentItem: null,
+    tutorialStep: id === TUTORIAL_SEED ? 1 : null,
   }
 }
 
@@ -274,4 +333,179 @@ function getLevels(runId: string): Levels {
     createLevel(23, 0, []),
     createLevel(24, 1, [[brush3!]]),
   ]
+}
+
+export function isTile(item: TileItem | DeckTileItem) {
+  if (item.type === "tile") return item
+
+  return null
+}
+
+export function generateItems(run: RunState, levels: Levels) {
+  const runId = run.runId
+  const round = run.freeze?.round || run.round
+  const rng = new Rand(`items-${runId}-${round}`)
+  const itemIds = new Set(run.items.map((i) => i.id))
+  const initialPool = levels
+    .filter((l) => l.level <= round)
+    .flatMap((l) => l.tileItems)
+
+  const poolSize = initialPool.length
+  const reroll = run.freeze?.reroll || run.reroll
+  const start = (ITEM_COUNT * reroll) % poolSize
+  const shuffled = shuffle(initialPool, rng).filter(
+    (item) => !itemIds.has(item.id),
+  )
+
+  const items = []
+  for (let i = 0; i < ITEM_COUNT; i++) {
+    const index = (start + i) % shuffled.length
+    items.push(shuffled[index]!)
+  }
+
+  return items
+}
+
+function mergeCounts(
+  count: Partial<Record<Material, number | undefined>>,
+  path: Path,
+) {
+  const order = ["bone", ...PATHS[path]] as const
+  const newCount = { ...count }
+
+  for (const [i, material] of order.entries()) {
+    const next = order[i + 1]
+    if (!next) continue
+    if (!newCount[material]) continue
+
+    while (newCount[material] >= 3) {
+      newCount[material] = (newCount[material] || 0) - 3
+      newCount[next] = (newCount[next] || 0) + 1
+
+      if (newCount[material] === 0) {
+        delete newCount[material]
+      }
+    }
+  }
+
+  return newCount
+}
+
+export function getNextMaterials(tiles: DeckTile[], path: Path) {
+  const count = countBy(tiles, (tile) => tile.material)
+  count.bone = (count.bone || 0) + 1
+  const newCount = mergeCounts(count, path)
+
+  const result: Material[] = []
+  for (const [material, count] of entries(newCount)) {
+    for (let i = 0; i < count; i++) {
+      result.push(material)
+    }
+  }
+  return result
+}
+
+export function getNextMaterial(tiles: DeckTile[], path: Path) {
+  const materials = getNextMaterials(tiles, path)
+  return materials[materials.length - 1]!
+}
+
+type MaterialTransformation = {
+  adds: boolean
+  updates: Record<string, Material>
+  removes: string[]
+}
+export function getTransformation(
+  tiles: DeckTile[],
+  path: Path,
+): MaterialTransformation {
+  const nextMaterials = getNextMaterials(tiles, path)
+  const currentMaterials = tiles.map((tile) => tile.material)
+  const updates: Record<string, Material> = {}
+  const removes: string[] = []
+  let adds = false
+
+  for (const [index, tile] of tiles.entries()) {
+    const mat = nextMaterials[index]
+    if (!mat) {
+      removes.push(tile.id)
+      continue
+    }
+
+    if (mat !== tile.material) {
+      updates[tile.id] = mat
+    }
+  }
+
+  for (const [index, _] of nextMaterials.entries()) {
+    if (!currentMaterials[index]) adds = true
+  }
+
+  return { adds, updates, removes }
+}
+
+export function buyTile({
+  run,
+  item,
+  deck,
+  reward = false,
+}: {
+  run: RunState
+  item: TileItem
+  deck: Deck
+  reward?: boolean
+}) {
+  const cost = reward ? 0 : item.cost
+  const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
+
+  batch(() => {
+    run.money = money - cost
+    run.items.push(item)
+    run.currentItem = null
+    const id = nanoid()
+    deck.set(id, { id, material: "bone", cardId: item.cardId })
+  })
+
+  if (!reward) {
+    play("coin2")
+    captureEvent("tile_bought", { cardId: item.cardId })
+  }
+}
+
+export function upgradeTile({
+  run,
+  item,
+  deck,
+  path,
+}: {
+  run: RunState
+  item: TileItem
+  deck: Deck
+  path: Path
+}) {
+  const cost = item.cost
+  const money = run.money
+  if (cost > money) throw Error("You don't have enough money")
+
+  batch(() => {
+    run.money = money - cost
+    run.items.push(item)
+    run.currentItem = null
+    const { updates, removes } = getTransformation(
+      deck.filterBy({ cardId: item.cardId }),
+      path,
+    )
+
+    for (const [id, material] of entries(updates)) {
+      deck.set(id, { id, material, cardId: item.cardId })
+    }
+
+    for (const id of removes) {
+      deck.del(id)
+    }
+  })
+
+  play("coin2")
+  captureEvent("tile_upgraded", { cardId: item.cardId, path })
 }

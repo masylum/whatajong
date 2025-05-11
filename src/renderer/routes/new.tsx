@@ -2,8 +2,10 @@ import { LinkButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight } from "@/components/icon"
 import type { CardId, Material } from "@/lib/game"
-import { TUTORIAL_SEED } from "@/state/runState"
+import { setMutable } from "@/state/persistantMutable"
+import { TUTORIAL_SEED, initialRunState, useRunState } from "@/state/runState"
 import type { AccentHue } from "@/styles/colors"
+import { useNavigate } from "@solidjs/router"
 import { nanoid } from "nanoid"
 import {
   arrowClass,
@@ -81,8 +83,20 @@ function Difficulty(props: {
   description: string
   i: number
 }) {
+  const run = useRunState()
+  const navigate = useNavigate()
+
+  function onNewRun(seed: string) {
+    setMutable(run, initialRunState(seed))
+    navigate("/play")
+  }
+
   return (
-    <a class={itemClass({ hue: props.hue })} href={`/run/${props.seed}`}>
+    <button
+      type="button"
+      class={itemClass({ hue: props.hue })}
+      onClick={() => onNewRun(props.seed)}
+    >
       <div class={floatingClass({ stagger: (props.i % 3) as any })}>
         <BasicTile cardId={props.cardId} material={props.material} />
       </div>
@@ -91,6 +105,6 @@ function Difficulty(props: {
         <div class={itemDescriptionClass}>{props.description}</div>
       </div>
       <ArrowRight class={arrowClass} />
-    </a>
+    </button>
   )
 }

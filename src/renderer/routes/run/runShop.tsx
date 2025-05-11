@@ -22,7 +22,6 @@ import { captureEvent } from "@/lib/observability"
 import { throttle } from "@/lib/throttle"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { useLevels, useRunState } from "@/state/runState"
 import {
   type DeckTileItem,
   type Path,
@@ -33,8 +32,9 @@ import {
   getNextMaterial,
   isTile,
   upgradeTile,
-  useShopState,
-} from "@/state/shopState"
+  useLevels,
+  useRunState,
+} from "@/state/runState"
 import { hueFromMaterial } from "@/styles/colors"
 import { Dialog } from "@kobalte/core/dialog"
 import { Key } from "@solid-primitives/keyed"
@@ -102,11 +102,11 @@ const onHoverTile = throttle(() => {
 }, 30)
 
 export default function RunShop() {
-  const shop = useShopState()
+  const run = useRunState()
 
   createEffect(
     on(
-      () => shop.currentItem,
+      () => run.currentItem,
       () => play("click"),
     ),
   )
@@ -120,12 +120,12 @@ export default function RunShop() {
         <Header />
         <Items />
         <Deck />
-        <Show when={shop.currentItem}>
+        <Show when={run.currentItem}>
           {(currentItem) => (
             <Dialog
               defaultOpen
               onOpenChange={() => {
-                shop.currentItem = null
+                run.currentItem = null
               }}
             >
               <Dialog.Portal>
@@ -157,13 +157,13 @@ function DeckTileComponent(props: {
   zIndex: number
 }) {
   const tileSize = useSmallerTileSize(0.75)
-  const shop = useShopState()
+  const run = useRunState()
 
   function onPointerDown() {
     const deckTile = props.deckTile
     const cardId = deckTile.cardId
 
-    shop.currentItem = {
+    run.currentItem = {
       id: deckTile.id,
       type: "deckTile",
       cardId,
@@ -246,7 +246,6 @@ function CardDetails(props: {
   material: Material
 }) {
   const cardId = createMemo(() => props.item.cardId)
-  const shop = useShopState()
   const run = useRunState()
   const deck = useDeckState()
   const t = useTranslation()
@@ -275,7 +274,7 @@ function CardDetails(props: {
               hue="bam"
               disabled={item().cost > run.money}
               onPointerDown={() => {
-                buyTile({ run, shop, item: item(), deck })
+                buyTile({ run, item: item(), deck })
               }}
             >
               <Buy />
@@ -340,7 +339,7 @@ export function RerollButton(props: {
   cost: number
   disabled: boolean
 }) {
-  const shop = useShopState()
+  const run = useRunState()
 
   return (
     <ShopItem
@@ -348,11 +347,11 @@ export function RerollButton(props: {
       onPointerDown={props.onPointerDown}
       disabled={props.disabled}
       selected={false}
-      sudo={shop.tutorialStep === 2}
+      sudo={run.tutorialStep === 2}
     >
       <div class={shopItemButtonClass({ hue: "bam" })}>
         <Dices />
-        <Show when={shop.tutorialStep === 2}>
+        <Show when={run.tutorialStep === 2}>
           <svg
             width="130"
             height="144"
@@ -374,7 +373,6 @@ export function RerollButton(props: {
 
 export function FreezeButton(props: { onPointerDown?: () => void }) {
   const run = useRunState()
-  const shop = useShopState()
 
   return (
     <ShopItem
@@ -382,11 +380,11 @@ export function FreezeButton(props: { onPointerDown?: () => void }) {
       onPointerDown={props.onPointerDown}
       disabled={false}
       selected={!!run.freeze?.active}
-      sudo={shop.tutorialStep === 3}
+      sudo={run.tutorialStep === 3}
     >
       <div class={shopItemButtonClass({ hue: "dot" })}>
         <Freeze />
-        <Show when={shop.tutorialStep === 3}>
+        <Show when={run.tutorialStep === 3}>
           <svg
             width="130"
             height="144"
@@ -412,7 +410,6 @@ function MaterialUpgradeButton(props: {
   path: Path
 }) {
   const run = useRunState()
-  const shop = useShopState()
   const deck = useDeckState()
   const t = useTranslation()
 
@@ -444,7 +441,7 @@ function MaterialUpgradeButton(props: {
         hue={hueFromMaterial(props.material)}
         disabled={false}
         onPointerDown={() => {
-          upgradeTile({ run, shop, item: props.item, deck, path: props.path })
+          upgradeTile({ run, item: props.item, deck, path: props.path })
         }}
       >
         <Buy />
@@ -510,20 +507,19 @@ function Deck() {
 
 function Items() {
   const run = useRunState()
-  const shop = useShopState()
   const t = useTranslation()
   const levels = useLevels()
-  const items = createMemo(() => generateItems(run, shop, levels()), {
+  const items = createMemo(() => generateItems(run, levels()), {
     equals: isDeepEqual,
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
-  const isSelected = createSelector(() => shop.currentItem?.id)
+  const isSelected = createSelector(() => run.currentItem?.id)
 
   function selectItem(item: TileItem | null) {
-    if (item?.id === shop.currentItem?.id) {
-      shop.currentItem = null
+    if (item?.id === run.currentItem?.id) {
+      run.currentItem = null
     } else {
-      shop.currentItem = item
+      run.currentItem = item
     }
   }
 
@@ -539,14 +535,14 @@ function Items() {
       }
 
       run.money = money - REROLL_COST
-      shop.reroll++
+      run.reroll++
     })
 
     play("dice")
     setTimeout(() => {
       play("coin2")
     }, 100)
-    captureEvent("reroll", { reroll: shop.reroll })
+    captureEvent("reroll", { reroll: run.reroll })
   }
 
   function freeze() {
@@ -559,20 +555,20 @@ function Items() {
 
     run.freeze = {
       round: run.round,
-      reroll: shop.reroll,
+      reroll: run.reroll,
       active: true,
     }
-    captureEvent("freeze", { reroll: shop.reroll })
+    captureEvent("freeze", { reroll: run.reroll })
   }
 
   return (
     <div class={areaClass({ hue: "crack" })}>
       <div
-        class={areaTitleClass({ hue: "crack", sudo: shop.tutorialStep === 1 })}
+        class={areaTitleClass({ hue: "crack", sudo: run.tutorialStep === 1 })}
       >
         {t.common.shop()}
         <span class={coinsClass}>${run.money}</span>
-        <Show when={shop.tutorialStep === 1}>
+        <Show when={run.tutorialStep === 1}>
           <svg
             width="118"
             height="168"
@@ -634,13 +630,13 @@ function Header() {
 }
 
 function CloseButton() {
-  const shop = useShopState()
+  const run = useRunState()
 
   return (
     <Dialog.CloseButton
       class={closeButtonClass}
       onPointerDown={() => {
-        shop.currentItem = null
+        run.currentItem = null
       }}
     >
       <X />
@@ -684,30 +680,30 @@ function ShopItem(
 
 function Tutorial() {
   const t = useTranslation()
-  const shop = useShopState()
+  const run = useRunState()
 
   function onPointerDown() {
-    shop.tutorialStep = shop.tutorialStep! + 1
+    run.tutorialStep = run.tutorialStep! + 1
   }
 
   return (
     <Switch>
-      <Match when={shop.tutorialStep === 1}>
+      <Match when={run.tutorialStep === 1}>
         <div class={tutorialClass} onPointerDown={onPointerDown}>
           <p innerHTML={t.tutorial.shop1({ crackClass })} />
         </div>
       </Match>
-      <Match when={shop.tutorialStep === 2}>
+      <Match when={run.tutorialStep === 2}>
         <div class={tutorialClass} onPointerDown={onPointerDown}>
           <p innerHTML={t.tutorial.shop2({ bamClass })} />
         </div>
       </Match>
-      <Match when={shop.tutorialStep === 3}>
+      <Match when={run.tutorialStep === 3}>
         <div class={tutorialClass} onPointerDown={onPointerDown}>
           <p innerHTML={t.tutorial.shop3({ dotClass })} />
         </div>
       </Match>
-      <Match when={shop.tutorialStep === 4}>
+      <Match when={run.tutorialStep === 4}>
         <div class={tutorialClass} onPointerDown={onPointerDown}>
           <p innerHTML={t.tutorial.material1()} />
           <MaterialTutorial />

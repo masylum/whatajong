@@ -32,12 +32,12 @@ export function useTileState() {
 export function createTileState({
   id,
   deck,
-}: { id: () => string; deck: DeckTile[] }) {
+}: { id: string; deck: DeckTile[] }) {
   return persistentDatabase({
     namespace: TILE_STATE_NAMESPACE,
-    id,
     db: () => new Database<Tile, TileIndexes>(tileIndexes),
-    init: (db, id) => {
+    init: (db) => {
+      console.log("init tile state", id, JSON.stringify(deck))
       initializeTileState(id, deck, db)
     },
   })

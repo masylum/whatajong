@@ -17,20 +17,10 @@ import {
 import { animate } from "@/state/animationState"
 import { useLayoutSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import {
-  GameStateProvider,
-  createGameState,
-  initialGameState,
-  useGameState,
-} from "@/state/gameState"
+import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import { roundPersistentKey, useRound, useRunState } from "@/state/runState"
-import {
-  TileStateProvider,
-  createTileState,
-  initializeTileState,
-  useTileState,
-} from "@/state/tileState"
+import { initializeTileState, useTileState } from "@/state/tileState"
 import { createShortcut } from "@solid-primitives/keyboard"
 import { createTimer } from "@solid-primitives/timer"
 import {
@@ -73,10 +63,8 @@ import RunGameOver from "./runGameOver"
 export default function RunGame() {
   const run = useRunState()
   const deck = useDeckState()
-  const id = createMemo(() => roundPersistentKey(run))
-
-  const tiles = createTileState({ id, deck: deck.all })
-  const game = createGameState({ id, round: run.round })
+  const game = useGameState()
+  const tiles = useTileState()
 
   const [comboAnimation, setComboAnimation] = createSignal(0)
 
@@ -85,7 +73,7 @@ export default function RunGame() {
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
-  useSoundEffects(tiles())
+  useSoundEffects(tiles)
 
   createTimer(
     () => {
@@ -129,7 +117,7 @@ export default function RunGame() {
   // Cheat: Resolve pair
   createShortcut(["Shift", "K"], () => {
     console.log("cheat!")
-    const pairs = getAvailablePairs(tiles(), game).sort(
+    const pairs = getAvailablePairs(tiles, game).sort(
       // remove top to bottom and winds last
       // this is the easiest heuristic to solve the game
       (a, b) => {
@@ -143,7 +131,7 @@ export default function RunGame() {
     )[0]
     if (!pairs) return
     for (const tile of pairs) {
-      selectTile({ tileDb: tiles(), game, tileId: tile.id })
+      selectTile({ tileDb: tiles, game, tileId: tile.id })
     }
     game.points += 100
   })
@@ -154,82 +142,78 @@ export default function RunGame() {
       run.retries += 1
       const key = roundPersistentKey(run)
       setMutable(game, initialGameState(run.runId))
-      initializeTileState(key, deck.all, tiles())
+      initializeTileState(key, deck.all, tiles)
     })
   })
 
   onMount(() => {
     play("gong")
     batch(() => {
-      for (const tile of tiles().all) {
+      for (const tile of tiles.all) {
         animate({ id: tile.id, name: "fall" })
       }
     })
   })
 
   return (
-    <GameStateProvider game={game}>
-      <TileStateProvider tileDb={tiles()}>
-        <Show when={!game.endCondition} fallback={<RunGameOver />}>
-          <div
-            class={gameRecipe({
-              comboAnimation: comboAnimation() as any,
-            })}
-          >
-            <div
-              class={containerClass({
-                position: "topLeft",
-                orientation: orientation(),
-                sudo: game.tutorialStep === 1,
-              })}
-            >
-              <TopLeft />
-            </div>
-            <div
-              class={containerClass({
-                position: "topRight",
-                orientation: orientation(),
-              })}
-            >
-              <Menu />
-            </div>
-            <div
-              style={{
-                position: "relative",
-                width: `${layout().width}px`,
-                height: `${layout().height}px`,
-                "z-index": 3,
-              }}
-            >
-              <Board />
-            </div>
-            <div
-              class={containerClass({
-                position: "bottomLeft",
-                orientation: orientation(),
-                sudo: game.tutorialStep === 5,
-              })}
-            >
-              <BottomLeft />
-            </div>
-            <div
-              class={containerClass({
-                position: "bottomRight",
-                orientation: orientation(),
-                sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
-              })}
-            >
-              <BottomRight />
-            </div>
+    <Show when={!game.endCondition} fallback={<RunGameOver />}>
+      <div
+        class={gameRecipe({
+          comboAnimation: comboAnimation() as any,
+        })}
+      >
+        <div
+          class={containerClass({
+            position: "topLeft",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 1,
+          })}
+        >
+          <TopLeft />
+        </div>
+        <div
+          class={containerClass({
+            position: "topRight",
+            orientation: orientation(),
+          })}
+        >
+          <Menu />
+        </div>
+        <div
+          style={{
+            position: "relative",
+            width: `${layout().width}px`,
+            height: `${layout().height}px`,
+            "z-index": 3,
+          }}
+        >
+          <Board />
+        </div>
+        <div
+          class={containerClass({
+            position: "bottomLeft",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 5,
+          })}
+        >
+          <BottomLeft />
+        </div>
+        <div
+          class={containerClass({
+            position: "bottomRight",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
+          })}
+        >
+          <BottomRight />
+        </div>
 
-            <Tutorial />
-            <Mountains />
-            <DustParticles />
-            <Powerups />
-          </div>
-        </Show>
-      </TileStateProvider>
-    </GameStateProvider>
+        <Tutorial />
+        <Mountains />
+        <DustParticles />
+        <Powerups />
+      </div>
+    </Show>
   )
 }
 

@@ -252,7 +252,12 @@ export function selectTile({
         play("ding")
       }
     } else {
-      resolveJumpingTiles({ tiles, tileDb })
+      if (!resolveJumpingTiles({ tiles, tileDb })) {
+        for (const tile of tiles) {
+          animate({ id: tile.id, name: "shake" })
+        }
+        play("shake")
+      }
     }
 
     const condition = gameOverCondition(tileDb, game)
@@ -670,7 +675,7 @@ export function resolveJumpingTiles({
     const toPosition = { x: tile.x, y: tile.y, z: tile.z + 1 }
     jump({ fromTile: firstTile, toPosition, tileDb })
     play("frog")
-    return
+    return true
   }
 
   const sparrowCard = isSparrow(firstTile.cardId)
@@ -680,7 +685,7 @@ export function resolveJumpingTiles({
     jump({ fromTile: firstTile, toPosition, tileDb })
     jump({ fromTile: tile, toPosition: fromPosition, tileDb })
     play("sparrow")
-    return
+    return true
   }
 
   const lotusCard = isLotus(tile.cardId)
@@ -688,8 +693,10 @@ export function resolveJumpingTiles({
     const toPosition = { x: tile.x, y: tile.y, z: tile.z + 1 }
     jump({ fromTile: firstTile, toPosition, tileDb })
     play("lotus")
-    return
+    return true
   }
+
+  return false
 }
 
 type MapType = (number | null)[][][]

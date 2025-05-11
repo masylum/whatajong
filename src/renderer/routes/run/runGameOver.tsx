@@ -8,13 +8,8 @@ import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import {
-  GAME_STATE_NAMESPACE,
-  initialGameState,
-  useGameState,
-} from "@/state/gameState"
-import { cleanMutable, setMutable } from "@/state/persistantMutable"
-import { cleanPersistentDatabase } from "@/state/persistentDatabase"
+import { initialGameState, useGameState } from "@/state/gameState"
+import { setMutable } from "@/state/persistantMutable"
 import {
   calculateIncome,
   roundPersistentKey,
@@ -22,11 +17,7 @@ import {
   useRound,
   useRunState,
 } from "@/state/runState"
-import {
-  TILE_STATE_NAMESPACE,
-  initializeTileState,
-  useTileState,
-} from "@/state/tileState"
+import { initializeTileState, useTileState } from "@/state/tileState"
 import type { AccentHue } from "@/styles/colors"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
@@ -118,10 +109,6 @@ export default function RunGameOver() {
       run.round += 1
       run.stage = isRewardRound() ? "reward" : "shop"
       run.totalPoints += totalPoints()
-
-      const key = roundPersistentKey(run)
-      cleanMutable(GAME_STATE_NAMESPACE, key)
-      cleanPersistentDatabase(TILE_STATE_NAMESPACE, key)
     })
   }
 

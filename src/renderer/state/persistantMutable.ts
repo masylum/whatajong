@@ -1,39 +1,21 @@
-import { createEffect, on } from "solid-js"
+import { createEffect } from "solid-js"
 import { createMutable, modifyMutable, reconcile } from "solid-js/store"
-
-function key(namespace: string, id: string) {
-  return `${namespace}-${id}`
-}
 
 type CreatePersistantParams<T> = {
   namespace: string
-  id: () => string
-  init: (id: string) => T
+  init: () => T
 }
 export function createPersistantMutable<T extends Record<string, any>>(
   params: CreatePersistantParams<T>,
 ) {
-  const mutable = createMutable<T>(params.init(params.id()))
-
-  function init(id: string) {
-    const persistedState = localStorage.getItem(key(params.namespace, id))
-
-    setMutable(
-      mutable,
-      persistedState ? JSON.parse(persistedState) : params.init(id),
-    )
-  }
-
-  init(params.id())
-  createEffect(on(params.id, init))
-  createEffect(
-    on(
-      () => JSON.stringify(mutable),
-      (json) => {
-        localStorage.setItem(key(params.namespace, params.id()), json)
-      },
-    ),
+  const persistedState = localStorage.getItem(params.namespace)
+  const mutable = createMutable<T>(
+    persistedState ? JSON.parse(persistedState) : params.init(),
   )
+
+  createEffect(() => {
+    localStorage.setItem(params.namespace, JSON.stringify(mutable))
+  })
 
   return mutable
 }
@@ -42,6 +24,6 @@ export function setMutable<T>(mutable: T, value: T) {
   modifyMutable(mutable, reconcile(value))
 }
 
-export function cleanMutable(namespace: string, id: string) {
-  localStorage.removeItem(key(namespace, id))
+export function cleanMutable(namespace: string) {
+  localStorage.removeItem(namespace)
 }

@@ -20,7 +20,7 @@ render(
   () => (
     <Router root={Layout}>
       <Route path="/" component={Home} />
-      <Route path="/run/:id" component={Run} />
+      <Route path="/play" component={Run} />
       <Route path="/settings" component={Settings} />
       <Route path="/new" component={New} />
       <Route path="/help" component={Help} />

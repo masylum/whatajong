@@ -8,8 +8,12 @@ import { type CardId, type Suit, getCard } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
-import { useLevels, useRunState } from "@/state/runState"
-import { type TileItem, buyTile, useShopState } from "@/state/shopState"
+import {
+  type TileItem,
+  buyTile,
+  useLevels,
+  useRunState,
+} from "@/state/runState"
 import Rand from "rand-seed"
 import { uniqueBy } from "remeda"
 import { For, Show, createMemo, createSelector, onMount } from "solid-js"
@@ -58,14 +62,13 @@ export default function RunReward() {
       return ids.has(id)
     },
   )
-  const shop = useShopState()
   const deck = useDeckState()
 
   function onContinue() {
     run.stage = "shop"
 
     for (const item of randTileItems()) {
-      buyTile({ run, shop, item, deck, reward: true })
+      buyTile({ run, item, deck, reward: true })
     }
   }
 

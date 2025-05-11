@@ -14,7 +14,6 @@ import {
 } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
 import { useImageSrc, useSmallerTileSize } from "@/state/constants"
-import { TUTORIAL_SEED, fetchRuns } from "@/state/runState"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
@@ -51,17 +50,7 @@ function cards() {
 
 export function Home() {
   const t = useTranslation()
-  const runs = createMemo(() => fetchRuns())
   const img = useImageSrc()
-
-  const runId = createMemo(() => {
-    const run = runs()[0]
-    if (run) {
-      return run.runId
-    }
-
-    return TUTORIAL_SEED
-  })
 
   function onHover() {
     play("click2")
@@ -76,7 +65,7 @@ export function Home() {
       <nav class={navClass}>
         <a
           onMouseEnter={onHover}
-          href={`/run/${runId()}`}
+          href="/play"
           class={buttonClass({ hue: "crack" })}
           style={{
             ...assignInlineVars({

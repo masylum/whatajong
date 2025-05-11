@@ -53,7 +53,7 @@ export function Menu() {
               </LinkButton>
             </div>
             <div class={dialogItemClass}>
-              <LinkButton href={"/new"} hue="dot" suave>
+              <LinkButton href="/new" hue="dot" suave>
                 <ArrowRight />
                 {t.settings.newRun()}
               </LinkButton>

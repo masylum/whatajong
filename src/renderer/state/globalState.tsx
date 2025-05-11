@@ -19,7 +19,6 @@ const NAMESPACE = "global-state-v3"
 export function createGlobalState() {
   return createPersistantMutable<GlobalState>({
     namespace: NAMESPACE,
-    id: () => "global-state",
     init: () => ({
       soundVolume: 1,
       musicVolume: 1,

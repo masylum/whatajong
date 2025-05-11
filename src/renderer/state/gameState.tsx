@@ -30,12 +30,11 @@ export type Game = {
   tutorialStep?: number
 }
 
-type CreateGameStateParams = { id: () => string; round: number }
+type CreateGameStateParams = { id: () => string }
 export function createGameState(params: CreateGameStateParams) {
   return createPersistantMutable<Game>({
     namespace: GAME_STATE_NAMESPACE,
-    id: params.id,
-    init: (id) => initialGameState(id),
+    init: () => initialGameState(params.id()),
   })
 }
 

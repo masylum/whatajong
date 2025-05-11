@@ -2,7 +2,7 @@ import { type Accessor, createEffect } from "solid-js"
 
 export function createChangeEffect<T>(
   fn: (prev: T, curr: T) => void,
-  value: Accessor<any>,
+  value: Accessor<T>,
 ) {
   createEffect((prevVal: T) => {
     const val = value()
