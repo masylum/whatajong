@@ -1,5 +1,4 @@
 import {
-  ANIMATION_MEDIUM,
   ANIMATION_SLOW,
   easeBounce,
   fromAboveAnimation,
@@ -9,10 +8,10 @@ import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueSelectors, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { createVar, keyframes, style } from "@vanilla-extract/css"
+import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const gameOverClass = style({
+export const containerClass = style({
   fontFamily: primary,
   display: "flex",
   flexDirection: "column",
@@ -31,92 +30,52 @@ export const gameOverClass = style({
   },
 })
 
-export const startX = createVar()
-export const endX = createVar()
-export const rotation = createVar()
-export const duration = createVar()
-
-const bounce = keyframes({
-  "0%": {
-    transform: `translate(${startX}, 0dvh) rotate(0deg)`,
-    opacity: 0,
-  },
-  "50%": {
-    opacity: 0.7,
-  },
-  "100%": {
-    transform: `translate(${endX}, 110dvh) rotate(${rotation})`,
-    opacity: 0.7,
+export const contentClass = style({
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 12,
+  gap: 32,
+  width: "100%",
+  height: "100%",
+  animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
+  background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.2)}, ${alpha(color.bam60, 0.4)})`,
+  color: color.bam90,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 24,
+      gap: 64,
+    },
+    [mediaQuery({ p: "xl", l: "l" })]: {
+      padding: 64,
+    },
   },
 })
 
-export const bouncingCardClass = style({
-  position: "absolute",
-  animation: `${bounce} ${duration} linear infinite`,
-  animationFillMode: "backwards",
-  top: 0,
-  left: 0,
-})
-
-export const screenClass = recipe({
-  base: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 12,
-    gap: 32,
-    width: "100%",
-    height: "100%",
-    animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
-    "@media": {
-      [mediaQuery({ p: "m", l: "s" })]: {
-        padding: 24,
-        gap: 64,
-      },
-      [mediaQuery({ p: "xl", l: "l" })]: {
-        padding: 64,
-      },
-    },
-  },
-  variants: {
-    win: {
-      true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.2)}, ${alpha(color.bam60, 0.4)})`,
-        color: color.bam90,
-      },
-      false: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack60, 0.2)}, ${alpha(color.crack60, 0.4)})`,
-        color: color.crack90,
-      },
-    },
-  },
+export const titleContainerClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
 })
 
 export const titleClass = style({
-  ...fontSize.h2,
+  ...fontSize.h1,
   textAlign: "center",
   animationName: fromAboveAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
   animationTimingFunction: easeBounce,
+  color: color.bam40,
   "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.h1,
-    },
-    [mediaQuery({ p: "m", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
       ...fontSize.hero4,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "l", l: "l" })]: {
       ...fontSize.hero3,
     },
-  },
-  selectors: {
-    [`${screenClass.classNames.variants.win.true} &`]: {
-      color: color.bam40,
-    },
-    [`${screenClass.classNames.variants.win.false} &`]: {
-      color: color.crack40,
+    [mediaQuery({ p: "xl", l: "xl" })]: {
+      ...fontSize.hero2,
     },
   },
 })
@@ -127,7 +86,7 @@ export const subtitleClass = style({
   animationName: fromBelowAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
-  color: color.crack30,
+  color: color.bam30,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h2,
@@ -141,7 +100,13 @@ export const subtitleClass = style({
   },
 })
 
-// TODO: Dry
+export const detailsClass = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  color: color.bam40,
+})
+
 export const detailListClass = recipe({
   base: {
     display: "grid",
@@ -189,8 +154,6 @@ export const detailListClass = recipe({
     })),
   },
 })
-
-// TODO: Dry
 export const itemKeyClass = style({
   ...fontSize.m,
   fontFamily: primary,
@@ -213,20 +176,19 @@ export const itemKeyClass = style({
   ),
 })
 
-// TODO: Dry
 export const itemValueClass = style({
   ...fontSize.m,
   fontFamily: primary,
   justifySelf: "start",
   gridColumnStart: 2,
   "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
       ...fontSize.l,
     },
-    [mediaQuery({ p: "m", l: "s" })]: {
+    [mediaQuery({ p: "l", l: "l" })]: {
       ...fontSize.h3,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "xl", l: "xl" })]: {
       ...fontSize.h2,
     },
   },
@@ -236,30 +198,4 @@ export const itemValueClass = style({
       color: kolor(30),
     }),
   ),
-})
-
-export const scoreClass = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  position: "relative",
-  gap: 8,
-  "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      gap: 12,
-    },
-    [mediaQuery({ p: "l", l: "m" })]: {
-      gap: 16,
-    },
-  },
-})
-
-export const buttonsClass = style({
-  display: "flex",
-  gap: 16,
-  animationName: fromBelowAnimation,
-  animationDuration: ANIMATION_MEDIUM,
-  animationFillMode: "backwards",
-  animationDelay: "500ms",
 })

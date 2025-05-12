@@ -119,7 +119,7 @@ export default function RunShop() {
         <Tutorial />
         <Header />
         <Items />
-        <Deck />
+        <DeckArea />
         <Show when={run.currentItem}>
           {(currentItem) => (
             <Dialog
@@ -154,9 +154,10 @@ export default function RunShop() {
 
 function DeckTileComponent(props: {
   deckTile: DeckTile
+  size: number
   zIndex: number
 }) {
-  const tileSize = useSmallerTileSize(0.75)
+  const tileSize = useSmallerTileSize(props.size)
   const run = useRunState()
 
   function onPointerDown() {
@@ -451,11 +452,30 @@ function MaterialUpgradeButton(props: {
   )
 }
 
-function Deck() {
+function DeckArea() {
   const deck = useDeckState()
   const t = useTranslation()
   const totalPairs = createMemo(() => deck.all.length * 2)
+
+  return (
+    <div class={areaClass({ hue: "dot", full: true })}>
+      <div class={areaTitleClass({ hue: "dot" })}>
+        {t.common.yourDeck()}
+        {" ("}
+        {totalPairs()}
+        {" / "}
+        {DECK_CAPACITY}
+        {")"}
+      </div>
+      <Deck size={0.75} />
+    </div>
+  )
+}
+
+export function Deck(props: { size: number }) {
+  const deck = useDeckState()
   const levels = useLevels()
+
   const order = createMemo(() =>
     levels().reduce(
       (acc, level, index) => {
@@ -485,22 +505,16 @@ function Deck() {
   )
 
   return (
-    <div class={areaClass({ hue: "dot", full: true })}>
-      <div class={areaTitleClass({ hue: "dot" })}>
-        {t.common.yourDeck()}
-        {" ("}
-        {totalPairs()}
-        {" / "}
-        {DECK_CAPACITY}
-        {")"}
-      </div>
-      <div class={deckRowsClass}>
-        <Key each={sortedDeck()} by={(deckTile) => deckTile.id}>
-          {(deckTile, i) => (
-            <DeckTileComponent deckTile={deckTile()} zIndex={i()} />
-          )}
-        </Key>
-      </div>
+    <div class={deckRowsClass}>
+      <Key each={sortedDeck()} by={(deckTile) => deckTile.id}>
+        {(deckTile, i) => (
+          <DeckTileComponent
+            deckTile={deckTile()}
+            zIndex={i()}
+            size={props.size}
+          />
+        )}
+      </Key>
     </div>
   )
 }

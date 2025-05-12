@@ -2,6 +2,7 @@ import { captureEvent, captureRun } from "@/lib/observability"
 import { useRunState } from "@/state/runState"
 import { useParams } from "@solidjs/router"
 import { Match, Switch, createEffect, createMemo, onMount } from "solid-js"
+import { RunEnd } from "./run/runEnd"
 import RunGame from "./run/runGame"
 import RunIntro from "./run/runIntro"
 import RunReward from "./run/runReward"
@@ -33,6 +34,9 @@ export function Run() {
       </Match>
       <Match when={run.stage === "shop"}>
         <RunShop />
+      </Match>
+      <Match when={run.stage === "end"}>
+        <RunEnd />
       </Match>
     </Switch>
   )
