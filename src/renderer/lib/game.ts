@@ -868,7 +868,6 @@ export const taijitu = [
   { id: "taijitur", suit: "taijitu", rank: "r", colors: ["r"], points: 2, },
   { id: "taijitug", suit: "taijitu", rank: "g", colors: ["g"], points: 2, },
   { id: "taijitub", suit: "taijitu", rank: "b", colors: ["b"], points: 2, },
-  { id: "taijituk", suit: "taijitu", rank: "k", colors: ["k"], points: 2, },
 ] as const
 type TaijituCard = (typeof taijitu)[number]
 

@@ -208,15 +208,15 @@ export function initialRunState(id: string): RunState {
 
 const DIFFICULTY = {
   easy: {
-    timer: { exp: 1.1, lin: 1 },
+    timer: { exp: 1.02, lin: 0.3 },
     point: { initial: 40, exp: 2, lin: 5 },
   },
   medium: {
-    timer: { exp: 1.15, lin: 2 },
+    timer: { exp: 1.05, lin: 0.8 },
     point: { initial: 40, exp: 2.1, lin: 10 },
   },
   hard: {
-    timer: { exp: 1.2, lin: 3 },
+    timer: { exp: 1.1, lin: 1 },
     point: { initial: 40, exp: 2.2, lin: 15 },
   },
 } as const
