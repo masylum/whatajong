@@ -8,7 +8,6 @@ export const DELETED_DURATION = 300
 export const FLOATING_NUMBER_DURATION = 1_500
 export const FALL_DURATION = 300
 export const MUTATE_DURATION = 300
-export const JOKER_DURATION = 300
 
 const ANIMATIONS = {
   jump: {
@@ -29,7 +28,7 @@ const ANIMATIONS = {
   mutate: {
     duration: MUTATE_DURATION,
   },
-}
+} as const
 type Animation = keyof typeof ANIMATIONS
 type Animations = Record<
   string,

@@ -23,7 +23,3 @@ export function createPersistantMutable<T extends Record<string, any>>(
 export function setMutable<T>(mutable: T, value: T) {
   modifyMutable(mutable, reconcile(value))
 }
-
-export function cleanMutable(namespace: string) {
-  localStorage.removeItem(namespace)
-}

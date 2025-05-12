@@ -72,8 +72,14 @@ export default function RunGame() {
   const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
+  const roundId = createMemo(() => `${run.runId}-${run.round}`)
 
   useSoundEffects(tiles)
+
+  onMount(() => {
+    initializeTileState(roundId(), deck.all, tiles)
+    setMutable(game, initialGameState(roundId()))
+  })
 
   createTimer(
     () => {

@@ -18,7 +18,7 @@ import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { calc } from "@vanilla-extract/css-utils"
-import { type RecipeVariants, recipe } from "@vanilla-extract/recipes"
+import { recipe } from "@vanilla-extract/recipes"
 
 export const xVar = createVar()
 export const yVar = createVar()
@@ -296,7 +296,6 @@ export const tileClass = recipe({
     },
   },
 })
-export type TileVariants = NonNullable<RecipeVariants<typeof tileClass>>
 
 export const tileSvgClass = style({
   overflow: "visible",

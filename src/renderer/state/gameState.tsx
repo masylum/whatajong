@@ -3,8 +3,7 @@ import { type ParentProps, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 import { TUTORIAL_SEED } from "./runState"
 
-export const GAME_STATE_NAMESPACE = "game-state-v3"
-
+const GAME_STATE_NAMESPACE = "game-state-v3"
 const END_CONDITIONS = ["empty-board", "no-pairs"] as const
 
 export type PhoenixRun = {

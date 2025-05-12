@@ -8,18 +8,22 @@ import {
 import { Database } from "@/lib/in-memoriam"
 import { type ParentProps, batch, useContext } from "solid-js"
 import { createContext } from "solid-js"
-import { persistentDatabase } from "./persistentDatabase"
+import { createPersistentDatabase } from "./persistentDatabase"
 
 const DECK_STATE_NAMESPACE = "deck-state-v3"
 
 export function createDeckState() {
-  return persistentDatabase({
+  const db = new Database<DeckTile, DeckTileIndexes>(deckTileIndexes)
+
+  createPersistentDatabase({
     namespace: DECK_STATE_NAMESPACE,
-    db: () => new Database<DeckTile, DeckTileIndexes>(deckTileIndexes),
-    init: (db) => {
+    db,
+    init: () => {
       initializeDeckState(db)
     },
   })
+
+  return db
 }
 
 export function initializeDeckState(deck: Deck) {

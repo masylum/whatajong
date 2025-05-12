@@ -1,4 +1,5 @@
 import { play } from "@/components/audio"
+import { createChangeEffect } from "@/lib/createChangeEffect"
 import {
   type Card,
   type CardId,
@@ -33,9 +34,7 @@ import {
   type ParentProps,
   batch,
   createContext,
-  createEffect,
   createMemo,
-  on,
   useContext,
 } from "solid-js"
 import {
@@ -45,11 +44,7 @@ import {
 } from "./deckState"
 import { GameStateProvider, createGameState } from "./gameState"
 import { createPersistantMutable } from "./persistantMutable"
-import {
-  TileStateProvider,
-  createTileState,
-  initializeTileState,
-} from "./tileState"
+import { TileStateProvider, createTileState } from "./tileState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
@@ -79,7 +74,7 @@ export type DeckTileItem = BaseItem & {
   type: "deckTile"
 }
 
-export type RunState = {
+type RunState = {
   runId: string
   money: number
   round: number
@@ -112,7 +107,7 @@ type Level = {
   tileItems: TileItem[]
   rewards: number
 }
-export type Levels = Level[]
+type Levels = Level[]
 
 const RunStateContext = createContext<RunState | undefined>()
 const RoundContext = createContext<Accessor<Round> | undefined>()
@@ -123,22 +118,20 @@ export function RunStateProvider(props: { run: RunState } & ParentProps) {
   const levels = createMemo(() => getLevels(runId()))
   const round = createMemo(() => generateRound(props.run.round, props.run))
   const roundId = createMemo(() => `${props.run.runId}-${props.run.round}`)
-  const game = createMemo(() => createGameState({ id: roundId }))
+
+  const game = createGameState({ id: roundId })
   const deck = createDeckState()
   const tileDb = createTileState({ id: roundId(), deck: deck.all })
 
-  createEffect(
-    on(roundId, (roundId) => {
-      initializeDeckState(deck)
-      initializeTileState(roundId, deck.all, tileDb)
-    }),
-  )
+  createChangeEffect(() => {
+    initializeDeckState(deck)
+  }, runId)
 
   return (
     <RunStateContext.Provider value={props.run}>
       <RoundContext.Provider value={round}>
         <LevelsContext.Provider value={levels}>
-          <GameStateProvider game={game()}>
+          <GameStateProvider game={game}>
             <DeckStateProvider deck={deck}>
               <TileStateProvider tileDb={tileDb}>
                 {props.children}

@@ -630,7 +630,7 @@ export function resolveBlackMaterials({
     getMaterial({ tile, game, tileDb }) === "quartz"
 }
 
-export function getColors(cardId: CardId, tileDb: TileDb) {
+function getColors(cardId: CardId, tileDb: TileDb) {
   const card = getCard(cardId)
   const colors = card.colors
 
@@ -660,7 +660,7 @@ function jump({
   animate({ id: fromTile.id, name: "jump" })
 }
 
-export function resolveJumpingTiles({
+function resolveJumpingTiles({
   tiles,
   tileDb,
 }: { tiles: [Tile, Tile]; tileDb: TileDb }) {
