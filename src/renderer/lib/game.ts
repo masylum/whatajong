@@ -35,7 +35,7 @@ export function getAvailablePairs(tileDb: TileDb, game?: Game): [Tile, Tile][] {
     for (let j = i + 1; j < tiles.length; j++) {
       const tile1 = tiles[i]!
       const tile2 = tiles[j]!
-      if (tile1.cardId !== tile2.cardId) continue
+      if (!cardsMatch(tile1.cardId, tile2.cardId)) continue
 
       pairs.push([tile1, tile2])
     }
@@ -407,7 +407,7 @@ export function isBrush(cardId: CardId) {
   return checkSuit(cardId, "brush")
 }
 
-type Position = {
+export type Position = {
   x: number
   y: number
   z: number
@@ -548,7 +548,7 @@ function getBrushedMaterial(
 
   const activeBrushes = getActiveBrushes(tileDb)
   if (activeBrushes.has(suitCard.suit)) {
-    return "quartz"
+    return isShiny(material) ? "quartz" : "obsidian"
   }
 
   return material
@@ -561,10 +561,22 @@ export function getMaterial({
 }: { tile: Tile; tileDb: TileDb; game?: Game }): Material {
   const temporaryMaterial = game?.temporaryMaterial
   if (temporaryMaterial) {
-    const color = MATERIAL_COLOR[temporaryMaterial].color
+    const materials = {
+      topaz: { color: "b", evolution: "sapphire" },
+      garnet: { color: "r", evolution: "ruby" },
+      jade: { color: "g", evolution: "emerald" },
+      quartz: { color: "k", evolution: "obsidian" },
+    } as const
+    const { color, evolution } = materials[temporaryMaterial]
     const card = getCard(tile.cardId)
+    let material: Material = temporaryMaterial
+
+    if (tile.material !== "bone") {
+      material = evolution
+    }
+
     if (new Set(card.colors).has(color)) {
-      return getBrushedMaterial(tile.cardId, temporaryMaterial, tileDb)
+      return getBrushedMaterial(tile.cardId, material, tileDb)
     }
   }
 
@@ -617,7 +629,7 @@ function getDragonMultiplier(game: Game) {
 }
 
 function getPhoenixRunMultiplier(game: Game) {
-  return game.phoenixRun?.combo ?? 0
+  return (game.phoenixRun?.combo ?? 0) * 2
 }
 
 export function resolveBlackMaterials({
@@ -749,17 +761,6 @@ export function getMap(tiles: number) {
 // biome-ignore format:
 export type Color = "g" | "r" | "b" | "k"
 
-const MATERIAL_COLOR = {
-  topaz: { color: "b" },
-  sapphire: { color: "b" },
-  garnet: { color: "r" },
-  ruby: { color: "r" },
-  jade: { color: "g" },
-  emerald: { color: "g" },
-  quartz: { color: "k" },
-  obsidian: { color: "k" },
-} as const
-
 export const bams = [
   { id: "bam1", suit: "bam", rank: "1", colors: ["g"], points: 1 },
   { id: "bam2", suit: "bam", rank: "2", colors: ["g"], points: 1 },
@@ -826,14 +827,6 @@ export const rabbits = [
 type RabbitCard = (typeof rabbits)[number]
 
 // biome-ignore format:
-export const flowers = [
-  { id: "flower1", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
-  { id: "flower2", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
-  { id: "flower3", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 1, },
-] as const
-type FlowerCard = (typeof flowers)[number]
-
-// biome-ignore format:
 export const frogs = [
   { id: "frogr", suit: "frog", rank: "r", colors: ["r"], points: 2, },
   { id: "frogb", suit: "frog", rank: "b", colors: ["b"], points: 2, },
@@ -851,25 +844,11 @@ type LotusCard = (typeof lotuses)[number]
 
 // biome-ignore format:
 export const brushes = [
-  { id: "brushr", suit: "brush", rank: "r", colors: ["r", "k"], points: 2, },
-  { id: "brushb", suit: "brush", rank: "b", colors: ["b", "k"], points: 2, },
-  { id: "brushg", suit: "brush", rank: "g", colors: ["g", "k"], points: 2, },
+  { id: "brushr", suit: "brush", rank: "r", colors: ["r", "k"], points: 10, },
+  { id: "brushb", suit: "brush", rank: "b", colors: ["b", "k"], points: 10, },
+  { id: "brushg", suit: "brush", rank: "g", colors: ["g", "k"], points: 10, },
 ] as const
 type BrushCard = (typeof brushes)[number]
-
-// biome-ignore format:
-export const phoenixes = [
-  { id: "phoenix", suit: "phoenix", rank: "", colors: ["k"], points: 2, },
-] as const
-type PhoenixCard = (typeof phoenixes)[number]
-
-// biome-ignore format:
-export const taijitu = [
-  { id: "taijitur", suit: "taijitu", rank: "r", colors: ["r"], points: 2, },
-  { id: "taijitug", suit: "taijitu", rank: "g", colors: ["g"], points: 2, },
-  { id: "taijitub", suit: "taijitu", rank: "b", colors: ["b"], points: 2, },
-] as const
-type TaijituCard = (typeof taijitu)[number]
 
 // biome-ignore format:
 export const sparrows = [
@@ -880,34 +859,56 @@ export const sparrows = [
 type SparrowCard = (typeof sparrows)[number]
 
 // biome-ignore format:
+export const phoenixes = [
+  { id: "phoenix", suit: "phoenix", rank: "", colors: ["k"], points: 2, },
+] as const
+type PhoenixCard = (typeof phoenixes)[number]
+
+// biome-ignore format:
+export const taijitu = [
+  { id: "taijitur", suit: "taijitu", rank: "r", colors: ["r"], points: 8, },
+  { id: "taijitug", suit: "taijitu", rank: "g", colors: ["g"], points: 8, },
+  { id: "taijitub", suit: "taijitu", rank: "b", colors: ["b"], points: 8, },
+] as const
+type TaijituCard = (typeof taijitu)[number]
+
+// biome-ignore format:
 export const mutations = [
-  { id: "mutation1", suit: "mutation", rank: "", colors: ["r", "g"], points: 2, },
-  { id: "mutation2", suit: "mutation", rank: "", colors: ["b", "r"], points: 2, },
-  { id: "mutation3", suit: "mutation", rank: "", colors: ["g", "b"], points: 2, },
+  { id: "mutation1", suit: "mutation", rank: "", colors: ["r", "g"], points: 4, },
+  { id: "mutation2", suit: "mutation", rank: "", colors: ["b", "r"], points: 4, },
+  { id: "mutation3", suit: "mutation", rank: "", colors: ["g", "b"], points: 4, },
 ] as const
 type MutationCard = (typeof mutations)[number]
 
 // biome-ignore format:
+export const flowers = [
+  { id: "flower1", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 4, },
+  { id: "flower2", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 4, },
+  { id: "flower3", suit: "flower", rank: "", colors: ["r", "g", "b"], points: 4, },
+] as const
+type FlowerCard = (typeof flowers)[number]
+
+// biome-ignore format:
 export const elements = [
-  { id: "elementr", suit: "element", rank: "r", colors: ["r"], points: 3, },
-  { id: "elementg", suit: "element", rank: "g", colors: ["g"], points: 3, },
-  { id: "elementb", suit: "element", rank: "b", colors: ["b"], points: 3, },
-  { id: "elementk", suit: "element", rank: "k", colors: ["k"], points: 3, },
+  { id: "elementr", suit: "element", rank: "r", colors: ["r"], points: 5, },
+  { id: "elementg", suit: "element", rank: "g", colors: ["g"], points: 5, },
+  { id: "elementb", suit: "element", rank: "b", colors: ["b"], points: 5, },
+  { id: "elementk", suit: "element", rank: "k", colors: ["k"], points: 5, },
 ] as const
 type ElementCard = (typeof elements)[number]
 
 // biome-ignore format:
 export const gems = [
-  { id: "gemr", suit: "gem", rank: "r", colors: ["r"], points: 3, },
-  { id: "gemg", suit: "gem", rank: "g", colors: ["g"], points: 3, },
-  { id: "gemb", suit: "gem", rank: "b", colors: ["b"], points: 3, },
-  { id: "gemk", suit: "gem", rank: "k", colors: ["k"], points: 3, },
+  { id: "gemr", suit: "gem", rank: "r", colors: ["r"], points: 6, },
+  { id: "gemg", suit: "gem", rank: "g", colors: ["g"], points: 6, },
+  { id: "gemb", suit: "gem", rank: "b", colors: ["b"], points: 6, },
+  { id: "gemk", suit: "gem", rank: "k", colors: ["k"], points: 6, },
 ] as const
 type GemCard = (typeof gems)[number]
 
 // biome-ignore format:
 export const jokers = [
-  { id: "joker", suit: "joker", rank: "", colors: ["g", "r", "b", "k"], points: 1, },
+  { id: "joker", suit: "joker", rank: "", colors: ["g", "r", "b", "k"], points: 8, },
 ] as const
 type JokerCard = (typeof jokers)[number]
 

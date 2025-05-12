@@ -1,4 +1,4 @@
-import type { Color, Material } from "@/lib/game"
+import type { Color } from "@/lib/game"
 import { type ParentProps, createContext, useContext } from "solid-js"
 import { createPersistantMutable } from "./persistantMutable"
 import { TUTORIAL_SEED } from "./runState"
@@ -16,13 +16,14 @@ export type DragonRun = {
   combo: number
 }
 type EndConditions = (typeof END_CONDITIONS)[number]
+export type TemporaryMaterial = "topaz" | "garnet" | "jade" | "quartz"
 export type Game = {
   points: number
   coins: number
   time: number
   pause: boolean
   endCondition?: EndConditions
-  temporaryMaterial?: Exclude<Material, "bone">
+  temporaryMaterial?: TemporaryMaterial
   dragonRun?: DragonRun
   phoenixRun?: PhoenixRun
   joker?: boolean

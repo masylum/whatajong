@@ -7,6 +7,7 @@ import { Menu } from "@/components/menu"
 import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
+  type Suit,
   type Tile,
   type TileDb,
   getActiveBrushes,
@@ -14,7 +15,8 @@ import {
   isWind,
   selectTile,
 } from "@/lib/game"
-import { animate } from "@/state/animationState"
+import { useLaggingValue } from "@/lib/useOffsetValues"
+import { FLOATING_NUMBER_DURATION, animate } from "@/state/animationState"
 import { useLayoutSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import { initialGameState, useGameState } from "@/state/gameState"
@@ -60,6 +62,33 @@ import {
 } from "./runGame.css"
 import RunGameOver from "./runGameOver"
 
+function handleComboEffect(
+  getCombo: Accessor<number | undefined>,
+  setComboAnimation: (combo: number) => void,
+  soundEffect: Track,
+  startSound: Track,
+  endSound: Track,
+) {
+  createEffect((prevCombo: number | undefined) => {
+    const combo = getCombo()
+
+    if (prevCombo === undefined && combo !== undefined) {
+      play(startSound)
+    } else if (prevCombo && !combo) {
+      play(endSound)
+    } else if (combo && prevCombo && combo > prevCombo) {
+      setComboAnimation(combo)
+      play(soundEffect)
+
+      setTimeout(() => {
+        setComboAnimation(0)
+      }, COMBO_ANIMATION_DURATION)
+    }
+
+    return combo
+  }, getCombo())
+}
+
 export default function RunGame() {
   const run = useRunState()
   const deck = useDeckState()
@@ -74,8 +103,6 @@ export default function RunGame() {
   const orientation = createMemo(() => layout().orientation)
   const roundId = createMemo(() => `${run.runId}-${run.round}`)
 
-  useSoundEffects(tiles)
-
   onMount(() => {
     initializeTileState(roundId(), deck.all, tiles)
     setMutable(game, initialGameState(roundId()))
@@ -89,36 +116,22 @@ export default function RunGame() {
     setInterval,
   )
 
-  function handleComboEffect(
-    getCombo: Accessor<number | undefined>,
-    soundEffect: Track,
-    startSound: Track,
-    endSound: Track,
-  ) {
-    createEffect((prevCombo: number | undefined) => {
-      const combo = getCombo()
-
-      if (prevCombo === undefined && combo !== undefined) {
-        play(startSound)
-      } else if (prevCombo && !combo) {
-        play(endSound)
-      } else if (combo && prevCombo && combo > prevCombo) {
-        setComboAnimation(combo)
-        play(soundEffect)
-
-        setTimeout(() => {
-          setComboAnimation(0)
-        }, COMBO_ANIMATION_DURATION)
-      }
-
-      return combo
-    }, getCombo())
-  }
-
   useMusic("game")
 
-  handleComboEffect(getDragonCombo, "grunt", "dragon", "end_dragon")
-  handleComboEffect(getPhoenixCombo, "screech", "phoenix", "end_phoenix")
+  handleComboEffect(
+    getDragonCombo,
+    setComboAnimation,
+    "grunt",
+    "dragon",
+    "end_dragon",
+  )
+  handleComboEffect(
+    getPhoenixCombo,
+    setComboAnimation,
+    "screech",
+    "phoenix",
+    "end_phoenix",
+  )
 
   // Cheat: Resolve pair
   createShortcut(["Shift", "K"], () => {
@@ -149,15 +162,6 @@ export default function RunGame() {
       const key = roundPersistentKey(run)
       setMutable(game, initialGameState(run.runId))
       initializeTileState(key, deck.all, tiles)
-    })
-  })
-
-  onMount(() => {
-    play("gong")
-    batch(() => {
-      for (const tile of tiles.all) {
-        animate({ id: tile.id, name: "fall" })
-      }
     })
   })
 
@@ -459,7 +463,7 @@ export function Penalty(props: { points: number }) {
 
 type Urgency = "normal" | "mild" | "moderate" | "urgent"
 
-function Moves() {
+export function Moves() {
   const tiles = useTileState()
   const game = useGameState()
   const pairs = createMemo(() => getAvailablePairs(tiles, game).length)
@@ -536,29 +540,61 @@ export function MovesIndicator(props: {
   )
 }
 
-function Board() {
+export function Board() {
   const [hover, setHover] = createSignal<string | null>(null)
-  const isHovered = createSelector(hover)
-  const game = useGameState()
   const tileDb = useTileState()
   const activeBrushes = createMemo(() => getActiveBrushes(tileDb))
 
   onMount(() => {
     play("tiles")
+    play("gong")
+    batch(() => {
+      for (const tile of tileDb.all) {
+        animate({ id: tile.id, name: "fall" })
+      }
+    })
   })
+
+  useSoundEffects(tileDb)
 
   return (
     <For each={tileDb.all}>
       {(tile) => (
-        <TileComponent
+        <TileWrapper
+          hover={hover}
+          setHover={setHover}
           tile={tile}
-          hovered={isHovered(tile.id)}
-          onSelect={() => selectTile({ tileDb, game, tileId: tile.id })}
-          onMouseEnter={() => setHover(tile.id)}
-          onMouseLeave={() => setHover(null)}
           activeBrushes={activeBrushes()}
         />
       )}
     </For>
+  )
+}
+
+function TileWrapper(props: {
+  tile: Tile
+  hover: Accessor<string | null>
+  activeBrushes: Set<Suit>
+  setHover: (hover: string | null) => void
+}) {
+  const game = useGameState()
+  const tileDb = useTileState()
+  const isHovered = createSelector(props.hover)
+  const deleted = useLaggingValue(
+    () => props.tile.deleted,
+    FLOATING_NUMBER_DURATION,
+  )
+
+  return (
+    <Show when={!deleted()}>
+      <TileComponent
+        tile={props.tile}
+        hovered={isHovered(props.tile.id)}
+        onSelect={() => selectTile({ tileDb, game, tileId: props.tile.id })}
+        onMouseEnter={() => props.setHover(props.tile.id)}
+        onMouseLeave={() => props.setHover(null)}
+        activeBrushes={props.activeBrushes}
+      />
+    </Show>
   )
 }

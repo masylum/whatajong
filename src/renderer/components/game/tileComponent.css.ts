@@ -174,6 +174,7 @@ export const scoreClass = style({
   alignItems: "center",
   zIndex: 9999,
   gap: 8,
+  pointerEvents: "none",
 })
 
 export const scoreCoinsClass = style({

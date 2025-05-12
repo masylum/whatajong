@@ -83,6 +83,14 @@ export const explanationClass = style({
   ...fontSize.l,
   lineHeight: 1.5,
   textAlign: "left",
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h3,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.h2,
+    },
+  },
 })
 
 export const tilesContainerClass = style({
@@ -145,4 +153,94 @@ export const videoClass = style([
 
 export const buttonContainerClass = style({
   marginTop: 8,
+})
+
+export const sandboxClass = style({
+  padding: 32,
+  paddingTop: 64,
+  position: "relative",
+  display: "flex",
+  gap: 24,
+  justifyContent: "center",
+  backgroundColor: alpha(color.dot30, 0.1),
+  borderRadius: 8,
+  margin: "0 auto",
+  overflow: "hidden",
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      padding: 40,
+      paddingTop: 72,
+    },
+  },
+})
+
+export const sandboxContentClass = style({
+  position: "relative",
+  zIndex: 3,
+})
+
+export const endConditionClass = recipe({
+  base: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: 8,
+    backgroundColor: alpha(color.bam30, 0.1),
+    zIndex: 9999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+    gap: 12,
+    animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
+  },
+  variants: {
+    type: {
+      win: {
+        backgroundColor: alpha(color.bam40, 0.8),
+        color: color.bam90,
+      },
+      lose: {
+        backgroundColor: alpha(color.crack40, 0.8),
+        color: color.crack90,
+      },
+    },
+  },
+})
+
+export const endConditionTitleClass = style({
+  ...fontSize.h2,
+  fontFamily: primary,
+  "@media": {
+    [mediaQuery({ p: "m", l: "s" })]: {
+      ...fontSize.h1,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero4,
+    },
+  },
+})
+export const endConditionButtonClass = style({
+  border: "none",
+  fontFamily: primary,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  padding: 8,
+  borderRadius: 8,
+  cursor: "pointer",
+  WebkitTapHighlightColor: "transparent",
+  selectors: {
+    [`${endConditionClass.classNames.variants.type.win} &`]: {
+      backgroundColor: alpha(color.bam20, 0.6),
+      color: color.bam90,
+    },
+    [`${endConditionClass.classNames.variants.type.lose} &`]: {
+      backgroundColor: alpha(color.crack20, 0.6),
+      color: color.crack90,
+    },
+  },
+})
+
+export const pillsClass = style({
+  zIndex: 3,
 })

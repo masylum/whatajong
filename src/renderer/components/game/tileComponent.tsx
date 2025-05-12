@@ -12,12 +12,7 @@ import {
   isTaijituActive,
 } from "@/lib/game"
 import { useLaggingValue } from "@/lib/useOffsetValues"
-import {
-  FLOATING_NUMBER_DURATION,
-  MOVE_DURATION,
-  animate,
-  animations,
-} from "@/state/animationState"
+import { MOVE_DURATION, animate, animations } from "@/state/animationState"
 import { getSideSize, useTileSize } from "@/state/constants"
 import { useGameState } from "@/state/gameState"
 import { useTileState } from "@/state/tileState"
@@ -117,10 +112,6 @@ export function TileComponent(iProps: Props) {
   const x = useLaggingValue(() => props.tile.x, MOVE_DURATION)
   const y = useLaggingValue(() => props.tile.y, MOVE_DURATION)
   const z = useLaggingValue(() => props.tile.z, MOVE_DURATION)
-  const deleted = useLaggingValue(
-    () => props.tile.deleted,
-    FLOATING_NUMBER_DURATION,
-  )
 
   const inlineVars = createMemo(() =>
     assignInlineVars({
@@ -160,59 +151,57 @@ export function TileComponent(iProps: Props) {
         style={{ ...inlineVars() }}
         class={positionerClass({ animation: animation() })}
       >
-        <Show when={!deleted()}>
-          <div
+        <div
+          data-id={props.tile.id}
+          data-coord={coord(props.tile)}
+          class={tileClass({ animation: animation() })}
+        >
+          <svg
+            class={tileSvgClass}
+            width={props.width}
+            height={props.height}
             data-id={props.tile.id}
-            data-coord={coord(props.tile)}
-            class={tileClass({ animation: animation() })}
           >
-            <svg
-              class={tileSvgClass}
-              width={props.width}
-              height={props.height}
-              data-id={props.tile.id}
-            >
-              <g>
-                <TileSide d={dPath()} material={material()} />
-                <TileShades tile={props.tile} />
-                <TileBody material={material()} />
-                <TileImage
-                  cardId={props.tile.cardId}
-                  material={material()}
-                  free={canBeSelected()}
-                  taijituActive={taijituActive()}
-                  isBrushed={isBrushed()}
-                />
+            <g>
+              <TileSide d={dPath()} material={material()} />
+              <TileShades tile={props.tile} />
+              <TileBody material={material()} />
+              <TileImage
+                cardId={props.tile.cardId}
+                material={material()}
+                free={canBeSelected()}
+                taijituActive={taijituActive()}
+                isBrushed={isBrushed()}
+              />
 
-                {/* Clickable overlay with hover effect */}
-                <path
-                  d={dPath()}
-                  fill={fillColor()}
-                  fill-opacity={fillOpacity()}
-                  stroke={getHueColor(hueFromMaterial(material()))(40)}
-                  stroke-width={selected() ? 2 : 1}
-                  class={clickableClass({
-                    canBeSelected: canBeSelected() && !animation(),
-                  })}
-                  onPointerDown={() => {
-                    if (!canBeSelected()) return
-                    play("click")
-                    props.onSelect(props.tile)
-                  }}
-                  onMouseEnter={() => {
-                    props.onMouseEnter(props.tile)
-                  }}
-                  onMouseLeave={props.onMouseLeave}
-                />
-              </g>
-            </svg>
-            <Show when={pulsingColor()}>
-              {(color) => (
-                <div class={pulseClass({ hue: hueFromColor(color()) })} />
-              )}
-            </Show>
-          </div>
-        </Show>
+              {/* Clickable overlay with hover effect */}
+              <path
+                d={dPath()}
+                fill={fillColor()}
+                fill-opacity={fillOpacity()}
+                stroke={getHueColor(hueFromMaterial(material()))(40)}
+                stroke-width={selected() ? 2 : 1}
+                class={clickableClass({
+                  canBeSelected: canBeSelected() && !animation(),
+                })}
+                onPointerDown={() => {
+                  if (!canBeSelected()) return
+                  play("click")
+                  props.onSelect(props.tile)
+                }}
+                onMouseEnter={() => {
+                  props.onMouseEnter(props.tile)
+                }}
+                onMouseLeave={props.onMouseLeave}
+              />
+            </g>
+          </svg>
+          <Show when={pulsingColor()}>
+            {(color) => (
+              <div class={pulseClass({ hue: hueFromColor(color()) })} />
+            )}
+          </Show>
+        </div>
       </div>
     </>
   )

@@ -47,6 +47,6 @@ export function resolvePhoenixRun({ game, tile }: { game: Game; tile: Tile }) {
   const number = parseNumber(newCardId)
   if (number === null) return
 
-  phoenixRun.combo = Math.min(phoenixRun.combo + 1, 10)
+  phoenixRun.combo = Math.min(phoenixRun.combo + 2, 14)
   phoenixRun.number = number
 }

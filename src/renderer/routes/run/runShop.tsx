@@ -621,7 +621,7 @@ function Header() {
 
       <div class={continueClass}>
         <ShopButton hue="bone" onPointerDown={continueRun}>
-          {t.common.roundN({ round: run.round + 1 })}
+          {t.common.roundN({ round: run.round })}
           <ArrowRight />
         </ShopButton>
       </div>
