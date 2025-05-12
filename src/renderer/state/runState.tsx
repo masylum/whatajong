@@ -42,9 +42,17 @@ import {
   createDeckState,
   initializeDeckState,
 } from "./deckState"
-import { GameStateProvider, createGameState } from "./gameState"
-import { createPersistantMutable } from "./persistantMutable"
-import { TileStateProvider, createTileState } from "./tileState"
+import {
+  GameStateProvider,
+  createGameState,
+  initialGameState,
+} from "./gameState"
+import { createPersistantMutable, setMutable } from "./persistantMutable"
+import {
+  TileStateProvider,
+  createTileState,
+  initializeTileState,
+} from "./tileState"
 
 const RUN_STATE_NAMESPACE = "run-state-v3"
 export const TUTORIAL_SEED = "tutorial-seed"
@@ -96,7 +104,13 @@ type RunState = {
 }
 
 export type Difficulty = "easy" | "medium" | "hard"
-type RoundStage = "intro" | "game" | "shop" | "gameOver" | "reward"
+export type RoundStage =
+  | "intro"
+  | "game"
+  | "shop"
+  | "gameOver"
+  | "reward"
+  | "end"
 type Round = {
   id: number
   pointObjective: number
@@ -126,6 +140,11 @@ export function RunStateProvider(props: { run: RunState } & ParentProps) {
   createChangeEffect(() => {
     initializeDeckState(deck)
   }, runId)
+
+  createChangeEffect((roundId) => {
+    initializeTileState(roundId, deck.all, tileDb)
+    setMutable(game, initialGameState(roundId))
+  }, roundId)
 
   return (
     <RunStateContext.Provider value={props.run}>
@@ -256,12 +275,8 @@ export function roundPersistentKey(run: RunState) {
   return `${run.runId}-${run.round}`
 }
 
-function createLevel(
-  level: number,
-  rewards: number,
-  collection: Readonly<Card[]>[],
-): Level {
-  return {
+function createLevels(info: [number, Readonly<Card[]>[]][]): Levels {
+  return info.map(([rewards, collection], level) => ({
     level,
     rewards,
     tileItems: collection.flatMap((cards) =>
@@ -274,15 +289,17 @@ function createLevel(
         })),
       ),
     ),
-  }
+  }))
 }
 
 function getLevels(runId: string): Levels {
   const rnd = new Rand(runId)
   const nonBlackDragons = dragons.filter((c) => c.rank !== "k")
   const blackDragons = dragons.filter((c) => c.rank === "k")
+  const blueBrush = brushes.find((c) => c.rank === "b")
+  const redBrush = brushes.find((c) => c.rank === "r")
+  const greenBrush = brushes.find((c) => c.rank === "g")
 
-  const [brush1, brush2, brush3] = shuffle([...brushes], rnd)
   const [first1, first2, first3, first4] = shuffle(
     [rabbits, frogs, lotuses, sparrows],
     rnd,
@@ -300,32 +317,32 @@ function getLevels(runId: string): Levels {
     rnd,
   )
 
-  return [
-    createLevel(1, 0, [bams, cracks, dots]),
-    createLevel(2, winds.length, [winds]),
-    createLevel(3, 1, [nonBlackDragons]),
-    createLevel(4, 0, [extra1!]),
-    createLevel(5, 1, [first1!]),
-    createLevel(6, 1, [first2!]),
-    createLevel(7, 0, [extra2!]),
-    createLevel(8, 1, [first3!]),
-    createLevel(9, 1, [first4!]),
-    createLevel(10, 1, [[brush1!]]),
-    createLevel(11, 0, [extra3!]),
-    createLevel(12, 1, [second1!]),
-    createLevel(13, 1, [second2!]),
-    createLevel(14, 1, [second3!]),
-    createLevel(15, 0, []),
-    createLevel(16, 1, [second4!]),
-    createLevel(17, 1, [[brush2!]]),
-    createLevel(18, 1, [third1!]),
-    createLevel(19, 0, []),
-    createLevel(20, 1, [third2!]),
-    createLevel(21, 1, [third3!]),
-    createLevel(22, 1, [third4!]),
-    createLevel(23, 0, []),
-    createLevel(24, 1, [[brush3!]]),
-  ]
+  return createLevels([
+    [0, [bams, cracks, dots]],
+    [winds.length, [winds]],
+    [1, [nonBlackDragons]],
+    [0, [extra1!]],
+    [1, [first1!]],
+    [1, [first2!]],
+    [0, [extra2!]],
+    [1, [first3!]],
+    [1, [first4!]],
+    [1, [[redBrush!]]],
+    [0, [extra3!]],
+    [1, [second1!]],
+    [1, [second2!]],
+    [1, [second3!]],
+    [0, []],
+    [1, [second4!]],
+    [1, [[blueBrush!]]],
+    [1, [third1!]],
+    [0, []],
+    [1, [third2!]],
+    [1, [third3!]],
+    [1, [third4!]],
+    [0, []],
+    [1, [[greenBrush!]]],
+  ])
 }
 
 export function isTile(item: TileItem | DeckTileItem) {

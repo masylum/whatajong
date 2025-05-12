@@ -548,7 +548,7 @@ function getBrushedMaterial(
 
   const activeBrushes = getActiveBrushes(tileDb)
   if (activeBrushes.has(suitCard.suit)) {
-    return isShiny(material) ? "quartz" : "obsidian"
+    return isShiny(material) ? "obsidian" : "quartz"
   }
 
   return material
@@ -584,7 +584,8 @@ export function getMaterial({
 }
 
 export function cardName(t: Translator, cardId: CardId) {
-  const colorCard = isDragon(cardId) || isRabbit(cardId) || isElement(cardId)
+  const colorCard =
+    isDragon(cardId) || isRabbit(cardId) || isElement(cardId) || isBrush(cardId)
 
   if (colorCard) {
     return t.cardName[colorCard.suit]({ color: t.color[colorCard.rank]() })

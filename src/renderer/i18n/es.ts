@@ -32,6 +32,7 @@ export const es = {
     close: "cerrar",
     help: "Ayuda",
     paused: "pausado",
+    celebrate: "¡Celebrar!",
   },
   intro: {
     goal: "Juega a través de 24 rondas de Mahjong Solitaire para alcanzar tu objetivo.",
@@ -100,6 +101,7 @@ export const es = {
     phoenix: "Fénix {{color}}",
     rabbit: "C‌onejo {{color}}",
     element: "Elemento {{color}}",
+    brush: "Pincel {{color}}",
     gemr: "Granate",
     gemg: "Jade",
     gemb: "Topacio",

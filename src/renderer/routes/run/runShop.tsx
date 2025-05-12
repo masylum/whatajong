@@ -611,6 +611,7 @@ function Header() {
 
   function continueRun() {
     run.stage = "game"
+    run.round += 1
   }
 
   return (
@@ -621,7 +622,7 @@ function Header() {
 
       <div class={continueClass}>
         <ShopButton hue="bone" onPointerDown={continueRun}>
-          {t.common.roundN({ round: run.round })}
+          {t.common.roundN({ round: run.round + 1 })}
           <ArrowRight />
         </ShopButton>
       </div>

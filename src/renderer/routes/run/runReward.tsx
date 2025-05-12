@@ -11,6 +11,7 @@ import {
   type Suit,
   type Tile,
   type TileIndexes,
+  cardName,
   getCard,
   tileIndexes,
 } from "@/lib/game"
@@ -72,10 +73,13 @@ export default function RunReward() {
   const cards = createMemo(() =>
     level().tileItems.map((t) => getCard(t.cardId)),
   )
+  const card = createMemo(() => cards()[0]!)
   const suit = createMemo(
-    () => cards()[0]!.suit as Exclude<Suit, "bam" | "crack" | "dot">,
+    () => card().suit as Exclude<Suit, "bam" | "crack" | "dot">,
   )
-  const rewardTitle = createMemo(() => t.suit[suit()]())
+  const rewardTitle = createMemo(() =>
+    level().rewards === 1 ? cardName(t, card().id) : t.suit[suit()](),
+  )
   const rewardExplanation = createMemo(() =>
     t.tileDetails.explanation[suit()](),
   )
@@ -293,7 +297,7 @@ const SANDBOXES = {
       { cardId: "frogb", x: 4, y: 2, z: 1 },
       { cardId: "dragonb", x: 6, y: 2, z: 1 },
     ],
-    points: 56,
+    points: 106,
   },
   taijitu: {
     tiles: [

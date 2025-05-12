@@ -32,6 +32,7 @@ export const en = {
     close: "close",
     paused: "paused",
     help: "Help",
+    celebrate: "Celebrate!",
   },
   intro: {
     goal: "Play through 24 Mahjong Solitaire rounds to reach your goal!",
@@ -99,6 +100,7 @@ export const en = {
     phoenix: "{{color}} Phoenix",
     rabbit: "{{color}} Rabbit",
     element: "{{color}} Element",
+    brush: "{{color}} Brush",
     gemr: "Garnet",
     gemg: "Jade",
     gemb: "Topaz",
@@ -234,8 +236,7 @@ export const en = {
       sparrow:
         "Pair a Sparrow Tile with any tile of the same color to swap places.",
       gem: "When you clear this tile, temporarily improve the material of all tiles of its color.",
-      brush:
-        "The Brush tile converts all tiles of its color into black tiles while it is free.",
+      brush: "When free, the Brush tile paints all matching-color tiles black.",
     },
   },
   runSelect: {

@@ -1,7 +1,7 @@
 import { play, useMusic } from "@/components/audio"
 import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
-import { ArrowRight, Rotate, Shop } from "@/components/icon"
+import { Reward, Rotate, Shop, Star } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import type { CardId } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
@@ -11,6 +11,7 @@ import { useDeckState } from "@/state/deckState"
 import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import {
+  type RoundStage,
   calculateIncome,
   roundPersistentKey,
   useLevels,
@@ -23,8 +24,10 @@ import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
 import {
   For,
+  Match,
   type ParentProps,
   Show,
+  Switch,
   batch,
   createMemo,
   onMount,
@@ -82,9 +85,15 @@ export default function RunGameOver() {
   })
   const income = createMemo(() => calculateIncome(run))
   const levels = useLevels()
-  const isRewardRound = createMemo(
-    () => levels().find((level) => level.level === run.round)!.rewards > 0,
+  const level = createMemo(() =>
+    levels().find((level) => level.level === run.round),
   )
+  const nextRoundStage = createMemo<RoundStage>(() => {
+    const l = level()
+    if (!l) return "end"
+
+    return l.rewards > 0 ? "reward" : "shop"
+  })
 
   onMount(() => {
     play(win() ? "won" : "lost")
@@ -106,8 +115,7 @@ export default function RunGameOver() {
   function goToNextRound() {
     batch(() => {
       run.money += income() + tileCoins() + overAchievementCoins()
-      run.round += 1
-      run.stage = isRewardRound() ? "reward" : "shop"
+      run.stage = nextRoundStage()
       run.totalPoints += totalPoints()
     })
   }
@@ -188,20 +196,20 @@ export default function RunGameOver() {
             }
           >
             <Button hue="bam" onPointerDown={() => goToNextRound()}>
-              <Show
-                when={isRewardRound()}
-                fallback={
-                  <>
-                    <Shop />
-                    {t.common.goToShop()}
-                  </>
-                }
-              >
-                <>
+              <Switch>
+                <Match when={nextRoundStage() === "shop"}>
+                  <Shop />
+                  {t.common.goToShop()}
+                </Match>
+                <Match when={nextRoundStage() === "reward"}>
+                  <Reward />
                   {t.common.next()}
-                  <ArrowRight />
-                </>
-              </Show>
+                </Match>
+                <Match when={nextRoundStage() === "end"}>
+                  <Star />
+                  {t.common.celebrate()}
+                </Match>
+              </Switch>
             </Button>
           </Show>
         </div>
