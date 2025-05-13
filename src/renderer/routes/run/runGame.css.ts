@@ -1,9 +1,21 @@
+import { FALLING_NUMBER_DURATION } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
+
+export const statsAnimation = keyframes({
+  from: {
+    transform: "translateY(-5px) scale(1.1)",
+    opacity: 0.8,
+  },
+  to: {
+    transform: "translateY(0) scale(1)",
+    opacity: 1,
+  },
+})
 
 export const roundClass = style({
   display: "flex",
@@ -175,28 +187,25 @@ const statItem = style({
   fontFamily: primary,
   userSelect: "none",
   gap: 4,
-  ...fontSize.s,
+  ...fontSize.m,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      ...fontSize.m,
+      ...fontSize.l,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
-      ...fontSize.l,
+      ...fontSize.h3,
       gap: 8,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      ...fontSize.h3,
-      gap: 12,
-    },
-    [mediaQuery({ p: "xl", l: "l" })]: {
       ...fontSize.h2,
+      gap: 12,
     },
   },
 })
 
 export const pillClass = recipe({
   base: {
-    ...fontSize.m,
+    ...fontSize.l,
     textAlign: "center",
     borderRadius: 8,
     paddingInline: 4,
@@ -205,13 +214,18 @@ export const pillClass = recipe({
     position: "relative",
     overflow: "hidden",
     "@media": {
-      [mediaQuery({ p: "l", l: "m" })]: {
+      [mediaQuery({ p: "s", l: "xs" })]: {
         ...fontSize.h3,
         paddingInline: 8,
         paddingBlock: 2,
       },
-      [mediaQuery({ p: "l", l: "m" })]: {
+      [mediaQuery({ p: "m", l: "s" })]: {
         ...fontSize.h2,
+        paddingInline: 12,
+        paddingBlock: 4,
+      },
+      [mediaQuery({ p: "l", l: "m" })]: {
+        ...fontSize.h1,
         paddingInline: 12,
         paddingBlock: 4,
       },
@@ -298,19 +312,33 @@ const pulseUrgent = keyframes({
   },
 })
 
-export const pointsClass = style([
-  statItem,
-  {
-    color: color.bam30,
+const statsVariants = {
+  animation: {
+    true: {
+      animation: `${statsAnimation} ${FALLING_NUMBER_DURATION}ms ease-in-out`,
+    },
   },
-])
+}
 
-export const coinsClass = style([
-  statItem,
-  {
-    color: color.crack30,
-  },
-])
+export const pointsClass = recipe({
+  base: [
+    statItem,
+    {
+      color: color.bam30,
+    },
+  ],
+  variants: statsVariants,
+})
+
+export const coinsClass = recipe({
+  base: [
+    statItem,
+    {
+      color: color.crack30,
+    },
+  ],
+  variants: statsVariants,
+})
 
 export const penaltyClass = recipe({
   base: [
@@ -333,6 +361,7 @@ export const penaltyClass = recipe({
     },
   ],
   variants: {
+    ...statsVariants,
     paused: {
       true: {
         color: color.black30,
@@ -366,6 +395,7 @@ export const movesClass = recipe({
     },
   ],
   variants: {
+    ...statsVariants,
     urgency: {
       normal: {},
       mild: {

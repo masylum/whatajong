@@ -9,6 +9,7 @@ import { Show, createMemo } from "solid-js"
 import {
   comboMultiplierClass,
   comboRecipe,
+  muzzleClass,
   phoenixComboClass,
   playerPowerupsClass,
   powerupRecipe,
@@ -42,10 +43,24 @@ function DragonRunComponent(props: { dragonRun: DragonRun }) {
         size: combo() as any,
       })}
     >
+      <div
+        class={muzzleClass({
+          direction: "left",
+          hue: hue(),
+          size: combo() as any,
+        })}
+      />
       <span class={comboRecipe({ hue: hue() })}>
         {t.common.dragonRun()}
         <span class={comboMultiplierClass}>x{combo()}</span>
       </span>
+      <div
+        class={muzzleClass({
+          direction: "right",
+          hue: hue(),
+          size: combo() as any,
+        })}
+      />
     </div>
   )
 }

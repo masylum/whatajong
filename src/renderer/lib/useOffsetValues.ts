@@ -1,4 +1,10 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from "solid-js"
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+} from "solid-js"
 
 export function useLaggingValue<T>(value: Accessor<T>, duration: number) {
   const [get, set] = createSignal<T>(value())
@@ -20,4 +26,9 @@ export function useLaggingValue<T>(value: Accessor<T>, duration: number) {
   })
 
   return get
+}
+
+export function useIsLagging<T>(value: Accessor<T>, duration: number) {
+  const laggingValue = useLaggingValue(value, duration)
+  return createMemo(() => laggingValue() !== value())
 }

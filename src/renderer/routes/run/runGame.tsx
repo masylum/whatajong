@@ -1,10 +1,10 @@
 import { play, useMusic } from "@/components/audio"
-import type { Track } from "@/components/audio"
 import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
 import { TileComponent } from "@/components/game/tileComponent"
 import { Menu } from "@/components/menu"
 import { Mountains } from "@/components/mountains"
+import { Text } from "@/components/text"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type Suit,
@@ -15,7 +15,7 @@ import {
   isWind,
   selectTile,
 } from "@/lib/game"
-import { useLaggingValue } from "@/lib/useOffsetValues"
+import { useIsLagging, useLaggingValue } from "@/lib/useOffsetValues"
 import { FLOATING_NUMBER_DURATION, animate } from "@/state/animationState"
 import { useLayoutSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
@@ -23,6 +23,7 @@ import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import { roundPersistentKey, useRound, useRunState } from "@/state/runState"
 import { initializeTileState, useTileState } from "@/state/tileState"
+import { FALLING_NUMBER_DURATION } from "@/styles/animations.css"
 import { createShortcut } from "@solid-primitives/keyboard"
 import { createTimer } from "@solid-primitives/timer"
 import {
@@ -62,43 +63,12 @@ import {
 } from "./runGame.css"
 import RunGameOver from "./runGameOver"
 
-function handleComboEffect(
-  getCombo: Accessor<number | undefined>,
-  setComboAnimation: (combo: number) => void,
-  soundEffect: Track,
-  startSound: Track,
-  endSound: Track,
-) {
-  createEffect((prevCombo: number | undefined) => {
-    const combo = getCombo()
-
-    if (prevCombo === undefined && combo !== undefined) {
-      play(startSound)
-    } else if (prevCombo && !combo) {
-      play(endSound)
-    } else if (combo && prevCombo && combo > prevCombo) {
-      setComboAnimation(combo)
-      play(soundEffect)
-
-      setTimeout(() => {
-        setComboAnimation(0)
-      }, COMBO_ANIMATION_DURATION)
-    }
-
-    return combo
-  }, getCombo())
-}
-
 export default function RunGame() {
   const run = useRunState()
   const deck = useDeckState()
   const game = useGameState()
   const tiles = useTileState()
 
-  const [comboAnimation, setComboAnimation] = createSignal(0)
-
-  const getDragonCombo = createMemo(() => game.dragonRun?.combo)
-  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo)
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
 
@@ -112,20 +82,11 @@ export default function RunGame() {
 
   useMusic("game")
 
-  handleComboEffect(
-    getDragonCombo,
-    setComboAnimation,
-    "grunt",
-    "dragon",
-    "end_dragon",
-  )
-  handleComboEffect(
-    getPhoenixCombo,
-    setComboAnimation,
-    "screech",
-    "phoenix",
-    "end_phoenix",
-  )
+  onMount(() => {
+    play("tiles")
+    play("gong")
+  })
+  const comboAnimation = useComboEffect()
 
   // Cheat: Resolve pair
   createShortcut(["Shift", "K"], () => {
@@ -417,22 +378,28 @@ function useSoundEffects(tiles: TileDb) {
 
 export function Points(props: { points: number }) {
   const t = useTranslation()
+  const animation = useIsLagging(() => props.points, FALLING_NUMBER_DURATION)
 
   return (
-    <div data-tour="points" class={pointsClass}>
+    <div data-tour="points" class={pointsClass({ animation: animation() })}>
       <span>{t.common.points()}</span>
-      <div class={pillClass({ hue: "bam" })}>{props.points}</div>
+      <div class={pillClass({ hue: "bam" })}>
+        <Text animation="fallingNumber">{props.points}</Text>
+      </div>
     </div>
   )
 }
 
 export function Coins(props: { coins: number }) {
   const t = useTranslation()
+  const animation = useIsLagging(() => props.coins, FALLING_NUMBER_DURATION)
 
   return (
-    <div data-tour="coins" class={coinsClass}>
+    <div data-tour="coins" class={coinsClass({ animation: animation() })}>
       <span>{t.common.coins()}</span>
-      <div class={pillClass({ hue: "crack" })}>{props.coins}</div>
+      <div class={pillClass({ hue: "crack" })}>
+        <Text animation="fallingNumber">{props.coins}</Text>
+      </div>
     </div>
   )
 }
@@ -440,16 +407,19 @@ export function Coins(props: { coins: number }) {
 export function Penalty(props: { points: number }) {
   const t = useTranslation()
   const game = useGameState()
-  const width = createMemo(
-    () => (props.points - Math.floor(props.points)) * 100,
-  )
+  const points = createMemo(() => Math.floor(props.points))
+  const animation = useIsLagging(() => points(), FALLING_NUMBER_DURATION)
+  const width = createMemo(() => (props.points - points()) * 100)
 
   return (
-    <div data-tour="penalty" class={penaltyClass({ paused: game.pause })}>
+    <div
+      data-tour="penalty"
+      class={penaltyClass({ paused: game.pause, animation: animation() })}
+    >
       <span>{game.pause ? t.common.paused() : t.common.penalty()}</span>
       <div class={pillClass({ hue: "black" })}>
         <div class={timerClass} style={{ width: `${width()}%` }} />
-        <span>{Math.floor(props.points)}</span>
+        <Text animation="fallingNumber">{points()}</Text>
       </div>
     </div>
   )
@@ -513,6 +483,7 @@ export function MovesIndicator(props: {
   pairs: number
 }) {
   const t = useTranslation()
+  const animation = useIsLagging(() => props.pairs, FALLING_NUMBER_DURATION)
   const hueForUrgency = createMemo(() => {
     switch (props.urgency) {
       case "mild":
@@ -527,9 +498,14 @@ export function MovesIndicator(props: {
   })
 
   return (
-    <div data-tour="moves" class={movesClass({ urgency: props.urgency })}>
+    <div
+      data-tour="moves"
+      class={movesClass({ urgency: props.urgency, animation: animation() })}
+    >
       <span>{t.common.moves()}</span>
-      <div class={pillClass({ hue: hueForUrgency() })}>{props.pairs}</div>
+      <div class={pillClass({ hue: hueForUrgency() })}>
+        <Text animation="fallingNumber">{props.pairs}</Text>
+      </div>
     </div>
   )
 }
@@ -540,8 +516,6 @@ export function Board() {
   const activeBrushes = createMemo(() => getActiveBrushes(tileDb))
 
   onMount(() => {
-    play("tiles")
-    play("gong")
     batch(() => {
       for (const tile of tileDb.all) {
         animate({ id: tile.id, name: "fall" })
@@ -591,4 +565,48 @@ function TileWrapper(props: {
       />
     </Show>
   )
+}
+
+export function useComboEffect() {
+  const game = useGameState()
+  const [comboAnimation, setComboAnimation] = createSignal(0)
+  const getDragonCombo = createMemo(() => game.dragonRun?.combo)
+  const getPhoenixCombo = createMemo(() => game.phoenixRun?.combo)
+  const effects = [
+    {
+      getCombo: getDragonCombo,
+      startSound: "dragon",
+      soundEffect: "grunt",
+      endSound: "end_dragon",
+    },
+    {
+      getCombo: getPhoenixCombo,
+      startSound: "phoenix",
+      soundEffect: "screech",
+      endSound: "end_phoenix",
+    },
+  ] as const
+
+  for (const effect of effects) {
+    createEffect((prevCombo: number | undefined) => {
+      const combo = effect.getCombo()
+
+      if (prevCombo === undefined && combo !== undefined) {
+        play(effect.startSound)
+      } else if (prevCombo && !combo) {
+        play(effect.endSound)
+      } else if (combo && prevCombo && combo > prevCombo) {
+        setComboAnimation(combo)
+        play(effect.soundEffect)
+
+        setTimeout(() => {
+          setComboAnimation(0)
+        }, COMBO_ANIMATION_DURATION)
+      }
+
+      return combo
+    }, effect.getCombo())
+  }
+
+  return comboAnimation
 }

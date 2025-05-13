@@ -23,6 +23,7 @@ import {
   type Game,
   GameStateProvider,
   initialGameState,
+  useGameState,
 } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import {
@@ -31,7 +32,7 @@ import {
   useLevels,
   useRunState,
 } from "@/state/runState"
-import { TileStateProvider } from "@/state/tileState"
+import { TileStateProvider, useTileState } from "@/state/tileState"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { uniqueBy } from "remeda"
@@ -46,7 +47,7 @@ import {
   onMount,
 } from "solid-js"
 import { createMutable } from "solid-js/store"
-import { Board, Coins, Points } from "./runGame"
+import { Board, Coins, Points, useComboEffect } from "./runGame"
 import {
   buttonContainerClass,
   columnsClass,
@@ -418,11 +419,24 @@ const SANDBOXES = {
   },
 } as Record<Suit, { tiles: PartialTile[]; points: number }>
 
+const GAME_ID = "sandbox"
 function Sandbox(props: { suit: Suit }) {
   const tileDb = new Database<Tile, TileIndexes>(tileIndexes)
-  const gameId = "sandbox"
-  const game = createMutable<Game>(initialGameState(gameId))
+  const game = createMutable<Game>(initialGameState(GAME_ID))
+
+  return (
+    <GameStateProvider game={game}>
+      <TileStateProvider tileDb={tileDb}>
+        <SandboxContent suit={props.suit} />
+      </TileStateProvider>
+    </GameStateProvider>
+  )
+}
+
+function SandboxContent(props: { suit: Suit }) {
   const tileSize = useTileSize()
+  const game = useGameState()
+  const tileDb = useTileState()
   const sandbox = createMemo(() => SANDBOXES[props.suit])
   const t = useTranslation()
   const result = createMemo(() => {
@@ -441,67 +455,65 @@ function Sandbox(props: { suit: Suit }) {
   function onRetry() {
     batch(() => {
       resetTiles()
-      setMutable(game, initialGameState(gameId))
+      setMutable(game, initialGameState(GAME_ID))
     })
   }
 
+  const comboAnimation = useComboEffect()
+
   return (
-    <GameStateProvider game={game}>
-      <TileStateProvider tileDb={tileDb}>
-        <div class={sandboxClass}>
+    <div class={sandboxClass({ comboAnimation: comboAnimation() as any })}>
+      <div
+        class={sandboxContentClass}
+        style={{
+          width: `${(tileSize().width + tileSize().sideSize) * 4}px`,
+          height: `${(tileSize().height + tileSize().sideSize) * 2}px`,
+        }}
+      >
+        <Board />
+      </div>
+      <Show when={result()}>
+        {(result) => (
           <div
-            class={sandboxContentClass}
-            style={{
-              width: `${(tileSize().width + tileSize().sideSize) * 4}px`,
-              height: `${(tileSize().height + tileSize().sideSize) * 2}px`,
-            }}
+            class={endConditionClass({
+              type: result() === "win" ? "win" : "lose",
+            })}
           >
-            <Board />
+            <h3 class={endConditionTitleClass}>
+              <Switch>
+                <Match when={result() === "win"}>{t.runReward.win()}</Match>
+                <Match when={result() === "no-pairs"}>
+                  {t.runReward.noPairs()}
+                </Match>
+                <Match when={result() === "no-points"}>
+                  {t.runReward.noPoints({
+                    points: game.points,
+                    objective: sandbox().points,
+                  })}
+                </Match>
+              </Switch>
+            </h3>
+            <button
+              type="button"
+              class={endConditionButtonClass}
+              onPointerDown={onRetry}
+            >
+              <Rotate />
+              <Show when={result() === "win"} fallback="try again">
+                {t.runReward.playAgain()}
+              </Show>
+            </button>
           </div>
-          <Show when={result()}>
-            {(result) => (
-              <div
-                class={endConditionClass({
-                  type: result() === "win" ? "win" : "lose",
-                })}
-              >
-                <h3 class={endConditionTitleClass}>
-                  <Switch>
-                    <Match when={result() === "win"}>{t.runReward.win()}</Match>
-                    <Match when={result() === "no-pairs"}>
-                      {t.runReward.noPairs()}
-                    </Match>
-                    <Match when={result() === "no-points"}>
-                      {t.runReward.noPoints({
-                        points: game.points,
-                        objective: sandbox().points,
-                      })}
-                    </Match>
-                  </Switch>
-                </h3>
-                <button
-                  type="button"
-                  class={endConditionButtonClass}
-                  onPointerDown={onRetry}
-                >
-                  <Rotate />
-                  <Show when={result() === "win"} fallback="try again">
-                    {t.runReward.playAgain()}
-                  </Show>
-                </button>
-              </div>
-            )}
-          </Show>
-          <div class={pillsClass}>
-            <Points points={game.points} />
-            <Show when={props.suit === "rabbit"}>
-              <Coins coins={game.coins} />
-            </Show>
-          </div>
-          <DustParticles />
-          <Powerups />
-        </div>
-      </TileStateProvider>
-    </GameStateProvider>
+        )}
+      </Show>
+      <div class={pillsClass}>
+        <Points points={game.points} />
+        <Show when={props.suit === "rabbit"}>
+          <Coins coins={game.coins} />
+        </Show>
+      </div>
+      <DustParticles />
+      <Powerups />
+    </div>
   )
 }

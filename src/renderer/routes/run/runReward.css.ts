@@ -8,8 +8,9 @@ import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { keyframes, style } from "@vanilla-extract/css"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
+import { COMBO_ANIMATION_DURATION } from "./runGame.css"
 
 export const containerClass = style({
   height: "100dvh",
@@ -155,21 +156,54 @@ export const buttonContainerClass = style({
   marginTop: 8,
 })
 
-export const sandboxClass = style({
-  padding: 32,
-  paddingTop: 64,
-  position: "relative",
-  display: "flex",
-  gap: 24,
-  justifyContent: "center",
-  backgroundColor: alpha(color.dot30, 0.1),
-  borderRadius: 8,
-  margin: "0 auto",
-  overflow: "hidden",
-  "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
-      padding: 40,
-      paddingTop: 72,
+const shakeIntensity = createVar()
+
+const shakeAnimation = keyframes({
+  "0%, 100%": { transform: "translate(0, 0)" },
+  "25%": {
+    transform: `translate(calc(${shakeIntensity} * -1px), calc(${shakeIntensity} * 1px))`,
+  },
+  "50%": {
+    transform: `translate(calc(${shakeIntensity} * 1px), calc(${shakeIntensity} * -1px))`,
+  },
+  "75%": {
+    transform: `translate(calc(${shakeIntensity} * -1px), calc(${shakeIntensity} * -1px))`,
+  },
+})
+
+export const sandboxClass = recipe({
+  base: {
+    vars: {
+      [shakeIntensity]: "7",
+    },
+    padding: 32,
+    paddingTop: 64,
+    position: "relative",
+    display: "flex",
+    gap: 24,
+    justifyContent: "center",
+    backgroundColor: alpha(color.dot30, 0.1),
+    borderRadius: 8,
+    margin: "0 auto",
+    overflow: "hidden",
+    animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
+    "@media": {
+      [mediaQuery({ p: "m", l: "s" })]: {
+        padding: 40,
+        paddingTop: 72,
+      },
+    },
+  },
+  variants: {
+    comboAnimation: {
+      0: { vars: { [shakeIntensity]: "0" }, animation: "none" },
+      1: { vars: { [shakeIntensity]: "1" } },
+      2: { vars: { [shakeIntensity]: "2" } },
+      3: { vars: { [shakeIntensity]: "3" } },
+      4: { vars: { [shakeIntensity]: "4" } },
+      5: { vars: { [shakeIntensity]: "5" } },
+      6: { vars: { [shakeIntensity]: "6" } },
+      7: { vars: { [shakeIntensity]: "7" } },
     },
   },
 })

@@ -33,6 +33,7 @@ import {
   scoreCoinsClass,
   scorePointsClass,
   sideSizeVar,
+  smokeClass,
   tileClass,
   tileSvgClass,
   widthVar,
@@ -138,6 +139,7 @@ export function TileComponent(iProps: Props) {
   return (
     <>
       <Show when={animation() === "deleted"}>
+        <div class={smokeClass} style={{ ...inlineVars() }} />
         <div class={scoreClass} style={{ ...inlineVars() }}>
           <Show when={props.tile.coins}>
             {(coins) => <span class={scoreCoinsClass}>+{coins()}</span>}

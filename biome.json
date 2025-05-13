@@ -20,6 +20,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "correctness": {
+        "useJsxKeyInIterable": "off"
+      },
       "a11y": {
         "useMediaCaption": "off",
         "noSvgWithoutTitle": "off",

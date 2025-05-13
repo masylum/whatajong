@@ -136,3 +136,86 @@ export const phoenixComboClass = style({
     },
   },
 })
+
+const MUZZLE_SIZE = 256
+const yOffset = createVar()
+const animation = {
+  "0%": {
+    transform: `translate(0%, ${yOffset})`,
+    opacity: 0.3,
+  },
+  "50%": {
+    opacity: 1,
+  },
+  "100%": {
+    transform: `translate(calc(${MUZZLE_SIZE}px * -16), ${yOffset})`,
+    opacity: 0.3,
+  },
+}
+
+function muzzleAnimation() {
+  const animations = [keyframes(animation), keyframes(animation)]
+
+  return Object.fromEntries(
+    Array.from({ length: 7 }).map((_, i) => [
+      i,
+      {
+        ":before": {
+          animation: `${animations[i % 2]} 1000ms steps(16)`,
+        },
+      },
+    ]),
+  )
+}
+
+export const muzzleClass = recipe({
+  base: {
+    position: "absolute",
+    top: 0,
+    pointerEvents: "none",
+    zIndex: -1,
+    height: MUZZLE_SIZE,
+    width: MUZZLE_SIZE,
+    overflow: "hidden",
+    ":before": {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      content: '""',
+      backgroundImage: "url(./sprites/muzzle.webp)",
+      height: MUZZLE_SIZE,
+      width: MUZZLE_SIZE * 16,
+    },
+  },
+  variants: {
+    size: muzzleAnimation(),
+    hue: {
+      crack: {
+        filter: "hue-rotate(260deg)",
+      },
+      bam: {
+        filter: "hue-rotate(20deg)",
+      },
+      dot: {
+        filter: "hue-rotate(140deg)",
+      },
+      black: {
+        filter: "brightness(0.2)",
+      },
+    },
+    direction: {
+      left: {
+        left: 0,
+        vars: { [yOffset]: "-35%" },
+      },
+      right: {
+        right: 0,
+        rotate: "180deg",
+        vars: { [yOffset]: "35%" },
+      },
+    },
+  },
+  defaultVariants: {
+    size: 0,
+  },
+})
