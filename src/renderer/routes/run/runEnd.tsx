@@ -1,8 +1,10 @@
 import { LinkButton } from "@/components/button"
 import { ArrowRight } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
+import { captureEvent } from "@/lib/observability"
 import { useLayoutSize } from "@/state/constants"
 import { useRunState } from "@/state/runState"
+import { onMount } from "solid-js"
 import {
   containerClass,
   contentClass,
@@ -20,6 +22,15 @@ export function RunEnd() {
   const run = useRunState()
   const size = useLayoutSize()
   const t = useTranslation()
+
+  onMount(() => {
+    captureEvent("end_game", {
+      runId: run.runId,
+      totalPoints: run.totalPoints,
+      attempts: run.attempts,
+      difficulty: run.difficulty,
+    })
+  })
 
   return (
     <div class={containerClass}>

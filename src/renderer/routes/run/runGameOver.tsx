@@ -117,6 +117,7 @@ export default function RunGameOver() {
       run.money += income() + tileCoins() + overAchievementCoins()
       run.stage = nextRoundStage()
       run.totalPoints += totalPoints()
+      captureEvent("next_round", { round: round().id, runId: run.runId })
     })
   }
 
@@ -126,6 +127,7 @@ export default function RunGameOver() {
       const key = roundPersistentKey(run)
       setMutable(game, initialGameState(run.runId))
       initializeTileState(key, deck.all, tiles)
+      captureEvent("retry_run", { runId: run.runId, round: round().id })
     })
   }
 
