@@ -177,7 +177,7 @@ describe("getPoints", () => {
 
     expect(getPoints({ game, tile: standardTile, tileDb })).toBe(1)
     expect(getPoints({ game, tile: dragonTile, tileDb })).toBe(2)
-    expect(getPoints({ game, tile: flowerTile, tileDb })).toBe(1)
+    expect(getPoints({ game, tile: flowerTile, tileDb })).toBe(4)
     expect(getPoints({ game, tile: windTile, tileDb })).toBe(3)
   })
 
@@ -521,7 +521,7 @@ describe("getMaterial", () => {
     const jadeTile = createTile({
       id: "2",
       cardId: "dot1",
-      material: "jade",
+      material: "bone",
       x: 2,
     })
     const garnetTile = createTile({
@@ -536,6 +536,16 @@ describe("getMaterial", () => {
     expect(getMaterial({ tile: boneTile, tileDb, game })).toBe("bone")
     expect(getMaterial({ tile: jadeTile, tileDb, game })).toBe("topaz")
     expect(getMaterial({ tile: garnetTile, tileDb, game })).toBe("garnet")
+  })
+
+  it("upgrades the material to shiny if non-bone", () => {
+    const boneTile = createTile({ id: "1", cardId: "bam1", material: "bone" })
+    const jadeTile = createTile({ id: "2", cardId: "bam1", material: "jade" })
+    const game = createGame({ temporaryMaterial: "jade" })
+    const tileDb = initTileDb({})
+
+    expect(getMaterial({ tile: boneTile, tileDb, game })).toBe("jade")
+    expect(getMaterial({ tile: jadeTile, tileDb, game })).toBe("emerald")
   })
 })
 
