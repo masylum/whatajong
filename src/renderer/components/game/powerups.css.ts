@@ -1,3 +1,4 @@
+import { ANIMATION_SLOW } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
@@ -18,9 +19,9 @@ export const playerPowerupsClass = style({
 export const powerupRecipe = recipe({
   base: {
     display: "flex",
-    flexDirection: "column",
     padding: 12,
-    alignItems: "center",
+    alignItems: "flex-start",
+    justifyContent: "center",
     gap: 8,
     height: "100%",
     width: "100%",
@@ -161,7 +162,7 @@ function muzzleAnimation() {
       i,
       {
         ":before": {
-          animation: `${animations[i % 2]} 1000ms steps(16)`,
+          animation: `${animations[i % 2]} ${ANIMATION_SLOW} steps(16)`,
         },
       },
     ]),
@@ -170,10 +171,6 @@ function muzzleAnimation() {
 
 export const muzzleClass = recipe({
   base: {
-    position: "absolute",
-    top: 0,
-    pointerEvents: "none",
-    zIndex: -1,
     height: MUZZLE_SIZE,
     width: MUZZLE_SIZE,
     overflow: "hidden",
@@ -205,13 +202,13 @@ export const muzzleClass = recipe({
     },
     direction: {
       left: {
-        left: 0,
-        vars: { [yOffset]: "-35%" },
+        left: "30%",
+        rotate: "180deg",
+        vars: { [yOffset]: "40%" },
       },
       right: {
-        right: 0,
-        rotate: "180deg",
-        vars: { [yOffset]: "35%" },
+        right: "30%",
+        vars: { [yOffset]: "-40%" },
       },
     },
   },

@@ -465,18 +465,18 @@ export const tutorialClass = style({
 export const tiles1ArrowClass = style({
   position: "absolute",
   top: 32,
-  left: 100,
+  right: 100,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      left: 120,
+      right: 120,
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       top: 40,
-      left: 140,
+      right: 140,
     },
     [mediaQuery({ p: "l", l: "m" })]: {
       top: 64,
-      left: 220,
+      right: 220,
     },
   },
 })

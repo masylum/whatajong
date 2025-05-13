@@ -315,14 +315,14 @@ export const clickableClass = recipe({
 
 const smokeKeyframes = keyframes({
   "0%": {
-    opacity: 0.2,
+    opacity: 0.3,
   },
   "50%": {
-    opacity: 0.7,
+    opacity: 1,
   },
   "100%": {
-    transform: `translate(calc((${widthVar} + ${sideSizeVar}) * -64))`,
-    opacity: 0.2,
+    transform: `translate(calc(${widthVar} * -64))`,
+    opacity: 0.3,
   },
 })
 export const smokeClass = style({
@@ -333,10 +333,11 @@ export const smokeClass = style({
   left: 0,
   zIndex: 999,
   mixBlendMode: "screen",
-  width: `calc(${widthVar} + ${sideSizeVar})`,
-  height: `calc(${widthVar} + ${sideSizeVar})`,
+  width: widthVar,
+  height: widthVar,
   overflow: "hidden",
   scale: 2,
+  transformOrigin: "50% 50%",
   ":before": {
     animation: `${smokeKeyframes} ${FLOATING_NUMBER_DURATION / 2}ms steps(64)`,
     backgroundSize: "cover",
@@ -345,7 +346,7 @@ export const smokeClass = style({
     left: 0,
     content: '""',
     backgroundImage: "url(./sprites/smoke.webp)",
-    height: `calc(${widthVar} + ${sideSizeVar})`,
-    width: `calc((${widthVar} + ${sideSizeVar}) * 64)`,
+    height: widthVar,
+    width: `calc(${widthVar} * 64)`,
   },
 })
