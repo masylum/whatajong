@@ -24,12 +24,12 @@ export const textureClass = recipe({
       k: { filter: "saturate(0.6) sepia(0.1) brightness(0.99)" },
     },
     num: {
-      0: { backgroundImage: "url(./textures/0.webp)" },
-      1: { backgroundImage: "url(./textures/1.webp)" },
-      2: { backgroundImage: "url(./textures/2.webp)" },
-      3: { backgroundImage: "url(./textures/3.webp)" },
-      4: { backgroundImage: "url(./textures/4.webp)" },
-      5: { backgroundImage: "url(./textures/5.webp)" },
+      0: { backgroundImage: "url(/textures/0.webp)" },
+      1: { backgroundImage: "url(/textures/1.webp)" },
+      2: { backgroundImage: "url(/textures/2.webp)" },
+      3: { backgroundImage: "url(/textures/3.webp)" },
+      4: { backgroundImage: "url(/textures/4.webp)" },
+      5: { backgroundImage: "url(/textures/5.webp)" },
     },
   },
 })
@@ -54,12 +54,12 @@ export const mountainsClass = recipe({
   },
   variants: {
     num: {
-      0: { backgroundImage: "url(./backgrounds/0.webp)" },
-      1: { backgroundImage: "url(./backgrounds/1.webp)" },
-      2: { backgroundImage: "url(./backgrounds/2.webp)" },
-      3: { backgroundImage: "url(./backgrounds/3.webp)" },
-      4: { backgroundImage: "url(./backgrounds/4.webp)" },
-      5: { backgroundImage: "url(./backgrounds/5.webp)" },
+      0: { backgroundImage: "url(/backgrounds/0.webp)" },
+      1: { backgroundImage: "url(/backgrounds/1.webp)" },
+      2: { backgroundImage: "url(/backgrounds/2.webp)" },
+      3: { backgroundImage: "url(/backgrounds/3.webp)" },
+      4: { backgroundImage: "url(/backgrounds/4.webp)" },
+      5: { backgroundImage: "url(/backgrounds/5.webp)" },
     },
   },
 })

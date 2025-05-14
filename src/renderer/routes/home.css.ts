@@ -21,7 +21,7 @@ export const homeClass = style({
   gap: 32,
   height: "100dvh",
   fontFamily: primary,
-  backgroundImage: "url(./textures/2.webp)",
+  backgroundImage: "url(/textures/2.webp)",
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 64,

@@ -175,7 +175,7 @@ export const muzzleClass = recipe({
       top: 0,
       left: 0,
       content: '""',
-      backgroundImage: "url(./sprites/muzzle.webp)",
+      backgroundImage: "url(/sprites/muzzle.webp)",
       height: MUZZLE_SIZE,
       width: MUZZLE_SIZE * 16,
     },
