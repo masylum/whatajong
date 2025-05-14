@@ -7,7 +7,6 @@ import {
   type DeckTile,
   type Material,
   bams,
-  brushes,
   cracks,
   dots,
   dragons,
@@ -19,6 +18,7 @@ import {
   lotuses,
   mutations,
   phoenixes,
+  shadows,
   sparrows,
   taijitu,
   winds,
@@ -297,9 +297,9 @@ function getLevels(runId: string): Levels {
   const rnd = new Rand(runId)
   const nonBlackDragons = dragons.filter((c) => c.rank !== "k")
   const blackDragons = dragons.filter((c) => c.rank === "k")
-  const blueBrush = brushes.find((c) => c.rank === "b")
-  const redBrush = brushes.find((c) => c.rank === "r")
-  const greenBrush = brushes.find((c) => c.rank === "g")
+  const blueShadow = shadows.find((c) => c.rank === "b")
+  const redShadow = shadows.find((c) => c.rank === "r")
+  const greenShadow = shadows.find((c) => c.rank === "g")
 
   const [first1, first2, first3, first4] = shuffle(
     [rabbits, frogs, lotuses, sparrows],
@@ -328,21 +328,21 @@ function getLevels(runId: string): Levels {
     [0, [extra2!]],
     [1, [first3!]],
     [1, [first4!]],
-    [1, [[redBrush!]]],
+    [1, [[redShadow!]]],
     [0, [extra3!]],
     [1, [second1!]],
     [1, [second2!]],
     [1, [second3!]],
     [0, []],
     [1, [second4!]],
-    [1, [[blueBrush!]]],
+    [1, [[blueShadow!]]],
     [1, [third1!]],
     [0, []],
     [1, [third2!]],
     [1, [third3!]],
     [1, [third4!]],
     [0, []],
-    [1, [[greenBrush!]]],
+    [1, [[greenShadow!]]],
   ])
 }
 

@@ -15,7 +15,7 @@ type Props = {
   material?: Material
   free?: boolean
   taijituActive?: boolean
-  isBrushed?: boolean
+  isShadow?: boolean
 }
 const PADDING = 2
 export function TileImage(iProps: Props) {
@@ -43,7 +43,7 @@ export function TileImage(iProps: Props) {
       return "invert(1) sepia(0) saturate(1.2) brightness(0.8) hue-rotate(180deg)"
     }
 
-    if (props.isBrushed) {
+    if (props.isShadow) {
       return "brightness(0)"
     }
 

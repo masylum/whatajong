@@ -620,8 +620,10 @@ function Header() {
   const t = useTranslation()
 
   function continueRun() {
-    run.stage = "game"
-    run.round += 1
+    batch(() => {
+      run.stage = "game"
+      run.round += 1
+    })
   }
 
   return (

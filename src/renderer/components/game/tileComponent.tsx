@@ -5,9 +5,9 @@ import {
   coord,
   getCard,
   getMaterial,
-  isBrush,
   isElement,
   isFree,
+  isShadow,
   isTaijitu,
   isTaijituActive,
 } from "@/lib/game"
@@ -53,7 +53,7 @@ type Props = {
   onMouseLeave: () => void
   width?: number
   height?: number
-  activeBrushes?: Set<Suit>
+  activeShadows?: Set<Suit>
 }
 
 export function TileComponent(iProps: Props) {
@@ -78,7 +78,7 @@ export function TileComponent(iProps: Props) {
   const animation = createMemo(() => animations[props.tile.id]?.name)
   const selected = createMemo(() => props.tile.selected)
   const card = createMemo(() => getCard(props.tile.cardId))
-  const isBrushed = createMemo(() => props.activeBrushes?.has(card().suit))
+  const isShadowed = createMemo(() => props.activeShadows?.has(card().suit))
 
   const fillColor = createMemo(() => {
     if (selected()) return "#963"
@@ -96,8 +96,8 @@ export function TileComponent(iProps: Props) {
     const taijituCard = isTaijitu(props.tile.cardId)
     if (taijituCard && taijituActive()) return taijituCard.rank
 
-    const brushCard = isBrush(props.tile.cardId)
-    if (brushCard) return brushCard.rank
+    const shadowCard = isShadow(props.tile.cardId)
+    if (shadowCard) return shadowCard.rank
 
     return
   })
@@ -134,7 +134,7 @@ export function TileComponent(iProps: Props) {
   }
 
   createChangeEffect(mutate, material)
-  createChangeEffect(mutate, isBrushed)
+  createChangeEffect(mutate, isShadowed)
 
   return (
     <>
@@ -173,7 +173,7 @@ export function TileComponent(iProps: Props) {
                 material={material()}
                 free={canBeSelected()}
                 taijituActive={taijituActive()}
-                isBrushed={isBrushed()}
+                isShadow={isShadowed()}
               />
 
               {/* Clickable overlay with hover effect */}

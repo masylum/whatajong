@@ -107,10 +107,10 @@ export function getTaijituMultiplier(tiles: readonly [Tile, Tile]) {
   return isAdjacent ? 3 : 1
 }
 
-export function getActiveBrushes(tileDb: TileDb) {
+export function getActiveShadows(tileDb: TileDb) {
   const cards = tileDb.filterBy({ deleted: false }).flatMap((tile) => {
-    const brushCard = isBrush(tile.cardId)
-    return brushCard && isFree(tileDb, tile) ? brushCard : []
+    const shadowCard = isShadow(tile.cardId)
+    return shadowCard && isFree(tileDb, tile) ? shadowCard : []
   })
   const suits = [
     ["bam", "g"],
@@ -403,8 +403,8 @@ export function isTaijitu(cardId: CardId) {
   return checkSuit(cardId, "taijitu")
 }
 
-export function isBrush(cardId: CardId) {
-  return checkSuit(cardId, "brush")
+export function isShadow(cardId: CardId) {
+  return checkSuit(cardId, "shadow")
 }
 
 export type Position = {
@@ -537,17 +537,13 @@ export function isFree(tileDb: TileDb, tile: Tile, game?: Game) {
   return freedoms.left || freedoms.right
 }
 
-function getBrushedMaterial(
-  cardId: CardId,
-  material: Material,
-  tileDb: TileDb,
-) {
+function getShadowMaterial(cardId: CardId, material: Material, tileDb: TileDb) {
   const suitCard = isSuit(cardId)
   if (!suitCard) return material
   if (material === "bone") return material
 
-  const activeBrushes = getActiveBrushes(tileDb)
-  if (activeBrushes.has(suitCard.suit)) {
+  const activeShadows = getActiveShadows(tileDb)
+  if (activeShadows.has(suitCard.suit)) {
     return isShiny(material) ? "obsidian" : "quartz"
   }
 
@@ -576,16 +572,19 @@ export function getMaterial({
     }
 
     if (new Set(card.colors).has(color)) {
-      return getBrushedMaterial(tile.cardId, material, tileDb)
+      return getShadowMaterial(tile.cardId, material, tileDb)
     }
   }
 
-  return getBrushedMaterial(tile.cardId, tile.material, tileDb)
+  return getShadowMaterial(tile.cardId, tile.material, tileDb)
 }
 
 export function cardName(t: Translator, cardId: CardId) {
   const colorCard =
-    isDragon(cardId) || isRabbit(cardId) || isElement(cardId) || isBrush(cardId)
+    isDragon(cardId) ||
+    isRabbit(cardId) ||
+    isElement(cardId) ||
+    isShadow(cardId)
 
   if (colorCard) {
     return t.cardName[colorCard.suit]({ color: t.color[colorCard.rank]() })
@@ -651,8 +650,8 @@ function getColors(cardId: CardId, tileDb: TileDb) {
     return colors
   }
 
-  const activeBrushes = getActiveBrushes(tileDb)
-  if (activeBrushes.has(card.suit)) {
+  const activeShadows = getActiveShadows(tileDb)
+  if (activeShadows.has(card.suit)) {
     return ["k"] as const
   }
 
@@ -844,12 +843,12 @@ export const lotuses = [
 type LotusCard = (typeof lotuses)[number]
 
 // biome-ignore format:
-export const brushes = [
-  { id: "brushr", suit: "brush", rank: "r", colors: ["r", "k"], points: 10, },
-  { id: "brushb", suit: "brush", rank: "b", colors: ["b", "k"], points: 10, },
-  { id: "brushg", suit: "brush", rank: "g", colors: ["g", "k"], points: 10, },
+export const shadows = [
+  { id: "shadowr", suit: "shadow", rank: "r", colors: ["r", "k"], points: 10, },
+  { id: "shadowb", suit: "shadow", rank: "b", colors: ["b", "k"], points: 10, },
+  { id: "shadowg", suit: "shadow", rank: "g", colors: ["g", "k"], points: 10, },
 ] as const
-type BrushCard = (typeof brushes)[number]
+type ShadowCard = (typeof shadows)[number]
 
 // biome-ignore format:
 export const sparrows = [
@@ -931,7 +930,7 @@ export type Card =
   | GemCard
   | LotusCard
   | SparrowCard
-  | BrushCard
+  | ShadowCard
 export type CardId = Card["id"]
 export type Suit = Card["suit"]
 
@@ -953,7 +952,7 @@ const CARDS_BY_ID = indexBy(
     ...mutations,
     ...taijitu,
     ...gems,
-    ...brushes,
+    ...shadows,
   ],
   (c) => c.id,
 )

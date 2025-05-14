@@ -10,7 +10,7 @@ import {
   type Suit,
   type Tile,
   type TileDb,
-  getActiveBrushes,
+  getActiveShadows,
   getAvailablePairs,
   isWind,
   selectTile,
@@ -520,7 +520,7 @@ export function MovesIndicator(props: {
 export function Board() {
   const [hover, setHover] = createSignal<string | null>(null)
   const tileDb = useTileState()
-  const activeBrushes = createMemo(() => getActiveBrushes(tileDb))
+  const activeShadows = createMemo(() => getActiveShadows(tileDb))
 
   onMount(() => {
     batch(() => {
@@ -539,7 +539,7 @@ export function Board() {
           hover={hover}
           setHover={setHover}
           tile={tile}
-          activeBrushes={activeBrushes()}
+          activeShadows={activeShadows()}
         />
       )}
     </For>
@@ -549,7 +549,7 @@ export function Board() {
 function TileWrapper(props: {
   tile: Tile
   hover: Accessor<string | null>
-  activeBrushes: Set<Suit>
+  activeShadows: Set<Suit>
   setHover: (hover: string | null) => void
 }) {
   const game = useGameState()
@@ -568,7 +568,7 @@ function TileWrapper(props: {
         onSelect={() => selectTile({ tileDb, game, tileId: props.tile.id })}
         onMouseEnter={() => props.setHover(props.tile.id)}
         onMouseLeave={() => props.setHover(null)}
-        activeBrushes={props.activeBrushes}
+        activeShadows={props.activeShadows}
       />
     </Show>
   )

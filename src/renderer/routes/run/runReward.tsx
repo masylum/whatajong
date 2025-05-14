@@ -283,12 +283,12 @@ const SANDBOXES = {
     ],
     points: 16,
   },
-  brush: {
+  shadow: {
     tiles: [
-      { cardId: "brushb", x: 0, y: 0, z: 0 },
+      { cardId: "shadowb", x: 0, y: 0, z: 0 },
       { cardId: "dot2", x: 2, y: 0, z: 0 },
       { cardId: "dot2", x: 4, y: 0, z: 0 },
-      { cardId: "brushb", x: 6, y: 0, z: 0 },
+      { cardId: "shadowb", x: 6, y: 0, z: 0 },
       { cardId: "lotusb", x: 0, y: 2, z: 0 },
       { cardId: "lotusb", x: 2, y: 2, z: 0 },
       { cardId: "dragonb", x: 4, y: 2, z: 0 },
