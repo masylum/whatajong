@@ -3,7 +3,6 @@ import { ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import {
   CardPoints,
-  CardVideo,
   Explanation,
   MaterialExplanation,
   MaterialExplanationDescription,
@@ -39,7 +38,7 @@ import { hueFromMaterial } from "@/styles/colors"
 import { Dialog } from "@kobalte/core/dialog"
 import { Key } from "@solid-primitives/keyed"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
-import { isDeepEqual } from "remeda"
+import { isDeepEqual, sortBy } from "remeda"
 import {
   For,
   Match,
@@ -92,7 +91,6 @@ import {
   tutorialClass,
   upgradeDescriptionClass,
   upgradeTitleClass,
-  videoContainerClass,
 } from "./runShop.css"
 
 const DECK_CAPACITY = 163
@@ -261,10 +259,6 @@ function CardDetails(props: {
           <CardPoints cardId={cardId()} material={props.material} />
           <MaterialExplanation material={props.material} />
           <Explanation cardId={cardId()} />
-          <CardVideo
-            suit={getCard(cardId()).suit}
-            class={videoContainerClass}
-          />
         </div>
       </div>
       <div class={buttonsClass}>
@@ -490,18 +484,21 @@ export function Deck(props: { size: number }) {
       {} as Record<Suit, number>,
     ),
   )
+  console.log(order())
 
   const sortedDeck = createMemo(() =>
-    deck.all.sort((a, b) => {
-      const cardA = getCard(a.cardId)
-      const cardB = getCard(b.cardId)
-      const suitA = cardA.suit
-      const suitB = cardB.suit
-      if (suitA !== suitB) {
-        return order()[suitA] - order()[suitB]
-      }
-      return cardA.rank.localeCompare(cardB.rank)
-    }),
+    sortBy(
+      deck.all,
+      [
+        (tile) => {
+          const card = getCard(tile.cardId)
+          return order()[card.suit]
+        },
+        "asc",
+      ],
+      [(tile) => getCard(tile.cardId).suit, "asc"],
+      [(tile) => getCard(tile.cardId).rank, "asc"],
+    ),
   )
 
   return (

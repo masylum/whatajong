@@ -4,13 +4,13 @@ function rem(px: number) {
 
 export const fontSize = {
   hero1: {
-    fontSize: rem(160),
-    lineHeight: rem(160),
+    fontSize: rem(120),
+    lineHeight: rem(120),
     textWrap: "balance",
   },
   hero2: {
-    fontSize: rem(90),
-    lineHeight: rem(90),
+    fontSize: rem(80),
+    lineHeight: rem(80),
     textWrap: "balance",
   },
   hero3: {

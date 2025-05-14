@@ -253,4 +253,5 @@ export const materialHeaderClass = style({
   display: "flex",
   flexDirection: "column",
   gap: 12,
+  flex: 1,
 })

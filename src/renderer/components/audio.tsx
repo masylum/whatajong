@@ -9,7 +9,7 @@ const SoundFiles = [
   "super", "awesome", "amazing", "unreal", "fantastic", "legendary", "alarm1", "alarm2", "alarm3", "phoenix", "mutation",
   "freeze", "joker", "dice", "gemstone", "end_phoenix", "end_dragon", "tiles", "reward", "won", "lost", "frog", "lotus", "gong2", "sparrow",
 ] as const
-export type Track = (typeof SoundFiles)[number]
+type Track = (typeof SoundFiles)[number]
 
 const SOUNDS = fromEntries(
   SoundFiles.map((sound) => [

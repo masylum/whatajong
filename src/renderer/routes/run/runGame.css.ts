@@ -6,7 +6,7 @@ import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const statsAnimation = keyframes({
+const statsAnimation = keyframes({
   from: {
     transform: "translateY(-5px) scale(1.1)",
     opacity: 0.8,
@@ -91,23 +91,10 @@ export const gameRecipe = recipe({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100dvh",
-    width: "100dvw",
+    height: "100%",
+    width: "100%",
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     transition: "all 0.2s ease-in-out",
-    overflow: "hidden",
-    ":before": {
-      backgroundImage: "url(/halftone.png)",
-      content: "",
-      position: "fixed",
-      height: "100dvh",
-      width: "100dvw",
-      mixBlendMode: "overlay",
-      top: 0,
-      left: 0,
-      zIndex: 1,
-      pointerEvents: "none",
-    },
   },
   variants: {
     comboAnimation: {

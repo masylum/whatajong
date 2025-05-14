@@ -1,5 +1,5 @@
 import { useTranslation } from "@/i18n/useTranslation"
-import type { CardId, Material, Suit } from "@/lib/game"
+import type { CardId, Material } from "@/lib/game"
 import {
   getCard,
   getMaterialCoins,
@@ -141,24 +141,5 @@ export function CardPoints(props: { cardId: CardId; material: Material }) {
       <dt class={detailTermClass}>{t.common.points()}:</dt>
       <dd class={detailDescriptionClass}>{getCard(props.cardId).points}</dd>
     </dl>
-  )
-}
-
-const NO_VIDEO = ["dot", "bam", "crack"]
-export function CardVideo(props: { suit: Suit; class: string }) {
-  if (NO_VIDEO.includes(props.suit)) {
-    return null
-  }
-
-  return (
-    <video
-      src={`/videos/${props.suit}.mp4`}
-      autoplay
-      muted
-      loop
-      playsinline
-      width="100%"
-      class={props.class}
-    />
   )
 }

@@ -144,14 +144,6 @@ export const floatingTileClass = recipe({
   },
 })
 
-export const videoClass = style([
-  {
-    flex: 1,
-    minHeight: 0,
-    maxHeight: 600,
-  },
-])
-
 export const buttonContainerClass = style({
   marginTop: 8,
 })

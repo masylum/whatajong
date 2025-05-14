@@ -16,7 +16,7 @@ export type DragonRun = {
   combo: number
 }
 type EndConditions = (typeof END_CONDITIONS)[number]
-export type TemporaryMaterial = "topaz" | "garnet" | "jade" | "quartz"
+type TemporaryMaterial = "topaz" | "garnet" | "jade" | "quartz"
 export type Game = {
   points: number
   coins: number

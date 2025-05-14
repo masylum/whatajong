@@ -1,9 +1,9 @@
 import { play, useMusic } from "@/components/audio"
+import { Background } from "@/components/background"
 import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
 import { TileComponent } from "@/components/game/tileComponent"
 import { Menu } from "@/components/menu"
-import { Mountains } from "@/components/mountains"
 import { Text } from "@/components/text"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
@@ -26,6 +26,7 @@ import { initializeTileState, useTileState } from "@/state/tileState"
 import { FALLING_NUMBER_DURATION } from "@/styles/animations.css"
 import { createShortcut } from "@solid-primitives/keyboard"
 import { createTimer } from "@solid-primitives/timer"
+import Rand from "rand-seed"
 import {
   type Accessor,
   For,
@@ -110,6 +111,11 @@ export default function RunGame() {
     game.points += 100
   })
 
+  const num = createMemo(() => {
+    const rnd = new Rand(`${run.runId}-${run.round}`)
+    return Math.floor(rnd.next() * 4)
+  })
+
   // Cheat: Provoke restart
   createShortcut(["Shift", "R"], () => {
     batch(() => {
@@ -122,62 +128,63 @@ export default function RunGame() {
 
   return (
     <Show when={!game.endCondition} fallback={<RunGameOver />}>
-      <div
-        class={gameRecipe({
-          comboAnimation: comboAnimation() as any,
-        })}
-      >
+      <Background num={num()}>
         <div
-          class={containerClass({
-            position: "topLeft",
-            orientation: orientation(),
+          class={gameRecipe({
+            comboAnimation: comboAnimation() as any,
           })}
         >
-          <Menu />
-        </div>
-        <div
-          class={containerClass({
-            position: "topRight",
-            orientation: orientation(),
-            sudo: game.tutorialStep === 1,
-          })}
-        >
-          <TopRight />
-        </div>
-        <div
-          style={{
-            position: "relative",
-            width: `${layout().width}px`,
-            height: `${layout().height}px`,
-            "z-index": 3,
-          }}
-        >
-          <Board />
-        </div>
-        <div
-          class={containerClass({
-            position: "bottomLeft",
-            orientation: orientation(),
-            sudo: game.tutorialStep === 5,
-          })}
-        >
-          <BottomLeft />
-        </div>
-        <div
-          class={containerClass({
-            position: "bottomRight",
-            orientation: orientation(),
-            sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
-          })}
-        >
-          <BottomRight />
-        </div>
+          <div
+            class={containerClass({
+              position: "topLeft",
+              orientation: orientation(),
+            })}
+          >
+            <Menu />
+          </div>
+          <div
+            class={containerClass({
+              position: "topRight",
+              orientation: orientation(),
+              sudo: game.tutorialStep === 1,
+            })}
+          >
+            <TopRight />
+          </div>
+          <div
+            style={{
+              position: "relative",
+              width: `${layout().width}px`,
+              height: `${layout().height}px`,
+              "z-index": 3,
+            }}
+          >
+            <Board />
+          </div>
+          <div
+            class={containerClass({
+              position: "bottomLeft",
+              orientation: orientation(),
+              sudo: game.tutorialStep === 5,
+            })}
+          >
+            <BottomLeft />
+          </div>
+          <div
+            class={containerClass({
+              position: "bottomRight",
+              orientation: orientation(),
+              sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
+            })}
+          >
+            <BottomRight />
+          </div>
 
-        <Tutorial />
-        <Mountains />
-        <DustParticles />
-        <Powerups />
-      </div>
+          <Tutorial />
+          <DustParticles />
+          <Powerups />
+        </div>
+      </Background>
     </Show>
   )
 }
@@ -427,7 +434,7 @@ export function Penalty(props: { points: number }) {
 
 type Urgency = "normal" | "mild" | "moderate" | "urgent"
 
-export function Moves() {
+function Moves() {
   const tiles = useTileState()
   const game = useGameState()
   const pairs = createMemo(() => getAvailablePairs(tiles, game).length)

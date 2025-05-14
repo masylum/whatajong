@@ -1,6 +1,6 @@
 import { play, useMusic } from "@/components/audio"
+import { Mountains } from "@/components/background"
 import { BasicTile } from "@/components/game/basicTile"
-import { Mountains } from "@/components/mountains"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   bams,
@@ -84,30 +84,11 @@ export function Home() {
         </a>
         <a
           onMouseEnter={onHover}
-          href="/settings"
-          class={buttonClass({ hue: "bam" })}
-          style={{
-            ...assignInlineVars({
-              [buttonAnimationDelayVar]: "400ms",
-            }),
-          }}
-        >
-          <img
-            class={buttonIconClass}
-            src={`${img()}/dragong.webp`}
-            alt="classic"
-            width={36}
-            height={52}
-          />
-          {t.settings.title()}
-        </a>
-        <a
-          onMouseEnter={onHover}
           href="/help"
           class={buttonClass({ hue: "dot" })}
           style={{
             ...assignInlineVars({
-              [buttonAnimationDelayVar]: "600ms",
+              [buttonAnimationDelayVar]: "400ms",
             }),
           }}
         >
@@ -120,24 +101,50 @@ export function Home() {
           />
           {t.common.help()}
         </a>
+        <a
+          onMouseEnter={onHover}
+          href="/settings"
+          class={buttonClass({ hue: "bam" })}
+          style={{
+            ...assignInlineVars({
+              [buttonAnimationDelayVar]: "600ms",
+            }),
+          }}
+        >
+          <img
+            class={buttonIconClass}
+            src={`${img()}/dragong.webp`}
+            alt="classic"
+            width={36}
+            height={52}
+          />
+          {t.settings.title()}
+        </a>
       </nav>
-      <Mountains />
+      <Mountains num={0} />
     </div>
   )
 }
 
+const MAX_WIDTH = 2000
+const MAX_HEIGHT = 1600
+
 function Frame() {
-  const tileSize = useSmallerTileSize(0.7)
   const size = useWindowSize()
+  const tileSize = useSmallerTileSize(
+    Math.min(1, Math.max(0.7, size.width / MAX_WIDTH)),
+  )
   const padding = 0.95
+  const screenWidth = createMemo(() => Math.min(size.width, MAX_WIDTH))
+  const screenHeight = createMemo(() => Math.min(size.height, MAX_HEIGHT))
   const horizontalTiles = createMemo(() =>
-    Math.floor((size.width * padding) / tileSize().width),
+    Math.floor((screenWidth() * padding) / tileSize().width),
   )
   const horizontalGap = createMemo(
     () => (size.width - horizontalTiles() * tileSize().width) / 2,
   )
   const verticalTiles = createMemo(() =>
-    Math.floor((size.height * padding) / tileSize().height),
+    Math.floor((screenHeight() * padding) / tileSize().height),
   )
   const verticalGap = createMemo(
     () => (size.height - verticalTiles() * tileSize().height) / 2,

@@ -27,6 +27,7 @@ import {
   titleClass,
   whatajongClass,
 } from "./help.css"
+import { bamClass, crackClass, dotClass } from "./run/runGame.css"
 
 const STEPS = ["tiles", "board", "shop", "materials"] as const
 
@@ -183,20 +184,20 @@ function Board() {
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>{t.tutorial.board1()}</p>
+        <p innerHTML={t.tutorial.board1({ bamClass })} />
         <div class={boardClass}>
           <Points points={100} />
           <Penalty points={100} />
         </div>
       </div>
       <div class={columnClass}>
-        <p>{t.tutorial.board2()}</p>
+        <p innerHTML={t.tutorial.board2({ crackClass })} />
         <div class={boardClass}>
           <Coins coins={3} />
         </div>
       </div>
       <div class={columnClass}>
-        <p>{t.tutorial.board3()}</p>
+        <p innerHTML={t.tutorial.board3({ dotClass })} />
         <div class={boardClass}>
           <MovesIndicator urgency="normal" pairs={4} />
         </div>
@@ -211,7 +212,7 @@ function Shop() {
   return (
     <div class={columnsClass}>
       <div class={columnClass}>
-        <p>{t.tutorial.shop1()}</p>
+        <p innerHTML={t.tutorial.shop1({ crackClass })} />
         <div class={shopItemContainerClass}>
           <ItemTile
             item={{
@@ -234,13 +235,13 @@ function Shop() {
         </div>
       </div>
       <div class={columnClass}>
-        <p>{t.tutorial.shop2()}</p>
+        <p innerHTML={t.tutorial.shop2({ bamClass })} />
         <div class={shopItemContainerClass}>
           <RerollButton disabled={false} cost={0} />
         </div>
       </div>
       <div class={columnClass}>
-        <p>{t.tutorial.shop3()}</p>
+        <p innerHTML={t.tutorial.shop3({ dotClass })} />
         <div class={shopItemContainerClass}>
           <FreezeButton />
         </div>

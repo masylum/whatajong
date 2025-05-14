@@ -1,4 +1,3 @@
-import { ANIMATION_SLOW } from "@/styles/animations.css"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
@@ -162,7 +161,7 @@ function muzzleAnimation() {
       i,
       {
         ":before": {
-          animation: `${animations[i % 2]} ${ANIMATION_SLOW} steps(16)`,
+          animation: `${animations[i % 2]} 800ms steps(16)`,
         },
       },
     ]),

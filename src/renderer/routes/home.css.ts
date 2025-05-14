@@ -8,7 +8,7 @@ import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { createVar, style } from "@vanilla-extract/css"
+import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const homeClass = style({
@@ -21,7 +21,7 @@ export const homeClass = style({
   gap: 32,
   height: "100dvh",
   fontFamily: primary,
-  backgroundImage: "url(/halftone.png)",
+  backgroundImage: "url(./textures/2.webp)",
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 64,
@@ -31,15 +31,27 @@ export const homeClass = style({
   },
 })
 
+const textShadow = keyframes({
+  "22%, 28%, 47%, 53%": {
+    color: color.crack50,
+  },
+  "25%": {
+    color: color.dot60,
+  },
+  "50%": {
+    color: color.bam60,
+  },
+})
+
 export const titleClass = style({
   ...fontSize.h1,
   color: color.crack50,
   textAlign: "center",
-  animationName: fromBelowAnimation,
-  animationTimingFunction: easeBounce,
-  animationDuration: ANIMATION_MEDIUM,
-  animationDelay: "100ms",
-  animationFillMode: "backwards",
+  textShadow: `0.15rem 0 2px ${alpha(color.crack50, 0.3)}`,
+  animation: `
+    ${textShadow} 10s ${easeBounce} infinite,
+    ${fromBelowAnimation} ${ANIMATION_MEDIUM} ${easeBounce} backwards 100ms
+  `,
   "@media": {
     [mediaQuery({ p: "xs", l: "xxs" })]: {
       ...fontSize.hero4,
@@ -49,6 +61,9 @@ export const titleClass = style({
     },
     [mediaQuery({ p: "m", l: "s" })]: {
       ...fontSize.hero2,
+    },
+    [mediaQuery({ p: "l", l: "m" })]: {
+      ...fontSize.hero1,
     },
   },
 })
@@ -89,7 +104,6 @@ export const buttonClass = recipe({
         ...fontSize.h2,
         paddingInline: 16,
         paddingBlock: 12,
-        borderRadius: 12,
       },
       [mediaQuery({ p: "l", l: "m" })]: {
         ...fontSize.h1,
@@ -98,11 +112,23 @@ export const buttonClass = recipe({
   },
   variants: {
     hue: hueVariants((hue) => ({
-      background: alpha(hue(50), 0.2),
+      borderRadius: "1.5em .5em 1.5em .5em",
+      background: `linear-gradient(
+        30deg,
+        ${alpha(hue(50), 0)},
+        ${alpha(hue(50), 0.1)},
+        ${alpha(hue(50), 0)}
+      )`,
+      textShadow: `1px 1px 0px ${alpha(hue(60), 0.5)}`,
       color: hue(40),
       ":hover": {
-        background: alpha(hue(50), 0.3),
-        color: hue(20),
+        background: `linear-gradient(
+        30deg,
+        ${alpha(hue(50), 0)},
+        ${alpha(hue(50), 0.2)},
+        ${alpha(hue(50), 0)}
+      )`,
+        color: hue(30),
       },
     })),
   },

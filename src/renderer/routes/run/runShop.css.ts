@@ -573,11 +573,6 @@ export const closeButtonClass = style({
   },
 })
 
-export const videoContainerClass = style({
-  minHeight: 0,
-  flex: 1,
-})
-
 const fadeIn = keyframes({
   "0%": { opacity: 0 },
   "100%": { opacity: 1 },
