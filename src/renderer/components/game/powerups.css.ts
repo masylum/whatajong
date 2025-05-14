@@ -27,31 +27,28 @@ export const powerupRecipe = recipe({
     position: "absolute",
     ":before": {
       content: '""',
-      mixBlendMode: "color",
       position: "absolute",
       width: "100dvw",
       height: "100dvh",
       pointerEvents: "none",
       zIndex: -1,
       top: 0,
-      background: `linear-gradient(
-        rgb(from ${backgroundColor} r g b / ${fallbackVar(opacity, "1")}),
-        rgba(from ${backgroundColor} r g b / 0%) 50%
-      )`,
+      opacity: fallbackVar(opacity, "0.9"),
+      background: `linear-gradient(${backgroundColor}, transparent 50%)`,
     },
   },
   variants: {
     size: {
-      0: { vars: { [opacity]: "0.3" } },
-      1: { vars: { [opacity]: "0.4" } },
-      2: { vars: { [opacity]: "0.5" } },
-      3: { vars: { [opacity]: "0.6" } },
-      4: { vars: { [opacity]: "0.7" } },
-      5: { vars: { [opacity]: "0.8" } },
-      6: { vars: { [opacity]: "0.9" } },
+      0: { vars: { [opacity]: "0.2" } },
+      1: { vars: { [opacity]: "0.3" } },
+      2: { vars: { [opacity]: "0.4" } },
+      3: { vars: { [opacity]: "0.5" } },
+      4: { vars: { [opacity]: "0.6" } },
+      5: { vars: { [opacity]: "0.7" } },
+      6: { vars: { [opacity]: "0.8" } },
     },
     hue: hueVariants((kolor) => ({
-      vars: { [backgroundColor]: kolor(50) },
+      vars: { [backgroundColor]: kolor(60) },
     })),
   },
 })

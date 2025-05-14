@@ -18,15 +18,14 @@ const SOUNDS = fromEntries(
   ]),
 )
 
-const SONGS = { game: "music", shop: "music-shop" } as const
+const SONGS = { music: "music", game: "game" } as const
 const music = new Howl({
-  src: ["/sounds/sprite.mp3"],
+  src: ["/sounds/music/sprite.mp3"],
   preload: true,
   volume: 0,
-  loop: true,
   sprite: {
-    "music-shop": [100000, 355239.18367346935],
-    music: [457000, 353697.95918367343],
+    music: [0, 352052.2448979592, true],
+    game: [354000, 352052.2448979591, true],
   },
 })
 let MUSIC_IDS: Record<keyof typeof SONGS, number> | undefined
@@ -48,18 +47,16 @@ export function useMusic(track: keyof typeof SONGS) {
   onMount(() => {
     if (!MUSIC_IDS) {
       const gameId = music.play(SONGS.game)
-      const shopId = music.play(SONGS.shop)
+      const musicId = music.play(SONGS.music)
 
-      MUSIC_IDS = { game: gameId, shop: shopId }
+      MUSIC_IDS = { game: gameId, music: musicId }
 
       currentId = MUSIC_IDS[track]
-      music.on(
-        "play",
-        () => {
-          music.fade(0, globalState.musicVolume, 4000, currentId)
-        },
-        currentId,
-      )
+      console.log(track, MUSIC_IDS, currentId)
+      music.on("load", () => {
+        music.volume(globalState.musicVolume)
+        music.fade(0, globalState.musicVolume, 5_000, currentId)
+      })
     } else {
       const newId = MUSIC_IDS[track]
 

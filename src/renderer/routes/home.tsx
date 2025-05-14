@@ -56,7 +56,7 @@ export function Home() {
     play("click2")
   }
 
-  useMusic("game")
+  useMusic("music")
 
   return (
     <div class={homeClass}>

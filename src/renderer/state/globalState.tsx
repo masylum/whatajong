@@ -35,7 +35,7 @@ export function GlobalStateProvider(
 ) {
   createEffect(() => {
     musicVolume(props.globalState.musicVolume)
-    Howler.volume(props.globalState.soundVolume)
+    Howler.volume(props.globalState.soundVolume * 0.3)
   })
 
   return (

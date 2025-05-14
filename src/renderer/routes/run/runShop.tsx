@@ -109,7 +109,7 @@ export default function RunShop() {
     ),
   )
 
-  useMusic("shop")
+  useMusic("music")
 
   return (
     <div class={backgroundClass}>
@@ -484,7 +484,6 @@ export function Deck(props: { size: number }) {
       {} as Record<Suit, number>,
     ),
   )
-  console.log(order())
 
   const sortedDeck = createMemo(() =>
     sortBy(

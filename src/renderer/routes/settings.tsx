@@ -34,7 +34,7 @@ export function Settings() {
   const globalState = useGlobalState()
   const t = useTranslation()
 
-  useMusic("shop")
+  useMusic("music")
 
   return (
     <div class={containerClass}>

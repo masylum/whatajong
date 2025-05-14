@@ -110,7 +110,7 @@ export default function RunGameOver() {
     })
   })
 
-  useMusic("shop")
+  useMusic("music")
 
   function goToNextRound() {
     batch(() => {
