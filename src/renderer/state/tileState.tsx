@@ -12,7 +12,7 @@ import { type ParentProps, batch, createContext, useContext } from "solid-js"
 import { createPersistentDatabase } from "./persistentDatabase"
 
 const TileStateContext = createContext<TileDb | undefined>()
-const TILE_STATE_NAMESPACE = "tile-state"
+const TILE_STATE_NAMESPACE = "tile-state-v4"
 
 export function TileStateProvider(props: { tileDb: TileDb } & ParentProps) {
   return (

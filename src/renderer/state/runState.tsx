@@ -55,7 +55,7 @@ import {
   initializeTileState,
 } from "./tileState"
 
-const RUN_STATE_NAMESPACE = "run-state-v3"
+const RUN_STATE_NAMESPACE = "run-state-v4"
 export const TUTORIAL_SEED = "tutorial-seed"
 const ITEM_COST = 3
 const ITEM_POOL_SIZE = 9

@@ -10,7 +10,7 @@ import { type ParentProps, batch, useContext } from "solid-js"
 import { createContext } from "solid-js"
 import { createPersistentDatabase } from "./persistentDatabase"
 
-const DECK_STATE_NAMESPACE = "deck-state-v3"
+const DECK_STATE_NAMESPACE = "deck-state-v4"
 
 export function createDeckState() {
   const db = new Database<DeckTile, DeckTileIndexes>(deckTileIndexes)
