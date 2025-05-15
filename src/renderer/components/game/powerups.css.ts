@@ -74,6 +74,7 @@ export const comboRecipe = recipe({
     paddingBlock: 2,
     borderRadius: 12,
     animation: `${pulseAnimation} 1s ease-in-out infinite`,
+    whiteSpace: "nowrap",
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         ...fontSize.s,

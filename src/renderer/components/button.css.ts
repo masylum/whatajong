@@ -48,6 +48,11 @@ export const buttonClass = recipe({
     hue: hueVariants((kolor) => ({
       backgroundColor: alpha(kolor(50), 0.2),
       color: kolor(40),
+      border: `1px solid ${alpha(kolor(40), 0.2)}`,
+      boxShadow: `
+        0 0 3px ${alpha(kolor(20), 0.1)},
+        0 0 8px -3px ${alpha(kolor(30), 0.1)}
+      `,
       ":focus": {
         outline: `2px solid ${kolor(50)}`,
       },

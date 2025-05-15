@@ -426,6 +426,7 @@ export type Tile = {
   points?: number
   coins?: number
 } & Position
+
 type TileById = Record<string, Tile>
 export const tileIndexes = {
   x: (tile: Tile) => tile.x,

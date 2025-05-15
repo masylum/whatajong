@@ -12,31 +12,12 @@ import { fontSize } from "@/styles/fontSize"
 import { createVar, keyframes, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
-export const gameOverClass = style({
-  fontFamily: primary,
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  gap: 32,
-  backgroundImage: "url(/halftone.png)",
-  width: "100dvw",
-  height: "100dvh",
-  position: "relative",
-  overflow: "hidden",
-  "@media": {
-    [mediaQuery({ p: "xl", l: "l" })]: {
-      flexDirection: "row",
-      gap: 64,
-    },
-  },
-})
-
 export const startX = createVar()
 export const endX = createVar()
 export const rotation = createVar()
 export const duration = createVar()
 
-const bounce = keyframes({
+const fallAnimation = keyframes({
   "0%": {
     transform: `translate(${startX}, 0dvh) rotate(0deg)`,
     opacity: 0,
@@ -50,9 +31,18 @@ const bounce = keyframes({
   },
 })
 
-export const bouncingCardClass = style({
+const fadeIn = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+})
+
+export const fallingTileClass = style({
   position: "absolute",
-  animation: `${bounce} ${duration} linear infinite`,
+  animation: `${fallAnimation} ${duration} linear infinite`,
   animationFillMode: "backwards",
   top: 0,
   left: 0,
@@ -60,15 +50,17 @@ export const bouncingCardClass = style({
 
 export const screenClass = recipe({
   base: {
+    position: "absolute",
+    inset: 0,
+    fontFamily: primary,
+    zIndex: 3,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
     gap: 32,
-    width: "100%",
-    height: "100%",
-    animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
+    animation: `${fadeIn} 1000ms ${easeBounce}`,
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
         padding: 24,
@@ -82,11 +74,17 @@ export const screenClass = recipe({
   variants: {
     win: {
       true: {
-        background: `linear-gradient(to bottom, ${alpha(color.bam60, 0.2)}, ${alpha(color.bam60, 0.4)})`,
+        background: `
+          linear-gradient(to bottom, ${alpha(color.bam70, 0.7)}, ${alpha(color.bam90, 0.95)}),
+          radial-gradient(ellipse at center, ${alpha(color.bam70, 1)}, ${alpha(color.bam90, 0)} 90%)
+        `,
         color: color.bam90,
       },
       false: {
-        background: `linear-gradient(to bottom, ${alpha(color.crack60, 0.2)}, ${alpha(color.crack60, 0.4)})`,
+        background: `
+          linear-gradient(to bottom, ${alpha(color.crack60, 0.7)}, ${alpha(color.crack90, 0.95)}),
+          radial-gradient(ellipse at center, ${alpha(color.crack60, 1)}, ${alpha(color.crack90, 0)} 90%)
+        `,
         color: color.crack90,
       },
     },
@@ -100,6 +98,7 @@ export const titleClass = style({
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
   animationTimingFunction: easeBounce,
+  animationDelay: "100ms",
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h1,
@@ -124,10 +123,12 @@ export const titleClass = style({
 export const subtitleClass = style({
   ...fontSize.h3,
   textAlign: "center",
-  animationName: fromBelowAnimation,
+  animationName: fromAboveAnimation,
   animationDuration: ANIMATION_SLOW,
   animationFillMode: "backwards",
+  animationTimingFunction: easeBounce,
   color: color.crack30,
+  animationDelay: ANIMATION_SLOW,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.h2,
@@ -158,16 +159,16 @@ export const detailListClass = recipe({
     animationFillMode: "backwards",
     selectors: {
       "&:first-child": {
-        animationDelay: "200ms",
-      },
-      "&:nth-child(2)": {
         animationDelay: "400ms",
       },
-      "&:nth-child(3)": {
+      "&:nth-child(2)": {
         animationDelay: "600ms",
       },
-      "&:nth-child(4)": {
+      "&:nth-child(3)": {
         animationDelay: "800ms",
+      },
+      "&:nth-child(4)": {
+        animationDelay: "1000ms",
       },
     },
     "@media": {
@@ -185,7 +186,12 @@ export const detailListClass = recipe({
   },
   variants: {
     hue: hueVariants((kolor) => ({
-      background: alpha(kolor(50), 0.1),
+      background: `linear-gradient(to right, ${alpha(kolor(50), 0.4)}, ${alpha(kolor(50), 0.2)})`,
+      border: `1px solid ${alpha(kolor(40), 0.2)}`,
+      boxShadow: `
+        0 0 3px ${alpha(kolor(20), 0.1)},
+        0 0 8px -3px ${alpha(kolor(30), 0.1)}
+      `,
     })),
   },
 })
@@ -261,5 +267,5 @@ export const buttonsClass = style({
   animationName: fromBelowAnimation,
   animationDuration: ANIMATION_MEDIUM,
   animationFillMode: "backwards",
-  animationDelay: "500ms",
+  animationDelay: "1000ms",
 })

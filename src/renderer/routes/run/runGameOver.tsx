@@ -33,12 +33,11 @@ import {
   onMount,
 } from "solid-js"
 import {
-  bouncingCardClass,
   buttonsClass,
   detailListClass,
   duration,
   endX,
-  gameOverClass,
+  fallingTileClass,
   itemKeyClass,
   itemValueClass,
   rotation,
@@ -132,89 +131,87 @@ export default function RunGameOver() {
   }
 
   return (
-    <div class={gameOverClass}>
-      <div class={screenClass({ win: win() })}>
-        <div>
-          <Title win={win()} round={run.round} />
-          <Show when={!win()}>
-            <div class={subtitleClass}>
-              <Show
-                when={game.endCondition === "no-pairs"}
-                fallback={t.gameOver.notEnoughPoints()}
-              >
-                {t.gameOver.noPairs()}
-              </Show>
-            </div>
-          </Show>
-        </div>
-        <div class={scoreClass}>
-          <Show when={win()}>
-            <List hue="crack">
-              <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
-              <Show when={tileCoins()}>
-                {(coins) => (
-                  <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
-                )}
-              </Show>
-              <Show when={overAchievementCoins()}>
-                {(coins) => (
-                  <Item
-                    label={t.gameOver.overachiever({
-                      percent: Math.round(achievement() * 100),
-                    })}
-                  >
-                    + ${coins()}
-                  </Item>
-                )}
-              </Show>
-            </List>
-          </Show>
-
-          <List hue="bam">
-            <Item label={t.common.points()}>+{points()}</Item>
+    <div class={screenClass({ win: win() })}>
+      <div>
+        <Title win={win()} round={run.round} />
+        <Show when={!win()}>
+          <div class={subtitleClass}>
+            <Show
+              when={game.endCondition === "no-pairs"}
+              fallback={t.gameOver.notEnoughPoints()}
+            >
+              {t.gameOver.noPairs()}
+            </Show>
+          </div>
+        </Show>
+      </div>
+      <div class={scoreClass}>
+        <Show when={win()}>
+          <List hue="crack">
+            <Item label={t.gameOver.roundReward()}>+ ${income()}</Item>
+            <Show when={tileCoins()}>
+              {(coins) => (
+                <Item label={t.gameOver.tileCoins()}>+ ${coins()}</Item>
+              )}
+            </Show>
+            <Show when={overAchievementCoins()}>
+              {(coins) => (
+                <Item
+                  label={t.gameOver.overachiever({
+                    percent: Math.round(achievement() * 100),
+                  })}
+                >
+                  + ${coins()}
+                </Item>
+              )}
+            </Show>
           </List>
+        </Show>
 
-          <Show when={round().timerPoints}>
-            <List hue="black">
-              <Item label={t.gameOver.timePenalty({ time: time() })}>
-                -{penalty()}
-              </Item>
-            </List>
-          </Show>
+        <List hue="bam">
+          <Item label={t.common.points()}>+{points()}</Item>
+        </List>
 
-          <List hue="dot">
-            <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
-            <Item label={t.common.objective()}>{round().pointObjective}</Item>
+        <Show when={round().timerPoints}>
+          <List hue="black">
+            <Item label={t.gameOver.timePenalty({ time: time() })}>
+              -{penalty()}
+            </Item>
           </List>
-        </div>
-        <div class={buttonsClass}>
-          <Show
-            when={win()}
-            fallback={
-              <Button hue="crack" onPointerDown={retrySameRound}>
-                {t.gameOver.trySameRun()}
-                <Rotate />
-              </Button>
-            }
-          >
-            <Button hue="bam" onPointerDown={() => goToNextRound()}>
-              <Switch>
-                <Match when={nextRoundStage() === "shop"}>
-                  <Shop />
-                  {t.common.goToShop()}
-                </Match>
-                <Match when={nextRoundStage() === "reward"}>
-                  <Reward />
-                  {t.common.next()}
-                </Match>
-                <Match when={nextRoundStage() === "end"}>
-                  <Star />
-                  {t.common.celebrate()}
-                </Match>
-              </Switch>
+        </Show>
+
+        <List hue="dot">
+          <Item label={t.gameOver.totalPoints()}>{totalPoints()}</Item>
+          <Item label={t.common.objective()}>{round().pointObjective}</Item>
+        </List>
+      </div>
+      <div class={buttonsClass}>
+        <Show
+          when={win()}
+          fallback={
+            <Button hue="crack" onPointerDown={retrySameRound}>
+              {t.gameOver.trySameRun()}
+              <Rotate />
             </Button>
-          </Show>
-        </div>
+          }
+        >
+          <Button hue="bam" onPointerDown={() => goToNextRound()}>
+            <Switch>
+              <Match when={nextRoundStage() === "shop"}>
+                <Shop />
+                {t.common.goToShop()}
+              </Match>
+              <Match when={nextRoundStage() === "reward"}>
+                <Reward />
+                {t.common.next()}
+              </Match>
+              <Match when={nextRoundStage() === "end"}>
+                <Star />
+                {t.common.celebrate()}
+              </Match>
+            </Switch>
+          </Button>
+        </Show>
       </div>
       <FallingTiles />
     </div>
@@ -240,7 +237,7 @@ function FallingTile(props: { cardId: CardId }) {
         }),
         "animation-delay": `${delay()}s`,
       }}
-      class={bouncingCardClass}
+      class={fallingTileClass}
     >
       <BasicTile width={tileSize().width} cardId={props.cardId} />
     </div>

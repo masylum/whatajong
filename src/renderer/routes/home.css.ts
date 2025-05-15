@@ -8,7 +8,7 @@ import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
-import { createVar, keyframes, style } from "@vanilla-extract/css"
+import { createVar, style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const homeClass = style({
@@ -31,27 +31,12 @@ export const homeClass = style({
   },
 })
 
-const textShadow = keyframes({
-  "22%, 28%, 47%, 53%": {
-    color: color.crack50,
-  },
-  "25%": {
-    color: color.dot60,
-  },
-  "50%": {
-    color: color.bam60,
-  },
-})
-
 export const titleClass = style({
   ...fontSize.h1,
   color: color.crack50,
   textAlign: "center",
   textShadow: `0.15rem 0 2px ${alpha(color.crack50, 0.3)}`,
-  animation: `
-    ${textShadow} 10s ${easeBounce} infinite,
-    ${fromBelowAnimation} ${ANIMATION_MEDIUM} ${easeBounce} backwards 100ms
-  `,
+  animation: `${fromBelowAnimation} ${ANIMATION_MEDIUM} ${easeBounce} backwards 100ms`,
   "@media": {
     [mediaQuery({ p: "xs", l: "xxs" })]: {
       ...fontSize.hero4,

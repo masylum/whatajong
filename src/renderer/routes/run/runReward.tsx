@@ -114,7 +114,7 @@ export default function RunReward() {
   onMount(() => {
     play("reward")
   })
-  useMusic("game")
+  useMusic("music")
 
   return (
     <div class={containerClass}>

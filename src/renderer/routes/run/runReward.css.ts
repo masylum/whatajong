@@ -33,15 +33,15 @@ export const contentClass = style({
   height: "100%",
   animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
   "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
       padding: 32,
       gap: 16,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "l", l: "l" })]: {
       padding: 48,
       gap: 24,
     },
-    [mediaQuery({ p: "xl", l: "l" })]: {
+    [mediaQuery({ p: "xl", l: "xl" })]: {
       padding: 64,
       gap: 32,
     },
@@ -53,13 +53,13 @@ export const titleClass = style({
   color: color.dot40,
   fontFamily: primary,
   "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
       ...fontSize.h1,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "l", l: "l" })]: {
       ...fontSize.hero4,
     },
-    [mediaQuery({ p: "xl", l: "l" })]: {
+    [mediaQuery({ p: "xl", l: "xl" })]: {
       ...fontSize.hero3,
     },
   },
@@ -85,10 +85,10 @@ export const explanationClass = style({
   lineHeight: 1.5,
   textAlign: "left",
   "@media": {
-    [mediaQuery({ p: "m", l: "s" })]: {
+    [mediaQuery({ p: "m", l: "m" })]: {
       ...fontSize.h3,
     },
-    [mediaQuery({ p: "l", l: "m" })]: {
+    [mediaQuery({ p: "l", l: "l" })]: {
       ...fontSize.h2,
     },
   },

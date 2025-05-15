@@ -151,6 +151,7 @@ export const containerClass = recipe({
       topLeft: {
         left: 0,
         top: 0,
+        zIndex: 4,
       },
       topRight: {
         right: 0,

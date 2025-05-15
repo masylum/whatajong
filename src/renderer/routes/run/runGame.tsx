@@ -72,9 +72,11 @@ export default function RunGame() {
 
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
+  const endCondition = createMemo(() => game.endCondition)
 
   createTimer(
     () => {
+      if (endCondition()) return
       game.time += 1
     },
     () => !game.pause && 1000,
@@ -127,65 +129,66 @@ export default function RunGame() {
   })
 
   return (
-    <Show when={!game.endCondition} fallback={<RunGameOver />}>
-      <Background num={num()}>
+    <Background num={num()}>
+      <div
+        class={gameRecipe({
+          comboAnimation: comboAnimation() as any,
+        })}
+      >
         <div
-          class={gameRecipe({
-            comboAnimation: comboAnimation() as any,
+          class={containerClass({
+            position: "topLeft",
+            orientation: orientation(),
           })}
         >
-          <div
-            class={containerClass({
-              position: "topLeft",
-              orientation: orientation(),
-            })}
-          >
-            <Menu />
-          </div>
-          <div
-            class={containerClass({
-              position: "topRight",
-              orientation: orientation(),
-              sudo: game.tutorialStep === 1,
-            })}
-          >
-            <TopRight />
-          </div>
-          <div
-            style={{
-              position: "relative",
-              width: `${layout().width}px`,
-              height: `${layout().height}px`,
-              "z-index": 3,
-            }}
-          >
-            <Board />
-          </div>
-          <div
-            class={containerClass({
-              position: "bottomLeft",
-              orientation: orientation(),
-              sudo: game.tutorialStep === 5,
-            })}
-          >
-            <BottomLeft />
-          </div>
-          <div
-            class={containerClass({
-              position: "bottomRight",
-              orientation: orientation(),
-              sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
-            })}
-          >
-            <BottomRight />
-          </div>
-
-          <Tutorial />
-          <DustParticles />
-          <Powerups />
+          <Menu />
         </div>
-      </Background>
-    </Show>
+        <div
+          class={containerClass({
+            position: "topRight",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 1,
+          })}
+        >
+          <TopRight />
+        </div>
+        <div
+          style={{
+            position: "relative",
+            width: `${layout().width}px`,
+            height: `${layout().height}px`,
+            "z-index": 3,
+          }}
+        >
+          <Board />
+        </div>
+        <div
+          class={containerClass({
+            position: "bottomLeft",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 5,
+          })}
+        >
+          <BottomLeft />
+        </div>
+        <div
+          class={containerClass({
+            position: "bottomRight",
+            orientation: orientation(),
+            sudo: game.tutorialStep === 6 || game.tutorialStep === 7,
+          })}
+        >
+          <BottomRight />
+        </div>
+
+        <Tutorial />
+        <DustParticles />
+        <Powerups />
+        <Show when={endCondition()}>
+          <RunGameOver />
+        </Show>
+      </div>
+    </Background>
   )
 }
 
