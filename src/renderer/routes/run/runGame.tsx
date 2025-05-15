@@ -601,6 +601,8 @@ export function useComboEffect() {
     createEffect((prevCombo: number | undefined) => {
       const combo = effect.getCombo()
 
+      if (combo) play("thunder")
+
       if (prevCombo === undefined && combo !== undefined) {
         play(effect.startSound)
       } else if (prevCombo && !combo) {

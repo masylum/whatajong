@@ -6,7 +6,7 @@ import { onMount } from "solid-js"
 // biome-ignore format:
 const SoundFiles = [
   "click", "click2", "clack", "ding", "coin", "coin2", "dragon", "gong", "wind", "shake", "earthquake", "great", "grunt", "screech", "nice",
-  "super", "awesome", "amazing", "unreal", "fantastic", "legendary", "alarm1", "alarm2", "alarm3", "phoenix", "mutation",
+  "super", "awesome", "amazing", "unreal", "fantastic", "legendary", "alarm1", "alarm2", "alarm3", "phoenix", "mutation", 'thunder',
   "freeze", "joker", "dice", "gemstone", "end_phoenix", "end_dragon", "tiles", "reward", "won", "lost", "frog", "lotus", "gong2", "sparrow",
 ] as const
 type Track = (typeof SoundFiles)[number]
