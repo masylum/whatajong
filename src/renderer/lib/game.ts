@@ -2,6 +2,7 @@ import { play } from "@/components/audio"
 import type { Translator } from "@/i18n/useTranslation"
 import { animate } from "@/state/animationState"
 import type { Game } from "@/state/gameState"
+import type { Round } from "@/state/runState"
 import { indexBy, isIncludedIn } from "remeda"
 import { batch } from "solid-js"
 import { Database } from "./in-memoriam"
@@ -959,4 +960,8 @@ const CARDS_BY_ID = indexBy(
 )
 export function getCard(card: CardId) {
   return CARDS_BY_ID[card]!
+}
+
+export function getPenalty(time: number, round: Round) {
+  return Math.floor(time * round.timerPoints)
 }

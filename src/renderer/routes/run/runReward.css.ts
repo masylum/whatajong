@@ -168,7 +168,7 @@ export const sandboxClass = recipe({
     vars: {
       [shakeIntensity]: "7",
     },
-    padding: 32,
+    padding: 24,
     paddingTop: 64,
     position: "relative",
     display: "flex",
@@ -181,7 +181,7 @@ export const sandboxClass = recipe({
     animation: `${shakeAnimation} ${COMBO_ANIMATION_DURATION}ms cubic-bezier(.36,.07,.19,.97)`,
     "@media": {
       [mediaQuery({ p: "m", l: "s" })]: {
-        padding: 40,
+        padding: 32,
         paddingTop: 72,
       },
     },
@@ -269,4 +269,32 @@ export const endConditionButtonClass = style({
 
 export const pillsClass = style({
   zIndex: 3,
+})
+
+const jump = keyframes({
+  "0%, 100%": { transform: "translateY(-5px)" },
+  "50%": { transform: "translateY(5px)" },
+})
+
+export const tipClass = recipe({
+  base: {
+    ...fontSize.l,
+    color: color.dot30,
+    fontFamily: primary,
+    animation: `${jump} 1s ease-in-out infinite`,
+    display: "flex",
+    alignItems: "center",
+    transition: "opacity 0.5s ease-in-out",
+    gap: 8,
+  },
+  variants: {
+    countdown: {
+      5: { opacity: 1 },
+      4: { opacity: 0.8 },
+      3: { opacity: 0.6 },
+      2: { opacity: 0.4 },
+      1: { opacity: 0.2 },
+      0: { opacity: 0 },
+    },
+  },
 })

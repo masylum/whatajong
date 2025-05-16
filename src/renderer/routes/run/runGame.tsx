@@ -12,6 +12,7 @@ import {
   type TileDb,
   getActiveShadows,
   getAvailablePairs,
+  getPenalty,
   isWind,
   selectTile,
 } from "@/lib/game"
@@ -73,6 +74,8 @@ export default function RunGame() {
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
   const endCondition = createMemo(() => game.endCondition)
+  const roundId = createMemo(() => `${run.runId}-${run.round}`)
+  const round = useRound()
 
   createTimer(
     () => {
@@ -86,6 +89,10 @@ export default function RunGame() {
   useMusic("game")
 
   onMount(() => {
+    batch(() => {
+      initializeTileState(roundId(), deck.all, tiles)
+      setMutable(game, initialGameState(roundId()))
+    })
     play("tiles")
     play("gong")
   })
@@ -93,7 +100,6 @@ export default function RunGame() {
 
   // Cheat: Resolve pair
   createShortcut(["Shift", "K"], () => {
-    console.log("cheat!")
     const pairs = getAvailablePairs(tiles, game).sort(
       // remove top to bottom and winds last
       // this is the easiest heuristic to solve the game
@@ -110,22 +116,29 @@ export default function RunGame() {
     for (const tile of pairs) {
       selectTile({ tileDb: tiles, game, tileId: tile.id })
     }
-    game.points += 100
-  })
-
-  const num = createMemo(() => {
-    const rnd = new Rand(`${run.runId}-${run.round}`)
-    return Math.floor(rnd.next() * 4)
   })
 
   // Cheat: Provoke restart
   createShortcut(["Shift", "R"], () => {
     batch(() => {
-      run.retries += 1
       const key = roundPersistentKey(run)
       setMutable(game, initialGameState(run.runId))
       initializeTileState(key, deck.all, tiles)
     })
+  })
+
+  // Cheat: Provoke game over
+  createShortcut(["Shift", "G"], () => {
+    batch(() => {
+      const penalty = getPenalty(game.time, round())
+      game.points = round().pointObjective + penalty
+      game.endCondition = "empty-board"
+    })
+  })
+
+  const num = createMemo(() => {
+    const rnd = new Rand(`${run.runId}-${run.round}`)
+    return Math.floor(rnd.next() * 4)
   })
 
   return (

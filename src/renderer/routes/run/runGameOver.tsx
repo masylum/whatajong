@@ -4,6 +4,7 @@ import { BasicTile } from "@/components/game/basicTile"
 import { Reward, Rotate, Shop, Star } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import type { CardId } from "@/lib/game"
+import { getPenalty } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { pick, shuffle } from "@/lib/rand"
 import { useSmallerTileSize } from "@/state/constants"
@@ -61,7 +62,7 @@ export default function RunGameOver() {
   const tiles = useTileState()
 
   const time = createMemo(() => game.time)
-  const penalty = createMemo(() => Math.floor(time() * round().timerPoints))
+  const penalty = createMemo(() => getPenalty(time(), round()))
   const points = createMemo(() => game.points)
   const totalPoints = createMemo(() => points() - penalty())
   const win = createMemo(() => {

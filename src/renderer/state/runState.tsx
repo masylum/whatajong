@@ -1,5 +1,4 @@
 import { play } from "@/components/audio"
-import { createChangeEffect } from "@/lib/createChangeEffect"
 import {
   type Card,
   type CardId,
@@ -38,22 +37,10 @@ import {
   createMemo,
   useContext,
 } from "solid-js"
-import {
-  DeckStateProvider,
-  createDeckState,
-  initializeDeckState,
-} from "./deckState"
-import {
-  GameStateProvider,
-  createGameState,
-  initialGameState,
-} from "./gameState"
-import { createPersistantMutable, setMutable } from "./persistantMutable"
-import {
-  TileStateProvider,
-  createTileState,
-  initializeTileState,
-} from "./tileState"
+import { DeckStateProvider, createDeckState } from "./deckState"
+import { GameStateProvider, createGameState } from "./gameState"
+import { createPersistantMutable } from "./persistantMutable"
+import { TileStateProvider, createTileState } from "./tileState"
 
 const RUN_STATE_NAMESPACE = "run-state-v4"
 export const TUTORIAL_SEED = "tutorial-seed"
@@ -112,7 +99,7 @@ export type RoundStage =
   | "gameOver"
   | "reward"
   | "end"
-type Round = {
+export type Round = {
   id: number
   pointObjective: number
   timerPoints: number
@@ -137,15 +124,6 @@ export function RunStateProvider(props: { run: RunState } & ParentProps) {
   const game = createGameState({ id: roundId })
   const deck = createDeckState()
   const tileDb = createTileState({ id: roundId(), deck: deck.all })
-
-  createChangeEffect(() => {
-    initializeDeckState(deck)
-  }, runId)
-
-  createChangeEffect((roundId) => {
-    initializeTileState(roundId, deck.all, tileDb)
-    setMutable(game, initialGameState(roundId))
-  }, roundId)
 
   return (
     <RunStateContext.Provider value={props.run}>
@@ -280,13 +258,13 @@ function createLevels(info: [number, Readonly<Card[]>[]][]): Levels {
   return info.map(([rewards, collection], level) => ({
     level,
     rewards,
-    tileItems: collection.flatMap((cards) =>
-      cards.flatMap((card, i) =>
-        Array.from({ length: ITEM_POOL_SIZE }, (_, j) => ({
-          id: `${level}-${i}-${j}`,
+    tileItems: collection.flatMap((cards, i) =>
+      cards.flatMap((card, j) =>
+        Array.from({ length: ITEM_POOL_SIZE }, (_, k) => ({
+          id: `${level}-${i}-${j}-${k}`,
           cardId: card.id,
           type: "tile",
-          cost: ITEM_COST + Math.round((isSuit(card.id) ? 1 : level - 1) / 2),
+          cost: ITEM_COST + Math.floor((isSuit(card.id) ? 1 : level - 1) / 2),
         })),
       ),
     ),

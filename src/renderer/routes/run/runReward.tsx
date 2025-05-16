@@ -3,7 +3,7 @@ import { Button } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
-import { ArrowRight, Rotate } from "@/components/icon"
+import { ArrowRight, ArrowUp, Rotate } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
 import {
   type CardId,
@@ -17,7 +17,7 @@ import {
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
 import { shuffle } from "@/lib/rand"
-import { useTileSize } from "@/state/constants"
+import { useSmallerTileSize, useTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
 import {
   type Game,
@@ -33,6 +33,7 @@ import {
   useRunState,
 } from "@/state/runState"
 import { TileStateProvider, useTileState } from "@/state/tileState"
+import { makeTimer } from "@solid-primitives/timer"
 import { nanoid } from "nanoid"
 import Rand from "rand-seed"
 import { uniqueBy } from "remeda"
@@ -44,6 +45,7 @@ import {
   batch,
   createMemo,
   createSelector,
+  createSignal,
   onMount,
 } from "solid-js"
 import { createMutable } from "solid-js/store"
@@ -63,8 +65,11 @@ import {
   sandboxContentClass,
   subtitleClass,
   tilesContainerClass,
+  tipClass,
   titleClass,
 } from "./runReward.css"
+
+const GAME_ID = "sandbox"
 
 export default function RunReward() {
   const run = useRunState()
@@ -115,6 +120,21 @@ export default function RunReward() {
     play("reward")
   })
   useMusic("music")
+  const tileDb = new Database<Tile, TileIndexes>(tileIndexes)
+  const game = createMutable<Game>(initialGameState(GAME_ID))
+
+  const [countdown, setCountdown] = createSignal(5)
+  const dispose = makeTimer(
+    () => {
+      if (countdown() === 0) {
+        dispose()
+        return
+      }
+      setCountdown(countdown() - 1)
+    },
+    1000,
+    setInterval,
+  )
 
   return (
     <div class={containerClass}>
@@ -137,14 +157,30 @@ export default function RunReward() {
             </For>
           </div>
           <p class={explanationClass} innerHTML={rewardExplanation()} />
-          <Sandbox suit={suit()} />
+          <GameStateProvider game={game}>
+            <TileStateProvider tileDb={tileDb}>
+              <SandboxContent suit={suit()} />
+            </TileStateProvider>
+          </GameStateProvider>
         </div>
-        <div class={buttonContainerClass}>
-          <Button hue="dot" onPointerDown={onContinue}>
-            {t.common.goToShop()}
-            <ArrowRight />
-          </Button>
-        </div>
+        <Show
+          when={game.endCondition || countdown() === 0}
+          fallback={
+            <div class={buttonContainerClass}>
+              <span class={tipClass({ countdown: countdown() as any })}>
+                <ArrowUp />
+                solve the puzzle
+              </span>
+            </div>
+          }
+        >
+          <div class={buttonContainerClass}>
+            <Button hue="dot" onPointerDown={onContinue}>
+              {t.common.goToShop()}
+              <ArrowRight />
+            </Button>
+          </div>
+        </Show>
       </div>
     </div>
   )
@@ -155,7 +191,7 @@ function FloatingTile(props: {
   i: number
   isSelected: boolean
 }) {
-  const tileSize = useTileSize()
+  const tileSize = useSmallerTileSize(0.8)
 
   return (
     <div class={floatingTileClass({ isSelected: props.isSelected })}>
@@ -418,20 +454,6 @@ const SANDBOXES = {
     points: 276,
   },
 } as Record<Suit, { tiles: PartialTile[]; points: number }>
-
-const GAME_ID = "sandbox"
-function Sandbox(props: { suit: Suit }) {
-  const tileDb = new Database<Tile, TileIndexes>(tileIndexes)
-  const game = createMutable<Game>(initialGameState(GAME_ID))
-
-  return (
-    <GameStateProvider game={game}>
-      <TileStateProvider tileDb={tileDb}>
-        <SandboxContent suit={props.suit} />
-      </TileStateProvider>
-    </GameStateProvider>
-  )
-}
 
 function SandboxContent(props: { suit: Suit }) {
   const tileSize = useTileSize()

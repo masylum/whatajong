@@ -3,11 +3,13 @@ import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight } from "@/components/icon"
 import type { CardId, Material } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
+import { initializeDeckState, useDeckState } from "@/state/deckState"
 import { setMutable } from "@/state/persistantMutable"
 import { TUTORIAL_SEED, initialRunState, useRunState } from "@/state/runState"
 import type { AccentHue } from "@/styles/colors"
 import { useNavigate } from "@solidjs/router"
 import { nanoid } from "nanoid"
+import { batch } from "solid-js"
 import {
   arrowClass,
   backButtonClass,
@@ -85,10 +87,15 @@ function Difficulty(props: {
   i: number
 }) {
   const run = useRunState()
+  const deck = useDeckState()
   const navigate = useNavigate()
 
   function onNewRun(seed: string) {
-    setMutable(run, initialRunState(seed))
+    batch(() => {
+      setMutable(run, initialRunState(seed))
+      initializeDeckState(deck)
+    })
+
     captureEvent("start_game", {
       runId: run.runId,
       difficulty: run.difficulty,

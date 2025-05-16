@@ -52,7 +52,6 @@ export function useMusic(track: keyof typeof SONGS) {
       MUSIC_IDS = { game: gameId, music: musicId }
 
       currentId = MUSIC_IDS[track]
-      console.log(track, MUSIC_IDS, currentId)
       music.on("load", () => {
         music.volume(globalState.musicVolume)
         music.fade(0, globalState.musicVolume, 5_000, currentId)
