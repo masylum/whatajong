@@ -8,10 +8,14 @@ import {
   isElement,
   isFlower,
   isFrog,
+  isGem,
   isJoker,
+  isLotus,
   isMutation,
   isPhoenix,
   isRabbit,
+  isShadow,
+  isSparrow,
   isTaijitu,
   isWind,
 } from "@/lib/game"
@@ -127,6 +131,26 @@ export function Explanation(props: { cardId: CardId }) {
       <Match when={isFrog(props.cardId)}>
         <div class={detailInfoClass({ hue: "bone" })}>
           <p innerHTML={t.tileDetails.explanation.frog()} />
+        </div>
+      </Match>
+      <Match when={isLotus(props.cardId)}>
+        <div class={detailInfoClass({ hue: "bone" })}>
+          <p innerHTML={t.tileDetails.explanation.lotus()} />
+        </div>
+      </Match>
+      <Match when={isGem(props.cardId)}>
+        <div class={detailInfoClass({ hue: "bone" })}>
+          <p innerHTML={t.tileDetails.explanation.gem()} />
+        </div>
+      </Match>
+      <Match when={isSparrow(props.cardId)}>
+        <div class={detailInfoClass({ hue: "bone" })}>
+          <p innerHTML={t.tileDetails.explanation.sparrow()} />
+        </div>
+      </Match>
+      <Match when={isShadow(props.cardId)}>
+        <div class={detailInfoClass({ hue: "bone" })}>
+          <p innerHTML={t.tileDetails.explanation.shadow()} />
         </div>
       </Match>
     </Switch>
