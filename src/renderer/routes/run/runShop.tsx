@@ -50,6 +50,7 @@ import {
   createMemo,
   createSelector,
   on,
+  onMount,
 } from "solid-js"
 import { cardRowClass } from "../help.css"
 import {} from "./runGame.css"
@@ -108,6 +109,15 @@ export default function RunShop() {
       () => play("click"),
     ),
   )
+
+  onMount(() => {
+    const freeze = run.freeze
+    if (freeze?.active) {
+      setTimeout(() => {
+        freeze.active = false
+      }, 2_000)
+    }
+  })
 
   useMusic("music")
 
