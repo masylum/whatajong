@@ -269,7 +269,7 @@ function generateRound(id: number, run: RunState): Round {
 }
 
 export function calculateIncome(run: RunState) {
-  return 3 + run.round
+  return Math.round(3 * Math.sqrt(run.round))
 }
 
 export function roundPersistentKey(run: RunState) {
@@ -286,7 +286,7 @@ function createLevels(info: [number, Readonly<Card[]>[]][]): Levels {
           id: `${level}-${i}-${j}`,
           cardId: card.id,
           type: "tile",
-          cost: ITEM_COST + Math.round((isSuit(card.id) ? 1 : level - 1) / 3),
+          cost: ITEM_COST + Math.round((isSuit(card.id) ? 1 : level - 1) / 2),
         })),
       ),
     ),
@@ -313,10 +313,7 @@ function getLevels(runId: string): Levels {
     [elements, gems, jokers, blackDragons],
     rnd,
   )
-  const [extra1, extra2, extra3] = shuffle(
-    [bams, bams, cracks, cracks, dots, dots],
-    rnd,
-  )
+  const [extra1, extra2, extra3] = shuffle([bams, cracks, dots], rnd)
 
   return createLevels([
     [0, [bams, cracks, dots]],
@@ -325,11 +322,11 @@ function getLevels(runId: string): Levels {
     [0, [extra1!]],
     [1, [first1!]],
     [1, [first2!]],
-    [0, [extra2!]],
+    [0, []],
     [1, [first3!]],
     [1, [first4!]],
     [1, [[redShadow!]]],
-    [0, [extra3!]],
+    [0, [extra2!]],
     [1, [second1!]],
     [1, [second2!]],
     [1, [second3!]],
@@ -337,7 +334,7 @@ function getLevels(runId: string): Levels {
     [1, [second4!]],
     [1, [[blueShadow!]]],
     [1, [third1!]],
-    [0, []],
+    [0, [extra3!]],
     [1, [third2!]],
     [1, [third3!]],
     [1, [third4!]],

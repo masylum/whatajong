@@ -31,5 +31,9 @@ export function resolveDragons({
     return
   }
 
-  dragonRun.combo = Math.min(dragonRun.combo + 1, 10)
+  if (dragonRun.combo === 10) {
+    game.dragonRun = undefined
+  } else {
+    dragonRun.combo = dragonRun.combo + 1
+  }
 }
