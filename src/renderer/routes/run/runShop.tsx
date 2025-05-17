@@ -29,7 +29,6 @@ import {
   buyTile,
   generateItems,
   getNextMaterial,
-  isTile,
   upgradeTile,
   useLevels,
   useRunState,
@@ -59,13 +58,13 @@ import {
   areaTitleClass,
   backgroundClass,
   bamClass,
-  buttonsClass,
   closeButtonClass,
   coinsClass,
   continueClass,
   crackClass,
   deckItemClass,
   deckRowsClass,
+  delayVar,
   detailTitleClass,
   dialogContentClass,
   dialogOverlayClass,
@@ -185,6 +184,9 @@ function DeckTileComponent(props: {
       class={deckItemClass}
       style={{
         "z-index": props.zIndex,
+        ...assignInlineVars({
+          [delayVar]: `${props.zIndex * 15}ms`,
+        }),
       }}
       onMouseEnter={onHoverTile}
       onPointerDown={onPointerDown}
@@ -255,8 +257,6 @@ function CardDetails(props: {
   material: Material
 }) {
   const cardId = createMemo(() => props.item.cardId)
-  const run = useRunState()
-  const deck = useDeckState()
   const t = useTranslation()
 
   return (
@@ -270,23 +270,6 @@ function CardDetails(props: {
           <MaterialExplanation material={props.material} />
           <Explanation cardId={cardId()} />
         </div>
-      </div>
-      <div class={buttonsClass}>
-        <Show when={isTile(props.item)}>
-          {(item) => (
-            <ShopButton
-              type="button"
-              hue="bam"
-              disabled={item().cost > run.money}
-              onPointerDown={() => {
-                buyTile({ run, item: item(), deck })
-              }}
-            >
-              <Buy />
-              {t.common.buy()} ${item().cost}
-            </ShopButton>
-          )}
-        </Show>
       </div>
     </Dialog.Content>
   )
@@ -534,14 +517,7 @@ function Items() {
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
   const isSelected = createSelector(() => run.currentItem?.id)
-
-  function selectItem(item: TileItem | null) {
-    if (item?.id === run.currentItem?.id) {
-      run.currentItem = null
-    } else {
-      run.currentItem = item
-    }
-  }
+  const deck = useDeckState()
 
   function reroll() {
     const money = run.money
@@ -610,7 +586,7 @@ function Items() {
             <ItemTile
               item={tileItem()}
               selected={isSelected(tileItem().id as any)}
-              onPointerDown={selectItem}
+              onPointerDown={() => buyTile({ run, item: tileItem(), deck })}
             />
           )}
         </Key>

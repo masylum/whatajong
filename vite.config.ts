@@ -15,6 +15,7 @@ const outDir = fileURLToPath(new URL("./dist", import.meta.url))
 
 export default defineConfig(() => {
   return {
+    // itch.io base: "",
     build: { target: "modules", outDir, emptyOutDir: true },
     root: rootPath,
     publicDir: `${rootPath}/public`,

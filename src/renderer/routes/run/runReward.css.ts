@@ -146,6 +146,7 @@ export const floatingTileClass = recipe({
 
 export const buttonContainerClass = style({
   marginTop: 8,
+  animation: `${fromAboveAnimation} ${ANIMATION_SLOW} ${easeBounce}`,
 })
 
 const shakeIntensity = createVar()

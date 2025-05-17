@@ -12,7 +12,7 @@ import {
 } from "./dialog.css"
 import { Home } from "./icon"
 import { ArrowRight } from "./icon"
-import { Gear, Help } from "./icon"
+import { Gear } from "./icon"
 
 export function Menu() {
   const run = useRunState()
@@ -56,12 +56,6 @@ export function Menu() {
               <LinkButton href="/new" hue="dot" suave>
                 <ArrowRight />
                 {t.settings.newRun()}
-              </LinkButton>
-            </div>
-            <div class={dialogItemClass}>
-              <LinkButton hue="bone" suave href="/help">
-                <Help />
-                {t.common.help()}
               </LinkButton>
             </div>
           </div>

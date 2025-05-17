@@ -1,5 +1,6 @@
 /* @refresh reload */
 import { Route, Router } from "@solidjs/router"
+// itch.io import { MemoryRouter, createMemoryHistory } from "@solidjs/router"
 import { render } from "solid-js/web"
 import { Layout } from "./components/layout"
 import { Home } from "./routes/home"
@@ -13,6 +14,7 @@ import New from "./routes/new"
 import { Settings } from "./routes/settings"
 
 const root = document.getElementById("root")
+// itch.io const history = createMemoryHistory()
 
 initObservability()
 

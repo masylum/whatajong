@@ -75,8 +75,8 @@ export const screenClass = recipe({
     win: {
       true: {
         background: `
-          linear-gradient(to bottom, ${alpha(color.bam70, 0.7)}, ${alpha(color.bam90, 0.95)}),
-          radial-gradient(ellipse at center, ${alpha(color.bam70, 1)}, ${alpha(color.bam90, 0)} 90%)
+          linear-gradient(to bottom, ${alpha(color.bam80, 0.7)}, ${alpha(color.bam90, 0.95)}),
+          radial-gradient(ellipse at center, ${alpha(color.bam80, 1)}, ${alpha(color.bam90, 0)} 90%)
         `,
         color: color.bam90,
       },

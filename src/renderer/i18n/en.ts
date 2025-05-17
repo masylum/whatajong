@@ -9,6 +9,7 @@ export const en = {
     play: "play",
     prev: "previous",
     next: "next",
+    reward: "You got a reward!",
     goToShop: "go to shop",
     dragonRun: "Dragon Run",
     phoenixRun: "Phoenix Run",
@@ -246,6 +247,7 @@ export const en = {
     win: "You won!",
     noPairs: "oops! no moves left",
     noPoints: "you can sc‌ore more points: {{points}} out of {{objective}}",
+    solvePuzzle: "solve the puzzle",
   },
   end: {
     title: "C‌ongratulations!",

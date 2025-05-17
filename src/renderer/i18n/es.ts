@@ -9,6 +9,7 @@ export const es = {
     play: "jugar",
     prev: "atrás",
     next: "siguiente",
+    reward: "¡Has ganado una recompensa!",
     goToShop: "ir a la tienda",
     dragonRun: "C‌ombo Dragón",
     phoenixRun: "C‌ombo Fénix",
@@ -180,6 +181,7 @@ export const es = {
     totalPoints: "Puntos totales",
     playAgain: "Jugar de nuevo",
     roundReward: "Rec‌ompensa de ronda",
+    solvePuzzle: "despejar el puzzle",
     tileCoins: "Monedas por fichas",
     overachiever: "Sobresaliente ({{percent}} %)",
     trySameRun: "Reintentar",
@@ -247,6 +249,7 @@ export const es = {
     win: "¡has gando!",
     noPairs: "¡oops! no te quedan jugadas",
     noPoints: "puedes anotar más puntos: {{points}} de {{objective}}",
+    solvePuzzle: "soluciona el puzzle",
   },
   end: {
     title: "¡Felicidades!",

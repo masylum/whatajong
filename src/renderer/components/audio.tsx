@@ -14,13 +14,13 @@ type Track = (typeof SoundFiles)[number]
 const SOUNDS = fromEntries(
   SoundFiles.map((sound) => [
     sound,
-    new Howl({ src: [`/sounds/${sound}.mp3`], preload: true }),
+    new Howl({ src: [`./sounds/${sound}.mp3`], preload: true }),
   ]),
 )
 
 const SONGS = { music: "music", game: "game" } as const
 const music = new Howl({
-  src: ["/sounds/music/sprite.mp3"],
+  src: ["./sounds/music/sprite.mp3"],
   preload: true,
   volume: 0,
   sprite: {

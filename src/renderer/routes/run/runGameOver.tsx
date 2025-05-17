@@ -1,5 +1,5 @@
 import { play, useMusic } from "@/components/audio"
-import { Button } from "@/components/button"
+import { ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { Reward, Rotate, Shop, Star } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -190,13 +190,13 @@ export default function RunGameOver() {
         <Show
           when={win()}
           fallback={
-            <Button hue="crack" onPointerDown={retrySameRound}>
+            <ShopButton hue="crack" onPointerDown={retrySameRound}>
               {t.gameOver.trySameRun()}
               <Rotate />
-            </Button>
+            </ShopButton>
           }
         >
-          <Button hue="bam" onPointerDown={() => goToNextRound()}>
+          <ShopButton hue="bam" onPointerDown={() => goToNextRound()}>
             <Switch>
               <Match when={nextRoundStage() === "shop"}>
                 <Shop />
@@ -204,14 +204,14 @@ export default function RunGameOver() {
               </Match>
               <Match when={nextRoundStage() === "reward"}>
                 <Reward />
-                {t.common.next()}
+                {t.common.reward()}
               </Match>
               <Match when={nextRoundStage() === "end"}>
                 <Star />
                 {t.common.celebrate()}
               </Match>
             </Switch>
-          </Button>
+          </ShopButton>
         </Show>
       </div>
       <FallingTiles />

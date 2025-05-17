@@ -50,7 +50,7 @@ export function Help() {
     <div class={containerClass}>
       <div class={contentClass}>
         <div class={backButtonClass}>
-          <LinkButton hue="dot" onPointerDown={() => history.back()}>
+          <LinkButton hue="dot" href="/">
             <X />
             {t.common.close()}
           </LinkButton>

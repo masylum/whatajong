@@ -104,6 +104,6 @@ export const useImageSrc = createSingletonRoot(() => {
       xxl: "m",
     }
     const size = sizes[match.key]
-    return `/tiles/${size}`
+    return `./tiles/${size}`
   })
 })

@@ -1,5 +1,5 @@
 import { play, useMusic } from "@/components/audio"
-import { Button } from "@/components/button"
+import { ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { DustParticles } from "@/components/game/dustParticles"
 import { Powerups } from "@/components/game/powerups"
@@ -123,7 +123,7 @@ export default function RunReward() {
   const tileDb = new Database<Tile, TileIndexes>(tileIndexes)
   const game = createMutable<Game>(initialGameState(GAME_ID))
 
-  const [countdown, setCountdown] = createSignal(5)
+  const [countdown, setCountdown] = createSignal(3)
   const dispose = makeTimer(
     () => {
       if (countdown() === 0) {
@@ -169,16 +169,16 @@ export default function RunReward() {
             <div class={buttonContainerClass}>
               <span class={tipClass({ countdown: countdown() as any })}>
                 <ArrowUp />
-                solve the puzzle
+                {t.runReward.solvePuzzle()}
               </span>
             </div>
           }
         >
           <div class={buttonContainerClass}>
-            <Button hue="dot" onPointerDown={onContinue}>
+            <ShopButton hue="dot" onPointerDown={onContinue}>
               {t.common.goToShop()}
               <ArrowRight />
-            </Button>
+            </ShopButton>
           </div>
         </Show>
       </div>

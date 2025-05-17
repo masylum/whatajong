@@ -1,10 +1,12 @@
 import {
   ANIMATION_FAST,
   ANIMATION_MEDIUM,
+  ANIMATION_SLOW,
   easeBounce,
   fromBelowAnimation,
   fromLeftAnimation,
   mildFloatAnimation,
+  tileFallingAnimation,
 } from "@/styles/animations.css"
 import { heightQueries, mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
@@ -63,6 +65,8 @@ export const deckRowsClass = style({
   zIndex: 0,
 })
 
+export const delayVar = createVar()
+
 export const deckItemClass = style({
   display: "flex",
   flexDirection: "column",
@@ -71,6 +75,11 @@ export const deckItemClass = style({
   position: "relative",
   cursor: "pointer",
   transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
+  animationName: tileFallingAnimation,
+  animationTimingFunction: easeBounce,
+  animationDuration: ANIMATION_SLOW,
+  animationFillMode: "backwards",
+  animationDelay: delayVar,
   WebkitTapHighlightColor: "transparent",
   ":hover": {
     transform: "translate(-5%, -5%)",
@@ -352,12 +361,6 @@ export const dialogContentClass = recipe({
       },
     },
   },
-})
-
-export const buttonsClass = style({
-  display: "flex",
-  gap: 24,
-  justifyContent: "flex-end",
 })
 
 export const materialUpgradesClass = style({
