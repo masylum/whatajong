@@ -29,6 +29,7 @@ import {
   buyTile,
   generateItems,
   getNextMaterial,
+  isTile,
   upgradeTile,
   useLevels,
   useRunState,
@@ -56,8 +57,10 @@ import {} from "./runGame.css"
 import {
   areaClass,
   areaTitleClass,
+  areaTitleTextClass,
   backgroundClass,
   bamClass,
+  buttonsClass,
   closeButtonClass,
   coinsClass,
   continueClass,
@@ -224,6 +227,20 @@ export function ItemTile(props: {
     () => frozen() || cost() > run.money || deck.size >= DECK_CAPACITY,
   )
 
+  // TODO: DRY
+  const tilesWithSameCard = createMemo(() =>
+    deck.filterBy({ cardId: props.item.cardId }),
+  )
+  const upgrades = createMemo(() =>
+    getCard(props.item.cardId).colors.map((color) => ({
+      path: color,
+      material: getNextMaterial(tilesWithSameCard(), color),
+    })),
+  )
+  const isUpgrading = createMemo(() =>
+    upgrades().some((upgrade) => upgrade.material !== "bone"),
+  )
+
   return (
     <ShopItem
       frozen={frozen()}
@@ -239,6 +256,7 @@ export function ItemTile(props: {
       <BasicTile
         cardId={props.item.cardId}
         width={tileSize().width}
+        pulse={isUpgrading()}
         style={{
           transform: `translate(${-tileSize().sideSize}px, ${-tileSize().sideSize}px)`,
         }}
@@ -246,6 +264,7 @@ export function ItemTile(props: {
       <BasicTile
         class={pairClass}
         cardId={props.item.cardId}
+        pulse={isUpgrading()}
         width={tileSize().width}
       />
     </ShopItem>
@@ -257,6 +276,8 @@ function CardDetails(props: {
   material: Material
 }) {
   const cardId = createMemo(() => props.item.cardId)
+  const run = useRunState()
+  const deck = useDeckState()
   const t = useTranslation()
 
   return (
@@ -270,6 +291,23 @@ function CardDetails(props: {
           <MaterialExplanation material={props.material} />
           <Explanation cardId={cardId()} />
         </div>
+      </div>
+      <div class={buttonsClass}>
+        <Show when={isTile(props.item)}>
+          {(item) => (
+            <ShopButton
+              type="button"
+              hue="bam"
+              disabled={item().cost > run.money}
+              onPointerDown={() => {
+                buyTile({ run, item: item(), deck })
+              }}
+            >
+              <Buy />
+              {t.common.buy()} ${item().cost}
+            </ShopButton>
+          )}
+        </Show>
       </div>
     </Dialog.Content>
   )
@@ -517,7 +555,14 @@ function Items() {
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
   const isSelected = createSelector(() => run.currentItem?.id)
-  const deck = useDeckState()
+
+  function selectItem(item: TileItem | null) {
+    if (item?.id === run.currentItem?.id) {
+      run.currentItem = null
+    } else {
+      run.currentItem = item
+    }
+  }
 
   function reroll() {
     const money = run.money
@@ -562,8 +607,11 @@ function Items() {
       <div
         class={areaTitleClass({ hue: "crack", sudo: run.tutorialStep === 1 })}
       >
-        {t.common.shop()}
-        <span class={coinsClass}>${run.money}</span>
+        <span class={areaTitleTextClass}>{t.shop.buyTiles()}</span>
+        <span class={areaTitleTextClass}>
+          {t.common.coins()}
+          <span class={coinsClass}>${run.money}</span>
+        </span>
         <Show when={run.tutorialStep === 1}>
           <svg
             width="118"
@@ -586,7 +634,7 @@ function Items() {
             <ItemTile
               item={tileItem()}
               selected={isSelected(tileItem().id as any)}
-              onPointerDown={() => buyTile({ run, item: tileItem(), deck })}
+              onPointerDown={selectItem}
             />
           )}
         </Key>

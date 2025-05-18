@@ -200,6 +200,7 @@ export const es = {
     },
     deckCapacity: "capacidad del mazo:",
     newTiles: "nuevas fichas:",
+    buyTiles: "c‌ompra fichas",
   },
   tileDetails: {
     materialExtraPoints: "puntos extra ({{material}})",

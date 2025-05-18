@@ -93,6 +93,7 @@ export const areaTitleClass = recipe({
     fontFamily: primary,
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 12,
     position: "relative",
     "@media": {
@@ -114,6 +115,12 @@ export const areaTitleClass = recipe({
       color: kolor(30),
     })),
   },
+})
+
+export const areaTitleTextClass = style({
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
 })
 
 export const coinsClass = style({
@@ -648,4 +655,10 @@ export const dotClass = style({
 
 export const bamClass = style({
   color: color.bam40,
+})
+
+export const buttonsClass = style({
+  display: "flex",
+  gap: 24,
+  justifyContent: "flex-end",
 })

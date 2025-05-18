@@ -199,6 +199,7 @@ export const en = {
     },
     deckCapacity: "deck capacity:",
     newTiles: "new tiles:",
+    buyTiles: "buy tiles",
   },
   tileDetails: {
     materialExtraPoints: "{{material}} bonus points",

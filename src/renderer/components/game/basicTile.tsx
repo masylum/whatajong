@@ -1,8 +1,13 @@
-import type { CardId, Material } from "@/lib/game"
+import { type CardId, type Material, getCard } from "@/lib/game"
 import { TILE_RATIO, useTileSize } from "@/state/constants"
-import { type AccentHue, getHueColor, hueFromMaterial } from "@/styles/colors"
+import {
+  type AccentHue,
+  getHueColor,
+  hueFromColor,
+  hueFromMaterial,
+} from "@/styles/colors"
 import { type JSX, Show, createMemo, splitProps } from "solid-js"
-import { tileClass } from "./basicTile.css"
+import { pulseClass, tileClass } from "./basicTile.css"
 import { TileBody } from "./tileBody"
 import { strokePath } from "./tileComponent"
 import { TileImage } from "./tileImage"
@@ -13,7 +18,9 @@ type Props = {
   highlighted?: AccentHue | "white"
   material?: Material
   width?: number
+  pulse?: boolean
 } & JSX.SvgSVGAttributes<SVGSVGElement>
+
 export function BasicTile(props: Props) {
   const [local, other] = splitProps(props, [
     "cardId",
@@ -38,12 +45,25 @@ export function BasicTile(props: Props) {
       <TileBody material={local.material} width={width()} height={height()} />
       <Show when={local.cardId}>
         {(cardId) => (
-          <TileImage
-            width={width()}
-            height={height()}
-            cardId={cardId()}
-            material={local.material}
-          />
+          <>
+            <TileImage
+              width={width()}
+              height={height()}
+              cardId={cardId()}
+              material={local.material}
+            />
+            {getCard(cardId())!.colors[0] as any}
+            <Show when={props.pulse}>
+              <path
+                d={dPath()}
+                fill={getHueColor(
+                  hueFromColor(getCard(cardId())!.colors[0] as any),
+                )(60)}
+                class={pulseClass}
+                stroke="none"
+              />
+            </Show>
+          </>
         )}
       </Show>
       <Show when={local.highlighted}>
