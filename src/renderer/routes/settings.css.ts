@@ -12,7 +12,7 @@ import { keyframes, style } from "@vanilla-extract/css"
 export const containerClass = style({
   height: "100dvh",
   width: "100dvw",
-  background: 'url("/halftone.png")',
+  background: 'url("/textures/2.webp")',
 })
 
 export const contentClass = style({

@@ -132,6 +132,9 @@ importers:
       vite:
         specifier: ^6.0.0
         version: 6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0)
+      vite-plugin-bundlesize:
+        specifier: ^0.2.0
+        version: 0.2.0(vite@6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0))
       vite-plugin-solid:
         specifier: ^2.11.1
         version: 2.11.1(solid-js@1.9.4)(vite@6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0))
@@ -3860,6 +3863,12 @@ packages:
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
 
+  vite-plugin-bundlesize@0.2.0:
+    resolution: {integrity: sha512-2z4Z7vEL6JlSfRooy8YmIo0FDFt95+WLlkaYFWNFoRJZEe/WTQljtS0bRlkFH/q1Vw623gt584RDDHKtdMZumw==}
+    hasBin: true
+    peerDependencies:
+      vite: '>= 5.0.0'
+
   vite-plugin-solid@2.11.1:
     resolution: {integrity: sha512-X9vbbK6AOOA6yxSsNl1VTuUq5y4BG9AR6Z5F/J1ZC2VO7ll8DlSCbOL+RcZXlRbxn0ptE6OI5832nGQhq4yXKQ==}
     peerDependencies:
@@ -3945,6 +3954,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  vlq@2.0.4:
+    resolution: {integrity: sha512-aodjPa2wPQFkra1G8CzJBTHXhgk3EVSwxSWXNPr1fgdFLUb8kvLV1iEb6rFgasIsjP82HWI6dsb5Io26DDnasA==}
 
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
@@ -7895,6 +7907,13 @@ snapshots:
       - tsx
       - yaml
 
+  vite-plugin-bundlesize@0.2.0(vite@6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0)):
+    dependencies:
+      picomatch: 4.0.2
+      strip-ansi: 7.1.0
+      vite: 6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0)
+      vlq: 2.0.4
+
   vite-plugin-solid@2.11.1(solid-js@1.9.4)(vite@6.1.0(@types/node@22.13.2)(jiti@2.4.2)(sass@1.86.0)(terser@5.39.0)):
     dependencies:
       '@babel/core': 7.26.10
@@ -8002,6 +8021,8 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vlq@2.0.4: {}
 
   w3c-xmlserializer@5.0.0:
     dependencies:

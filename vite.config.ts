@@ -2,6 +2,7 @@ import { fileURLToPath, resolve } from "node:url"
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin"
 import legacy from "@vitejs/plugin-legacy"
 import { defineConfig } from "vite"
+import bundlesize from "vite-plugin-bundlesize"
 import solid from "vite-plugin-solid"
 
 const legacyPluginOptions = {
@@ -15,8 +16,13 @@ const outDir = fileURLToPath(new URL("./dist", import.meta.url))
 
 export default defineConfig(() => {
   return {
-    // itch.io base: "",
-    build: { target: "modules", outDir, emptyOutDir: true },
+    base: process.env.VITE_ITCH_IO ? "" : undefined,
+    build: {
+      target: "modules",
+      outDir,
+      emptyOutDir: true,
+      sourcemap: "hidden" as const,
+    },
     root: rootPath,
     publicDir: `${rootPath}/public`,
     resolve: {
@@ -24,6 +30,11 @@ export default defineConfig(() => {
         "@": rootPath,
       },
     },
-    plugins: [solid(), vanillaExtractPlugin(), legacy(legacyPluginOptions)],
+    plugins: [
+      solid(),
+      vanillaExtractPlugin(),
+      legacy(legacyPluginOptions),
+      bundlesize(),
+    ],
   }
 })

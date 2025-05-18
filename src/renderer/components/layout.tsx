@@ -40,7 +40,7 @@ export function Layout(props: ParentProps) {
             rel="preload"
             as="font"
             type="font/woff2"
-            href={primaryUrl}
+            href={`./${primaryUrl}`}
             crossorigin="anonymous"
           />
           <Defs />

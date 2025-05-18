@@ -17,7 +17,7 @@ export const containerClass = style({
   flexDirection: "column",
   justifyContent: "space-between",
   gap: 32,
-  backgroundImage: "url(/halftone.png)",
+  backgroundImage: "url(/textures/2.webp)",
   width: "100dvw",
   height: "100dvh",
   position: "relative",

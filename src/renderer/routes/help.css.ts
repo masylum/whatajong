@@ -11,7 +11,7 @@ import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const containerClass = style({
-  background: 'url("./halftone.png")',
+  background: 'url("/textures/2.webp")',
   height: "100dvh",
   width: "100dvw",
 })

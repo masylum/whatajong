@@ -7,6 +7,7 @@
     "start": "vite",
     "dev": "vite dev --port 8788",
     "build": "tsc --noEmit --project tsconfig.web.json && vite build",
+    "build:itch": "tsc --noEmit --project tsconfig.web.json && VITE_ITCH_IO=true vite build",
     "tsc": "tsc --noEmit --project tsconfig.web.json",
     "serve": "vite preview",
     "test": "vitest",
@@ -34,6 +35,7 @@
     "knip": "^5.46.5",
     "typescript": "^5.7.3",
     "vite": "^6.0.0",
+    "vite-plugin-bundlesize": "^0.2.0",
     "vite-plugin-solid": "^2.11.1",
     "vitest": "^3.0.5"
   },

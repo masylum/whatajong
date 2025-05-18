@@ -26,7 +26,7 @@ const overlayShow = keyframes({
 
 export const backgroundClass = style({
   height: "100dvh",
-  background: `url(/halftone.png) ${color.bone10}`,
+  background: `url(/textures/2.webp) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
 })
 
