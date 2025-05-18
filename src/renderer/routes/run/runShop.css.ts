@@ -106,11 +106,6 @@ export const areaTitleClass = recipe({
     },
   },
   variants: {
-    sudo: {
-      true: {
-        zIndex: 9999,
-      },
-    },
     hue: hueVariants((kolor) => ({
       color: kolor(30),
     })),
@@ -514,6 +509,7 @@ export const areaClass = recipe({
     padding: 8,
     gap: 20,
     borderRadius: 12,
+    position: "relative",
     "@media": {
       [mediaQuery({ p: "s", l: "xs" })]: {
         padding: 12,
@@ -624,17 +620,18 @@ export const tutorialClass = style({
 
 export const shop1ArrowClass = style({
   position: "absolute",
-  top: 0,
-  left: 100,
+  top: 50,
+  left: "calc(50% + 80px)",
+  zIndex: 999999,
   "@media": {
     [mediaQuery({ p: "s", l: "xs" })]: {
-      left: 110,
+      left: "calc(50% + 100px)",
     },
     [mediaQuery({ p: "m", l: "s" })]: {
-      left: 120,
+      left: "calc(50% + 120px)",
     },
     [mediaQuery({ p: "l", l: "m" })]: {
-      left: 130,
+      left: "calc(50% + 140px)",
     },
   },
 })

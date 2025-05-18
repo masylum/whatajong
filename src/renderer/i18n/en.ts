@@ -124,12 +124,12 @@ export const en = {
       "The <span class={{bamClass}}>points and time indicators</span> show how many points you've earned so far, and how many you've lost as time ticks down.",
     board2:
       "The <span class={{crackClass}}>c‌oins</span> indicator shows you how many c‌oins you have earned this round.",
-    board3:
-      "The <span class={{dotClass}}>moves indicator</span>, shows you how many moves you have available.",
+    board3: "After each game, you can spend those c‌oins to buy more tiles.",
     board4:
+      "The <span class={{dotClass}}>moves indicator</span>, shows you how many moves you have available.",
+    board5:
       "If it reaches 0, the board is unsolvable and you have lost the game.",
-    shop1:
-      "Every round you will be rewarded with <span class={{crackClass}}>c‌oins</span>. Spend them on the shop to buy new tiles.",
+    shop1: "In order to sc‌ore more p‌oints, buy more tiles!",
     shop2:
       "<span class={{bamClass}}>Reroll</span> to get new items in the shop.",
     shop3:

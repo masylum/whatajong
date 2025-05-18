@@ -1,4 +1,4 @@
-import { Button, LinkButton } from "@/components/button"
+import { LinkButton, ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
 import { ArrowLeft, ArrowRight } from "@/components/icon"
 import { useTranslation } from "@/i18n/useTranslation"
@@ -65,10 +65,10 @@ function TutorialIntro(props: { onSelectMode: (mode: Difficulty) => void }) {
           {t.intro.upgrade()}
         </div>
       </div>
-      <Button hue="dot" onPointerDown={() => props.onSelectMode("easy")}>
+      <ShopButton hue="dot" onPointerDown={() => props.onSelectMode("easy")}>
         start first round
         <ArrowRight />
-      </Button>
+      </ShopButton>
     </div>
   )
 }

@@ -126,11 +126,12 @@ export const es = {
     board2:
       "El <span class='{{crackClass}}'>indicador de monedas</span> muestra cuántas monedas has ganado esta ronda.",
     board3:
-      "El <span class='{{dotClass}}'>indicador de jugadas</span> muestra cuántas jugadas te quedan.",
+      "Después de cada partida, puedes gastar esas monedas en la tienda para comprar más fichas.",
     board4:
+      "El <span class='{{dotClass}}'>indicador de jugadas</span> muestra cuántas jugadas te quedan.",
+    board5:
       "Si llega a 0, el tablero no se puede resolver y has perdido la partida.",
-    shop1:
-      "Cada ronda recibirás <span class='{{crackClass}}'>monedas</span>. Gástalas en la tienda para c‌omprar nuevas fichas.",
+    shop1: "Para anotar más puntos, compra más fichas!",
     shop2:
       "<span class='{{bamClass}}'>Vuelve a tirar</span> para obtener nuevos artículos en la tienda.",
     shop3:

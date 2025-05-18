@@ -8,7 +8,7 @@ export const breakpoints = {
   xxl: "1280px",
 } as const
 
-const widthQueries = {
+export const widthQueries = {
   xxs: `(width >= ${breakpoints.xxs})`,
   xs: `(width >= ${breakpoints.xs})`,
   s: `(width >= ${breakpoints.s})`,

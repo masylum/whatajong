@@ -276,6 +276,7 @@ function Tutorial() {
         <Match when={game.tutorialStep === 6}>
           <div class={tutorialClass} onPointerDown={onPointerDown}>
             <p innerHTML={t.tutorial.board2({ crackClass })} />
+            <p>{t.tutorial.board3()}</p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="58"
@@ -293,8 +294,8 @@ function Tutorial() {
         </Match>
         <Match when={game.tutorialStep === 7}>
           <div class={tutorialClass} onPointerDown={onPointerDown}>
-            <p innerHTML={t.tutorial.board3({ dotClass })} />
-            <p>{t.tutorial.board4()}</p>
+            <p innerHTML={t.tutorial.board4({ dotClass })} />
+            <p>{t.tutorial.board5()}</p>
             <svg
               width="51"
               height="62"
