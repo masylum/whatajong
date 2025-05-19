@@ -74,7 +74,6 @@ export default function RunGame() {
   const layout = useLayoutSize()
   const orientation = createMemo(() => layout().orientation)
   const endCondition = createMemo(() => game.endCondition)
-  const roundId = createMemo(() => `${run.runId}-${run.round}`)
   const round = useRound()
 
   createTimer(
@@ -89,10 +88,6 @@ export default function RunGame() {
   useMusic("game")
 
   onMount(() => {
-    batch(() => {
-      initializeTileState(roundId(), deck.all, tiles)
-      setMutable(game, initialGameState(roundId()))
-    })
     play("tiles")
     play("gong")
   })

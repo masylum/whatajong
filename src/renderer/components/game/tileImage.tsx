@@ -37,7 +37,7 @@ export function TileImage(iProps: Props) {
 
     return props.cardId
   })
-  const imageSrc = getTileSrc(image())
+  const imageSrc = createMemo(() => getTileSrc(image()))
 
   const filter = createMemo(() => {
     if (props.material && isShiny(props.material)) {
@@ -53,7 +53,7 @@ export function TileImage(iProps: Props) {
 
   return (
     <image
-      href={imageSrc}
+      href={imageSrc()}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

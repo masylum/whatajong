@@ -21,6 +21,8 @@ import { captureEvent } from "@/lib/observability"
 import { throttle } from "@/lib/throttle"
 import { useSmallerTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
+import { initialGameState, useGameState } from "@/state/gameState"
+import { setMutable } from "@/state/persistantMutable"
 import {
   type DeckTileItem,
   type Path,
@@ -34,6 +36,7 @@ import {
   useLevels,
   useRunState,
 } from "@/state/runState"
+import { initializeTileState, useTileState } from "@/state/tileState"
 import { hueFromMaterial } from "@/styles/colors"
 import { Dialog } from "@kobalte/core/dialog"
 import { Key } from "@solid-primitives/keyed"
@@ -650,12 +653,18 @@ function Items() {
 
 function Header() {
   const run = useRunState()
+  const deck = useDeckState()
   const t = useTranslation()
+  const tiles = useTileState()
+  const game = useGameState()
+  const roundId = createMemo(() => `${run.runId}-${run.round}`)
 
   function continueRun() {
     batch(() => {
       run.stage = "game"
       run.round += 1
+      initializeTileState(roundId(), deck.all, tiles)
+      setMutable(game, initialGameState(roundId()))
     })
   }
 
