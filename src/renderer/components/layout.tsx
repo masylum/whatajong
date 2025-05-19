@@ -1,7 +1,8 @@
+import braveGates from "@/assets/BraveGates.otf"
+import rotate from "@/assets/rotate.webp"
 import { useTranslation } from "@/i18n/useTranslation"
 import { GlobalStateProvider, createGlobalState } from "@/state/globalState"
 import { breakpoints } from "@/styles/breakpoints"
-import { primaryUrl } from "@/styles/fontFamily.css"
 import nunito from "@fontsource-variable/nunito?url"
 import { createBreakpoints } from "@solid-primitives/media"
 import { useWindowSize } from "@solid-primitives/resize-observer"
@@ -40,7 +41,7 @@ export function Layout(props: ParentProps) {
             rel="preload"
             as="font"
             type="font/woff2"
-            href={`./${primaryUrl}`}
+            href={braveGates}
             crossorigin="anonymous"
           />
           <Defs />
@@ -60,7 +61,7 @@ function Portrait() {
     <div class={portraitClass}>
       <h1 class={titleClass}>Whatajong</h1>
       <h1 class={subtitleClass}>{t.layout.rotate()}</h1>
-      <img src="/rotate.webp" alt={t.layout.rotate()} height={150} />
+      <img src={rotate} alt={t.layout.rotate()} height={150} />
     </div>
   )
 }

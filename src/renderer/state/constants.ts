@@ -1,6 +1,4 @@
 import { mapGetHeight, mapGetWidth } from "@/lib/game"
-import { breakpoints } from "@/styles/breakpoints"
-import { createBreakpoints } from "@solid-primitives/media"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { createSingletonRoot } from "@solid-primitives/rootless"
 import { createMemo } from "solid-js"
@@ -89,21 +87,3 @@ export function useSmallerTileSize(ratio: number) {
     return deriveSizeFromWidth(width)
   })
 }
-
-export const useImageSrc = createSingletonRoot(() => {
-  const match = createBreakpoints(breakpoints)
-
-  return createMemo(() => {
-    const sizes = {
-      xxs: "xs",
-      xs: "xs",
-      s: "xs",
-      m: "m",
-      l: "m",
-      xl: "m",
-      xxl: "m",
-    }
-    const size = sizes[match.key]
-    return `./tiles/${size}`
-  })
-})

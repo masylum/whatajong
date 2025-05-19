@@ -1,3 +1,4 @@
+import { getTextureSrc } from "@/assets/assets"
 import {
   ANIMATION_FAST,
   ANIMATION_MEDIUM,
@@ -21,7 +22,7 @@ export const homeClass = style({
   gap: 32,
   height: "100dvh",
   fontFamily: primary,
-  backgroundImage: "url(/textures/2.webp)",
+  backgroundImage: `url(${getTextureSrc("2")})`,
   "@media": {
     [mediaQuery({ p: "m", l: "s" })]: {
       padding: 64,

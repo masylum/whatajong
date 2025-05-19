@@ -1,3 +1,4 @@
+import smokeSprite from "@/assets/sprites/smoke.webp"
 import {
   DELETED_DURATION,
   FALL_DURATION,
@@ -345,7 +346,7 @@ export const smokeClass = style({
     top: 0,
     left: 0,
     content: '""',
-    backgroundImage: "url(/sprites/smoke.webp)",
+    backgroundImage: `url(${smokeSprite})`,
     height: widthVar,
     width: `calc(${widthVar} * 64)`,
   },

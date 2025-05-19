@@ -1,3 +1,4 @@
+import { getBackgroundSrc, getTextureSrc } from "@/assets/assets"
 import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
@@ -24,12 +25,12 @@ export const textureClass = recipe({
       k: { filter: "saturate(0.6) sepia(0.1) brightness(0.99)" },
     },
     num: {
-      0: { backgroundImage: "url(/textures/0.webp)" },
-      1: { backgroundImage: "url(/textures/1.webp)" },
-      2: { backgroundImage: "url(/textures/2.webp)" },
-      3: { backgroundImage: "url(/textures/3.webp)" },
-      4: { backgroundImage: "url(/textures/4.webp)" },
-      5: { backgroundImage: "url(/textures/5.webp)" },
+      0: { backgroundImage: `url(${getTextureSrc("0")})` },
+      1: { backgroundImage: `url(${getTextureSrc("1")})` },
+      2: { backgroundImage: `url(${getTextureSrc("2")})` },
+      3: { backgroundImage: `url(${getTextureSrc("3")})` },
+      4: { backgroundImage: `url(${getTextureSrc("4")})` },
+      5: { backgroundImage: `url(${getTextureSrc("5")})` },
     },
   },
 })
@@ -54,12 +55,12 @@ export const mountainsClass = recipe({
   },
   variants: {
     num: {
-      0: { backgroundImage: "url(/backgrounds/0.webp)" },
-      1: { backgroundImage: "url(/backgrounds/1.webp)" },
-      2: { backgroundImage: "url(/backgrounds/2.webp)" },
-      3: { backgroundImage: "url(/backgrounds/3.webp)" },
-      4: { backgroundImage: "url(/backgrounds/4.webp)" },
-      5: { backgroundImage: "url(/backgrounds/5.webp)" },
+      0: { backgroundImage: `url(${getBackgroundSrc("0")})` },
+      1: { backgroundImage: `url(${getBackgroundSrc("1")})` },
+      2: { backgroundImage: `url(${getBackgroundSrc("2")})` },
+      3: { backgroundImage: `url(${getBackgroundSrc("3")})` },
+      4: { backgroundImage: `url(${getBackgroundSrc("4")})` },
+      5: { backgroundImage: `url(${getBackgroundSrc("5")})` },
     },
   },
 })

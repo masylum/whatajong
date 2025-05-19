@@ -1,3 +1,4 @@
+import { getTileSrc } from "@/assets/assets"
 import { play, useMusic } from "@/components/audio"
 import { Mountains } from "@/components/background"
 import { BasicTile } from "@/components/game/basicTile"
@@ -13,7 +14,7 @@ import {
   winds,
 } from "@/lib/game"
 import { shuffle } from "@/lib/rand"
-import { useImageSrc, useSmallerTileSize } from "@/state/constants"
+import { useSmallerTileSize } from "@/state/constants"
 import { useWindowSize } from "@solid-primitives/resize-observer"
 import { assignInlineVars } from "@vanilla-extract/dynamic"
 import Rand from "rand-seed"
@@ -50,7 +51,6 @@ function cards() {
 
 export function Home() {
   const t = useTranslation()
-  const img = useImageSrc()
 
   function onHover() {
     play("click2")
@@ -75,7 +75,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/dragonr.webp`}
+            src={getTileSrc("dragonr")}
             alt="duel"
             width={36}
             height={52}
@@ -94,7 +94,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/dragonb.webp`}
+            src={getTileSrc("dragonb")}
             alt="help"
             width={36}
             height={52}
@@ -113,7 +113,7 @@ export function Home() {
         >
           <img
             class={buttonIconClass}
-            src={`${img()}/dragong.webp`}
+            src={getTileSrc("dragong")}
             alt="classic"
             width={36}
             height={52}

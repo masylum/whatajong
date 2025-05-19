@@ -1,3 +1,5 @@
+import { getSoundSrc } from "@/assets/assets"
+import musicSprite from "@/assets/music/sprite.mp3"
 import { useGlobalState } from "@/state/globalState"
 import { Howl } from "howler"
 import { fromEntries } from "remeda"
@@ -14,13 +16,13 @@ type Track = (typeof SoundFiles)[number]
 const SOUNDS = fromEntries(
   SoundFiles.map((sound) => [
     sound,
-    new Howl({ src: [`./sounds/${sound}.mp3`], preload: true }),
+    new Howl({ src: [getSoundSrc(sound)], preload: true }),
   ]),
 )
 
 const SONGS = { music: "music", game: "game" } as const
 const music = new Howl({
-  src: ["./sounds/music/sprite.mp3"],
+  src: [musicSprite],
   preload: true,
   volume: 0,
   sprite: {

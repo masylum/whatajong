@@ -22,6 +22,7 @@ export default defineConfig(() => {
       outDir,
       emptyOutDir: true,
       sourcemap: "hidden" as const,
+      assetsInlineLimit: 10_240, // 10kb
     },
     root: rootPath,
     publicDir: `${rootPath}/public`,

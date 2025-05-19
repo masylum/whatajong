@@ -1,3 +1,4 @@
+import { getTextureSrc } from "@/assets/assets"
 import {
   ANIMATION_MEDIUM,
   easeBounce,
@@ -11,7 +12,7 @@ import { style } from "@vanilla-extract/css"
 import { recipe } from "@vanilla-extract/recipes"
 
 export const containerClass = style({
-  background: 'url("/textures/2.webp")',
+  background: `url(${getTextureSrc("2")})`,
   height: "100dvh",
   width: "100dvw",
 })

@@ -1,3 +1,4 @@
+import { getTileSrc } from "@/assets/assets"
 import {
   type CardId,
   type Material,
@@ -5,7 +6,7 @@ import {
   isShiny,
   isTaijitu,
 } from "@/lib/game"
-import { TILE_RATIO, useImageSrc, useTileSize } from "@/state/constants"
+import { TILE_RATIO, useTileSize } from "@/state/constants"
 import { createMemo, mergeProps } from "solid-js"
 
 type Props = {
@@ -24,7 +25,6 @@ export function TileImage(iProps: Props) {
     { width: tileSize().width, height: tileSize().height, free: true },
     iProps,
   )
-  const href = useImageSrc()
   const image = createMemo(() => {
     const elementCard = isElement(props.cardId)
     if (elementCard) {
@@ -37,6 +37,7 @@ export function TileImage(iProps: Props) {
 
     return props.cardId
   })
+  const imageSrc = getTileSrc(image())
 
   const filter = createMemo(() => {
     if (props.material && isShiny(props.material)) {
@@ -52,7 +53,7 @@ export function TileImage(iProps: Props) {
 
   return (
     <image
-      href={`${href()}/${image()}.webp`}
+      href={imageSrc}
       x={PADDING}
       y={PADDING * TILE_RATIO}
       width={props.width - PADDING * 2}

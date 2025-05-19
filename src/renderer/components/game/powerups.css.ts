@@ -1,3 +1,4 @@
+import muzzleSprite from "@/assets/sprites/muzzle.webp"
 import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary } from "@/styles/fontFamily.css"
@@ -176,7 +177,7 @@ export const muzzleClass = recipe({
       top: 0,
       left: 0,
       content: '""',
-      backgroundImage: "url(/sprites/muzzle.webp)",
+      backgroundImage: `url(${muzzleSprite})`,
       height: MUZZLE_SIZE,
       width: MUZZLE_SIZE * 16,
     },

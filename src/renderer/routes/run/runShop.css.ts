@@ -1,3 +1,4 @@
+import { getTextureSrc } from "@/assets/assets"
 import {
   ANIMATION_FAST,
   ANIMATION_MEDIUM,
@@ -26,7 +27,7 @@ const overlayShow = keyframes({
 
 export const backgroundClass = style({
   height: "100dvh",
-  background: `url(/textures/2.webp) ${color.bone10}`,
+  background: `url(${getTextureSrc("2")}) ${color.bone10}`,
   backgroundBlendMode: "hard-light",
 })
 

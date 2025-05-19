@@ -1,3 +1,4 @@
+import { getTextureSrc } from "@/assets/assets"
 import {
   ANIMATION_SLOW,
   easeBounce,
@@ -17,7 +18,7 @@ export const containerClass = style({
   flexDirection: "column",
   justifyContent: "space-between",
   gap: 32,
-  backgroundImage: "url(/textures/2.webp)",
+  backgroundImage: `url(${getTextureSrc("2")})`,
   width: "100dvw",
   height: "100dvh",
   position: "relative",

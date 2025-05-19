@@ -1,3 +1,4 @@
+import { getTextureSrc } from "@/assets/assets"
 import {
   ANIMATION_SLOW,
   easeBounce,
@@ -15,7 +16,7 @@ import { COMBO_ANIMATION_DURATION } from "./runGame.css"
 export const containerClass = style({
   height: "100dvh",
   width: "100dvw",
-  background: 'url("/textures/2.webp")',
+  background: `url(${getTextureSrc("2")})`,
 })
 
 export const contentClass = style({
