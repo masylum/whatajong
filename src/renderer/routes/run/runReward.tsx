@@ -334,7 +334,7 @@ const SANDBOXES = {
       { cardId: "frogb", x: 4, y: 2, z: 1 },
       { cardId: "dragonb", x: 6, y: 2, z: 1 },
     ],
-    points: 106,
+    points: 120,
   },
   taijitu: {
     tiles: [
