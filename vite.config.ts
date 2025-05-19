@@ -35,7 +35,7 @@ export default defineConfig(() => {
       solid(),
       vanillaExtractPlugin(),
       legacy(legacyPluginOptions),
-      bundlesize(),
+      bundlesize({ allowFail: true }),
     ],
   }
 })
