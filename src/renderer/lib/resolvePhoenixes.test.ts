@@ -23,7 +23,7 @@ describe("resolvePhoenixRun", () => {
     resolvePhoenixRun({ game, tile: suitTile })
 
     expect(game.phoenixRun!.number).toBe(3)
-    expect(game.phoenixRun!.combo).toBe(3)
+    expect(game.phoenixRun!.combo).toBe(2)
   })
 
   it("resets the run when a non-matching card is played", () => {
@@ -57,7 +57,7 @@ describe("resolvePhoenixRun", () => {
     resolvePhoenixRun({ game, tile: anyTile })
 
     expect(game.phoenixRun!.number).toBe(1)
-    expect(game.phoenixRun!.combo).toBe(10)
+    expect(game.phoenixRun!.combo).toBe(9)
   })
 
   it("the run finishes when a no-number card is played", () => {

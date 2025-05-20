@@ -9,7 +9,7 @@ import {
   mildFloatAnimation,
   tileFallingAnimation,
 } from "@/styles/animations.css"
-import { heightQueries, mediaQuery } from "@/styles/breakpoints"
+import { mediaQuery } from "@/styles/breakpoints"
 import { alpha, color, hueVariants } from "@/styles/colors"
 import { primary, secondary } from "@/styles/fontFamily.css"
 import { fontSize } from "@/styles/fontSize"
@@ -428,25 +428,6 @@ export const materialUpgradeTitleClass = recipe({
   },
 })
 
-export const detailTitleClass = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  width: "100%",
-  gap: 24,
-  ...fontSize.l,
-  fontFamily: primary,
-  color: color.bone10,
-  "@media": {
-    [heightQueries.s]: {
-      ...fontSize.h3,
-    },
-    [heightQueries.m]: {
-      ...fontSize.h2,
-    },
-  },
-})
-
 export const upgradeTitleClass = style({
   ...fontSize.l,
   textAlign: "center",
@@ -474,18 +455,6 @@ export const upgradeDescriptionClass = style({
     [mediaQuery({ p: "s", l: "xs" })]: {
       ...fontSize.m,
       gap: 8,
-    },
-  },
-})
-
-export const modalDetailsClass = style({
-  display: "flex",
-  gap: 16,
-  minWidth: 0,
-  minHeight: 0,
-  "@media": {
-    [mediaQuery({ p: "s", l: "xs" })]: {
-      gap: 24,
     },
   },
 })
@@ -648,10 +617,4 @@ export const dotClass = style({
 
 export const bamClass = style({
   color: color.bam40,
-})
-
-export const buttonsClass = style({
-  display: "flex",
-  gap: 24,
-  justifyContent: "flex-end",
 })

@@ -64,12 +64,6 @@ export type TileItem = BaseItem & {
   cost: number
 }
 
-export type DeckTileItem = BaseItem & {
-  cardId: CardId
-  material: Material
-  type: "deckTile"
-}
-
 type RunState = {
   runId: string
   money: number
@@ -87,7 +81,6 @@ type RunState = {
     active: boolean
   }
   reroll: number
-  currentItem: TileItem | DeckTileItem | null
   tutorialStep: number | null
 }
 
@@ -199,7 +192,6 @@ export function initialRunState(id: string): RunState {
     createdAt: Date.now(),
     items: [],
     reroll: 0,
-    currentItem: null,
     tutorialStep: id === TUTORIAL_SEED ? 1 : null,
   }
 }
@@ -319,12 +311,6 @@ function getLevels(runId: string): Levels {
     [0, []],
     [1, [[greenShadow!]]],
   ])
-}
-
-export function isTile(item: TileItem | DeckTileItem) {
-  if (item.type === "tile") return item
-
-  return null
 }
 
 export function generateItems(run: RunState, levels: Levels) {
@@ -448,7 +434,6 @@ export function buyTile({
   batch(() => {
     run.money = money - cost
     run.items.push(item)
-    run.currentItem = null
     const id = nanoid()
     deck.set(id, { id, material: "bone", cardId: item.cardId })
   })
@@ -477,7 +462,6 @@ export function upgradeTile({
   batch(() => {
     run.money = money - cost
     run.items.push(item)
-    run.currentItem = null
     const { updates, removes } = getTransformation(
       deck.filterBy({ cardId: item.cardId }),
       path,

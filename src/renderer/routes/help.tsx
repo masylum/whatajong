@@ -221,7 +221,6 @@ function Shop() {
               type: "tile",
               id: "bam1",
             }}
-            selected={false}
           />
           <ItemTile
             item={{
@@ -230,7 +229,6 @@ function Shop() {
               type: "tile",
               id: "dragonr",
             }}
-            selected={false}
           />
         </div>
       </div>

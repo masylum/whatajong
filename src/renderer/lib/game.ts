@@ -396,7 +396,7 @@ export function isSparrow(cardId: CardId) {
   return checkSuit(cardId, "sparrow")
 }
 
-export function isLotus(cardId: CardId) {
+function isLotus(cardId: CardId) {
   return checkSuit(cardId, "lotus")
 }
 
