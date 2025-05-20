@@ -247,7 +247,7 @@ function generateRound(id: number, run: RunState): Round {
 }
 
 export function calculateIncome(run: RunState) {
-  return Math.round(3 * Math.sqrt(run.round))
+  return Math.round(4 * Math.sqrt(run.round))
 }
 
 export function roundPersistentKey(run: RunState) {

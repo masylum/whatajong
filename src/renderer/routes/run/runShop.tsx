@@ -1,22 +1,11 @@
 import { play, useMusic } from "@/components/audio"
 import { ShopButton } from "@/components/button"
 import { BasicTile } from "@/components/game/basicTile"
-import {
-  CardPoints,
-  Explanation,
-  MaterialExplanation,
-  MaterialExplanationDescription,
-} from "@/components/game/tileDetails"
+import { MaterialExplanationDescription } from "@/components/game/tileDetails"
 import { ArrowRight, Buy, Dices, Freeze, X } from "@/components/icon"
 import { Menu } from "@/components/menu"
 import { useTranslation } from "@/i18n/useTranslation"
-import {
-  type DeckTile,
-  type Material,
-  type Suit,
-  cardName,
-  getCard,
-} from "@/lib/game"
+import { type DeckTile, type Material, type Suit, getCard } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { throttle } from "@/lib/throttle"
 import { useSmallerTileSize } from "@/state/constants"
@@ -24,14 +13,12 @@ import { useDeckState } from "@/state/deckState"
 import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import {
-  type DeckTileItem,
   type Path,
   REROLL_COST,
   type TileItem,
   buyTile,
   generateItems,
   getNextMaterial,
-  isTile,
   upgradeTile,
   useLevels,
   useRunState,
@@ -49,10 +36,8 @@ import {
   Show,
   Switch,
   batch,
-  createEffect,
   createMemo,
-  createSelector,
-  on,
+  createSignal,
   onMount,
 } from "solid-js"
 import { cardRowClass } from "../help.css"
@@ -63,7 +48,6 @@ import {
   areaTitleTextClass,
   backgroundClass,
   bamClass,
-  buttonsClass,
   closeButtonClass,
   coinsClass,
   continueClass,
@@ -71,7 +55,6 @@ import {
   deckItemClass,
   deckRowsClass,
   delayVar,
-  detailTitleClass,
   dialogContentClass,
   dialogOverlayClass,
   dialogPositionerClass,
@@ -81,7 +64,6 @@ import {
   materialUpgradeTextClass,
   materialUpgradeTitleClass,
   materialUpgradesClass,
-  modalDetailsClass,
   modalDetailsContentClass,
   pairClass,
   rotation,
@@ -108,18 +90,12 @@ const onHoverTile = throttle(() => {
 export default function RunShop() {
   const run = useRunState()
 
-  createEffect(
-    on(
-      () => run.currentItem,
-      () => play("click"),
-    ),
-  )
-
   onMount(() => {
     const freeze = run.freeze
     if (freeze?.active) {
       setTimeout(() => {
         freeze.active = false
+        play("freeze")
       }, 2_000)
     }
   })
@@ -133,33 +109,6 @@ export default function RunShop() {
         <Header />
         <Items />
         <DeckArea />
-        <Show when={run.currentItem}>
-          {(currentItem) => (
-            <Dialog
-              defaultOpen
-              onOpenChange={() => {
-                run.currentItem = null
-              }}
-            >
-              <Dialog.Portal>
-                <Dialog.Overlay class={dialogOverlayClass} />
-                <div class={dialogPositionerClass}>
-                  <Switch>
-                    <Match when={currentItem()?.type === "tile"}>
-                      <TileItemDetails item={currentItem() as TileItem} />
-                    </Match>
-                    <Match when={currentItem()?.type === "deckTile"}>
-                      <CardDetails
-                        item={currentItem() as DeckTileItem}
-                        material={(currentItem() as DeckTileItem).material}
-                      />
-                    </Match>
-                  </Switch>
-                </div>
-              </Dialog.Portal>
-            </Dialog>
-          )}
-        </Show>
       </div>
     </div>
   )
@@ -171,19 +120,6 @@ function DeckTileComponent(props: {
   zIndex: number
 }) {
   const tileSize = useSmallerTileSize(props.size)
-  const run = useRunState()
-
-  function onPointerDown() {
-    const deckTile = props.deckTile
-    const cardId = deckTile.cardId
-
-    run.currentItem = {
-      id: deckTile.id,
-      type: "deckTile",
-      cardId,
-      material: deckTile.material,
-    }
-  }
 
   return (
     <div
@@ -194,8 +130,6 @@ function DeckTileComponent(props: {
           [delayVar]: `${props.zIndex * 15}ms`,
         }),
       }}
-      onMouseEnter={onHoverTile}
-      onPointerDown={onPointerDown}
     >
       <BasicTile
         cardId={props.deckTile.cardId}
@@ -215,17 +149,14 @@ function DeckTileComponent(props: {
   )
 }
 
-export function ItemTile(props: {
-  item: TileItem
-  selected: boolean
-  onPointerDown?: (item: TileItem) => void
-}) {
+export function ItemTile(props: { item: TileItem }) {
   const run = useRunState()
   const deck = useDeckState()
   const frozen = createMemo(() => run.freeze?.active)
   const cost = createMemo(() => props.item.cost)
   const tileSize = useSmallerTileSize(0.75)
-
+  const [upgradeModal, setUpgradeModal] = createSignal(false)
+  const t = useTranslation()
   const disabled = createMemo(
     () => frozen() || cost() > run.money || deck.size >= DECK_CAPACITY,
   )
@@ -244,123 +175,89 @@ export function ItemTile(props: {
     upgrades().some((upgrade) => upgrade.material !== "bone"),
   )
 
-  return (
-    <ShopItem
-      frozen={frozen()}
-      cost={cost()}
-      disabled={disabled()}
-      selected={props.selected}
-      sudo={run.tutorialStep === 1}
-      onPointerDown={
-        props.onPointerDown
-          ? () => props.onPointerDown?.(props.item)
-          : undefined
-      }
-    >
-      <BasicTile
-        cardId={props.item.cardId}
-        width={tileSize().width}
-        pulse={isUpgrading()}
-        style={{
-          transform: `translate(${-tileSize().sideSize}px, ${-tileSize().sideSize}px)`,
-        }}
-      />
-      <BasicTile
-        class={pairClass}
-        cardId={props.item.cardId}
-        pulse={isUpgrading()}
-        width={tileSize().width}
-      />
-    </ShopItem>
-  )
-}
+  function onClickTile() {
+    run.tutorialStep = run.tutorialStep! + 1
 
-function CardDetails(props: {
-  item: TileItem | DeckTileItem
-  material: Material
-}) {
-  const cardId = createMemo(() => props.item.cardId)
-  const run = useRunState()
-  const deck = useDeckState()
-  const t = useTranslation()
+    if (!isUpgrading()) {
+      buyTile({ run, item: props.item, deck })
+    } else {
+      setUpgradeModal(true)
+    }
+  }
 
   return (
-    <Dialog.Content class={dialogContentClass({ type: "tile" })}>
-      <CloseButton />
-      <div class={modalDetailsClass}>
-        <BasicTile cardId={cardId()} material={props.material} />
-        <div class={modalDetailsContentClass}>
-          <div class={detailTitleClass}>{cardName(t, cardId())}</div>
-          <CardPoints cardId={cardId()} material={props.material} />
-          <MaterialExplanation material={props.material} />
-          <Explanation cardId={cardId()} />
-        </div>
-      </div>
-      <div class={buttonsClass}>
-        <Show when={isTile(props.item)}>
-          {(item) => (
-            <ShopButton
-              type="button"
-              hue="bam"
-              disabled={item().cost > run.money}
-              onPointerDown={() => {
-                buyTile({ run, item: item(), deck })
-              }}
-            >
-              <Buy />
-              {t.common.buy()} ${item().cost}
-            </ShopButton>
-          )}
-        </Show>
-      </div>
-    </Dialog.Content>
-  )
-}
-
-function TileItemDetails(props: { item: TileItem }) {
-  const deck = useDeckState()
-  const t = useTranslation()
-
-  const item = createMemo(() => props.item)
-  const tilesWithSameCard = createMemo(() =>
-    deck.filterBy({ cardId: item().cardId }),
-  )
-  const upgrades = createMemo(() =>
-    getCard(item().cardId).colors.map((color) => ({
-      path: color,
-      material: getNextMaterial(tilesWithSameCard(), color),
-    })),
-  )
-  const isUpgrading = createMemo(() =>
-    upgrades().some((upgrade) => upgrade.material !== "bone"),
-  )
-
-  return (
-    <Show
-      when={isUpgrading()}
-      fallback={<CardDetails item={item()} material="bone" />}
-    >
-      <Dialog.Content class={dialogContentClass({ type: "tileUpgrade" })}>
-        <CloseButton />
-        <div class={modalDetailsContentClass}>
-          <div class={upgradeDescriptionClass}>
-            <h2 class={upgradeTitleClass}>{t.shop.upgrade.title()}</h2>
-            {t.shop.upgrade.description()}
-          </div>
-          <div class={materialUpgradesClass}>
-            <For each={upgrades()}>
-              {({ material, path }) => (
-                <MaterialUpgradeButton
-                  material={material}
-                  item={item()}
-                  path={path}
-                />
-              )}
-            </For>
-          </div>
-        </div>
-      </Dialog.Content>
-    </Show>
+    <>
+      <ShopItem
+        frozen={frozen()}
+        cost={cost()}
+        disabled={disabled()}
+        selected={upgradeModal()}
+        sudo={run.tutorialStep === 1}
+        onPointerDown={onClickTile}
+      >
+        <BasicTile
+          cardId={props.item.cardId}
+          width={tileSize().width}
+          pulse={isUpgrading()}
+          style={{
+            transform: `translate(${-tileSize().sideSize}px, ${-tileSize().sideSize}px)`,
+          }}
+        />
+        <BasicTile
+          class={pairClass}
+          cardId={props.item.cardId}
+          pulse={isUpgrading()}
+          width={tileSize().width}
+        />
+      </ShopItem>
+      <Show when={upgradeModal()}>
+        <Dialog
+          defaultOpen
+          onOpenChange={() => {
+            setUpgradeModal(false)
+          }}
+        >
+          <Dialog.Portal>
+            <Dialog.Overlay class={dialogOverlayClass} />
+            <div class={dialogPositionerClass}>
+              <Show when={isUpgrading()}>
+                <Dialog.Content
+                  class={dialogContentClass({ type: "tileUpgrade" })}
+                >
+                  <Dialog.CloseButton
+                    class={closeButtonClass}
+                    onPointerDown={() => {
+                      setUpgradeModal(false)
+                    }}
+                  >
+                    <X />
+                  </Dialog.CloseButton>
+                  <div class={modalDetailsContentClass}>
+                    <div class={upgradeDescriptionClass}>
+                      <h2 class={upgradeTitleClass}>
+                        {t.shop.upgrade.title()}
+                      </h2>
+                      {t.shop.upgrade.description()}
+                    </div>
+                    <div class={materialUpgradesClass}>
+                      <For each={upgrades()}>
+                        {({ material, path }) => (
+                          <MaterialUpgradeButton
+                            material={material}
+                            item={props.item}
+                            path={path}
+                          />
+                        )}
+                      </For>
+                    </div>
+                  </div>
+                </Dialog.Content>
+              </Show>
+            </div>
+          </Dialog.Portal>
+        </Dialog>
+      </Show>
+    </>
   )
 }
 
@@ -558,21 +455,13 @@ function Items() {
     equals: isDeepEqual,
   })
   const rerollDisabled = createMemo(() => REROLL_COST > run.money)
-  const isSelected = createSelector(() => run.currentItem?.id)
-
-  function selectItem(item: TileItem | null) {
-    if (item?.id === run.currentItem?.id) {
-      run.currentItem = null
-    } else {
-      run.currentItem = item
-    }
-  }
 
   function reroll() {
     const money = run.money
     if (REROLL_COST > money) throw Error("You don't have enough money")
 
     batch(() => {
+      run.tutorialStep = run.tutorialStep! + 1
       const freeze = run.freeze
 
       if (freeze && !freeze.active) {
@@ -591,6 +480,7 @@ function Items() {
   }
 
   function freeze() {
+    run.tutorialStep = run.tutorialStep! + 1
     play("freeze")
 
     if (run.freeze) {
@@ -617,13 +507,7 @@ function Items() {
       </div>
       <div class={shopItemsClass}>
         <Key each={items()} by={(item) => item.id}>
-          {(tileItem) => (
-            <ItemTile
-              item={tileItem()}
-              selected={isSelected(tileItem().id as any)}
-              onPointerDown={selectItem}
-            />
-          )}
+          {(tileItem) => <ItemTile item={tileItem()} />}
         </Key>
         <RerollButton
           onPointerDown={reroll}
@@ -681,21 +565,6 @@ function Header() {
         </ShopButton>
       </div>
     </div>
-  )
-}
-
-function CloseButton() {
-  const run = useRunState()
-
-  return (
-    <Dialog.CloseButton
-      class={closeButtonClass}
-      onPointerDown={() => {
-        run.currentItem = null
-      }}
-    >
-      <X />
-    </Dialog.CloseButton>
   )
 }
 

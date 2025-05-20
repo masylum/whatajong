@@ -16,6 +16,7 @@ import {
   tileIndexes,
 } from "@/lib/game"
 import { Database } from "@/lib/in-memoriam"
+import { captureEvent } from "@/lib/observability"
 import { shuffle } from "@/lib/rand"
 import { useSmallerTileSize, useTileSize } from "@/state/constants"
 import { useDeckState } from "@/state/deckState"
@@ -43,6 +44,7 @@ import {
   Show,
   Switch,
   batch,
+  createEffect,
   createMemo,
   createSelector,
   createSignal,
@@ -461,7 +463,7 @@ function SandboxContent(props: { suit: Suit }) {
   const tileDb = useTileState()
   const sandbox = createMemo(() => SANDBOXES[props.suit])
   const t = useTranslation()
-  const result = createMemo(() => {
+  const getResult = createMemo(() => {
     if (!game.endCondition) return null
     if (game.endCondition === "no-pairs") return "no-pairs"
 
@@ -479,9 +481,17 @@ function SandboxContent(props: { suit: Suit }) {
       resetTiles()
       setMutable(game, initialGameState(GAME_ID))
     })
+    captureEvent("reward_reset_tiles", { suit: props.suit })
   }
 
   const comboAnimation = useComboEffect()
+
+  createEffect(() => {
+    const result = getResult()
+    if (!result) return
+
+    captureEvent("reward_puzzle_end", { result })
+  })
 
   return (
     <div class={sandboxClass({ comboAnimation: comboAnimation() as any })}>
@@ -494,7 +504,7 @@ function SandboxContent(props: { suit: Suit }) {
       >
         <Board />
       </div>
-      <Show when={result()}>
+      <Show when={getResult()}>
         {(result) => (
           <div
             class={endConditionClass({

@@ -4,12 +4,14 @@ import { ArrowLeft, ArrowRight } from "@/components/icon"
 import type { CardId, Material } from "@/lib/game"
 import { captureEvent } from "@/lib/observability"
 import { initializeDeckState, useDeckState } from "@/state/deckState"
+import { initialGameState, useGameState } from "@/state/gameState"
 import { setMutable } from "@/state/persistantMutable"
 import { TUTORIAL_SEED, initialRunState, useRunState } from "@/state/runState"
+import { initializeTileState, useTileState } from "@/state/tileState"
 import type { AccentHue } from "@/styles/colors"
 import { useNavigate } from "@solidjs/router"
 import { nanoid } from "nanoid"
-import { batch } from "solid-js"
+import { batch, createMemo } from "solid-js"
 import {
   arrowClass,
   backButtonClass,
@@ -87,13 +89,18 @@ function Difficulty(props: {
   i: number
 }) {
   const run = useRunState()
+  const game = useGameState()
   const deck = useDeckState()
+  const tiles = useTileState()
   const navigate = useNavigate()
+  const roundId = createMemo(() => `${run.runId}-${run.round}`)
 
   function onNewRun(seed: string) {
     batch(() => {
       setMutable(run, initialRunState(seed))
       initializeDeckState(deck)
+      initializeTileState(roundId(), deck.all, tiles)
+      setMutable(game, initialGameState(roundId()))
     })
 
     captureEvent("start_game", {

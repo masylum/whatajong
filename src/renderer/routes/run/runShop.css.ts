@@ -74,7 +74,6 @@ export const deckItemClass = style({
   alignItems: "center",
   justifyContent: "center",
   position: "relative",
-  cursor: "pointer",
   transition: `transform ${FLIP_DURATION}ms, filter ${FLIP_DURATION}ms`,
   animationName: tileFallingAnimation,
   animationTimingFunction: easeBounce,
@@ -82,10 +81,6 @@ export const deckItemClass = style({
   animationFillMode: "backwards",
   animationDelay: delayVar,
   WebkitTapHighlightColor: "transparent",
-  ":hover": {
-    transform: "translate(-5%, -5%)",
-    filter: "brightness(1.1)",
-  },
 })
 
 export const areaTitleClass = recipe({
