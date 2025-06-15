@@ -98,7 +98,8 @@ export const RESPONSIVE_MAP = [
     [  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n], // 6
     [  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n], // 6
     [  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n], // 7
-    [  n,  n,  n,  n,  n,  n,  n,146,146,  n,  n,  n,  n,  n,  n,  n], // 7
+    [  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n,  n], // 7
+    [  n,  n,  n,  n,  n,  n,  n,146,146,  n,  n,  n,  n,  n,  n,  n], // 8
     [  n,  n,  n,  n,  n,  n,  n,146,146,  n,  n,  n,  n,  n,  n,  n], // 8
   ],
 ]
